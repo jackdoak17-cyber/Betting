@@ -4,25 +4,27 @@
 """
 Common helpers used by fixtures_lineups.py, stats_shots.py, and odds scripts.
 
-Exports (intentionally stable names expected by the other scripts):
+Exports:
 - API constants:
     API_BASE, SPORT, API_TOKEN
     DATE_FMT, LINEUP_TYPE_STARTER, APPEARANCE_MINUTES_THRESHOLD
-- Lightweight cache + HTTP layer with retry/backoff:
+- HTTP layer with retry/backoff + tiny memo:
     api_get()
+- Date helpers:
+    today_utc(), days_ahead(d, n), daterange_str(start_date, end_inclusive)
 - General helpers:
     pos_id_to_label(), safe_int()
 - Fixture/day helpers:
-    fixtures_by_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]
-    pick_home_away(participants: List[dict]) -> (home: dict|None, away: dict|None)
-- XI/lineups helpers:
-    team_last_fixture_with_xi(team_id: int, league_id: int) -> dict|None
-    fixture_lineups_minutes_shots(fixture_id: int) -> (lineups_map, shots_map, minutes_map)
+    fixtures_by_date(date_str, league_filter=None) -> List[dict]
+    pick_home_away(participants) -> (home, away)
+- XI helpers:
+    team_last_fixture_with_xi(team_id, league_id) -> dict|None
+    fixture_lineups_minutes_shots(fixture_id) -> (lineups_map, shots_map, minutes_map)
 - Recent fixtures + player series:
-    team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List[dict]
-    player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: int) -> List[int]
+    team_recent_league_fixtures(team_id, league_id, want) -> List[dict]
+    player_last_n_shots_series(team_id, player_id, n, league_id) -> List[int]
 - Stats:
-    compute_hit_rate(series: List[int]) -> float
+    compute_hit_rate(series) -> float
 """
 
 from __future__ import annotations
@@ -47,7 +49,7 @@ APPEARANCE_MINUTES_THRESHOLD = 45
 TIMEOUT = 25
 RETRIES = 4
 BACKOFF = 1.9
-WAIT_ON_RATE_LIMIT = True         # if True, sleep progressively on 429 within a single job
+WAIT_ON_RATE_LIMIT = True  # gentle sleep inside a single job if we hit 429s
 
 # ===================== tiny memo cache =====================
 
@@ -61,14 +63,11 @@ class _Memo:
 
 _memo = _Memo()
 
-
 def _cached_get(url: str, params: Optional[dict] = None) -> dict:
     if params is None:
         params = {}
-    # Always add token (query param form is what Sportmonks shows in docs)
     params = {**params, "api_token": API_TOKEN}
 
-    # cache key
     key = url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
     hit = _memo.get(key)
     if hit is not None:
@@ -82,13 +81,11 @@ def _cached_get(url: str, params: Optional[dict] = None) -> dict:
             time.sleep(sleep_for)
         try:
             r = requests.get(url, params=params, timeout=TIMEOUT)
+
             if r.status_code == 429 and WAIT_ON_RATE_LIMIT:
-                # Backoff on rate limit; try to derive a sensible wait
-                # Prefer header 'x-ratelimit-reset' if present (epoch), else exponential
                 reset_hdr = r.headers.get("x-ratelimit-reset") or r.headers.get("X-RateLimit-Reset")
                 if reset_hdr:
                     try:
-                        # Some APIs send seconds-from-now; others epoch. If it's a big number, treat as epoch.
                         reset_val = float(reset_hdr)
                         now = time.time()
                         wait = reset_val - (now if reset_val > 1e9 else 0)
@@ -113,7 +110,6 @@ def _cached_get(url: str, params: Optional[dict] = None) -> dict:
 
         except Exception as e:
             last_exc = e
-            # Exponential backoff for network/server errors
             sleep_for = (BACKOFF ** attempt) + (0.15 * attempt)
             if attempt >= RETRIES:
                 break
@@ -122,9 +118,7 @@ def _cached_get(url: str, params: Optional[dict] = None) -> dict:
         raise last_exc
     raise RuntimeError("Unknown error in _cached_get")
 
-
 def api_get(path: str, params: Optional[dict] = None) -> dict:
-    """Call Sportmonks API with base and sport prefix."""
     if API_TOKEN == "YOUR_TOKEN_HERE" or not API_TOKEN:
         raise RuntimeError("SPORTMONKS_TOKEN not set. Add repository secret or env var.")
     if params is None:
@@ -132,12 +126,10 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
     url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
     return _cached_get(url, params)
 
-
 # ===================== Utilities =====================
 
 def pos_id_to_label(position_id: Optional[int]) -> str:
     return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(int(position_id or 0), "?")
-
 
 def safe_int(x, default: Optional[int] = None) -> Optional[int]:
     try:
@@ -145,10 +137,21 @@ def safe_int(x, default: Optional[int] = None) -> Optional[int]:
     except Exception:
         return default
 
+# ===================== Date helpers =====================
 
 def today_utc() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
 
+def days_ahead(d: dt.date, n: int) -> dt.date:
+    return d + dt.timedelta(days=n)
+
+def daterange_str(start: dt.date, end_inclusive: dt.date) -> List[str]:
+    out: List[str] = []
+    d = start
+    while d <= end_inclusive:
+        out.append(d.strftime(DATE_FMT))
+        d += dt.timedelta(days=1)
+    return out
 
 # ===================== Fixtures by day =====================
 
@@ -182,12 +185,10 @@ def fixtures_by_date(date_str: str, league_filter: Optional[set] = None) -> List
         out.append(fx)
     return out
 
-
 def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
     home = next((p for p in participants if (p.get("meta") or {}).get("location") == "home"), None)
     away = next((p for p in participants if (p.get("meta") or {}).get("location") == "away"), None)
     return home, away
-
 
 # ===================== XI helpers =====================
 
@@ -240,15 +241,12 @@ def team_last_fixture_with_xi(team_id: int, league_id: int) -> Optional[dict]:
 
     return None
 
-
 # ===================== Lineups + stats for a fixture =====================
 
-# developer_name keys
 _SHOT_DEVS_TOTAL = {"SHOTS", "SHOTS_TOTAL"}
 _SHOT_DEVS_SOT   = {"SHOTS_ON_TARGET"}
 _SHOT_DEVS_SOFF  = {"SHOTS_OFF_TARGET"}
 _MINUTES_DEVS    = {"MINUTES_PLAYED", "MINUTES"}
-
 
 def _num_from_detail(det: dict) -> int:
     v = (det.get("data") or {}).get("value")
@@ -267,7 +265,6 @@ def _num_from_detail(det: dict) -> int:
         return int(v or 0)
     except Exception:
         return 0
-
 
 def fixture_lineups_minutes_shots(fixture_id: int) -> Tuple[Dict[int, dict], Dict[int, int], Dict[int, int]]:
     """
@@ -316,7 +313,6 @@ def fixture_lineups_minutes_shots(fixture_id: int) -> Tuple[Dict[int, dict], Dic
 
     return lineups_map, shots_map, minutes_map
 
-
 # ===================== Recent fixtures & player series =====================
 
 def team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List[dict]:
@@ -356,7 +352,6 @@ def team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List
     collected.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
     return collected
 
-
 def player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: int) -> List[int]:
     """
     Player's last n LEAGUE APPEARANCES (>=45'), across this+last season.
@@ -388,7 +383,6 @@ def player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: 
 
     series.sort(key=lambda x: x[0], reverse=True)
     return [s for _, s in series][:n]
-
 
 # ===================== Simple stat helper =====================
 
