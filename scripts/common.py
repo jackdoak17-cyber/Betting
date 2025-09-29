@@ -10,10 +10,11 @@ Exports:
     DATE_FMT, LINEUP_TYPE_STARTER, APPEARANCE_MINUTES_THRESHOLD
 - HTTP layer with retry/backoff + tiny memo:
     api_get()
-- Date helpers:
-    today_utc(), days_ahead(d, n), daterange_str(start_date, end_inclusive)
+- Date & path helpers:
+    today_utc(), days_ahead(d, n), daterange_str(start, end_inclusive)
+    ensure_dir(path), run_date_dir(base="data", d=None)
 - General helpers:
-    pos_id_to_label(), safe_int()
+    pos_id_to_label(), safe_int(), write_jsonl(path, rows), append_jsonl(path, row)
 - Fixture/day helpers:
     fixtures_by_date(date_str, league_filter=None) -> List[dict]
     pick_home_away(participants) -> (home, away)
@@ -30,9 +31,10 @@ Exports:
 from __future__ import annotations
 
 import os
+import json
 import time
 import datetime as dt
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Iterable
 
 import requests
 
@@ -88,6 +90,7 @@ def _cached_get(url: str, params: Optional[dict] = None) -> dict:
                     try:
                         reset_val = float(reset_hdr)
                         now = time.time()
+                        # Some APIs send a unix ts; some send seconds-until-reset. We clamp to [3, 120]s.
                         wait = reset_val - (now if reset_val > 1e9 else 0)
                         sleep_for = max(3.0, min(wait, 120.0))
                     except Exception:
@@ -136,6 +139,31 @@ def safe_int(x, default: Optional[int] = None) -> Optional[int]:
         return int(x)
     except Exception:
         return default
+
+def ensure_dir(path: str) -> str:
+    os.makedirs(path, exist_ok=True)
+    return path
+
+def run_date_dir(base: str = "data", d: Optional[dt.date] = None) -> str:
+    """
+    Returns a path like data/YYYY-MM-DD and creates it.
+    """
+    if d is None:
+        d = today_utc()
+    p = os.path.join(base, d.strftime(DATE_FMT))
+    ensure_dir(p)
+    return p
+
+def write_jsonl(path: str, rows: Iterable[dict]) -> None:
+    ensure_dir(os.path.dirname(path) or ".")
+    with open(path, "w", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+def append_jsonl(path: str, row: dict) -> None:
+    ensure_dir(os.path.dirname(path) or ".")
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 # ===================== Date helpers =====================
 
