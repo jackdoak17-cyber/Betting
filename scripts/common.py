@@ -1,153 +1,146 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# scripts/common.py
+# Shared helpers for SportMonks calls + small utilities.
+# This version is 429-aware: it waits until the rate limit resets and then retries.
 
-import os, re, json, time, hashlib, datetime as dt
-from typing import Any, Dict, Optional, Tuple, List
+from __future__ import annotations
+import os
+import time
+import random
+import datetime as dt
+from typing import Dict, Optional, List, Tuple
+
 import requests
 
+# ------------ API config ------------
 API_BASE = "https://api.sportmonks.com/v3"
 SPORT = "football"
-SM_TOKEN = os.getenv("SPORTMONKS_TOKEN", "YOUR_SPORTMONKS_TOKEN")
-ODDS_API_KEY = os.getenv("ODDS_API_KEY", "YOUR_ODDS_API_KEY")
+API_TOKEN = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN") or "YOUR_TOKEN_HERE"
 
-# ---- window: next 6 days ONLY (today + 5) ----
+TIMEOUT = 25
+RETRIES = 6          # total attempts (including after 429 sleep)
+BASE_SLEEP = 1.6     # base backoff for transient errors
+JITTER = 0.4
+MAX_WAIT_UNTIL = 3700  # cap any single 429 sleep to ~1h 1m so jobs don't hang forever
+
+# ------------ tiny in-memory cache ------------
+class Memo:
+    def __init__(self):
+        self.store: Dict[str, dict] = {}
+
+    def get(self, key: str):
+        return self.store.get(key)
+
+    def set(self, key: str, value: dict):
+        self.store[key] = value
+
+memo = Memo()
+
+# ------------ rate-limit–aware HTTP ------------
+def _seconds_until_next_hour_utc() -> int:
+    now = dt.datetime.now(dt.timezone.utc)
+    nxt = (now.replace(minute=0, second=0, microsecond=0) + dt.timedelta(hours=1))
+    return max(1, int((nxt - now).total_seconds()))
+
+def http_get_rl(url: str, params: dict) -> requests.Response:
+    """
+    GET with robust handling:
+      - 429 Too Many Requests -> sleep until reset (header or next UTC hour), then retry
+      - 5xx -> exponential backoff
+      - other non-200 -> raise with response body excerpt
+    """
+    attempt = 0
+    last_err: Optional[Exception] = None
+
+    while attempt < RETRIES:
+        try:
+            r = requests.get(url, params=params, timeout=TIMEOUT)
+            if r.status_code == 200:
+                return r
+
+            # Server hiccups: backoff and retry
+            if r.status_code in (500, 502, 503, 504):
+                attempt += 1
+                sleep = BASE_SLEEP * (1.8 ** attempt) + random.uniform(0, JITTER)
+                print(f"[HTTP {r.status_code}] {url} — retrying in {sleep:.1f}s", flush=True)
+                time.sleep(min(sleep, 30))
+                continue
+
+            # Rate limit: wait until reset, then retry
+            if r.status_code == 429:
+                reset_hdr = r.headers.get("X-RateLimit-Reset") or r.headers.get("x-ratelimit-reset")
+                if reset_hdr:
+                    try:
+                        reset_ts = int(reset_hdr)
+                        now = int(time.time())
+                        wait_s = max(1, min(MAX_WAIT_UNTIL, reset_ts - now + 1))
+                    except Exception:
+                        wait_s = _seconds_until_next_hour_utc()
+                else:
+                    # Fallback: assume hourly window
+                    wait_s = _seconds_until_next_hour_utc()
+
+                print(f"[RL] 429 for {url}. Sleeping {wait_s}s until reset…", flush=True)
+                time.sleep(wait_s)
+                attempt += 1
+                continue
+
+            # Other client errors: raise with JSON/text
+            try:
+                j = r.json()
+            except Exception:
+                j = {"message": r.text[:300]}
+            raise requests.HTTPError(f"{r.status_code} {r.reason} for {r.url}\nResponse JSON: {j}")
+
+        except requests.RequestException as e:
+            last_err = e
+            attempt += 1
+            sleep = BASE_SLEEP * (1.8 ** attempt) + random.uniform(0, JITTER)
+            print(f"[NET] {url} exception: {e}. Retrying in {sleep:.1f}s", flush=True)
+            time.sleep(min(sleep, 30))
+
+    if last_err:
+        raise last_err
+    raise RuntimeError("http_get_rl exhausted without success")
+
+def cached_get(url: str, params: Optional[dict] = None) -> dict:
+    """Memoized GET that adds api_token and uses 429-aware http_get_rl."""
+    params = dict(params or {})
+    params["api_token"] = API_TOKEN
+    key = url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
+    cached = memo.get(key)
+    if cached is not None:
+        return cached
+    r = http_get_rl(url, params)
+    j = r.json()
+    memo.set(key, j)
+    return j
+
+def api_get(path: str, params: Optional[dict] = None) -> dict:
+    """SportMonks path wrapper, uses cached_get."""
+    url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
+    return cached_get(url, params or {})
+
+# ------------ small date/utility helpers (used across scripts) ------------
 DATE_FMT = "%Y-%m-%d"
+
 def today_utc() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
-def next6_dates() -> List[str]:
-    d0 = today_utc()
-    return [(d0 + dt.timedelta(days=i)).strftime(DATE_FMT) for i in range(0, 6)]
 
-# leagues
-LEAGUES = {
-    8:   "Premier League",
-    9:   "Championship",
-    384: "Serie A",
-    387: "Serie B",
-    82:  "Bundesliga",
-    301: "Ligue 1",
-    564: "La Liga",
-    567: "La Liga 2",
-    600: "Super Lig",
-}
+def days_ahead(d: dt.date, n: int) -> dt.date:
+    return d + dt.timedelta(days=n)
 
-# odds leagues (slugs)
-LEAGUE_SLUGS = {
-    8:   "england-premier-league",
-    9:   "england-championship",
-    384: "italy-serie-a",
-    387: "italy-serie-b",
-    82:  "germany-bundesliga",
-    301: "france-ligue-1",
-    564: "spain-laliga",
-    567: "spain-laliga-2",
-    600: "turkiye-super-lig",
-}
+def daterange_str(start: dt.date, end_inclusive: dt.date) -> List[str]:
+    out: List[str] = []
+    d = start
+    while d <= end_inclusive:
+        out.append(d.strftime(DATE_FMT))
+        d += dt.timedelta(days=1)
+    return out
 
-# IO
-DATA_DIR = os.environ.get("DATA_DIR", "data")
-CACHE_SM = os.environ.get("CACHE_SMONKS_DIR", ".cache_smonks")
-CACHE_ODDS = os.environ.get("CACHE_ODDS_DIR", ".cache_odds")
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(CACHE_SM, exist_ok=True)
-os.makedirs(CACHE_ODDS, exist_ok=True)
+def pos_id_to_label(position_id: Optional[int]) -> str:
+    return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(position_id or 0, "?")
 
-# http with cache/backoff
-def _cache_path(base_dir: str, key: str) -> str:
-    h = hashlib.sha1(key.encode("utf-8")).hexdigest()
-    return os.path.join(base_dir, f"{h}.json")
-
-def _read_json(path: str) -> Optional[Any]:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return None
-
-def _write_json(path: str, obj: Any) -> None:
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False)
-    os.replace(tmp, path)
-
-def get_json_cached(url: str, params: Dict[str, Any], cache_dir: str, ttl_sec: int) -> Any:
-    q = url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
-    p = _cache_path(cache_dir, q)
-    now = time.time()
-    if os.path.isfile(p):
-        if now - os.path.getmtime(p) < ttl_sec:
-            obj = _read_json(p)
-            if obj is not None:
-                return obj
-    # backoff
-    tries, base = 0, 1.4
-    last_err = None
-    while tries < 6:
-        try:
-            r = requests.get(url, params=params, timeout=25)
-            if r.status_code == 200:
-                j = r.json()
-                _write_json(p, j)
-                return j
-            if r.status_code in (429, 500, 502, 503, 504):
-                last_err = r.text
-                sleep = (base ** tries) + (0.25 * (tries + 1))
-                time.sleep(sleep)
-                tries += 1
-                continue
-            # hard error (store minimal to avoid thrash)
-            _write_json(p, {"_err": r.status_code, "_text": r.text[:200]})
-            raise requests.HTTPError(f"{r.status_code} {r.reason} for {r.url}\n{r.text[:200]}")
-        except requests.RequestException as e:
-            last_err = str(e)
-            sleep = (base ** tries) + (0.25 * (tries + 1))
-            time.sleep(sleep)
-            tries += 1
-    raise RuntimeError(f"GET failed after retries: {url} :: {last_err}")
-
-def sm_get(path: str, params: Optional[Dict[str, Any]] = None, ttl_sec: int = 1800) -> Any:
-    if params is None: params = {}
-    params = {**params, "api_token": SM_TOKEN}
-    url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
-    return get_json_cached(url, params, CACHE_SM, ttl_sec)
-
-# odds api (the same odds-api.io style you used)
-EVENTS_API_URL = "https://api.odds-api.io/v3/events"
-ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
-BOOKMAKERS = "Bet365"
-
-def odds_get(url: str, params: Dict[str, Any], ttl_sec: int = 900) -> Any:
-    params = {**params, "apiKey": ODDS_API_KEY}
-    return get_json_cached(url, params, CACHE_ODDS, ttl_sec)
-
-# name normalization helpers (brief)
-import unicodedata
-def strip_accents(s: str) -> str:
-    return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
-def norm(s: str) -> str:
-    s = strip_accents(s or "").lower()
-    s = re.sub(r"[^a-z0-9\s-]", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
-
-GENERIC_TEAM_TOKENS = {
-    "fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
-    "the","club","de","del","la","las","los","calcio","united","city","saint","st"
-}
-def team_tokens(name: str):
-    toks = set(norm(name).split())
-    return {t for t in toks if t not in GENERIC_TEAM_TOKENS}
-def team_names_match(a: str, b: str) -> bool:
-    if not a or not b: return False
-    ta, tb = team_tokens(a), team_tokens(b)
-    if not ta or not tb: return False
-    if ta == tb: return True
-    if ta.issubset(tb) or tb.issubset(ta): return True
-    inter = ta & tb
-    union = ta | tb
-    if len(inter) / max(1, len(union)) >= 0.5: return True
-    if len(inter) >= 2: return True
-    return False
-
-def pos_label(position_id: Optional[int]) -> str:
-    return {24:"GK", 25:"DEF", 26:"MID", 27:"FWD"}.get(position_id or 0, "?")
+def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
+    home = next((p for p in participants if (p.get("meta") or {}).get("location") == "home"), None)
+    away = next((p for p in participants if (p.get("meta") or {}).get("location") == "away"), None)
+    return home, away
