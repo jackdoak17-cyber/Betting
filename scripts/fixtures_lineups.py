@@ -1,136 +1,111 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, json
-from typing import List, Dict, Optional, Tuple
-from common import sm_get, next6_dates, LEAGUES, DATA_DIR, pos_label
+"""
+Collect fixtures (next 6 days) and predicted XIs per league:
+- Prefer official XI, else use team's last league fixture with recorded starters.
+Saves:
+  data/YYYY-MM-DD/fixtures_lineups.jsonl
+  data/latest/fixtures_lineups.jsonl
+"""
 
-LINEUP_TYPE_STARTER = 11
+import os, sys, datetime as dt
+from typing import List, Dict, Any, Tuple
+from common import (
+    daterange_str, today_utc, days_ahead, fixtures_by_date, pick_home_away,
+    team_last_fixture_with_xi, LINEUP_TYPE_STARTER, pos_id_to_label,
+    run_date_dir, latest_dir, append_jsonl, league_name, LEAGUES, sm_get
+)
 
-def get_fixtures_for_date(date_str: str, league_filter: Optional[set]) -> List[dict]:
-    params = {"include": "participants;state;league", "order": "asc", "page": 1}
-    j = sm_get(f"fixtures/date/{date_str}", params, ttl_sec=1200)
-    data = j.get("data", []) or []
-    meta = j.get("meta") or {}
-    last_page = meta.get("last_page", 1)
-    for p in range(2, last_page + 1):
-        params["page"] = p
-        jp = sm_get(f"fixtures/date/{date_str}", params, ttl_sec=1200)
-        data.extend(jp.get("data", []) or [])
-    out = []
-    for fx in data:
-        lid = fx.get("league_id")
-        if league_filter and lid not in league_filter:
-            continue
-        if not fx.get("participants"):
-            continue
-        out.append(fx)
-    return out
-
-def pick_home_away(parts: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
-    home = next((p for p in parts if (p.get("meta") or {}).get("location") == "home"), None)
-    away = next((p for p in parts if (p.get("meta") or {}).get("location") == "away"), None)
-    return home, away
-
-def last_fixture_with_starters(team_id: int, league_id: int) -> Optional[dict]:
-    # try team latest first
+def starters_for_fixture_team(fixture_id: int, team_id: int) -> List[dict]:
+    # Try official XI first
     try:
-        j = sm_get(f"teams/{team_id}", {"include": "latest.league;latest.lineups;latest.lineups.player"}, ttl_sec=1800)
-        latest = j.get("data", {}).get("latest")
-        lst = latest if isinstance(latest, list) else ([latest] if latest else [])
-        lst = [fx for fx in lst if fx and fx.get("league_id") == league_id]
-        lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
-        for fx in lst:
-            fid = fx.get("id")
-            if not fid: continue
-            full = sm_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}, ttl_sec=1800).get("data", {})
-            if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id for l in (full.get("lineups") or [])):
-                full["participants"] = fx.get("participants") or []
-                return full
+        full = sm_get(f"fixtures/{fixture_id}", {"include": "lineups;lineups.player"})
+        data = full.get("data") or {}
+        xs = [l for l in (data.get("lineups") or [])
+              if l.get("team_id")==team_id and l.get("type_id")==LINEUP_TYPE_STARTER]
+        if xs:
+            xs.sort(key=lambda x: x.get("formation_position") or 9999)
+            return xs[:11]
     except Exception:
         pass
-    # fallback: walk back ~120 days by date but league-filtered (cheap)
-    import datetime as dt
-    from common import DATE_FMT, today_utc
-    today = today_utc()
-    for back in range(1, 121):
-        ds = (today - dt.timedelta(days=back)).strftime(DATE_FMT)
-        try:
-            fxs = get_fixtures_for_date(ds, league_filter={league_id})
-        except Exception:
-            continue
-        for fx in fxs:
-            if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
-                full = sm_get(f"fixtures/{fx['id']}", {"include": "lineups;lineups.player"}, ttl_sec=3600).get("data", {})
-                if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id for l in (full.get("lineups") or [])):
-                    full["participants"] = fx.get("participants") or []
-                    return full
-    return None
-
-def build_predicted_xi(fx: dict, team_id: int, league_id: int) -> List[dict]:
-    # try official XI
-    try:
-        full = sm_get(f"fixtures/{fx['id']}", {"include": "lineups;lineups.player"}, ttl_sec=900).get("data", {})
-        starters = [l for l in (full.get("lineups") or []) if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
-        if starters:
-            starters.sort(key=lambda x: x.get("formation_position") or 9999)
-            return starters[:11]
-    except Exception:
-        pass
-    # fallback
-    last = last_fixture_with_starters(team_id, league_id) or {}
-    lineups = last.get("lineups") or []
-    starters = [l for l in lineups if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
-    starters.sort(key=lambda x: x.get("formation_position") or 9999)
-    return starters[:11]
+    # Fallback to last league fixture with XI
+    fx = None
+    # We need the league_id; fetch minimal fixture to read it:
+    meta = sm_get(f"fixtures/{fixture_id}", {"include": ""}).get("data") or {}
+    league_id = meta.get("league_id")
+    if not league_id:
+        return []
+    fx = team_last_fixture_with_xi(team_id, league_id)
+    if not fx: return []
+    lineups = fx.get("lineups") or []
+    xs = [l for l in lineups if l.get("team_id")==team_id and l.get("type_id")==LINEUP_TYPE_STARTER]
+    xs.sort(key=lambda x: x.get("formation_position") or 9999)
+    return xs[:11]
 
 def main():
-    leagues = set(LEAGUES.keys())
-    dates = next6_dates()
-    fixtures: List[dict] = []
+    start = today_utc()
+    end = days_ahead(start, 5)
+    dates = daterange_str(start, end)
+
+    out_path_dd = os.path.join(run_date_dir(), "fixtures_lineups.jsonl")
+    out_path_latest = os.path.join(latest_dir(), "fixtures_lineups.jsonl")
+
+    # fresh files each run
+    for p in (out_path_dd, out_path_latest):
+        if os.path.exists(p):
+            os.remove(p)
+
+    league_ids = list(LEAGUES.keys())
+    print(f"[OK] scanning fixtures {dates[0]} → {dates[-1]} for leagues: {', '.join(str(x) for x in league_ids)}")
+
     for ds in dates:
-        try:
-            fixtures.extend(get_fixtures_for_date(ds, league_filter=leagues))
-        except Exception as e:
-            print(f"[WARN] fixtures {ds}: {e}")
-    fixtures.sort(key=lambda x: x.get("starting_at") or "")
+        fxs = fixtures_by_date(ds, league_filter=set(league_ids))
+        fxs.sort(key=lambda x: x.get("starting_at") or "")
+        rows: List[Dict[str,Any]] = []
+        for fx in fxs:
+            parts = fx.get("participants") or []
+            home, away = pick_home_away(parts)
+            if not (home and away): continue
+            home_id, away_id = home["id"], away["id"]
+            # home XI
+            hxi = starters_for_fixture_team(fx["id"], home_id)
+            axi = starters_for_fixture_team(fx["id"], away_id)
 
-    # write fixtures
-    with open(os.path.join(DATA_DIR, "fixtures.jsonl"), "w", encoding="utf-8") as f:
-        for fx in fixtures:
-            f.write(json.dumps(fx, ensure_ascii=False) + "\n")
+            def serialize_xi(xi):
+                out=[]
+                for lp in (xi or []):
+                    pid = lp.get("player_id")
+                    if pid is None: continue
+                    out.append({
+                        "player_id": int(pid),
+                        "player_name": (lp.get("player_name") or "").strip(),
+                        "jersey_number": lp.get("jersey_number"),
+                        "position": pos_id_to_label(lp.get("position_id")),
+                        "team_id": lp.get("team_id"),
+                    })
+                return out
 
-    # build XIs
-    xi_rows = []
-    for fx in fixtures:
-        parts = fx.get("participants") or []
-        home, away = pick_home_away(parts)
-        if not (home and away): continue
-        lid = fx.get("league_id")
-        for team in (home, away):
-            xi = build_predicted_xi(fx, team["id"], lid)
-            for lp in xi:
-                pid = lp.get("player_id")
-                if pid is None:  # guard against None IDs
-                    continue
-                xi_rows.append({
-                    "fixture_id": fx.get("id"),
-                    "league_id": lid,
-                    "team_id": team["id"],
-                    "team_name": team.get("name"),
-                    "player_id": int(pid),
-                    "player_name": (lp.get("player_name") or "").strip(),
-                    "jersey": lp.get("jersey_number"),
-                    "position_id": lp.get("position_id"),
-                    "position": pos_label(lp.get("position_id")),
-                    "source": "official" if "lineups" in (fx.keys()) else "last_league"
-                })
+            rows.append({
+                "date": ds,
+                "fixture_id": fx.get("id"),
+                "league_id": fx.get("league_id"),
+                "league_name": league_name(fx.get("league_id")),
+                "starting_at": fx.get("starting_at"),
+                "name": fx.get("name"),
+                "home_id": home_id,
+                "away_id": away_id,
+                "home_name": home.get("name"),
+                "away_name": away.get("name"),
+                "home_xi": serialize_xi(hxi),
+                "away_xi": serialize_xi(axi),
+            })
 
-    with open(os.path.join(DATA_DIR, "lineups.jsonl"), "w", encoding="utf-8") as f:
-        for row in xi_rows:
-            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        if rows:
+            append_jsonl(out_path_dd, rows)
+            append_jsonl(out_path_latest, rows)
 
-    print(f"[OK] fixtures={len(fixtures)}  xi_rows={len(xi_rows)}")
+    print(f"[DONE] fixtures+XIs → {out_path_dd} and {out_path_latest}")
 
 if __name__ == "__main__":
     main()
