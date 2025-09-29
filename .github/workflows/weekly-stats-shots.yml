@@ -1,24 +1,19 @@
-name: Weekly Shots Stats
+name: Shots stats
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   schedule:
-    - cron: "0 6 * * MON"   # Mondays 06:00 UTC — change if you like
+    # Weekly run — adjust day/hour (UTC) as you like
+    - cron: "15 03 * * MON"
 
 jobs:
-  build:
+  stats:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        league_id: [8, 9, 384, 387, 82, 301, 564, 567, 600]  # EPL, Champ, Serie A/B, Bundesliga, Ligue 1, La Liga/2, Super Lig
-
+    timeout-minutes: 360
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,23 +25,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ensure data folders
-        run: |
-          mkdir -p data data/fixtures data/lineups data/stats .cache_smonks .cache_odds
+      - name: Pull fixtures + XIs (next 6 days)
+        run: python scripts/fixtures_lineups.py
 
-      - name: Fetch fixtures & predicted lineups (next 6 days)
-        run: |
-          python scripts/fixtures_lineups.py
+      - name: Compute shots stats
+        run: python scripts/stats_shots.py
 
-      - name: Compute shots stats for league
+      - name: Commit data back to repo
+        if: always()
         run: |
-          python scripts/stats_shots.py ${{ matrix.league_id }}
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Upload artifacts (per-league)
-        uses: actions/upload-artifact@v4
-        with:
-          name: stats-shots-${{ matrix.league_id }}
-          path: |
-            data/stats/**
-            data/fixtures/**
-            data/lineups/**
+          RUN_DATE="$(date -u +%F)"
+          mkdir -p "data/${RUN_DATE}" "data/latest"
+
+          # Just commit whatever the scripts wrote
+          git add data
+          if git diff --cached --quiet; then
+            echo "No data changes."
+          else
+            git commit -m "data: update shots stats (UTC ${RUN_DATE}) [skip ci]"
+            git push
+          fi
