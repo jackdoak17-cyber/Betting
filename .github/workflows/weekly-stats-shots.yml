@@ -1,51 +1,55 @@
-name: Shots stats
+name: Weekly Shots Stats
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
   schedule:
-    # Weekly run — adjust day/hour (UTC) as you like
-    - cron: "15 03 * * MON"
+    # run weekly Monday 06:00 UTC (change as you like)
+    - cron: '0 6 * * 1'
 
 jobs:
-  stats:
+  build:
+    name: build (${{ matrix.league }})
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-    env:
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        league: [8, 9, 384, 387, 82, 301, 564, 567, 600]  # EPL, Champ, Serie A/B, Bundesliga, Ligue 1, La Liga/2, Super Lig
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Pull fixtures + XIs (next 6 days)
-        run: python scripts/fixtures_lineups.py
-
-      - name: Compute shots stats
-        run: python scripts/stats_shots.py
-
-      - name: Commit data back to repo
-        if: always()
+      - name: Ensure data folders
         run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data .cache_smonks .cache_odds
 
-          RUN_DATE="$(date -u +%F)"
-          mkdir -p "data/${RUN_DATE}" "data/latest"
+      - name: Fetch fixtures & predicted lineups (next 6 days)
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          python scripts/fixtures_lineups.py
 
-          # Just commit whatever the scripts wrote
-          git add data
-          if git diff --cached --quiet; then
-            echo "No data changes."
-          else
-            git commit -m "data: update shots stats (UTC ${RUN_DATE}) [skip ci]"
-            git push
-          fi
+      - name: Compute shots stats for league
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          python scripts/stats_shots.py ${{ matrix.league }}
+
+      - name: Upload artifacts (per-league)
+        uses: actions/upload-artifact@v4
+        with:
+          name: shots_stats_${{ matrix.league }}
+          path: |
+            data/shots_stats_${{ matrix.league }}.jsonl
+            data/fixtures_${{ matrix.league }}.jsonl
+          if-no-files-found: warn
