@@ -110,7 +110,7 @@ def main():
                 team_id = team.get("id")
                 if not team_id:
                     continue
-                xi = build_predicted_xi(fx=fx, team_id=team_id, league_id=lid)
+                xi = build_predicted_xi(fixture=fx, team_id=team_id, league_id=lid)  # <-- fixed arg name
                 for lp in xi:
                     xi_out.append({
                         "fixture_id": fid,
