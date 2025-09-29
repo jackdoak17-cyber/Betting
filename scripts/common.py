@@ -2,260 +2,170 @@
 # -*- coding: utf-8 -*-
 
 """
-Common helpers for SportMonks harvesting.
+Common helpers used by fixtures_lineups.py, stats_shots.py, and odds scripts.
 
-Provides:
-- HTTP client with memo + on-disk cache (+ retry/backoff, 429-aware)
-- Date helpers
-- League helpers
-- Fixture discovery (by date, by team, ranges, convenience fixtures_by_date)
-- Lineups/minutes/shots extraction for a fixture
-- Team recent league fixtures (across seasons, ~2y lookback)
-- Player last-N league appearances (>=45') shots series
-
-Environment:
-  SPORTMONKS_TOKEN = your v3 token (required)
-
-Cache:
-  - In-memory memoization for the current run
-  - File cache in ".cache_smonks/" (safe to keep between GitHub Action runs)
+Exports (intentionally stable names expected by the other scripts):
+- API constants:
+    API_BASE, SPORT, API_TOKEN
+    DATE_FMT, LINEUP_TYPE_STARTER, APPEARANCE_MINUTES_THRESHOLD
+- Lightweight cache + HTTP layer with retry/backoff:
+    api_get()
+- General helpers:
+    pos_id_to_label(), safe_int()
+- Fixture/day helpers:
+    fixtures_by_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]
+    pick_home_away(participants: List[dict]) -> (home: dict|None, away: dict|None)
+- XI/lineups helpers:
+    team_last_fixture_with_xi(team_id: int, league_id: int) -> dict|None
+    fixture_lineups_minutes_shots(fixture_id: int) -> (lineups_map, shots_map, minutes_map)
+- Recent fixtures + player series:
+    team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List[dict]
+    player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: int) -> List[int]
+- Stats:
+    compute_hit_rate(series: List[int]) -> float
 """
 
 from __future__ import annotations
 
 import os
-import sys
-import json
 import time
-import hashlib
 import datetime as dt
-from typing import Dict, List, Optional, Tuple, Iterable, Union
+from typing import Dict, List, Optional, Tuple
 
 import requests
 
-# ---------------------- configuration ----------------------
+# ===================== API / CONFIG =====================
 
 API_BASE = "https://api.sportmonks.com/v3"
 SPORT = "football"
-API_TOKEN = os.getenv("SPORTMONKS_TOKEN", "").strip()
+API_TOKEN = os.getenv("SPORTMONKS_TOKEN", os.getenv("SPORTMONKS_API_TOKEN", "YOUR_TOKEN_HERE"))
 
-# network
-TIMEOUT = 25
-RETRIES = 4
-BACKOFF = 1.8  # exponential base
-
-# directories (ensure from workflow before calling)
-DISK_CACHE_DIR = os.getenv("SMONKS_CACHE_DIR", ".cache_smonks")
-
-# domain constants
+DATE_FMT = "%Y-%m-%d"
 LINEUP_TYPE_STARTER = 11
 APPEARANCE_MINUTES_THRESHOLD = 45
 
-# developer_names we consider for stats extraction
-SHOT_DEVS_TOTAL = {"SHOTS", "SHOTS_TOTAL"}
-SHOT_DEVS_SOT = {"SHOTS_ON_TARGET"}
-SHOT_DEVS_SOFF = {"SHOTS_OFF_TARGET"}
-MINUTES_DEVS = {"MINUTES_PLAYED", "MINUTES"}
+TIMEOUT = 25
+RETRIES = 4
+BACKOFF = 1.9
+WAIT_ON_RATE_LIMIT = True         # if True, sleep progressively on 429 within a single job
 
-# known league names (optional convenience)
-LEAGUE_NAMES = {
-    8: "Premier League",
-    9: "Championship",
-    384: "Serie A",
-    387: "Serie B",
-    82: "Bundesliga",
-    301: "Ligue 1",
-    564: "La Liga",
-    567: "La Liga 2",
-    600: "Super Lig",
-}
+# ===================== tiny memo cache =====================
 
-# ---------------------- tiny helpers ----------------------
+class _Memo:
+    def __init__(self):
+        self.store: Dict[str, dict] = {}
+    def get(self, key: str):
+        return self.store.get(key)
+    def set(self, key: str, value: dict):
+        self.store[key] = value
+
+_memo = _Memo()
 
 
-def _ensure_token():
-    if not API_TOKEN:
-        print("ERROR: Set SPORTMONKS_TOKEN in env.", file=sys.stderr)
-        sys.exit(1)
+def _cached_get(url: str, params: Optional[dict] = None) -> dict:
+    if params is None:
+        params = {}
+    # Always add token (query param form is what Sportmonks shows in docs)
+    params = {**params, "api_token": API_TOKEN}
+
+    # cache key
+    key = url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
+    hit = _memo.get(key)
+    if hit is not None:
+        return hit
+
+    last_exc: Optional[Exception] = None
+    sleep_for = 0.0
+
+    for attempt in range(1, RETRIES + 1):
+        if sleep_for > 0:
+            time.sleep(sleep_for)
+        try:
+            r = requests.get(url, params=params, timeout=TIMEOUT)
+            if r.status_code == 429 and WAIT_ON_RATE_LIMIT:
+                # Backoff on rate limit; try to derive a sensible wait
+                # Prefer header 'x-ratelimit-reset' if present (epoch), else exponential
+                reset_hdr = r.headers.get("x-ratelimit-reset") or r.headers.get("X-RateLimit-Reset")
+                if reset_hdr:
+                    try:
+                        # Some APIs send seconds-from-now; others epoch. If it's a big number, treat as epoch.
+                        reset_val = float(reset_hdr)
+                        now = time.time()
+                        wait = reset_val - (now if reset_val > 1e9 else 0)
+                        sleep_for = max(3.0, min(wait, 120.0))
+                    except Exception:
+                        sleep_for = min(90.0, (BACKOFF ** attempt) + 2.0)
+                else:
+                    sleep_for = min(90.0, (BACKOFF ** attempt) + 2.0)
+                last_exc = requests.HTTPError(f"429 rate limited for {r.url}")
+                continue
+
+            if r.status_code >= 400:
+                try:
+                    jerr = r.json()
+                except Exception:
+                    jerr = {"message": r.text[:300]}
+                raise requests.HTTPError(f"{r.status_code} {r.reason} for {r.url}\nResponse JSON: {jerr}")
+
+            j = r.json()
+            _memo.set(key, j)
+            return j
+
+        except Exception as e:
+            last_exc = e
+            # Exponential backoff for network/server errors
+            sleep_for = (BACKOFF ** attempt) + (0.15 * attempt)
+            if attempt >= RETRIES:
+                break
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("Unknown error in _cached_get")
 
 
-def md5(s: str) -> str:
-    return hashlib.md5(s.encode("utf-8")).hexdigest()
+def api_get(path: str, params: Optional[dict] = None) -> dict:
+    """Call Sportmonks API with base and sport prefix."""
+    if API_TOKEN == "YOUR_TOKEN_HERE" or not API_TOKEN:
+        raise RuntimeError("SPORTMONKS_TOKEN not set. Add repository secret or env var.")
+    if params is None:
+        params = {}
+    url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
+    return _cached_get(url, params)
 
 
-def _cache_key(url: str, params: dict) -> str:
-    # canonicalize param order (including token)
-    items = sorted((k, "" if v is None else str(v)) for k, v in params.items())
-    body = url + "?" + "&".join(f"{k}={v}" for k, v in items)
-    return md5(body)
+# ===================== Utilities =====================
+
+def pos_id_to_label(position_id: Optional[int]) -> str:
+    return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(int(position_id or 0), "?")
 
 
-def _disk_cache_path(key: str) -> str:
-    os.makedirs(DISK_CACHE_DIR, exist_ok=True)
-    return os.path.join(DISK_CACHE_DIR, f"{key}.json")
-
-
-def _disk_cache_load(key: str) -> Optional[dict]:
-    try:
-        p = _disk_cache_path(key)
-        if os.path.isfile(p):
-            with open(p, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception:
-        pass
-    return None
-
-
-def _disk_cache_save(key: str, payload: dict) -> None:
-    try:
-        p = _disk_cache_path(key)
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(payload, f)
-    except Exception:
-        pass
-
-
-def safe_int(x, default: int = 0) -> int:
+def safe_int(x, default: Optional[int] = None) -> Optional[int]:
     try:
         return int(x)
     except Exception:
         return default
 
 
-def pos_id_to_label(position_id: Optional[int]) -> str:
-    return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(int(position_id or 0), "?")
-
-
-def league_name(league_id: int) -> str:
-    return LEAGUE_NAMES.get(int(league_id), f"League {league_id}")
-
-
 def today_utc() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
 
 
-def days_ahead(d: dt.date, n: int) -> dt.date:
-    return d + dt.timedelta(days=n)
+# ===================== Fixtures by day =====================
 
-
-def daterange_str(start: dt.date, end_inclusive: dt.date, fmt: str = "%Y-%m-%d") -> List[str]:
-    out = []
-    d = start
-    while d <= end_inclusive:
-        out.append(d.strftime(fmt))
-        d += dt.timedelta(days=1)
-    return out
-
-
-# ---------------------- HTTP client with caching ----------------------
-
-
-class Memo:
-    def __init__(self):
-        self.store: Dict[str, dict] = {}
-
-    def get(self, k: str):
-        return self.store.get(k)
-
-    def set(self, k: str, v: dict):
-        self.store[k] = v
-
-
-memo = Memo()
-
-
-def cached_get(url: str, params: Optional[dict] = None) -> dict:
+def fixtures_by_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]:
     """
-    GET with:
-      - token injection
-      - in-memory cache
-      - on-disk cache
-      - retry/backoff (429-aware)
+    Fetch all fixtures for a date. Optionally filter by league id set.
+    Includes participants; state; league (for labeling).
     """
-    _ensure_token()
-    params = dict(params or {})
-    params["api_token"] = API_TOKEN
-
-    key = _cache_key(url, params)
-
-    hit = memo.get(key)
-    if hit is not None:
-        return hit
-
-    disk_hit = _disk_cache_load(key)
-    if disk_hit is not None:
-        memo.set(key, disk_hit)
-        return disk_hit
-
-    last_exc = None
-    for attempt in range(RETRIES):
-        try:
-            r = requests.get(url, params=params, timeout=TIMEOUT)
-            # happy path
-            if r.status_code < 400:
-                j = r.json()
-                memo.set(key, j)
-                _disk_cache_save(key, j)
-                return j
-
-            # rate limited?
-            if r.status_code == 429:
-                retry_after = r.headers.get("Retry-After")
-                if retry_after:
-                    try:
-                        sleep_s = float(retry_after)
-                    except Exception:
-                        sleep_s = None
-                else:
-                    sleep_s = None
-                if sleep_s is None:
-                    sleep_s = (BACKOFF ** attempt) + (0.3 * attempt)
-                print(f"[429] {url} — sleeping {sleep_s:.1f}s (attempt {attempt+1}/{RETRIES})", file=sys.stderr)
-                time.sleep(sleep_s)
-                continue
-
-            # other server-ish errors -> retry
-            if r.status_code in (500, 502, 503, 504):
-                sleep_s = (BACKOFF ** attempt) + (0.3 * attempt)
-                print(f"[{r.status_code}] {url} — retrying in {sleep_s:.1f}s", file=sys.stderr)
-                time.sleep(sleep_s)
-                continue
-
-            # hard error
-            try:
-                jerr = r.json()
-            except Exception:
-                jerr = {"message": r.text[:400]}
-            raise requests.HTTPError(f"{r.status_code} {r.reason} for {r.url}\nResponse JSON: {jerr}")
-
-        except requests.RequestException as e:
-            last_exc = e
-            sleep_s = (BACKOFF ** attempt) + 0.2
-            print(f"[NET] {url} — {e}. retrying in {sleep_s:.1f}s", file=sys.stderr)
-            time.sleep(sleep_s)
-
-    if last_exc:
-        raise last_exc
-    raise RuntimeError("HTTP fetch failed unexpectedly.")
-
-
-def api_get(path: str, params: Optional[dict] = None) -> dict:
-    url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
-    return cached_get(url, params)
-
-
-# ---------------------- fixtures & participants ----------------------
-
-
-def get_fixtures_for_date(date_str: str, league_filter: Optional[set[int]] = None) -> List[dict]:
-    """
-    Fetch fixtures for a specific date (UTC), include participants/state/league.
-    """
-    params = {"include": "participants;state;league", "order": "asc", "page": 1}
+    params = {
+        "include": "participants;state;league",
+        "order": "asc",
+        "page": 1,
+    }
     j = api_get(f"fixtures/date/{date_str}", params)
-    data = list(j.get("data", []) or [])
+    data = j.get("data", []) or []
     meta = j.get("meta") or {}
-    last_page = int(meta.get("last_page") or 1)
+    last_page = int(meta.get("last_page", 1) or 1)
 
     for p in range(2, last_page + 1):
         params["page"] = p
@@ -273,121 +183,74 @@ def get_fixtures_for_date(date_str: str, league_filter: Optional[set[int]] = Non
     return out
 
 
-def fixtures_by_date(
-    dates: Union[Iterable[str], dt.date, Tuple[dt.date, dt.date], Tuple[dt.date, int]],
-    league_filter: Optional[Iterable[int]] = None,
-) -> List[dict]:
-    """
-    Convenience wrapper expected by scripts/fixtures_lineups.py.
-
-    Accepts:
-      - iterable of date strings 'YYYY-MM-DD'
-      - (start_date, end_date) as dates
-      - (start_date, days) where 'days' is inclusive offset
-      - single dt.date -> just that day
-
-    Returns list of fixtures (already filtered by league ids if provided).
-    """
-    if league_filter is not None:
-        league_filter = set(int(x) for x in league_filter)
-
-    date_strings: List[str] = []
-
-    if isinstance(dates, dt.date):
-        date_strings = [dates.strftime("%Y-%m-%d")]
-    elif isinstance(dates, tuple) and len(dates) == 2:
-        a, b = dates
-        if isinstance(b, dt.date):
-            date_strings = daterange_str(a, b, "%Y-%m-%d")
-        else:
-            # b is int (days ahead inclusive)
-            date_strings = daterange_str(a, days_ahead(a, int(b)), "%Y-%m-%d")
-    elif isinstance(dates, (list, tuple)):
-        # list/tuple of strings or dates
-        tmp = []
-        for d in dates:
-            if isinstance(d, dt.date):
-                tmp.append(d.strftime("%Y-%m-%d"))
-            else:
-                tmp.append(str(d))
-        date_strings = tmp
-    else:
-        # generic iterable of strings
-        date_strings = [str(d) for d in dates]  # type: ignore
-
-    fixtures: List[dict] = []
-    for ds in date_strings:
-        try:
-            fixtures.extend(get_fixtures_for_date(ds, league_filter=set(league_filter) if league_filter else None))
-        except Exception as e:
-            print(f"[WARN] fixtures_by_date failed for {ds}: {e}", file=sys.stderr)
-            continue
-    # stable order
-    fixtures.sort(key=lambda x: x.get("starting_at") or "")
-    return fixtures
-
-
 def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
     home = next((p for p in participants if (p.get("meta") or {}).get("location") == "home"), None)
     away = next((p for p in participants if (p.get("meta") or {}).get("location") == "away"), None)
     return home, away
 
 
-def _has_starters_for_team(full_fixture: dict, team_id: int) -> bool:
-    for l in (full_fixture.get("lineups") or []):
-        if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER:
-            return True
-    return False
+# ===================== XI helpers =====================
 
-
-def get_team_last_fixture_with_xi(team_id: int, league_id: int) -> Optional[dict]:
+def team_last_fixture_with_xi(team_id: int, league_id: int) -> Optional[dict]:
     """
-    Find the team's most recent fixture in this league with recorded starters.
-    Strategy:
-      1) team's "latest" list filtered by league
-      2) walk back by date up to 180 days
+    Return the team's most recent fixture in this LEAGUE that has recorded starters.
+    Scans 'latest' first, then walks back by date (≤180 days).
+    Allows last-season because we don't restrict by season_id.
     """
-    # try "latest" first
+    # Try team latest first
     try:
         j = api_get(f"teams/{team_id}", {"include": "latest.league;latest.lineups;latest.lineups.player"})
         latest = j.get("data", {}).get("latest")
         lst = latest if isinstance(latest, list) else ([latest] if latest else [])
-        lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
-        for fx in lst:
-            if fx and fx.get("league_id") == league_id and fx.get("id"):
-                fid = fx["id"]
-                full = api_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}).get("data", {}) or {}
-                if _has_starters_for_team(full, team_id):
-                    full["participants"] = fx.get("participants") or []
-                    return full
+        candidates = [fx for fx in lst if (fx or {}).get("league_id") == league_id]
+        candidates.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
+
+        for fx in candidates:
+            fid = fx.get("id")
+            if not fid:
+                continue
+            full = api_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}).get("data", {})
+            if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id
+                   for l in (full.get("lineups") or [])):
+                full["participants"] = fx.get("participants") or []
+                return full
     except Exception:
         pass
 
-    # fallback: date walkback
+    # Walk back by date
     start = today_utc()
     for back in range(1, 181):
-        d = (start - dt.timedelta(days=back)).strftime("%Y-%m-%d")
+        d = (start - dt.timedelta(days=back)).strftime(DATE_FMT)
         try:
-            fxs = get_fixtures_for_date(d, league_filter={league_id})
+            fxs = fixtures_by_date(d, league_filter={league_id})
         except Exception:
             continue
         for fx in fxs:
-            if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
-                fid = fx.get("id")
-                if not fid:
-                    continue
-                full = api_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}).get("data", {}) or {}
-                if _has_starters_for_team(full, team_id):
-                    full["participants"] = fx.get("participants") or []
-                    return full
+            parts = fx.get("participants") or []
+            if not any(p.get("id") == team_id for p in parts):
+                continue
+            fid = fx.get("id")
+            if not fid:
+                continue
+            full = api_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}).get("data", {})
+            if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id
+                   for l in (full.get("lineups") or [])):
+                full["participants"] = parts
+                return full
+
     return None
 
 
-# ---------------------- fixture stats extraction ----------------------
+# ===================== Lineups + stats for a fixture =====================
+
+# developer_name keys
+_SHOT_DEVS_TOTAL = {"SHOTS", "SHOTS_TOTAL"}
+_SHOT_DEVS_SOT   = {"SHOTS_ON_TARGET"}
+_SHOT_DEVS_SOFF  = {"SHOTS_OFF_TARGET"}
+_MINUTES_DEVS    = {"MINUTES_PLAYED", "MINUTES"}
 
 
 def _num_from_detail(det: dict) -> int:
-    """SportMonks 'details.data.value' can be a number or a dict with totals."""
     v = (det.get("data") or {}).get("value")
     if isinstance(v, dict):
         if "total" in v:
@@ -406,17 +269,16 @@ def _num_from_detail(det: dict) -> int:
         return 0
 
 
-def get_fixture_lineups_minutes_and_shots(
-    fixture_id: int,
-) -> Tuple[Dict[int, dict], Dict[int, int], Dict[int, int]]:
+def fixture_lineups_minutes_shots(fixture_id: int) -> Tuple[Dict[int, dict], Dict[int, int], Dict[int, int]]:
     """
-    fixtures/{id}?include=lineups.details.type
+    GET fixtures/{id}?include=lineups.details.type
+
     Returns:
         lineups_map: {player_id: lineup_row}
         shots_map:   {player_id: total_shots}
         minutes_map: {player_id: minutes_played}
     """
-    j = api_get(f"fixtures/{fixture_id}", {"include": "lineups.details.type"}).get("data", {}) or {}
+    j = api_get(f"fixtures/{fixture_id}", {"include": "lineups.details.type"}).get("data", {})
     lineups = j.get("lineups") or []
 
     lineups_map: Dict[int, dict] = {}
@@ -424,30 +286,28 @@ def get_fixture_lineups_minutes_and_shots(
     minutes_map: Dict[int, int] = {}
 
     for lp in lineups:
-        pid = lp.get("player_id")
-        if not pid:
+        pid = safe_int(lp.get("player_id"))
+        if pid is None:
             continue
-        pid = int(pid)
         lineups_map[pid] = lp
 
         total_from_api: Optional[int] = None
-        sot = 0
-        soff = 0
+        sot = soff = 0
         mins: Optional[int] = None
 
         for det in (lp.get("details") or []):
             t = det.get("type") or {}
             dev = (t.get("developer_name") or "").upper()
 
-            if dev in SHOT_DEVS_TOTAL:
+            if dev in _SHOT_DEVS_TOTAL:
                 total_from_api = _num_from_detail(det)
-            elif dev in SHOT_DEVS_SOT:
+            elif dev in _SHOT_DEVS_SOT:
                 sot += _num_from_detail(det)
-            elif dev in SHOT_DEVS_SOFF:
+            elif dev in _SHOT_DEVS_SOFF:
                 soff += _num_from_detail(det)
-            elif dev in MINUTES_DEVS:
-                mv = _num_from_detail(det)
-                mins = mv if mins is None else max(mins, mv)
+            elif dev in _MINUTES_DEVS:
+                mins_val = _num_from_detail(det)
+                mins = mins_val if mins is None else max(mins, mins_val)
 
         if mins is not None:
             minutes_map[pid] = mins
@@ -457,35 +317,31 @@ def get_fixture_lineups_minutes_and_shots(
     return lineups_map, shots_map, minutes_map
 
 
-# ---------------------- recent fixtures & player series ----------------------
+# ===================== Recent fixtures & player series =====================
 
-
-def get_team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List[dict]:
+def team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> List[dict]:
     """
     Recent fixtures for TEAM in LEAGUE, newest→oldest, scanning up to ~2 years.
-    We over-collect (want * 14) to survive minutes filters.
     """
     collected: List[dict] = []
     seen = set()
 
-    # seed with team's 'latest'
+    # Seed using 'latest'
     try:
         j = api_get(f"teams/{team_id}", {"include": "latest.league"})
         latest = j.get("data", {}).get("latest")
         lst = latest if isinstance(latest, list) else ([latest] if latest else [])
         for fx in lst:
             if fx and fx.get("league_id") == league_id and fx.get("id") not in seen:
-                collected.append(fx)
-                seen.add(fx.get("id"))
+                collected.append(fx); seen.add(fx.get("id"))
     except Exception:
         pass
 
-    # walk back by date up to 2 years
     today = today_utc()
     for back in range(1, 731):
-        d = (today - dt.timedelta(days=back)).strftime("%Y-%m-%d")
+        d = (today - dt.timedelta(days=back)).strftime(DATE_FMT)
         try:
-            fixtures = get_fixtures_for_date(d, league_filter={league_id})
+            fixtures = fixtures_by_date(d, league_filter={league_id})
         except Exception:
             continue
         for fx in fixtures:
@@ -493,8 +349,7 @@ def get_team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> 
             if not fid or fid in seen:
                 continue
             if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
-                collected.append(fx)
-                seen.add(fid)
+                collected.append(fx); seen.add(fid)
         if len(collected) >= want * 14:
             break
 
@@ -502,20 +357,19 @@ def get_team_recent_league_fixtures(team_id: int, league_id: int, want: int) -> 
     return collected
 
 
-def get_player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: int) -> List[int]:
+def player_last_n_shots_series(team_id: int, player_id: int, n: int, league_id: int) -> List[int]:
     """
-    Player's last N league APPEARANCES (>=45') across this + last season.
-    If minutes missing or < threshold in a fixture, skip that fixture.
-    Record 0 if played >=45' but 'shots' stat absent.
+    Player's last n LEAGUE APPEARANCES (>=45'), across this+last season.
+    If minutes missing, skip fixture. Record 0 if played >=45' but no shots stat.
     """
-    fixtures = get_team_recent_league_fixtures(team_id, league_id, n)
+    fixtures = team_recent_league_fixtures(team_id, league_id, n)
     series: List[Tuple[str, int]] = []
 
-    def consider_fixture(fx: dict) -> Optional[Tuple[str, int]]:
+    def consider(fx: dict) -> Optional[Tuple[str, int]]:
         fid = fx.get("id")
         if not fid:
             return None
-        _, shots_map, minutes_map = get_fixture_lineups_minutes_and_shots(int(fid))
+        _, shots_map, minutes_map = fixture_lineups_minutes_shots(fid)
         mins = minutes_map.get(int(player_id))
         if mins is None or mins < APPEARANCE_MINUTES_THRESHOLD:
             return None
@@ -526,7 +380,7 @@ def get_player_last_n_shots_series(team_id: int, player_id: int, n: int, league_
         if len(series) >= n:
             break
         try:
-            res = consider_fixture(fx)
+            res = consider(fx)
         except Exception:
             res = None
         if res:
@@ -536,71 +390,10 @@ def get_player_last_n_shots_series(team_id: int, player_id: int, n: int, league_
     return [s for _, s in series][:n]
 
 
+# ===================== Simple stat helper =====================
+
 def compute_hit_rate(series: List[int]) -> float:
     if not series:
         return 0.0
     hits = sum(1 for x in series if x >= 1)
-    return round(100.0 * hits / len(series), 1)
-
-
-# ---------------------- predicted XI for a fixture ----------------------
-
-
-def build_predicted_xi_for_team(fixture_id: int, team_id: int) -> List[dict]:
-    """
-    For a given fixture/team, prefer official starters; else fall back to team’s
-    last league fixture with starters.
-    """
-    # try the fixture's own lineups first
-    try:
-        fx_full = api_get(f"fixtures/{fixture_id}", {"include": "lineups;lineups.player"}).get("data", {}) or {}
-        starters = [
-            l for l in (fx_full.get("lineups") or [])
-            if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id
-        ]
-        if starters:
-            starters.sort(key=lambda x: x.get("formation_position") or 9999)
-            return starters[:11]
-    except Exception:
-        pass
-
-    # fallback: last league fixture with XI
-    slim = api_get(f"fixtures/{fixture_id}", {"include": "league"}).get("data", {}) or {}
-    lid = slim.get("league_id")
-    last = get_team_last_fixture_with_xi(team_id, lid) or {}
-    lineups = last.get("lineups") or []
-    starters = [l for l in lineups if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
-    starters.sort(key=lambda x: x.get("formation_position") or 9999)
-    return starters[:11]
-
-
-# ---------------------- exportable API ----------------------
-
-__all__ = [
-    # config/info
-    "API_BASE",
-    "SPORT",
-    "API_TOKEN",
-    "LEAGUE_NAMES",
-    "league_name",
-    "pos_id_to_label",
-    # http
-    "api_get",
-    "cached_get",
-    # dates
-    "today_utc",
-    "days_ahead",
-    "daterange_str",
-    # fixtures
-    "get_fixtures_for_date",
-    "fixtures_by_date",
-    "pick_home_away",
-    "get_team_last_fixture_with_xi",
-    "get_fixture_lineups_minutes_and_shots",
-    "get_team_recent_league_fixtures",
-    # players
-    "get_player_last_n_shots_series",
-    "compute_hit_rate",
-    # xi
-    "build_predicted_xi_for_team",
-]
+    return 100.0 * hits / len(series)
