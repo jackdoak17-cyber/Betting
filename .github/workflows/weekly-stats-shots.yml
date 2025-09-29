@@ -1,64 +1,52 @@
-name: Weekly Stats (fixtures, lineups, shots)
+name: Weekly Shots Stats
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
   schedule:
-    # Every Monday 05:00 UTC — change to whatever you want
-    - cron: "0 5 * * MON"
-
-permissions:
-  contents: write
+    - cron: "0 6 * * MON"   # Mondays 06:00 UTC — change if you like
 
 jobs:
-  stats:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        league_id: [8, 9, 384, 387, 82, 301, 564, 567, 600]  # EPL, Champ, Serie A/B, Bundesliga, Ligue 1, La Liga/2, Super Lig
+
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Debug tree
-        run: |
-          pwd; ls -la
-          echo "---- scripts ----"; ls -la scripts || true
-
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Install deps
         run: |
-          pip install --upgrade pip
-          test -f requirements.txt && pip install -r requirements.txt || true
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Sanity check secrets
-        env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      - name: Ensure data folders
         run: |
-          [ -n "${SPORTMONKS_TOKEN:-}" ] || (echo "Missing SPORTMONKS_TOKEN" && exit 1)
+          mkdir -p data data/fixtures data/lineups data/stats .cache_smonks .cache_odds
 
-      # Pull next 6 days of fixtures + predicted XIs and cache IDs
-      - name: Fixtures + Lineups (next 6 days)
-        env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      - name: Fetch fixtures & predicted lineups (next 6 days)
         run: |
           python scripts/fixtures_lineups.py
 
-      # Compute shots series (last 10 / last 5) and write data/*.jsonl
-      - name: Shots stats
-        env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      - name: Compute shots stats for league
         run: |
-          python scripts/stats_shots.py
+          python scripts/stats_shots.py ${{ matrix.league_id }}
 
-      - name: Commit data
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -d data ]; then git add data; fi
-          if git diff --cached --quiet; then
-            echo "No data changes."
-          else
-            git commit -m "ci(stats): update fixtures/lineups/shots ($(date -u +'%Y-%m-%d %H:%M:%S UTC'))"
-            git push
-          fi
+      - name: Upload artifacts (per-league)
+        uses: actions/upload-artifact@v4
+        with:
+          name: stats-shots-${{ matrix.league_id }}
+          path: |
+            data/stats/**
+            data/fixtures/**
+            data/lineups/**
