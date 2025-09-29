@@ -8,7 +8,7 @@ Provides:
 - HTTP client with memo + on-disk cache (+ retry/backoff, 429-aware)
 - Date helpers
 - League helpers
-- Fixture discovery (by date, by team, next 6 days)
+- Fixture discovery (by date, by team, ranges, convenience fixtures_by_date)
 - Lineups/minutes/shots extraction for a fixture
 - Team recent league fixtures (across seasons, ~2y lookback)
 - Player last-N league appearances (>=45') shots series
@@ -24,13 +24,12 @@ Cache:
 from __future__ import annotations
 
 import os
-import re
 import sys
 import json
 import time
 import hashlib
 import datetime as dt
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Iterable, Union
 
 import requests
 
@@ -85,7 +84,7 @@ def md5(s: str) -> str:
 
 
 def _cache_key(url: str, params: dict) -> str:
-    # canonicalize param order (except token which is included)
+    # canonicalize param order (including token)
     items = sorted((k, "" if v is None else str(v)) for k, v in params.items())
     body = url + "?" + "&".join(f"{k}={v}" for k, v in items)
     return md5(body)
@@ -201,16 +200,15 @@ def cached_get(url: str, params: Optional[dict] = None) -> dict:
 
             # rate limited?
             if r.status_code == 429:
-                # use Retry-After if provided (seconds)
                 retry_after = r.headers.get("Retry-After")
-                sleep_s = None
                 if retry_after:
                     try:
                         sleep_s = float(retry_after)
                     except Exception:
                         sleep_s = None
+                else:
+                    sleep_s = None
                 if sleep_s is None:
-                    # fallback exponential + jitter
                     sleep_s = (BACKOFF ** attempt) + (0.3 * attempt)
                 print(f"[429] {url} — sleeping {sleep_s:.1f}s (attempt {attempt+1}/{RETRIES})", file=sys.stderr)
                 time.sleep(sleep_s)
@@ -236,7 +234,6 @@ def cached_get(url: str, params: Optional[dict] = None) -> dict:
             print(f"[NET] {url} — {e}. retrying in {sleep_s:.1f}s", file=sys.stderr)
             time.sleep(sleep_s)
 
-    # final attempt
     if last_exc:
         raise last_exc
     raise RuntimeError("HTTP fetch failed unexpectedly.")
@@ -253,7 +250,6 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
 def get_fixtures_for_date(date_str: str, league_filter: Optional[set[int]] = None) -> List[dict]:
     """
     Fetch fixtures for a specific date (UTC), include participants/state/league.
-    Returns a list of fixture objects. Filters by league ids if provided.
     """
     params = {"include": "participants;state;league", "order": "asc", "page": 1}
     j = api_get(f"fixtures/date/{date_str}", params)
@@ -275,6 +271,60 @@ def get_fixtures_for_date(date_str: str, league_filter: Optional[set[int]] = Non
             continue
         out.append(fx)
     return out
+
+
+def fixtures_by_date(
+    dates: Union[Iterable[str], dt.date, Tuple[dt.date, dt.date], Tuple[dt.date, int]],
+    league_filter: Optional[Iterable[int]] = None,
+) -> List[dict]:
+    """
+    Convenience wrapper expected by scripts/fixtures_lineups.py.
+
+    Accepts:
+      - iterable of date strings 'YYYY-MM-DD'
+      - (start_date, end_date) as dates
+      - (start_date, days) where 'days' is inclusive offset
+      - single dt.date -> just that day
+
+    Returns list of fixtures (already filtered by league ids if provided).
+    """
+    if league_filter is not None:
+        league_filter = set(int(x) for x in league_filter)
+
+    date_strings: List[str] = []
+
+    if isinstance(dates, dt.date):
+        date_strings = [dates.strftime("%Y-%m-%d")]
+    elif isinstance(dates, tuple) and len(dates) == 2:
+        a, b = dates
+        if isinstance(b, dt.date):
+            date_strings = daterange_str(a, b, "%Y-%m-%d")
+        else:
+            # b is int (days ahead inclusive)
+            date_strings = daterange_str(a, days_ahead(a, int(b)), "%Y-%m-%d")
+    elif isinstance(dates, (list, tuple)):
+        # list/tuple of strings or dates
+        tmp = []
+        for d in dates:
+            if isinstance(d, dt.date):
+                tmp.append(d.strftime("%Y-%m-%d"))
+            else:
+                tmp.append(str(d))
+        date_strings = tmp
+    else:
+        # generic iterable of strings
+        date_strings = [str(d) for d in dates]  # type: ignore
+
+    fixtures: List[dict] = []
+    for ds in date_strings:
+        try:
+            fixtures.extend(get_fixtures_for_date(ds, league_filter=set(league_filter) if league_filter else None))
+        except Exception as e:
+            print(f"[WARN] fixtures_by_date failed for {ds}: {e}", file=sys.stderr)
+            continue
+    # stable order
+    fixtures.sort(key=lambda x: x.get("starting_at") or "")
+    return fixtures
 
 
 def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
@@ -302,7 +352,6 @@ def get_team_last_fixture_with_xi(team_id: int, league_id: int) -> Optional[dict
         j = api_get(f"teams/{team_id}", {"include": "latest.league;latest.lineups;latest.lineups.player"})
         latest = j.get("data", {}).get("latest")
         lst = latest if isinstance(latest, list) else ([latest] if latest else [])
-        # newest first
         lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
         for fx in lst:
             if fx and fx.get("league_id") == league_id and fx.get("id"):
@@ -483,7 +532,6 @@ def get_player_last_n_shots_series(team_id: int, player_id: int, n: int, league_
         if res:
             series.append(res)
 
-    # newest first (starting_at is ISO string)
     series.sort(key=lambda x: x[0], reverse=True)
     return [s for _, s in series][:n]
 
@@ -517,7 +565,6 @@ def build_predicted_xi_for_team(fixture_id: int, team_id: int) -> List[dict]:
         pass
 
     # fallback: last league fixture with XI
-    # we need league_id: pull slim fixture
     slim = api_get(f"fixtures/{fixture_id}", {"include": "league"}).get("data", {}) or {}
     lid = slim.get("league_id")
     last = get_team_last_fixture_with_xi(team_id, lid) or {}
@@ -546,6 +593,7 @@ __all__ = [
     "daterange_str",
     # fixtures
     "get_fixtures_for_date",
+    "fixtures_by_date",
     "pick_home_away",
     "get_team_last_fixture_with_xi",
     "get_fixture_lineups_minutes_and_shots",
