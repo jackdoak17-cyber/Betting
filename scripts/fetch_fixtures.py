@@ -13,7 +13,7 @@ OUT_PATH = os.path.join(DATA_DIR, "fixtures.json")
 
 def main():
     start = today_utc()
-    end   = days_ahead(start, 5)  # next 6 days inclusive
+    end   = days_ahead(start, 15)  # next 6 days inclusive
     dates = daterange_str(start, end)
     league_set = set(LEAGUES.keys())
 
