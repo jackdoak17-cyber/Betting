@@ -1,10 +1,48 @@
-name: Weekly shots (test)
+name: Weekly stats (shots only)
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1'  # Mondays 07:00 UTC
 
 jobs:
-  ping:
+  stats:
     runs-on: ubuntu-latest
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      SMONKS_CACHE_DIR: .cache_smonks
+      DATA_DIR: data
+      DB_PATH: data/data.db
     steps:
-      - run: echo "hello from weekly shots test"
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ensure data folders
+        run: |
+          mkdir -p "${SMONKS_CACHE_DIR}" "${DATA_DIR}"
+
+      - name: Fetch fixtures (next 6 days)
+        run: |
+          python scripts/fetch_fixtures.py > fixtures.json
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+      - name: Compute shots stats
+        run: |
+          python scripts/ingest_shots.py
+
+      - name: Upload artifacts (fixtures + db)
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-shots
+          path: |
+            fixtures.json
+            data/**
