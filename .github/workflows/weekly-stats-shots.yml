@@ -1,0 +1,77 @@
+name: Weekly stats (shots only)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"  # Mondays 07:00 UTC
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      SMONKS_CACHE_DIR: .cache_smonks
+      DATA_DIR: data
+      DB_PATH: data/data.db
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Restore SportMonks cache
+        uses: actions/cache@v4
+        with:
+          path: .cache_smonks
+          key: smonks-cache-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            smonks-cache-${{ runner.os }}-
+
+      - name: Fetch fixtures (next 6 days)
+        run: python scripts/fetch_fixtures.py
+
+      - name: Init DB
+        run: python scripts/db_init.py
+
+      - name: Ingest shots for fixtures
+        run: python scripts/ingest_shots.py
+
+      - name: Quick CSV sample (players with >=45' appearances having any shots)
+        run: |
+          python - <<'PY'
+import os, sqlite3, csv
+DB=os.environ.get("DB_PATH","data/data.db")
+os.makedirs("data", exist_ok=True)
+con=sqlite3.connect(DB)
+cur=con.cursor()
+q="""
+SELECT p.name, p.player_id, f.league_id, f.starting_at, a.minutes_played, s.shots_total
+FROM player_match_stats s
+JOIN players p ON p.player_id=s.player_id
+JOIN fixtures f ON f.fixture_id=s.fixture_id
+JOIN appearances a ON a.fixture_id=s.fixture_id AND a.player_id=s.player_id
+WHERE a.minutes_played>=45
+ORDER BY f.starting_at DESC
+LIMIT 500;
+"""
+rows=list(cur.execute(q))
+with open("data/sample_player_shots.csv","w",newline="",encoding="utf-8") as fh:
+    w=csv.writer(fh)
+    w.writerow(["player","player_id","league_id","starting_at","minutes","shots_total"])
+    w.writerows(rows)
+print("[OK] wrote data/sample_player_shots.csv ({} rows)".format(len(rows)))
+PY
+
+      - name: Upload DB & CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: shots-db-and-sample
+          path: |
+            data/data.db
+            data/sample_player_shots.csv
