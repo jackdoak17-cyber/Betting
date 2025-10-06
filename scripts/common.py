@@ -21,7 +21,9 @@ LEAGUES = {
     301: "Ligue 1",
     564: "La Liga",
     567: "La Liga 2",
-    600: "Super Lig",
+    600: "Süper Lig",
+    72:  "Eredivisie",   # added
+    271: "Superliga",    # added
 }
 
 DATE_FMT = "%Y-%m-%d"
