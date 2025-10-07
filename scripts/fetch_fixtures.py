@@ -12,7 +12,7 @@ WINDOW_DAYS = int(os.getenv("FIXTURE_WINDOW_DAYS", "14"))
 START_DATE = os.getenv("WINDOW_START")  # YYYY-MM-DD (optional)
 END_DATE   = os.getenv("WINDOW_END")    # YYYY-MM-DD (optional)
 
-# Leagues to include (from your message)
+# Leagues to include (your list)
 LEAGUES = [
     8,   # Premier League
     9,   # Championship
@@ -29,12 +29,10 @@ LEAGUES = [
 
 OUT_JSON = "data/fixtures_window.json"
 OUT_CSV  = "data/fixtures_window.csv"
+DEBUG_DIR = "data/debug"
 
 INCLUDES = "participants,state"
-PER_PAGE = 100  # max page size allowed by Sportmonks v3
-
-def utc_today_str():
-    return datetime.utcnow().strftime("%Y-%m-%d")
+PER_PAGE = 100  # safe, high page size
 
 def compute_window():
     if START_DATE and END_DATE:
@@ -43,74 +41,80 @@ def compute_window():
     end   = start + timedelta(days=WINDOW_DAYS)
     return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
 
-def get_between(start_date: str, end_date: str, leagues: list[int]) -> list[dict]:
+def get_all_between(start_date: str, end_date: str) -> list[dict]:
     """
-    Server-side filter by leagues and paginate until no next_page.
+    Fetch ALL fixtures between start/end, across ALL pages.
+    We avoid server-side league filtering (which has been flaky)
+    and filter client-side instead.
     """
-    headers = {"Accept": "application/json"}
-    fixtures = []
-    page = 1
+    if not API_TOKEN:
+        print("ERROR: SPORTMONKS_TOKEN env var not set", file=sys.stderr)
+        sys.exit(1)
 
-    # Build the base URL once with fixed params
+    os.makedirs(DEBUG_DIR, exist_ok=True)
+
+    headers = {"Accept": "application/json"}
     base_url = f"{API_BASE}/fixtures/between/{start_date}/{end_date}"
+
     fixed_params = {
         "api_token": API_TOKEN,
         "include": INCLUDES,
         "per_page": PER_PAGE,
-        # IMPORTANT: let the API do the league filtering
-        "leagues": ",".join(str(x) for x in leagues),
-        # Do NOT pass state filter; future fixtures are NS anyway and we don’t want to
-        # accidentally exclude anything if Sportmonks changes state ids.
+        # DO NOT pass state/leagues filters here — fetch everything, then filter locally.
     }
 
-    if not API_TOKEN:
-        print("ERROR: SPORTMONKS_TOKEN is not set", file=sys.stderr)
-        sys.exit(1)
-
+    fixtures = []
+    page = 1
     while True:
         params = fixed_params | {"page": page}
         url = f"{base_url}?{urlencode(params)}"
         resp = requests.get(url, headers=headers, timeout=30)
 
         if resp.status_code != 200:
-            print(f"ERROR: HTTP {resp.status_code} from Sportmonks on page {page}: {resp.text[:400]}", file=sys.stderr)
+            print(f"ERROR: HTTP {resp.status_code} on page {page}: {resp.text[:400]}", file=sys.stderr)
             break
 
         data = resp.json() or {}
+
+        # Save raw page to help debug any future surprises
+        with open(os.path.join(DEBUG_DIR, f"raw_page_{page}.json"), "w", encoding="utf-8") as df:
+            json.dump(data, df, ensure_ascii=False, indent=2)
+
         page_items = data.get("data") or data.get("fixtures") or []
         fixtures.extend(page_items)
 
-        # Sportmonks v3 pagination: meta / pagination / current_page, last_page, next_page_url
+        # Sportmonks v3 pagination shapes
         meta = data.get("meta") or {}
         pagination = meta.get("pagination") or {}
-        next_page_url = pagination.get("links", {}).get("next") or pagination.get("next_page_url")
+        links = pagination.get("links") or {}
+        next_url = links.get("next") or pagination.get("next_page_url")
 
-        # Log lightweight debug
         print(f"DEBUG: page {page} -> {len(page_items)} items; total so far {len(fixtures)}")
 
-        if not next_page_url:
+        if not next_url:
             break
         page += 1
-        # small polite delay
-        time.sleep(0.20)
+        time.sleep(0.20)  # be polite
 
     return fixtures
 
+def filter_by_leagues(fixtures: list[dict], league_ids: list[int]) -> list[dict]:
+    wanted = set(league_ids)
+    out = [f for f in fixtures if f.get("league_id") in wanted]
+    return out
+
 def flatten_fixture(row: dict) -> dict:
-    # Try to extract home/away names from included participants (if present)
     home, away = None, None
-    parts = row.get("participants") or row.get("participants", [])
-    if parts:
-        for p in parts:
-            meta = p.get("meta") or {}
-            loc = meta.get("location")
-            if loc == "home": home = p.get("name")
-            if loc == "away": away = p.get("name")
+    parts = row.get("participants") or []
+    for p in parts:
+        loc = (p.get("meta") or {}).get("location")
+        if loc == "home": home = p.get("name")
+        if loc == "away": away = p.get("name")
 
     return {
         "id": row.get("id"),
         "league_id": row.get("league_id"),
-        "name": row.get("name") or (f"{home} vs {away}" if home or away else None),
+        "name": row.get("name") or (f"{home} vs {away}" if (home or away) else ""),
         "starting_at": row.get("starting_at"),
         "state_id": row.get("state_id"),
         "venue_id": row.get("venue_id"),
@@ -129,11 +133,10 @@ def write_outputs(start_date: str, end_date: str, fixtures: list[dict]):
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    # CSV – one row per fixture (small subset of fields, easy to consume)
     rows = [flatten_fixture(x) for x in fixtures]
     with open(OUT_CSV, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()) if rows else
-                           ["id","league_id","name","starting_at","state_id","venue_id"])
+        fields = ["id","league_id","name","starting_at","state_id","venue_id"]
+        w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         for r in rows:
             w.writerow(r)
@@ -142,16 +145,20 @@ def write_outputs(start_date: str, end_date: str, fixtures: list[dict]):
 
 def main():
     s, e = compute_window()
-    print(f"Fetching fixtures for {s} → {e} (UTC). Leagues: {LEAGUES}")
-    fixtures = get_between(s, e, LEAGUES)
+    print(f"Fetching ALL fixtures for {s} → {e} (UTC); then filtering to leagues: {LEAGUES}")
 
-    # Safety: dedupe by id
-    seen = set()
-    unique = []
-    for fx in fixtures:
-        fid = fx.get("id")
+    all_fx = get_all_between(s, e)
+    print(f"DEBUG: total fixtures from API in window = {len(all_fx)}")
+
+    fx = filter_by_leagues(all_fx, LEAGUES)
+    print(f"DEBUG: fixtures after league filter ({len(LEAGUES)} leagues) = {len(fx)}")
+
+    # De-dupe by id just in case
+    seen, unique = set(), []
+    for f in fx:
+        fid = f.get("id")
         if fid not in seen:
-            unique.append(fx)
+            unique.append(f)
             seen.add(fid)
 
     write_outputs(s, e, unique)
