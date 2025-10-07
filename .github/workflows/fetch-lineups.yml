@@ -1,4 +1,4 @@
-name: Fetch lineups (EPL + Championship + La Liga)
+name: Fetch lineups (from saved fixtures)
 
 on:
   workflow_dispatch:
@@ -20,22 +20,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ensure fixtures exist
+      - name: (Option A) Use fixtures from a previous run artifact
+        # If you want to re-use latest artifact automatically, you can switch to actions/download-artifact@v4
+        # For now, we assume fixtures_window.json is already in repo workspace (from a previous job in same run).
         run: |
           ls -la data || true
-          test -f data/fixtures_window.json || (echo "Missing fixtures_window.json. Run the fixtures workflow first." && exit 1)
+          test -f data/fixtures_window.json && echo "Found fixtures_window.json" || echo "Missing fixtures_window.json"
 
-      - name: Run lineup fetcher (3 leagues)
+      - name: Run lineup fetcher
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          LEAGUE_IDS: "8,9,564"   # EPL, Championship, La Liga
-          LINEUPS_SLEEP: "0.7"
         run: python scripts/fetch_lineups.py
 
       - name: Upload lineups
         uses: actions/upload-artifact@v4
         with:
-          name: lineups-8-9-564
+          name: lineups
           path: |
             data/lineups_*.json
             data/lineups_*.csv
