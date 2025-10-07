@@ -1,142 +1,102 @@
-#!/usr/bin/env python3
+# scripts/fetch_fixtures.py
 import os
 import sys
-import json
-import csv
-import pathlib
-from datetime import datetime, timezone, timedelta
-from urllib.parse import urlparse, parse_qs
-
+import time
 import requests
+from datetime import datetime, timedelta, timezone
 
-API_BASE = "https://api.sportmonks.com/v3/football/fixtures/between"
-INCLUDE = "participants;state"  # keep it small/cheap
+from common import BASE_URL, API_TOKEN, ALLOWED_LEAGUES, write_json, write_csv
 
-TOKEN = os.getenv("SPORTMONKS_TOKEN")
-if not TOKEN:
-    print("ERROR: SPORTMONKS_TOKEN is not set in the environment.", file=sys.stderr)
-    sys.exit(1)
+# Include related data we rely on when exporting CSV
+INCLUDES = "participants;state"
 
-# Optional comma-separated league IDs from env, e.g. "8,9,564"
-LEAGUE_FILTER = os.getenv("FILTER_LEAGUES", "").strip()
-LEAGUE_FILTER = ",".join([p.strip() for p in LEAGUE_FILTER.split(",") if p.strip()]) or None
-
-DATA_DIR = pathlib.Path("data")
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-def dt_utc_today():
-    return datetime.now(timezone.utc).date()
-
-def fmt(d):
+def _iso(d: datetime) -> str:
     return d.strftime("%Y-%m-%d")
 
-def fetch_between(start_date, end_date, leagues=None):
+def _env_window():
     """
-    Fetch fixtures between start_date and end_date (inclusive) with robust pagination.
-    Returns a list of fixture dicts.
+    Read window from env or default to 'today .. +14 days' (UTC).
     """
-    fixtures = []
-    page = 1
+    start_env = os.getenv("FIXTURES_START")
+    end_env = os.getenv("FIXTURES_END")
+
+    if start_env and end_env:
+        return start_env, end_env
+
+    today = datetime.now(timezone.utc).date()
+    start = _iso(datetime.combine(today, datetime.min.time()))
+    end = _iso(datetime.combine(today + timedelta(days=14), datetime.min.time()))
+    return start, end
+
+def get_between(start_date: str, end_date: str, leagues=None):
+    """
+    Fetch fixtures between dates. Follows SportMonks pagination by chasing links.next.
+    We also filter client-side to allowed leagues to be 100% safe.
+    """
+    url = f"{BASE_URL}/football/fixtures/between/{start_date}/{end_date}"
+
     params = {
-        "api_token": TOKEN,
-        "include": INCLUDE,
-        "page": page,
+        "api_token": API_TOKEN,   # SportMonks accepts token as query param
+        "include": INCLUDES,
+        "page": 1,
+        # If your plan supports pre-filtering by leagues, uncomment one of these:
+        # "leagues": ",".join(map(str, leagues)) if leagues else None,
+        # 'filters[league_id]': ",".join(map(str, leagues)) if leagues else None,
     }
-    # If you want to filter at the API, pass leagues (comma-separated string)
-    if leagues:
-        params["leagues"] = leagues
 
-    url = f"{API_BASE}/{fmt(start_date)}/{fmt(end_date)}"
+    fixtures = []
+    page_count = 0
+
     while True:
-        params["page"] = page
-        resp = requests.get(url, params=params, timeout=30)
-        if resp.status_code != 200:
-            print(f"ERROR: HTTP {resp.status_code} for page {page}: {resp.text[:500]}", file=sys.stderr)
-            sys.exit(1)
-
+        resp = requests.get(url, params={k: v for k, v in params.items() if v is not None}, timeout=30)
+        resp.raise_for_status()
         payload = resp.json()
-        # SportMonks v3 returns arrays in 'data'
-        batch = payload.get("data") or []
-        fixtures.extend(batch)
+        page_count += 1
 
-        meta = payload.get("meta") or {}
-        next_page = meta.get("next_page")
+        data = payload.get("data") or []
+        # Safety filter by league_id
+        if leagues:
+            data = [fx for fx in data if fx.get("league_id") in leagues]
+        fixtures.extend(data)
 
-        # DEBUG lines (safe to leave in)
-        if page == 1:
-            dbg_url = resp.url
-            print(f"DEBUG URL (page 1): {dbg_url}")
-        print(f"  page {page}: received {len(batch)} fixtures")
-
-        if not next_page:
+        links = payload.get("links") or {}
+        next_link = links.get("next")
+        if not next_link:
             break
 
-        # Handle both int and URL forms for next_page
-        if isinstance(next_page, int):
-            page = next_page
-        elif isinstance(next_page, str):
-            # Try to extract ?page=X from the URL; if missing, just increment
-            try:
-                q = parse_qs(urlparse(next_page).query)
-                page = int((q.get("page") or [page + 1])[0])
-            except Exception:
-                page += 1
-        else:
-            # Unrecognized form — stop gracefully
-            break
+        # Follow absolute next page URL. After the first request, DO NOT pass params again.
+        url = next_link
+        params = {}
+        time.sleep(0.25)  # be gentle to rate limits
 
+    print(f"Fetched {len(fixtures)} fixtures across {page_count} pages (filtered to {len(leagues or [])} leagues).")
     return fixtures
 
-def save_outputs(start_date, end_date, fixtures):
-    # JSON
-    out_json = {
-        "generated_at": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
-        "window_start": fmt(start_date),
-        "window_end": fmt(end_date),
-        "fixtures": fixtures,
-        "leagues": [int(x) for x in (LEAGUE_FILTER.split(",") if LEAGUE_FILTER else [])],
-    }
-    json_path = DATA_DIR / "fixtures_window.json"
-    json_path.write_text(json.dumps(out_json, indent=2))
-    print(f"Wrote {json_path} ({len(fixtures)} fixtures)")
-
-    # CSV (compact)
-    csv_path = DATA_DIR / "fixtures_window.csv"
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        w.writerow(["id", "league_id", "league_name", "starting_at", "home_team", "away_team", "state"])
-        for fx in fixtures:
-            lid = fx.get("league_id")
-            league_name = fx.get("league_name") or ""
-            starting_at = fx.get("starting_at") or ""
-            parts = fx.get("participants") or []
-            home, away = "", ""
-            for p in parts:
-                loc = ((p.get("meta") or {}).get("location") or "").lower()
-                if loc == "home":
-                    home = p.get("name") or ""
-                elif loc == "away":
-                    away = p.get("name") or ""
-            state = (fx.get("state") or {}).get("name") or ""
-            w.writerow([fx.get("id"), lid, league_name, starting_at, home, away, state])
-    print(f"Wrote {csv_path}")
-
 def main():
-    # Default 14-day window
-    start = dt_utc_today()
-    end = start + timedelta(days=14)
+    start, end = _env_window()
+    print(f"Fetching fixtures for {start} -> {end} (UTC). League filter: {ALLOWED_LEAGUES}")
 
-    print(f"Fetching fixtures for {fmt(start)} → {fmt(end)} (UTC). League filter: {LEAGUE_FILTER or 'ALL'}")
+    fixtures = get_between(start, end, leagues=ALLOWED_LEAGUES)
 
-    fixtures = fetch_between(start, end, leagues=LEAGUE_FILTER)
+    out = {
+        "generated_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+        "window_start": start,
+        "window_end": end,
+        "fixtures": fixtures,
+        "leagues": ALLOWED_LEAGUES,
+    }
 
-    # If you chose not to filter at the API level but still want to filter locally:
-    if not LEAGUE_FILTER and os.getenv("FILTER_LOCALLY") == "1":
-        keep = set(int(x) for x in (os.getenv("FILTER_LEAGUES", "").split(",") if os.getenv("FILTER_LEAGUES") else []) if x.strip())
-        if keep:
-            fixtures = [fx for fx in fixtures if int(fx.get("league_id") or 0) in keep]
-
-    save_outputs(start, end, fixtures)
+    os.makedirs("data", exist_ok=True)
+    write_json("data/fixtures_window.json", out)
+    write_csv("data/fixtures_window.csv", fixtures)
+    print(f"Saved: data/fixtures_window.json & data/fixtures_window.csv")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except requests.HTTPError as e:
+        print(f"HTTPError: {getattr(e.response, 'text', str(e))}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
