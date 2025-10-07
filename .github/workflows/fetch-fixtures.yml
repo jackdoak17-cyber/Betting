@@ -2,31 +2,18 @@ name: Fetch fixtures (next 14 days)
 
 on:
   workflow_dispatch:
-    inputs:
-      days:
-        description: "Days ahead"
-        required: false
-        default: "14"
-      back:
-        description: "Days back"
-        required: false
-        default: "0"
-      leagues:
-        description: "Comma list of league IDs (e.g. 8,9,564)"
-        required: false
-        default: "8,9,564"   # PL, Championship, La Liga for now
 
 jobs:
   fixtures:
     runs-on: ubuntu-latest
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      DAYS_AHEAD: "14"          # change if you want
+      # FILTER_LEAGUES: "8,9,564"   # leave unset to fetch ALL leagues
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -36,25 +23,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run fixtures fetcher
-        run: |
-          python scripts/fetch_fixtures.py \
-            --days "${{ inputs.days }}" \
-            --back "${{ inputs.back }}" \
-            --leagues "${{ inputs.leagues }}"
-
-      - name: List outputs
-        run: |
-          echo "pwd=$(pwd)"
-          ls -la
-          echo "---- artifacts ----"
-          ls -R artifacts || true
+        run: python scripts/fetch_fixtures.py
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fixtures
           path: |
-            artifacts/fixtures_window.json
-            artifacts/fixtures_window.csv
-            artifacts/debug/**
+            data/fixtures_window.json
+            data/fixtures_window.csv
+            data/fixtures_by_day/*.json
           if-no-files-found: warn
