@@ -1,4 +1,4 @@
-name: Fetch lineups (next 5 days)
+name: Fetch lineups (EPL + Championship + La Liga)
 
 on:
   workflow_dispatch:
@@ -20,17 +20,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run lineup fetcher
+      - name: Ensure fixtures exist
+        run: |
+          ls -la data || true
+          test -f data/fixtures_window.json || (echo "Missing fixtures_window.json. Run the fixtures workflow first." && exit 1)
+
+      - name: Run lineup fetcher (3 leagues)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          DAYS_AHEAD: '5'
+          LEAGUE_IDS: "8,9,564"   # EPL, Championship, La Liga
+          LINEUPS_SLEEP: "0.7"
         run: python scripts/fetch_lineups.py
 
-      - name: Upload artifacts
+      - name: Upload lineups
         uses: actions/upload-artifact@v4
         with:
-          name: lineups
+          name: lineups-8-9-564
           path: |
             data/lineups_*.json
             data/lineups_*.csv
-            data/fixtures_window.json
