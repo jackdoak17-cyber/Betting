@@ -1,248 +1,1562 @@
-#!/usr/bin/env python3
-"""
-Fetch fixtures for a date window from Sportmonks v3 and save:
-- artifacts/fixtures_window.json  (clean, merged list)
-- artifacts/fixtures_window.csv   (simple CSV)
-- artifacts/debug/raw_league_<LEAGUEID>.json  (raw payloads per league & page)
-- artifacts/debug/errors.json     (any API errors captured)
-
-Env:
-  SPORTMONKS_TOKEN   (required)
-  DAYS_AHEAD         (default 14)
-  DAYS_BACK          (default 0)
-  LEAGUE_IDS         (optional CSV, overrides default set)
-
-CLI (optional overrides):
-  python scripts/fetch_fixtures.py --days 14 --back 0 --leagues 8,9,564
-"""
-
-import os, sys, json, csv, time, argparse, datetime as dt
-import requests
-from urllib.parse import urlencode
-
-API = "https://api.sportmonks.com/v3/football"
-TOKEN = os.getenv("SPORTMONKS_TOKEN", "").strip()
-
-DEFAULT_LEAGUES = [
-    8,   # Premier League
-    9,   # Championship
-    82,  # Bundesliga
-    301, # Ligue 1
-    564, # La Liga
-    567, # La Liga 2
-    384, # Serie A
-    387, # Serie B
-    600, # Süper Lig
-    72,  # Eredivisie
-    271, # Superliga
-]
-
-def iso_date(d: dt.date) -> str:
-    return d.strftime("%Y-%m-%d")
-
-def today_utc_date() -> dt.date:
-    return dt.datetime.utcnow().date()
-
-def ensure_dirs():
-    os.makedirs("artifacts/debug", exist_ok=True)
-
-def parse_args():
-    p = argparse.ArgumentParser()
-    p.add_argument("--days", type=int, default=int(os.getenv("DAYS_AHEAD", "14")))
-    p.add_argument("--back", type=int, default=int(os.getenv("DAYS_BACK", "0")))
-    p.add_argument("--leagues", type=str, default=os.getenv("LEAGUE_IDS", ""))
-    return p.parse_args()
-
-def get_league_list(arg_leagues: str):
-    if arg_leagues:
-        try:
-            return [int(x) for x in arg_leagues.split(",") if x.strip()]
-        except ValueError:
-            pass
-    return DEFAULT_LEAGUES[:]
-
-def request_with_retry(url, params, max_retries=4):
-    """Basic retry with 429/backoff and network errors."""
-    headers = {"accept": "application/json"}
-    attempt = 0
-    while True:
-        try:
-            r = requests.get(url, params=params, timeout=30, headers=headers)
-            rl = r.headers.get("X-RateLimit-Remaining")
-            rr = r.headers.get("Retry-After")
-            print(f"[HTTP] {r.status_code} {r.url}  (X-Remain={rl}, Retry-After={rr})")
-            if r.status_code == 200:
-                return r
-            if r.status_code in (429, 500, 502, 503, 504) and attempt < max_retries:
-                wait = int(rr) if rr and rr.isdigit() else (2 ** attempt + 1)
-                print(f"[RETRY] sleeping {wait}s…")
-                time.sleep(wait)
-                attempt += 1
-                continue
-            return r
-        except requests.RequestException as e:
-            if attempt >= max_retries:
-                print(f"[NET-FAIL] {e}")
-                raise
-            wait = 2 ** attempt + 1
-            print(f"[NET] {e} → retry in {wait}s")
-            time.sleep(wait)
-            attempt += 1
-
-def fetch_fixtures_between(from_date: str, to_date: str, league_id: int, errors: list):
-    """
-    Calls: /fixtures/between/{from}/{to}
-    Filters by single league each time (reliable) and paginates.
-    Returns combined list of fixtures.
-    Also writes raw per-page JSON to artifacts/debug/raw_league_<id>_p<page>.json
-    """
-    out = []
-    page = 1
-    while True:
-        params = {
-            "api_token": TOKEN,
-            "include": "participants",   # teams (home/away)
-            "page": page,
-            "per_page": 100,
-            "tz": "UTC",
-            "leagues": league_id,        # filter by league
+{
+  "generated_at": "20251007T190449Z",
+  "window_start": "2025-10-07",
+  "window_end": "2025-10-21",
+  "fixtures": [
+    {
+      "id": 19441166,
+      "sport_id": 1,
+      "league_id": 567,
+      "season_id": 25673,
+      "stage_id": 77476943,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 373486,
+      "state_id": 1,
+      "venue_id": 9237,
+      "name": "Granada vs Las Palmas",
+      "starting_at": "2025-10-10 18:30:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": true,
+      "has_premium_odds": true,
+      "starting_at_timestamp": 1760121000,
+      "participants": [
+        {
+          "id": 2921,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 1716,
+          "gender": "male",
+          "name": "Las Palmas",
+          "short_code": "LPA",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/9/2921.png",
+          "founded": 1949,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-05 19:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 5
+          }
+        },
+        {
+          "id": 103,
+          "sport_id": 1,
+          "country_id": 32,
+          "venue_id": 9237,
+          "gender": "male",
+          "name": "Granada",
+          "short_code": "GRA",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/7/103.png",
+          "founded": 1931,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 19:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 18
+          }
         }
-        url = f"{API}/fixtures/between/{from_date}/{to_date}"
-        r = request_with_retry(url, params)
-        raw_name = f"artifacts/debug/raw_league_{league_id}_p{page}.json"
-        try:
-            payload = r.json()
-        except Exception:
-            payload = {"_parse_error": True, "_text": r.text[:4000]}
-        with open(raw_name, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
-
-        if r.status_code != 200:
-            errors.append({
-                "league": league_id,
-                "page": page,
-                "status": r.status_code,
-                "text_preview": r.text[:400],
-            })
-            break
-
-        data = payload.get("data")
-        if isinstance(data, list):
-            out.extend(data)
-        elif data is None:
-            # Some errors put message in 'message'
-            msg = payload.get("message", "no data field")
-            errors.append({"league": league_id, "page": page, "status": 200, "message": msg})
-            break
-        else:
-            # Unknown shape
-            errors.append({"league": league_id, "page": page, "status": 200, "message": "unexpected data shape"})
-            break
-
-        # pagination
-        meta = payload.get("meta") or {}
-        pag = meta.get("pagination") or {}
-        cur = pag.get("current_page")
-        tot = pag.get("total_pages")
-        if cur and tot and int(cur) < int(tot):
-            page += 1
-            continue
-        # Also handle "links" style next
-        links = meta.get("links") or {}
-        if links.get("next"):
-            page += 1
-            continue
-        break
-    return out
-
-def flatten_fixture_row(fx: dict):
-    # build a simple CSV row
-    fid = fx.get("id")
-    lid = fx.get("league_id")
-    lname = fx.get("league", {}).get("name") or fx.get("league_name") or ""
-    start = fx.get("starting_at") or fx.get("time", {}).get("starting_at")
-    name = fx.get("name", "")
-    # participants come either in data list or on fx["participants"]
-    parts = fx.get("participants") or []
-    home, away = "", ""
-    for p in parts:
-        loc = (p.get("meta") or {}).get("location")
-        if loc == "home":
-            home = p.get("name") or ""
-        elif loc == "away":
-            away = p.get("name") or ""
-    return {
-        "fixture_id": fid,
-        "league_id": lid,
-        "league_name": lname,
-        "starting_at": start,
-        "home": home,
-        "away": away,
-        "name": name,
+      ]
+    },
+    {
+      "id": 19587519,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": null,
+      "name": "Farnham Town vs Sutton United",
+      "starting_at": "2025-10-11 11:30:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760182200,
+      "participants": [
+        {
+          "id": 308,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 983,
+          "gender": "male",
+          "name": "Sutton United",
+          "short_code": "SUU",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/20/308.png",
+          "founded": 1898,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 19988,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": null,
+          "gender": "male",
+          "name": "Farnham Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/team_placeholder.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587048,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 339792,
+      "name": "AFC Totton vs Truro City",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 1705,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 850,
+          "gender": "male",
+          "name": "AFC Totton",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/9/1705.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 132,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 991,
+          "gender": "male",
+          "name": "Truro City",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/132.png",
+          "founded": 1889,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587049,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 433,
+      "name": "Altrincham vs Harborough Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 1104,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 433,
+          "gender": "male",
+          "name": "Altrincham",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/16/1104.png",
+          "founded": 1903,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 20121,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 15703,
+          "gender": "male",
+          "name": "Harborough Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/25/20121.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587050,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 263516,
+      "name": "Aveley vs Gateshead",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 324,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 986,
+          "gender": "male",
+          "name": "Gateshead",
+          "short_code": "GTH",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/324.png",
+          "founded": 1889,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 11:30:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 1960,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1057,
+          "gender": "male",
+          "name": "Aveley",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/8/1960.png",
+          "founded": 1927,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587051,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1081,
+      "name": "Banbury United vs St Albans City",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 159,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1049,
+          "gender": "male",
+          "name": "St Albans City",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/31/159.png",
+          "founded": 1908,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 1999,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1081,
+          "gender": "male",
+          "name": "Banbury United",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/15/1999.png",
+          "founded": 1931,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587052,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 232146,
+      "name": "Braintree Town vs Farnborough",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 950,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 232146,
+          "gender": "male",
+          "name": "Braintree Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/22/950.png",
+          "founded": 1898,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 908,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 326,
+          "gender": "male",
+          "name": "Farnborough",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/12/908.png",
+          "founded": 0,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587053,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 833,
+      "name": "Carlisle United vs Boston United",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 330,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 833,
+          "gender": "male",
+          "name": "Carlisle United",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/10/330.png",
+          "founded": 1903,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 16:30:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 184,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1135,
+          "gender": "male",
+          "name": "Boston United",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/24/184.png",
+          "founded": 1933,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 11:30:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587054,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 14663,
+      "name": "Chelmsford City vs Chippenham Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 727,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 14663,
+          "gender": "male",
+          "name": "Chelmsford City",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/23/727.png",
+          "founded": 1938,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1220,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 512,
+          "gender": "male",
+          "name": "Chippenham Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/1220.png",
+          "founded": 1873,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587055,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 195,
+      "name": "Darlington vs AFC Telford United",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 1175,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 195,
+          "gender": "male",
+          "name": "Darlington",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/23/1175.png",
+          "founded": 2012,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 868,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 305,
+          "gender": "male",
+          "name": "AFC Telford United",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/868.png",
+          "founded": 2004,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587056,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 287374,
+      "name": "Dorking Wanderers vs Aldershot Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 10579,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1122,
+          "gender": "male",
+          "name": "Dorking Wanderers",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/19/10579.png",
+          "founded": 0,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 194,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 935,
+          "gender": "male",
+          "name": "Aldershot Town",
+          "short_code": "ADT",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/2/194.png",
+          "founded": 1992,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587057,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 137,
+      "name": "Eastbourne Borough vs Boreham Wood",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 998,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 379,
+          "gender": "male",
+          "name": "Boreham Wood",
+          "short_code": "BWD",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/6/998.png",
+          "founded": 1948,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 601,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 137,
+          "gender": "male",
+          "name": "Eastbourne Borough",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/25/601.png",
+          "founded": 1964,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587058,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1380,
+      "name": "Ebbsfleet United vs Solihull Moors",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 100,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1380,
+          "gender": "male",
+          "name": "Ebbsfleet United",
+          "short_code": "EBB",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/100.png",
+          "founded": 1946,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1030,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 395,
+          "gender": "male",
+          "name": "Solihull Moors",
+          "short_code": "SOL",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/6/1030.png",
+          "founded": 2007,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587059,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1104,
+      "name": "Gainsborough Trinity vs Hartlepool United",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 373,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1104,
+          "gender": "male",
+          "name": "Gainsborough Trinity",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/21/373.png",
+          "founded": 1873,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 310,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 825,
+          "gender": "male",
+          "name": "Hartlepool United",
+          "short_code": "HAR",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/22/310.png",
+          "founded": 1908,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 11:30:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587060,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 222,
+      "name": "Hampton & Richmond vs Eastleigh",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 740,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 222,
+          "gender": "male",
+          "name": "Hampton & Richmond",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/740.png",
+          "founded": 1921,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 210,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 987,
+          "gender": "male",
+          "name": "Eastleigh",
+          "short_code": "EST",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/18/210.png",
+          "founded": 1949,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587061,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1237,
+      "name": "Hemel Hempstead Town vs Yeovil Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 402,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1237,
+          "gender": "male",
+          "name": "Hemel Hempstead Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/18/402.png",
+          "founded": 1885,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 261,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 841,
+          "gender": "male",
+          "name": "Yeovil Town",
+          "short_code": "YEO",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/5/261.png",
+          "founded": 1895,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587062,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 985,
+      "name": "Macclesfield vs Stamford",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 256441,
+          "sport_id": 1,
+          "country_id": 190324,
+          "venue_id": null,
+          "gender": "male",
+          "name": "Macclesfield",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/25/256441.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 281,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1390,
+          "gender": "male",
+          "name": "Stamford",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/25/281.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587063,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 247,
+      "name": "Morecambe vs Chester",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 772,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 247,
+          "gender": "male",
+          "name": "Morecambe",
+          "short_code": "MRC",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/4/772.png",
+          "founded": 1920,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 385,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 962,
+          "gender": "male",
+          "name": "Chester",
+          "short_code": "CST",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/1/385.png",
+          "founded": 2010,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587064,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 659,
+      "name": "Rochdale vs York City",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 240,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 659,
+          "gender": "male",
+          "name": "Rochdale",
+          "short_code": "RCH",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/16/240.png",
+          "founded": 1907,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 92,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 343381,
+          "gender": "male",
+          "name": "York City",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/28/92.png",
+          "founded": 1922,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 11:30:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587065,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 661,
+      "name": "Scunthorpe United vs King's Lynn Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 101,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 661,
+          "gender": "male",
+          "name": "Scunthorpe United",
+          "short_code": "SCU",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/5/101.png",
+          "founded": 1899,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 16:30:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1586,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 765,
+          "gender": "male",
+          "name": "King's Lynn Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/18/1586.png",
+          "founded": 2010,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587066,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1397,
+      "name": "Slough Town vs Enfield Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 399,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1397,
+          "gender": "male",
+          "name": "Slough Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/15/399.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1717,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 857,
+          "gender": "male",
+          "name": "Enfield Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/21/1717.png",
+          "founded": 2001,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587067,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 662,
+      "name": "Southend United vs Folkestone Invicta",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 1347,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 602,
+          "gender": "male",
+          "name": "Folkestone Invicta",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/3/1347.png",
+          "founded": 1936,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 114,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 662,
+          "gender": "male",
+          "name": "Southend United",
+          "short_code": "SEU",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/18/114.png",
+          "founded": 1906,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587068,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 634,
+      "name": "Southport vs Halifax Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 651,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1138,
+          "gender": "male",
+          "name": "Halifax Town",
+          "short_code": "FHT",
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/11/651.png",
+          "founded": 2008,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        },
+        {
+          "id": 247,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 634,
+          "gender": "male",
+          "name": "Southport",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/23/247.png",
+          "founded": 1881,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587069,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 183303,
+      "name": "South Shields vs Spalding United",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 19681,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 183303,
+          "gender": "male",
+          "name": "South Shields",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/1/19681.png",
+          "founded": 0,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1968,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1061,
+          "gender": "male",
+          "name": "Spalding United",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/16/1968.png",
+          "founded": null,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": 19587070,
+      "sport_id": 1,
+      "league_id": 24,
+      "season_id": 25919,
+      "stage_id": 77478393,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 391270,
+      "state_id": 1,
+      "venue_id": 1325,
+      "name": "Spennymoor Town vs Billericay Town",
+      "starting_at": "2025-10-11 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": false,
+      "has_premium_odds": false,
+      "starting_at_timestamp": 1760191200,
+      "participants": [
+        {
+          "id": 192,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 1325,
+          "gender": "male",
+          "name": "Spennymoor Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/0/192.png",
+          "founded": 1931,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "home",
+            "winner": null,
+            "position": 1
+          }
+        },
+        {
+          "id": 1192,
+          "sport_id": 1,
+          "country_id": 462,
+          "venue_id": 234810,
+          "gender": "male",
+          "name": "Billericay Town",
+          "short_code": null,
+          "image_path": "https://cdn.sportmonks.com/images/soccer/teams/8/1192.png",
+          "founded": 1880,
+          "type": "domestic",
+          "placeholder": false,
+          "last_played_at": "2025-10-04 14:00:00",
+          "meta": {
+            "location": "away",
+            "winner": null,
+            "position": 2
+          }
+        }
+      ]
     }
-
-def main():
-    if not TOKEN:
-        print("ERROR: SPORTMONKS_TOKEN is not set in env.")
-        sys.exit(1)
-
-    ensure_dirs()
-    args = parse_args()
-
-    leagues = get_league_list(args.leagues)
-    today = today_utc_date()
-    start_date = iso_date(today - dt.timedelta(days=args.back))
-    end_date = iso_date(today + dt.timedelta(days=args.days))
-
-    print(f"Window: {start_date} → {end_date}  (leagues={leagues})")
-
-    errors = []
-    merged = []
-    for lid in leagues:
-        try:
-            fixtures = fetch_fixtures_between(start_date, end_date, league_id=lid, errors=errors)
-            print(f"[LEAGUE {lid}] fixtures: {len(fixtures)}")
-            merged.extend(fixtures)
-        except Exception as e:
-            msg = str(e)
-            print(f"[ERROR] league {lid}: {msg}")
-            errors.append({"league": lid, "exception": msg})
-
-    # Dedup by fixture id
-    seen = set()
-    uniq = []
-    for fx in merged:
-        fid = fx.get("id")
-        if fid and fid not in seen:
-            uniq.append(fx)
-            seen.add(fid)
-
-    # Write clean JSON
-    clean = {
-        "generated_at": dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
-        "window_start": start_date,
-        "window_end": end_date,
-        "fixtures": uniq,
-        "leagues": leagues,
-    }
-    with open("artifacts/fixtures_window.json", "w", encoding="utf-8") as f:
-        json.dump(clean, f, ensure_ascii=False, indent=2)
-
-    # Write CSV
-    fieldnames = ["fixture_id", "league_id", "league_name", "starting_at", "home", "away", "name"]
-    with open("artifacts/fixtures_window.csv", "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
-        w.writeheader()
-        for fx in uniq:
-            w.writerow(flatten_fixture_row(fx))
-
-    # Write errors (if any)
-    if errors:
-        with open("artifacts/debug/errors.json", "w", encoding="utf-8") as f:
-            json.dump(errors, f, ensure_ascii=False, indent=2)
-        print(f"[DONE] fixtures={len(uniq)}  (with errors; see artifacts/debug/errors.json)")
-    else:
-        print(f"[DONE] fixtures={len(uniq)}")
-        
-if __name__ == "__main__":
-    main()
+  ],
+  "leagues": [
+    8,
+    9,
+    564
+  ]
+}
