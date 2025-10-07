@@ -1,155 +1,142 @@
 #!/usr/bin/env python3
-"""
-Fetch fixtures for a date window and save JSON/CSV.
-
-ENV:
-  SPORTMONKS_TOKEN  (required)
-  DAYS_AHEAD        (optional, default 14)
-  FILTER_LEAGUES    (optional, comma list; if set, request is limited to those leagues)
-"""
-
-import csv
-import datetime as dt
-import json
 import os
 import sys
-import time
-from typing import Dict, List, Optional
+import json
+import csv
+import pathlib
+from datetime import datetime, timezone, timedelta
+from urllib.parse import urlparse, parse_qs
+
 import requests
 
-API_BASE = "https://api.sportmonks.com/v3/football"
-TOKEN = os.getenv("SPORTMONKS_TOKEN", "").strip()
+API_BASE = "https://api.sportmonks.com/v3/football/fixtures/between"
+INCLUDE = "participants;state"  # keep it small/cheap
+
+TOKEN = os.getenv("SPORTMONKS_TOKEN")
 if not TOKEN:
-    print("ERROR: SPORTMONKS_TOKEN is not set", file=sys.stderr)
-    sys.exit(2)
+    print("ERROR: SPORTMONKS_TOKEN is not set in the environment.", file=sys.stderr)
+    sys.exit(1)
 
-DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "14"))
-_filter_env = os.getenv("FILTER_LEAGUES", "").strip()
-FILTER_LEAGUES: Optional[List[int]] = (
-    [int(x) for x in _filter_env.split(",") if x.strip().isdigit()] if _filter_env else None
-)
+# Optional comma-separated league IDs from env, e.g. "8,9,564"
+LEAGUE_FILTER = os.getenv("FILTER_LEAGUES", "").strip()
+LEAGUE_FILTER = ",".join([p.strip() for p in LEAGUE_FILTER.split(",") if p.strip()]) or None
 
-DATA_DIR = "data"
-BY_DAY_DIR = os.path.join(DATA_DIR, "fixtures_by_day")
-os.makedirs(BY_DAY_DIR, exist_ok=True)
+DATA_DIR = pathlib.Path("data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def today_utc_date() -> dt.date:
-    return dt.datetime.utcnow().date()
+def dt_utc_today():
+    return datetime.now(timezone.utc).date()
 
-def get_between(start: dt.date, end: dt.date, leagues: Optional[List[int]]) -> List[Dict]:
-    """Call fixtures/between with pagination; include leagues filter only if provided."""
-    start_str = start.strftime("%Y-%m-%d")
-    end_str = end.strftime("%Y-%m-%d")
+def fmt(d):
+    return d.strftime("%Y-%m-%d")
+
+def fetch_between(start_date, end_date, leagues=None):
+    """
+    Fetch fixtures between start_date and end_date (inclusive) with robust pagination.
+    Returns a list of fixture dicts.
+    """
+    fixtures = []
     page = 1
-    all_fx: List[Dict] = []
+    params = {
+        "api_token": TOKEN,
+        "include": INCLUDE,
+        "page": page,
+    }
+    # If you want to filter at the API, pass leagues (comma-separated string)
+    if leagues:
+        params["leagues"] = leagues
+
+    url = f"{API_BASE}/{fmt(start_date)}/{fmt(end_date)}"
     while True:
-        params = {
-            "api_token": TOKEN,
-            "include": "participants;state",
-            "page": page,
-        }
-        if leagues:
-            params["leagues"] = ",".join(map(str, leagues))
-
-        url = f"{API_BASE}/fixtures/between/{start_str}/{end_str}"
-        # DEBUG: exact URL being sent
-        req_url = requests.Request("GET", url, params=params).prepare().url
-        print(f"DEBUG URL (page {page}): {req_url}")
-
+        params["page"] = page
         resp = requests.get(url, params=params, timeout=30)
-        if resp.status_code == 429:
-            wait = max(int(resp.headers.get("Retry-After", "5")), 5)
-            print(f"429 rate limited, sleeping {wait}s…")
-            time.sleep(wait)
-            continue
-        resp.raise_for_status()
+        if resp.status_code != 200:
+            print(f"ERROR: HTTP {resp.status_code} for page {page}: {resp.text[:500]}", file=sys.stderr)
+            sys.exit(1)
+
         payload = resp.json()
+        # SportMonks v3 returns arrays in 'data'
+        batch = payload.get("data") or []
+        fixtures.extend(batch)
 
-        data = payload.get("data") or payload.get("response") or payload
-        if not isinstance(data, list):
-            data = payload.get("data", {}).get("data", []) or []
+        meta = payload.get("meta") or {}
+        next_page = meta.get("next_page")
 
-        print(f"  page {page}: received {len(data)} fixtures")
-        all_fx.extend(data)
+        # DEBUG lines (safe to leave in)
+        if page == 1:
+            dbg_url = resp.url
+            print(f"DEBUG URL (page 1): {dbg_url}")
+        print(f"  page {page}: received {len(batch)} fixtures")
 
-        pag = payload.get("pagination") or payload.get("meta", {}).get("pagination")
-        if not pag:
+        if not next_page:
             break
-        has_more = pag.get("has_more")
-        next_page = pag.get("next_page")
-        current = pag.get("current_page") or page
-        total_pages = pag.get("total_pages") or pag.get("total_pages_count")
 
-        if has_more and next_page:
-            page = int(next_page)
-            continue
-        if total_pages and current < total_pages:
-            page += 1
-            continue
-        break
+        # Handle both int and URL forms for next_page
+        if isinstance(next_page, int):
+            page = next_page
+        elif isinstance(next_page, str):
+            # Try to extract ?page=X from the URL; if missing, just increment
+            try:
+                q = parse_qs(urlparse(next_page).query)
+                page = int((q.get("page") or [page + 1])[0])
+            except Exception:
+                page += 1
+        else:
+            # Unrecognized form — stop gracefully
+            break
 
-    print(f"TOTAL fixtures collected: {len(all_fx)}")
-    return all_fx
+    return fixtures
 
-def save_json(path: str, obj: Dict):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+def save_outputs(start_date, end_date, fixtures):
+    # JSON
+    out_json = {
+        "generated_at": datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
+        "window_start": fmt(start_date),
+        "window_end": fmt(end_date),
+        "fixtures": fixtures,
+        "leagues": [int(x) for x in (LEAGUE_FILTER.split(",") if LEAGUE_FILTER else [])],
+    }
+    json_path = DATA_DIR / "fixtures_window.json"
+    json_path.write_text(json.dumps(out_json, indent=2))
+    print(f"Wrote {json_path} ({len(fixtures)} fixtures)")
 
-def save_csv(path: str, fixtures: List[Dict]):
-    cols = ["id","league_id","league_name","starting_at","home_team","away_team","state"]
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    # CSV (compact)
+    csv_path = DATA_DIR / "fixtures_window.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(cols)
+        w.writerow(["id", "league_id", "league_name", "starting_at", "home_team", "away_team", "state"])
         for fx in fixtures:
+            lid = fx.get("league_id")
+            league_name = fx.get("league_name") or ""
+            starting_at = fx.get("starting_at") or ""
             parts = fx.get("participants") or []
-            home = next((p for p in parts if (p.get("meta") or {}).get("location") == "home"), {})
-            away = next((p for p in parts if (p.get("meta") or {}).get("location") == "away"), {})
-            state = (fx.get("state") or {}).get("name")
-            w.writerow([
-                fx.get("id"),
-                fx.get("league_id"),
-                fx.get("league_name"),
-                fx.get("starting_at"),
-                home.get("name"),
-                away.get("name"),
-                state,
-            ])
-
-def split_by_day(fixtures: List[Dict]) -> Dict[str, List[Dict]]:
-    by_day: Dict[str, List[Dict]] = {}
-    for fx in fixtures:
-        ts = fx.get("starting_at", "")
-        day = ts.split(" ")[0] if " " in ts else ts[:10]
-        by_day.setdefault(day, []).append(fx)
-    return by_day
+            home, away = "", ""
+            for p in parts:
+                loc = ((p.get("meta") or {}).get("location") or "").lower()
+                if loc == "home":
+                    home = p.get("name") or ""
+                elif loc == "away":
+                    away = p.get("name") or ""
+            state = (fx.get("state") or {}).get("name") or ""
+            w.writerow([fx.get("id"), lid, league_name, starting_at, home, away, state])
+    print(f"Wrote {csv_path}")
 
 def main():
-    start = today_utc_date()
-    end = start + dt.timedelta(days=DAYS_AHEAD)
-    print(f"Fetching fixtures for {start} → {end} (UTC). "
-          f"League filter: {'ALL' if not FILTER_LEAGUES else ','.join(map(str,FILTER_LEAGUES))}")
+    # Default 14-day window
+    start = dt_utc_today()
+    end = start + timedelta(days=14)
 
-    fixtures = get_between(start, end, FILTER_LEAGUES)
+    print(f"Fetching fixtures for {fmt(start)} → {fmt(end)} (UTC). League filter: {LEAGUE_FILTER or 'ALL'}")
 
-    window_obj = {
-        "generated_at": dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ"),
-        "window_start": start.strftime("%Y-%m-%d"),
-        "window_end": end.strftime("%Y-%m-%d"),
-        "fixtures": fixtures,
-        "leagues": (FILTER_LEAGUES or "ALL"),
-    }
+    fixtures = fetch_between(start, end, leagues=LEAGUE_FILTER)
 
-    os.makedirs(DATA_DIR, exist_ok=True)
-    json_path = os.path.join(DATA_DIR, "fixtures_window.json")
-    csv_path = os.path.join(DATA_DIR, "fixtures_window.csv")
-    save_json(json_path, window_obj)
-    save_csv(csv_path, fixtures)
-    print(f"Saved {json_path} and {csv_path}")
+    # If you chose not to filter at the API level but still want to filter locally:
+    if not LEAGUE_FILTER and os.getenv("FILTER_LOCALLY") == "1":
+        keep = set(int(x) for x in (os.getenv("FILTER_LEAGUES", "").split(",") if os.getenv("FILTER_LEAGUES") else []) if x.strip())
+        if keep:
+            fixtures = [fx for fx in fixtures if int(fx.get("league_id") or 0) in keep]
 
-    per_day = split_by_day(fixtures)
-    for day, flist in per_day.items():
-        save_json(os.path.join(BY_DAY_DIR, f"{day}.json"), {"date": day, "fixtures": flist})
-    print(f"Wrote {len(per_day)} day files to {BY_DAY_DIR}")
+    save_outputs(start, end, fixtures)
 
 if __name__ == "__main__":
     main()
