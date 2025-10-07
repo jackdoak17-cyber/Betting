@@ -1,0 +1,36 @@
+name: Fetch lineups (next 5 days)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lineups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run lineup fetcher
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          DAYS_AHEAD: '5'
+        run: python scripts/fetch_lineups.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lineups
+          path: |
+            data/lineups_*.json
+            data/lineups_*.csv
+            data/fixtures_window.json
