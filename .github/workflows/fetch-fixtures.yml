@@ -2,28 +2,40 @@ name: Fetch fixtures (next 14 days)
 
 on:
   workflow_dispatch:
+    inputs:
+      start:
+        description: "Start date (YYYY-MM-DD). Leave empty for today"
+        required: false
+      end:
+        description: "End date (YYYY-MM-DD). Leave empty for today+14"
+        required: false
 
 jobs:
   fixtures:
     runs-on: ubuntu-latest
-    env:
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      DAYS_AHEAD: "14"          # change if you want
-      # FILTER_LEAGUES: "8,9,564"   # leave unset to fetch ALL leagues
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install requests
 
       - name: Run fixtures fetcher
-        run: python scripts/fetch_fixtures.py
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          SPORTMONKS_BASE_URL: https://api.sportmonks.com/v3
+          FIXTURES_START: ${{ github.event.inputs.start }}
+          FIXTURES_END: ${{ github.event.inputs.end }}
+        run: |
+          python scripts/fetch_fixtures.py
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -32,5 +44,3 @@ jobs:
           path: |
             data/fixtures_window.json
             data/fixtures_window.csv
-            data/fixtures_by_day/*.json
-          if-no-files-found: warn
