@@ -1,252 +1,218 @@
 #!/usr/bin/env python3
 """
-Fetch upcoming fixtures from SportMonks and write JSON files to the repo.
+Fetch upcoming fixtures from Sportmonks and persist results to the repo.
 
-Env vars:
-  SPORTMONKS_TOKEN  (required)  -> your API token (set as a repo secret)
-  LEAGUE_IDS        (optional)  -> comma-separated league IDs to include
-  DAYS_AHEAD        (optional)  -> number of days ahead to fetch (max 100, default 21)
-  START_DATE        (optional)  -> YYYY-MM-DD; defaults to today (UTC)
-  OUT_DIR           (optional)  -> output directory (default: data/fixtures)
+Outputs (all overwritten on each run):
+- data/fixtures/latest.json                -> merged fixtures across all leagues
+- data/fixtures/by_league/{league_id}.json -> fixtures per league
+- data/fixtures/summary.txt                -> short header summary (counts, dates, leagues)
+- data/fixtures/fixtures.txt               -> human-readable list of all fixtures
 
-Outputs:
-  - {OUT_DIR}/latest.json                          -> all upcoming fixtures (combined)
-  - {OUT_DIR}/by_league/{league_id}.json           -> upcoming fixtures per league
-  - {OUT_DIR}/summary.txt                          -> small human-readable summary
+Auth:
+- Set SPORTMONKS_TOKEN in GitHub Secrets and export as env for the job.
 """
+
+from __future__ import annotations
 import os
 import sys
 import json
 import time
 import pathlib
+import datetime as dt
 from typing import Dict, List, Any
-from datetime import datetime, timedelta, timezone
+import urllib.request
+import urllib.parse
 
-import requests
+# -------------------------
+# Config
+# -------------------------
 
-API_BASE = "https://api.sportmonks.com/v3/football/fixtures/between/{start}/{end}"
+ALLOWED_LEAGUES = [
+    8,    # Premier League
+    9,    # Championship
+    384,  # Serie A
+    387,  # Serie B
+    82,   # Bundesliga
+    301,  # Ligue 1
+    564,  # La Liga
+    567,  # La Liga 2
+    600,  # Süper Lig
+]
 
-# Default leagues (your list)
-DEFAULT_LEAGUES = "8,9,384,387,82,301,564,567,600"
+# Window: today -> today + 21 days (inclusive of start)
+WINDOW_DAYS = int(os.getenv("FIXTURE_WINDOW_DAYS", "21"))
 
+# Base output folder
+BASE_DIR = pathlib.Path("data/fixtures")
 
-def utc_today_str() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+# Sportmonks
+SPORTMONKS_TOKEN = os.getenv("SPORTMONKS_TOKEN")
+API_BASE = "https://api.sportmonks.com/v3/football/fixtures/between"
 
+# polite rate limiting
+PER_REQUEST_SLEEP = float(os.getenv("FIXTURE_REQUEST_DELAY_SEC", "0.4"))
 
-def clamp_days(n: int, lo: int, hi: int) -> int:
-    return max(lo, min(n, hi))
+# -------------------------
+# Helpers
+# -------------------------
 
-
-def parse_env() -> Dict[str, Any]:
-    token = os.getenv("SPORTMONKS_TOKEN", "").strip()
-    if not token:
-        print("ERROR: SPORTMONKS_TOKEN is not set", file=sys.stderr)
+def _ensure_env() -> None:
+    if not SPORTMONKS_TOKEN:
+        print("ERROR: SPORTMONKS_TOKEN is not set.", file=sys.stderr)
         sys.exit(1)
 
-    leagues_csv = os.getenv("LEAGUE_IDS", DEFAULT_LEAGUES)
-    league_ids = [x.strip() for x in leagues_csv.split(",") if x.strip()]
-
-    days_ahead = clamp_days(int(os.getenv("DAYS_AHEAD", "21")), 1, 100)
-
-    start_date = os.getenv("START_DATE", utc_today_str())
-    # end_date is inclusive in SportMonks date-path style; keep within 100 days
-    end_date_dt = datetime.fromisoformat(start_date) + timedelta(days=days_ahead)
-    end_date = end_date_dt.date().isoformat()
-
-    out_dir = os.getenv("OUT_DIR", "data/fixtures")
-
-    cfg = {
-        "token": token,
-        "league_ids": league_ids,
-        "leagues_csv": ",".join(league_ids),
-        "days_ahead": days_ahead,
-        "start_date": start_date,
-        "end_date": end_date,
-        "out_dir": out_dir,
-        "per_page": 50,
-    }
-    return cfg
-
-
-def safe_makedirs(path: pathlib.Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
-
-
-def request_with_retry(url: str, params: Dict[str, Any], max_tries: int = 5) -> requests.Response:
-    """Basic retry with 429 handling and backoff."""
-    backoff = 2
-    for attempt in range(1, max_tries + 1):
-        resp = requests.get(url, params=params, timeout=60)
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("Retry-After", str(backoff)))
-            time.sleep(retry_after)
-            backoff = min(backoff * 2, 60)
-            continue
-        if 200 <= resp.status_code < 300:
-            return resp
-        # transient 5xx
-        if 500 <= resp.status_code < 600 and attempt < max_tries:
-            time.sleep(backoff)
-            backoff = min(backoff * 2, 60)
-            continue
-        # give up
-        resp.raise_for_status()
-    return resp  # type: ignore
-
-
-def fetch_all_pages(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
-    url = API_BASE.format(start=cfg["start_date"], end=cfg["end_date"])
-    fixtures: List[Dict[str, Any]] = []
-    seen_ids = set()
-
-    page = 1
-    while True:
-        params = {
-            "api_token": cfg["token"],
-            "filters": f"fixtureLeagues:{cfg['leagues_csv']}",
-            "order": "asc",
-            "per_page": cfg["per_page"],
-            "page": page,
-        }
-        resp = request_with_retry(url, params)
-        payload = resp.json()
-
-        data = payload.get("data", [])
-        # de-dup just in case
-        added = 0
-        for fx in data:
-            fx_id = fx.get("id")
-            if fx_id in seen_ids:
-                continue
-            fixtures.append(fx)
-            seen_ids.add(fx_id)
-            added += 1
-
-        # pagination heuristics: prefer 'pagination.has_more'; fallback to len(data)<per_page
-        pagination = payload.get("pagination") or payload.get("meta", {}).get("pagination")
-        if pagination is not None:
-            has_more = pagination.get("has_more")
-            if has_more:
-                page += 1
-                continue
-            else:
-                break
-        else:
-            if len(data) == cfg["per_page"]:
-                page += 1
-                continue
-            break
-
-    return fixtures
-
-
-def parse_start(when: str) -> datetime:
-    # SportMonks returns "YYYY-MM-DD HH:MM:SS" in UTC
-    dt = datetime.strptime(when, "%Y-%m-%d %H:%M:%S")
-    return dt.replace(tzinfo=timezone.utc)
-
-
-def filter_upcoming(fixtures: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    now = datetime.now(timezone.utc)
-    result: List[Dict[str, Any]] = []
-    for fx in fixtures:
-        start_str = fx.get("starting_at")
-        if not start_str:
-            continue
-        try:
-            start_dt = parse_start(start_str)
-        except Exception:
-            continue
-        if start_dt >= now:
-            result.append(fx)
-    # sort by start time
-    result.sort(key=lambda x: x.get("starting_at", ""))
-    return result
-
-
-def group_by_league(fixtures: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
-    grouped: Dict[str, List[Dict[str, Any]]] = {}
-    for fx in fixtures:
-        lg = str(fx.get("league_id"))
-        grouped.setdefault(lg, []).append(fx)
-    return grouped
-
-
-def main() -> None:
-    cfg = parse_env()
-
-    print(
-        f"Fetching fixtures {cfg['start_date']} -> {cfg['end_date']} "
-        f"for leagues [{cfg['leagues_csv']}]"
+def _dates_utc() -> tuple[str, str, str]:
+    now = dt.datetime.now(dt.timezone.utc)
+    start = now.date()
+    end = (now + dt.timedelta(days=WINDOW_DAYS)).date()
+    return (
+        now.isoformat(),
+        start.isoformat(),
+        end.isoformat(),
     )
 
-    raw = fetch_all_pages(cfg)
-    upcoming = filter_upcoming(raw)
-    grouped = group_by_league(upcoming)
+def _http_get(url: str) -> Dict[str, Any]:
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        data = r.read()
+    try:
+        return json.loads(data.decode("utf-8"))
+    except json.JSONDecodeError:
+        # Sometimes Sportmonks returns bytes with BOM/odd chars
+        return json.loads(data.decode("utf-8", errors="ignore"))
 
-    out_root = pathlib.Path(cfg["out_dir"])
-    safe_makedirs(out_root)
-    by_league_dir = out_root / "by_league"
-    safe_makedirs(by_league_dir)
+def _build_url(start_date: str, end_date: str, league_id: int) -> str:
+    # Sportmonks between endpoint; restrict to upcoming “not started/finished” via states if desired.
+    # We’ll rely on their default upcoming for the window; filter client-side too.
+    qs = {
+        "api_token": SPORTMONKS_TOKEN,
+        "leagues": str(league_id),
+        # include odds flags etc. not required here; keep payload lean
+        "per_page": "200",
+    }
+    return f"{API_BASE}/{urllib.parse.quote(start_date)}/{urllib.parse.quote(end_date)}?{urllib.parse.urlencode(qs)}"
 
-    # Write combined
-    combined_path = out_root / "latest.json"
-    with combined_path.open("w", encoding="utf-8") as f:
-        json.dump(
-            {
-                "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-                "start_date": cfg["start_date"],
-                "end_date": cfg["end_date"],
-                "league_ids": cfg["league_ids"],
-                "count": len(upcoming),
-                "data": upcoming,
-            },
-            f,
-            ensure_ascii=False,
-            indent=2,
-        )
+def _is_future(fx: Dict[str, Any]) -> bool:
+    # Keep fixtures that have not started (state_id 1 = Not started in Sportmonks v3)
+    # Also sanity-check by start timestamp in the future.
+    try:
+        st_ts = int(fx.get("starting_at_timestamp") or 0)
+    except Exception:
+        st_ts = 0
+    state_id = fx.get("state_id")
+    now_ts = int(time.time())
+    return (state_id in (1, None)) and (st_ts == 0 or st_ts > now_ts)
 
-    # Write per-league
-    total_written = 0
-    for league_id, items in grouped.items():
-        p = by_league_dir / f"{league_id}.json"
-        with p.open("w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "league_id": int(league_id),
-                    "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-                    "start_date": cfg["start_date"],
-                    "end_date": cfg["end_date"],
-                    "count": len(items),
-                    "data": items,
-                },
-                f,
-                ensure_ascii=False,
-                indent=2,
-            )
-        total_written += len(items)
+def _sort_key(fx: Dict[str, Any]):
+    # sort by start time, then league, then id
+    return (
+        int(fx.get("starting_at_timestamp") or 0),
+        int(fx.get("league_id") or 0),
+        int(fx.get("id") or 0),
+    )
 
-    # Simple summary for logs
-    summary = out_root / "summary.txt"
-    with summary.open("w", encoding="utf-8") as f:
-        lines = [
-            f"Time (UTC): {datetime.now(timezone.utc).isoformat()}",
-            f"Window    : {cfg['start_date']} -> {cfg['end_date']}",
-            f"Leagues   : {cfg['leagues_csv']}",
-            f"Fixtures  : {len(upcoming)} (written {total_written})",
-            "",
-        ]
-        # top 10 lines for quick view
-        for fx in upcoming[:10]:
-            lines.append(f"{fx.get('id')} | {fx.get('starting_at')} | {fx.get('name')}")
-        f.write("\n".join(lines))
+def _write_text(path: pathlib.Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
 
-    print(f"Wrote {len(upcoming)} upcoming fixtures")
-    print(f"- {combined_path}")
-    print(f"- {by_league_dir}/*")
-    print(f"- {summary}")
+def _write_json(path: pathlib.Path, obj: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+
+# -------------------------
+# Main
+# -------------------------
+
+def main() -> int:
+    _ensure_env()
+    generated_at_utc, start_date, end_date = _dates_utc()
+
+    all_fixtures: List[Dict[str, Any]] = []
+    per_league: Dict[int, List[Dict[str, Any]]] = {lid: [] for lid in ALLOWED_LEAGUES}
+
+    # Fetch per league (keeps us under paging/rate pressure and lets us persist by-league files)
+    for lid in ALLOWED_LEAGUES:
+        url = _build_url(start_date, end_date, lid)
+        try:
+            payload = _http_get(url)
+        except Exception as e:
+            print(f"[warn] league {lid}: request failed: {e}", file=sys.stderr)
+            continue
+
+        # Sportmonks v3 returns {"data": [...]} at top-level
+        items = payload.get("data") or []
+        # filter to future/not started
+        items = [fx for fx in items if _is_future(fx)]
+        items.sort(key=_sort_key)
+
+        per_league[lid] = items
+        all_fixtures.extend(items)
+
+        # Write per-league JSON (overwrite)
+        _write_json(BASE_DIR / "by_league" / f"{lid}.json", {
+            "generated_at_utc": generated_at_utc,
+            "start_date": start_date,
+            "end_date": end_date,
+            "league_id": str(lid),
+            "count": len(items),
+            "data": items,
+        })
+
+        # small delay between requests
+        time.sleep(PER_REQUEST_SLEEP)
+
+    # Dedup in case an item appears twice (shouldn’t, but safe)
+    # Use dict by id
+    dedup: Dict[int, Dict[str, Any]] = {}
+    for fx in all_fixtures:
+        fid = int(fx.get("id") or 0)
+        if fid:
+            dedup[fid] = fx
+    merged = list(dedup.values())
+    merged.sort(key=_sort_key)
+
+    # Write merged latest.json (overwrite)
+    latest_obj = {
+        "generated_at_utc": generated_at_utc,
+        "start_date": start_date,
+        "end_date": end_date,
+        "league_ids": [str(l) for l in ALLOWED_LEAGUES],
+        "count": len(merged),
+        "data": merged,
+    }
+    _write_json(BASE_DIR / "latest.json", latest_obj)
+
+    # Human-readable files
+    # 1) summary.txt
+    summary_lines = [
+        f"fixtures = Time (UTC): {generated_at_utc}",
+        f"Window    : {start_date} -> {end_date}",
+        f"Leagues   : {','.join(str(l) for l in ALLOWED_LEAGUES)}",
+        f"Fixtures  : {len(merged)} (written {len(merged)})",
+        "",
+    ]
+    _write_text(BASE_DIR / "summary.txt", "\n".join(summary_lines).rstrip() + "\n")
+
+    # 2) fixtures.txt — full list, one per line
+    list_lines = []
+    for fx in merged:
+        fid = fx.get("id")
+        start_str = fx.get("starting_at") or ""
+        name = fx.get("name") or ""
+        list_lines.append(f"{fid} | {start_str} | {name}")
+    # If you ever want to clip, set FIXTURE_LIST_LIMIT; default = 0 (no clip)
+    limit = int(os.getenv("FIXTURE_LIST_LIMIT", "0"))
+    if limit > 0:
+        list_lines = list_lines[:limit]
+    pretty = "\n".join(summary_lines + list_lines)
+    _write_text(BASE_DIR / "fixtures.txt", pretty.rstrip() + "\n")
+
+    # Console echo (useful in Actions logs)
+    print("\n".join(summary_lines[:4]))
+    print(f"(Saved to {BASE_DIR}/latest.json, by_league/*.json, summary.txt, fixtures.txt)")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
