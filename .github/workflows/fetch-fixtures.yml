@@ -3,13 +3,22 @@ name: Fetch fixtures (Sportmonks only)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * 1"   # every Monday 05:00 UTC
+    - cron: "0 5 * * 1"  # Mondays 05:00 UTC
+
+# ✅ allow pushing commits
+permissions:
+  contents: write
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true  # keep token for git push
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,8 +34,7 @@ jobs:
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           DAYS_AHEAD: "21"
-        run: |
-          python scripts/fetch_fixtures.py
+        run: python scripts/fetch_fixtures.py
 
       - name: Commit & push if changed
         run: |
