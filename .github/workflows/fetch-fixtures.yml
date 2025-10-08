@@ -8,18 +8,8 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      # Repo secret required: SPORTMONKS_TOKEN
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      # Alias env in case the script expects this older name
-      SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      DAYS_AHEAD: "21"
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,25 +19,23 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install -r requirements.txt
 
-      - name: Sanity check env vars
+      - name: Fetch fixtures
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          DAYS_AHEAD: "21"
         run: |
-          : "${SPORTMONKS_TOKEN:?Missing SPORTMONKS_TOKEN}"
-          : "${SPORTMONKS_API_TOKEN:?Missing SPORTMONKS_API_TOKEN}"
-          echo "Env looks good."
+          python scripts/fetch_fixtures.py
 
-      - name: Run fetcher
-        run: python scripts/fetch_fixtures.py
-
-      - name: Commit results (if changed)
+      - name: Commit & push if changed
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A data/fixtures || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "chore(fixtures): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A data/fixtures
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(fixtures): update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push
+          else
+            echo "No changes to commit."
           fi
