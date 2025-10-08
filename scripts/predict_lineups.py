@@ -315,3 +315,157 @@ def get_team_unavailable_player_ids(team_id: int) -> Dict[int, dict]:
     out: Dict[int, dict] = {}
 
     # Attempt 1: team include sidelined
+    try:
+        j = sm_get(f"teams/{team_id}", {"include": "sidelined;players.sidelined"})
+        data = j.get("data") or {}
+        for key in ("sidelined",):
+            out.update({pid: rec for pid, rec in _parse_sidelined_records(data.get(key)).items()
+                        if _is_active_sidelined(rec, today)})
+        # also check players[].sidelined
+        players = data.get("players") or []
+        for p in players:
+            pid = p.get("id")
+            recs = _parse_sidelined_records(p.get("sidelined"))
+            for sid_pid, rec in recs.items():
+                if _is_active_sidelined(rec, today):
+                    out[sid_pid] = rec
+    except Exception:
+        pass
+
+    # Attempt 2: generic sidelined search endpoints (best-effort)
+    for path in (f"sidelined?team_id={team_id}", f"sidelined/teams/{team_id}"):
+        try:
+            j = sm_get(path)
+            recs = _parse_sidelined_records(j.get("data") if isinstance(j, dict) else j)
+            for pid, rec in recs.items():
+                if _is_active_sidelined(rec, today):
+                    out[pid] = rec
+        except Exception:
+            pass
+
+    return out
+
+# ---------- prediction ----------
+def predict_team_xi_from_last(team_id: int, league_id: int) -> Tuple[List[dict], dict, str]:
+    """
+    Returns (predicted_xi, unavailable_map, source_note)
+    predicted_xi: list of 11 (or fewer if last XI < 11) with fields:
+      {player_id, player_name, pos, jersey_number, availability: EXPECTED|OUT, unavailable_reason}
+    unavailable_map: {player_id: sidelined_record}
+    """
+    last = get_team_last_fixture_with_xi(team_id, league_id)
+    if not last:
+        return [], {}, "no_last_xi_found"
+
+    lineups = last.get("lineups") or []
+    starters = [l for l in lineups if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
+    starters.sort(key=lambda x: x.get("formation_position") or 9999)
+
+    unavailable = get_team_unavailable_player_ids(team_id)
+
+    xi = []
+    for lp in starters[:11]:
+        pid = int(lp.get("player_id"))
+        xi.append({
+            "player_id": pid,
+            "player_name": (lp.get("player_name") or "").strip(),
+            "pos": pos_id_to_label(lp.get("position_id")),
+            "jersey_number": lp.get("jersey_number"),
+            "availability": "OUT" if pid in unavailable else "EXPECTED",
+            "unavailable_reason": (unavailable.get(pid) or {}).get("reason") if pid in unavailable else None,
+        })
+    return xi, unavailable, "last_league_fixture"
+
+def ensure_dir(p: Path) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
+
+def write_fixture_prediction(fx: dict, payload: dict) -> None:
+    league_id = fx.get("league_id")
+    fid = fx.get("id")
+    outp = PRED_ROOT / str(league_id) / f"{fid}.json"
+    ensure_dir(outp)
+    outp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+# ---------- main ----------
+def main():
+    fixtures = load_all_fixtures()
+    if not fixtures:
+        raise SystemExit("No fixtures found under data/fixtures/. Run the fetch job first.")
+
+    total = len(fixtures)
+    print(f"Predicting lineups for {total} fixtures (batches of {BATCH_SIZE})…")
+
+    processed = 0
+    written = 0
+    per_league_counts: Dict[int, int] = {}
+
+    batch_counter = 0
+    for fx in fixtures:
+        fid = fx.get("id"); lid = fx.get("league_id")
+        parts = fx.get("participants") or []
+        home, away = pick_home_away(parts)
+        if not (fid and lid and home and away):
+            continue
+
+        # Build for both teams (always from last league XI)
+        home_xi, home_out_map, src_h = predict_team_xi_from_last(home["id"], lid)
+        away_xi, away_out_map, src_a = predict_team_xi_from_last(away["id"], lid)
+
+        payload = {
+            "fixture_id": fid,
+            "league_id": lid,
+            "fixture_name": fx.get("name"),
+            "starting_at": fx.get("starting_at"),
+            "computed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "assumptions": "No official XI used; predicted from last league fixture starters. Players with active injury/suspension flagged as OUT when available from API.",
+            "teams": {
+                "home": {
+                    "team_id": home["id"],
+                    "team_name": home.get("name"),
+                    "predicted_xi": home_xi,
+                    "unavailable": home_out_map,   # raw records keyed by player_id
+                    "source": src_h
+                },
+                "away": {
+                    "team_id": away["id"],
+                    "team_name": away.get("name"),
+                    "predicted_xi": away_xi,
+                    "unavailable": away_out_map,
+                    "source": src_a
+                }
+            }
+        }
+
+        write_fixture_prediction(fx, payload)
+        written += 1
+        per_league_counts[lid] = per_league_counts.get(lid, 0) + 1
+
+        processed += 1
+        batch_counter += 1
+
+        if batch_counter >= BATCH_SIZE:
+            # brief pause between batches to be extra gentle
+            time.sleep(2.0)
+            batch_counter = 0
+
+    # summary
+    summary_path = PRED_ROOT / "summary.txt"
+    lines = [
+        f"Time (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}",
+        f"Fixtures processed: {processed}",
+        f"Files written: {written}",
+        "",
+        "Per league counts:",
+    ]
+    for lid in sorted(per_league_counts):
+        lines.append(f"  - {lid}: {per_league_counts[lid]}")
+    summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    print("\n".join(lines))
+
+if __name__ == "__main__":
+    try:
+        main()
+    except requests.HTTPError as e:
+        print(f"\nHTTPError: {e}\n")
+        raise
