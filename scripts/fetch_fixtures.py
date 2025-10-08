@@ -1,243 +1,201 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Fetch upcoming fixtures (Sportmonks v3) for a fixed set of leagues, within a rolling window.
+Fetch upcoming fixtures (Sportmonks only) for a fixed set of leagues and write:
+- JSON per-league: data/fixtures/<league_id>.json
+- A verification TXT: data/fixtures/fixtures.txt
 
-What it does
-------------
-- Queries **per league** to avoid cross-league leakage.
-- Paginates defensively.
-- Hard-filters results by ALLOWED_LEAGUES (double safety).
-- Dedupes by fixture id.
-- Sorts output by (starting_at, league_id, id).
-- Writes:
-    data/fixtures/latest.json
-    data/fixtures/summary.txt
-    data/fixtures/by_league/<league_id>.json
-  These files are **overwritten** each run.
+Notes:
+- Filters strictly by the target league IDs (no cross-league leakage).
+- Handles pagination. Retries transient errors.
+- Sorts leagues and fixtures deterministically.
+- Date window: today .. today + DAYS_AHEAD (env, default 21).
+- Requires env var SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN).
 
-Env vars
---------
-SPORTMONKS_API_TOKEN  (required)
-DAYS_AHEAD            (optional, default 21)
+Exit codes:
+  0 on success
+  1 if token missing
+  2 on HTTP error (after retries)
 """
 
 import os
 import sys
 import json
-from pathlib import Path
-from datetime import datetime, date, timedelta
-from typing import Dict, List, Any
-import urllib.request
-import urllib.parse
+import time
+import datetime as dt
+from typing import Dict, List, Optional
 
-# ----- config -----
-ALLOWED_LEAGUES = [8, 9, 82, 301, 384, 387, 564, 567, 600]  # keep sorted
-DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "21"))
-API_TOKEN = os.getenv("SPORTMONKS_API_TOKEN", "").strip()
+import requests
 
-BASE_URL = "https://api.sportmonks.com/v3/football/fixtures/between/{start}/{end}"
-INCLUDE = ",".join([
-    "participants",
-    "league",
-    "season",
-    "venue",
-    "round",
-])
+# ------------------------- Config -------------------------
+API_BASE = "https://api.sportmonks.com/v3"
+SPORT = "football"
 
-OUT_ROOT = Path("data/fixtures")
-OUT_BY_LEAGUE = OUT_ROOT / "by_league"
-OUT_LATEST_JSON = OUT_ROOT / "latest.json"
-OUT_SUMMARY_TXT = OUT_ROOT / "summary.txt"
+# Read token from either name (both supported)
+API_TOKEN = os.getenv("SPORTMONKS_API_TOKEN") or os.getenv("SPORTMONKS_TOKEN")
 
+# Target leagues (Sportmonks IDs) — keep this list as your single source of truth
+TARGET_LEAGUES = [8, 9, 384, 387, 82, 301, 564, 567, 600]
+TARGET_LEAGUES = sorted(TARGET_LEAGUES)  # ensure deterministic order
 
-# ----- http helper -----
-def api_get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
-    q = urllib.parse.urlencode(params, doseq=True)
-    full = f"{url}?{q}"
-    req = urllib.request.Request(full, headers={"User-Agent": "fixtures-bot/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        body = r.read()
+# Date window
+def _int(x, default):
     try:
-        return json.loads(body.decode("utf-8"))
-    except Exception as e:
-        raise RuntimeError(f"Failed to decode JSON from: {full}\nError: {e}\nBody: {body[:500]!r}") from e
+        return int(x)
+    except Exception:
+        return default
 
+DAYS_AHEAD = _int(os.getenv("DAYS_AHEAD"), 21)  # today .. today+N inclusive
 
-def paginate_between(start_iso: str, end_iso: str, league_id: int) -> List[Dict[str, Any]]:
-    """
-    Fetch fixtures between start/end for a single league, following pagination.
-    Works against typical Sportmonks v3 pagination shapes:
-      - meta.pagination.{current_page,total_pages,next_page,per_page}
-      - or 'pagination' at top-level (defensive).
-    """
-    url = BASE_URL.format(start=start_iso, end=end_iso)
-    page = 1
-    collected: List[Dict[str, Any]] = []
+# Networking
+TIMEOUT = 25
+RETRIES = 3
+BACKOFF = 1.7
 
-    while True:
-        params = {
-            "api_token": API_TOKEN,
-            "include": INCLUDE,
-            "filters": f"league_id:{league_id}",
-            "per_page": 200,
-            "page": page,
-        }
-        payload = api_get(url, params)
+# Output paths
+OUT_DIR = os.path.join("data", "fixtures")
+TXT_PATH = os.path.join(OUT_DIR, "fixtures.txt")
 
-        # Most v3 responses are shaped as {"data": [...], "meta": {...}}
-        data = payload.get("data")
-        if isinstance(data, list):
-            collected.extend(data)
-        elif isinstance(payload, dict) and all(k in payload for k in ("id", "starting_at", "league_id")):
-            # extremely defensive: a single object response
-            collected.append(payload)
-        else:
-            # nothing more (or unexpected)
-            break
+# ------------------------- Utils -------------------------
+def today_utc() -> dt.date:
+    return dt.datetime.now(dt.timezone.utc).date()
 
-        # detect next page
-        meta = payload.get("meta", {}) or payload.get("pagination", {}) or {}
-        pg = meta.get("pagination", meta)
-        cur = pg.get("current_page")
-        tot = pg.get("total_pages")
-        nxt = pg.get("next_page")
-        if isinstance(cur, int) and isinstance(tot, int):
-            if cur < tot:
-                page += 1
-                continue
-            break
-        if nxt:
-            page = int(nxt)
-            continue
-        # if no pagination signals, assume single page
-        break
+def daterange_str(start: dt.date, end_inclusive: dt.date) -> List[str]:
+    d = start
+    out = []
+    while d <= end_inclusive:
+        out.append(d.strftime("%Y-%m-%d"))
+        d += dt.timedelta(days=1)
+    return out
 
-    return collected
+def ensure_outdir():
+    os.makedirs(OUT_DIR, exist_ok=True)
 
-
-# ----- utilities -----
-def coerce_starting_at(s: Any) -> str:
-    """Return a safe 'YYYY-MM-DD HH:MM:SS' string or empty string."""
-    if not s:
-        return ""
-    # API often returns 'YYYY-MM-DD HH:MM:SS'
-    return str(s)
-
-
-def hard_filter_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Keep only allowed leagues; dedupe by id."""
-    by_id: Dict[int, Dict[str, Any]] = {}
-    for it in items:
+def http_get_json(url: str, params: dict) -> dict:
+    """GET with basic retries/backoff, returns parsed JSON or raises."""
+    last_exc = None
+    for attempt in range(1, RETRIES + 1):
         try:
-            lid = int(it.get("league_id"))
-        except Exception:
-            continue
-        if lid not in ALLOWED_LEAGUES:
-            continue
-        fid = int(it.get("id"))
-        by_id[fid] = it
-    # sort
-    def sort_key(it: Dict[str, Any]):
-        ts = coerce_starting_at(it.get("starting_at"))
-        lid = int(it.get("league_id", 0))
-        fid = int(it.get("id", 0))
-        return (ts, lid, fid)
-    return sorted(by_id.values(), key=sort_key)
+            r = requests.get(url, params=params, timeout=TIMEOUT)
+            if r.status_code >= 400:
+                # try to show useful context
+                try:
+                    jerr = r.json()
+                except Exception:
+                    jerr = {"message": r.text[:300]}
+                raise requests.HTTPError(f"{r.status_code} {r.reason} for {r.url} :: {jerr}")
+            return r.json()
+        except Exception as e:
+            last_exc = e
+            if attempt < RETRIES:
+                sleep = BACKOFF ** attempt
+                time.sleep(sleep)
+            else:
+                raise
+    raise last_exc  # just in case
 
+def sm_get(path: str, params: Optional[dict] = None) -> dict:
+    if params is None:
+        params = {}
+    params = {**params, "api_token": API_TOKEN}
+    url = f"{API_BASE}/{SPORT}/{path.lstrip('/')}"
+    return http_get_json(url, params)
 
-def write_json(path: Path, obj: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, separators=(",", ":"), indent=2)
+def get_fixtures_for_date(date_str: str, league_filter: set) -> List[dict]:
+    """Fetch fixtures for one date; filter strictly by league_id ∈ league_filter."""
+    params = {
+        "include": "participants;state;league",
+        "order": "asc",
+        "page": 1,
+    }
+    payload = sm_get(f"fixtures/date/{date_str}", params)
+    data = (payload.get("data") or [])
+    meta = payload.get("meta") or {}
+    last_page = int(meta.get("last_page") or 1)
 
+    # pagination
+    for p in range(2, last_page + 1):
+        params["page"] = p
+        payload = sm_get(f"fixtures/date/{date_str}", params)
+        data.extend(payload.get("data") or [])
 
-def write_summary(path: Path, header: str, rows: List[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        f.write(header.rstrip() + "\n")
-        if rows:
-            f.write("\n".join(rows) + "\n")
+    # strict filter & basic integrity
+    out = []
+    for fx in data:
+        if fx.get("league_id") in league_filter and fx.get("participants"):
+            out.append(fx)
+    # deterministic sort
+    out.sort(key=lambda x: (x.get("league_id"), x.get("starting_at") or "", x.get("id") or 0))
+    return out
 
-
+# ------------------------- Main -------------------------
 def main() -> int:
     if not API_TOKEN:
-        print("ERROR: SPORTMONKS_API_TOKEN is not set.", file=sys.stderr)
+        print("ERROR: SPORTMONKS_API_TOKEN/SPORTMONKS_TOKEN not set.", file=sys.stderr)
         return 1
 
-    # dates
-    start = date.today()
-    end = start + timedelta(days=DAYS_AHEAD)
-    start_iso = start.isoformat()
-    end_iso = end.isoformat()
+    ensure_outdir()
 
-    # ensure folders exist
-    OUT_BY_LEAGUE.mkdir(parents=True, exist_ok=True)
-    OUT_ROOT.mkdir(parents=True, exist_ok=True)
+    start = today_utc()
+    end = start + dt.timedelta(days=DAYS_AHEAD)
+    days = daterange_str(start, end)
 
-    # fetch per league
-    all_raw: List[Dict[str, Any]] = []
-    per_league_raw: Dict[int, List[Dict[str, Any]]] = {}
+    league_set = set(TARGET_LEAGUES)
 
-    for lid in ALLOWED_LEAGUES:
+    # Collect fixtures per league
+    fixtures_by_league: Dict[int, List[dict]] = {lid: [] for lid in TARGET_LEAGUES}
+
+    total = 0
+    for ds in days:
         try:
-            items = paginate_between(start_iso, end_iso, lid)
+            fxs = get_fixtures_for_date(ds, league_filter=league_set)
         except Exception as e:
-            print(f"[WARN] League {lid}: fetch error: {e}", file=sys.stderr)
-            items = []
-        per_league_raw[lid] = items
-        all_raw.extend(items)
+            print(f"[WARN] {ds}: {e}", file=sys.stderr)
+            continue
+        # bucket by league
+        for fx in fxs:
+            lid = fx.get("league_id")
+            if lid in fixtures_by_league:
+                fixtures_by_league[lid].append(fx)
+                total += 1
 
-    # hard filter + dedupe globally
-    all_clean = hard_filter_and_dedupe(all_raw)
+    # Deterministic sorting inside each league
+    for lid in TARGET_LEAGUES:
+        fixtures_by_league[lid].sort(key=lambda x: (x.get("starting_at") or "", x.get("id") or 0))
 
-    # also prepare per-league cleaned files
-    per_league_clean: Dict[int, List[Dict[str, Any]]] = {lid: [] for lid in ALLOWED_LEAGUES}
-    for it in all_clean:
-        per_league_clean[int(it["league_id"])].append(it)
+    # Write per-league JSONs
+    written_files = 0
+    for lid in TARGET_LEAGUES:
+        path = os.path.join(OUT_DIR, f"{lid}.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(fixtures_by_league[lid], f, ensure_ascii=False, indent=2)
+        written_files += 1
 
-    # sort each league subset by date then id (already mostly sorted)
-    for lid in ALLOWED_LEAGUES:
-        per_league_clean[lid] = sorted(
-            per_league_clean[lid],
-            key=lambda it: (coerce_starting_at(it.get("starting_at")), int(it.get("id", 0))),
-        )
+    # Write verification TXT (simple, grep-friendly)
+    stamp = dt.datetime.now(dt.timezone.utc).isoformat()
+    txt_lines = [
+        f"Time (UTC): {stamp}",
+        f"Window    : {start.isoformat()} -> {end.isoformat()}",
+        f"Leagues   : {','.join(map(str, TARGET_LEAGUES))}",
+        f"Fixtures  : {total} (written {total})",
+        "",
+        "Per league counts:",
+    ]
+    for lid in TARGET_LEAGUES:
+        txt_lines.append(f"  - {lid}: {len(fixtures_by_league[lid])}")
+    with open(TXT_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(txt_lines) + "\n")
 
-    # write by-league json (overwrite)
-    for lid in ALLOWED_LEAGUES:
-        write_json(OUT_BY_LEAGUE / f"{lid}.json", per_league_clean[lid])
+    # Console echo (useful in Actions logs)
+    print("\n".join(txt_lines))
+    print(f"Wrote {written_files} JSON files to {OUT_DIR} and a verification TXT.")
 
-    # write latest.json (overwrite)
-    meta = {
-        "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-        "start_date": start_iso,
-        "end_date": end_iso,
-        "league_ids": [str(l) for l in ALLOWED_LEAGUES],
-        "count": len(all_clean),
-        "data": all_clean,
-    }
-    write_json(OUT_LATEST_JSON, meta)
-
-    # write summary.txt (overwrite)
-    lines: List[str] = []
-    for it in all_clean:
-        fid = it.get("id")
-        kick = coerce_starting_at(it.get("starting_at"))
-        name = it.get("name") or ""
-        lines.append(f"{fid} | {kick} | {name}")
-
-    header = (
-        "fixtures = "
-        f"Time (UTC): {datetime.utcnow().isoformat(timespec='seconds')}Z\n"
-        f"Window    : {start_iso} -> {end_iso}\n"
-        f"Leagues   : {','.join(str(x) for x in ALLOWED_LEAGUES)}\n"
-        f"Fixtures  : {len(all_clean)} (written {len(all_clean)})"
-    )
-    write_summary(OUT_SUMMARY_TXT, header, lines)
-
-    # console log (useful in Actions log)
-    print(header)
     return 0
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except requests.HTTPError as e:
+        print(f"\nHTTPError: {e}\n", file=sys.stderr)
+        sys.exit(2)
