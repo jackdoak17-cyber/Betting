@@ -4,27 +4,33 @@
 """
 Predict lineups for all fixtures we have fetched, in *shards* to respect rate limits.
 
-Rules:
-- NO official current-match lineup; we *assume* the previous league fixture XI.
-- If we can't find a last-league XI fast, we stop early (no deep day-by-day scan).
-- Mark players OUT if team sidelined list says injury/suspension (best-effort).
-- Process fixtures in batches of 3 (light throttle) + per-request micro-sleep.
-- Shardable: use --shards 3 --shard 0/1/2 to split the workload across scheduled runs.
+Assumptions:
+- Ignore any official current-match lineup. We *assume* starters from the team's
+  **previous league fixture** that has a recorded XI.
+- If we can't find a last-league XI quickly, we stop early (bounded fallback).
+- Players shown as sidelined (injury/suspension) are flagged as OUT (best-effort).
 
-Input:
-- Reads fixtures from data/fixtures/by_league/{LEAGUE_ID}.json
-  (falls back to data/fixtures/{LEAGUE_ID}.json)
+Rate limiting & stability:
+- Process fixtures in batches of 3 with short sleeps between requests/batches.
+- Bounded fallback: scan back at most 45 days if the 'latest' data isn't enough.
+- Shardable: run with --shards 3 and --shard 0/1/2 so you can schedule
+  separate hourly runs (06:00, 07:30, 09:00 UTC on Mondays).
 
-Output:
+Inputs:
+- Reads fixtures from data/fixtures/by_league/{LEAGUE_ID}.json (preferred),
+  falls back to data/fixtures/{LEAGUE_ID}.json if needed.
+  These files come from your existing "fetch fixtures" workflow.
+
+Outputs:
 - data/predicted_xi/{league_id}/{fixture_id}.json
+- data/predicted_xi/latest.json
 - data/predicted_xi/summary.txt
 
 Env:
-  SPORTMONKS_TOKEN
+  SPORTMONKS_TOKEN  (required)
 """
 
 import os
-import re
 import json
 import time
 import argparse
@@ -51,7 +57,7 @@ SLEEP_BETWEEN_BATCHES = 1.5       # seconds between batches
 MAX_FALLBACK_DAYS = 45            # stop scanning after this many days
 LINEUP_TYPE_STARTER = 11
 
-# Known leagues we work with (for tidy output names)
+# Known leagues (nice names for logs/summaries)
 LEAGUE_NAMES = {
     8:   "Premier League",
     9:   "Championship",
@@ -64,30 +70,29 @@ LEAGUE_NAMES = {
     600: "Super Lig",
 }
 
-# ---------- tiny HTTP cache (in-memory only during a run) ----------
+# ---------- tiny HTTP memo (per run) ----------
 _MEMO: Dict[str, dict] = {}
 
 def _k(url: str, params: dict) -> str:
     return url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
 
+_last_call_ts = 0.0
 def _sleep_for_rate_control(last_ts: float) -> float:
     now = time.time()
     if now - last_ts < GLOBAL_MIN_DELAY:
         time.sleep(GLOBAL_MIN_DELAY - (now - last_ts))
     return time.time()
 
-_last_call_ts = 0.0
-
 def api_get(path: str, params: Optional[dict] = None) -> dict:
+    """GET with small memo + retry + light pacing."""
     global _last_call_ts
     if params is None:
         params = {}
     params = {**params, "api_token": API_TOKEN}
     url = f"{API_BASE}/{path.lstrip('/')}"
     key = _k(url, params)
-    hit = _MEMO.get(key)
-    if hit is not None:
-        return hit
+    if key in _MEMO:
+        return _MEMO[key]
 
     last_exc = None
     for attempt in range(1, RETRIES + 1):
@@ -123,12 +128,12 @@ def date_str(d: dt.date) -> str:
 def pos_id_to_label(position_id: Optional[int]) -> str:
     return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(position_id or 0, "?")
 
-def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
+def pick_home_away(participants: List[dict]):
     home = next((p for p in participants if (p.get("meta") or {}).get("location") == "home"), None)
     away = next((p for p in participants if (p.get("meta") or {}).get("location") == "away"), None)
     return home, away
 
-# ---------- inputs ----------
+# ---------- read fixtures ----------
 def _load_json(path: str) -> Optional[dict]:
     if not os.path.isfile(path):
         return None
@@ -141,7 +146,7 @@ def _load_json(path: str) -> Optional[dict]:
 def load_all_fixtures() -> List[dict]:
     """
     Load fixtures from data/fixtures/by_league/* (preferred) or top-level files.
-    Returns a flat list of fixture dicts (with participants etc.).
+    Return a flat list of fixture dicts with participants.
     """
     base = "data/fixtures"
     by_league = os.path.join(base, "by_league")
@@ -156,7 +161,6 @@ def load_all_fixtures() -> List[dict]:
         elif isinstance(blob, list):
             fixtures.extend(blob)
         else:
-            # permissive: some files might just be {count, fixtures:[...]}
             fxs = blob.get("fixtures") if isinstance(blob, dict) else None
             if isinstance(fxs, list):
                 fixtures.extend(fxs)
@@ -166,11 +170,11 @@ def load_all_fixtures() -> List[dict]:
             if name.endswith(".json"):
                 consume_file(os.path.join(by_league, name))
     else:
-        for name in os.listdir(base):
-            if name.endswith(".json") and name not in ("latest.json",):
-                consume_file(os.path.join(base, name))
+        if os.path.isdir(base):
+            for name in os.listdir(base):
+                if name.endswith(".json") and name not in ("latest.json",):
+                    consume_file(os.path.join(base, name))
 
-    # Clean minimal shape
     out = []
     for fx in fixtures:
         if fx and fx.get("participants") and fx.get("id"):
@@ -179,9 +183,7 @@ def load_all_fixtures() -> List[dict]:
 
 # ---------- Sportmonks helpers ----------
 def get_fixtures_for_date(date_s: str, league_filter: Optional[set] = None) -> List[dict]:
-    """
-    Light fallback scan — limited by MAX_FALLBACK_DAYS. Used only when absolutely needed.
-    """
+    """Light fallback scan — limited by MAX_FALLBACK_DAYS."""
     j = api_get(f"fixtures/date/{date_s}", {"include": "participants;lineups;lineups.player;league;state"})
     data = j.get("data", []) or []
     if league_filter:
@@ -190,10 +192,10 @@ def get_fixtures_for_date(date_s: str, league_filter: Optional[set] = None) -> L
 
 def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[dict]:
     """
-    Fast path: use teams/{id}?include=latest.league;latest.lineups;latest.lineups.player
-    If that fails, scan backwards by DATE but capped at MAX_FALLBACK_DAYS.
+    Fast path: teams/{id}?include=latest.league;latest.lineups;latest.lineups.player
+    Bounded fallback: scan last MAX_FALLBACK_DAYS dates for same-league fixture with starters.
     """
-    # 1) fast path via 'latest'
+    # Fast path
     try:
         j = api_get(f"teams/{team_id}", {
             "include": "latest.league;latest.lineups;latest.lineups.player"
@@ -210,7 +212,7 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
     except Exception:
         pass
 
-    # 2) bounded fallback: scan last MAX_FALLBACK_DAYS dates (same league only)
+    # Bounded fallback
     start = today_utc()
     for back in range(1, MAX_FALLBACK_DAYS + 1):
         d = date_str(start - dt.timedelta(days=back))
@@ -228,25 +230,26 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
 
 def team_sidelined_map(team_id: int) -> Dict[int, str]:
     """
-    Best-effort: map player_id -> reason ("injury", "suspension", etc.).
-    If sidelined endpoint/shape differs, we just return an empty map.
+    Map player_id -> reason ("injury", "suspension", etc.). If unavailable, return {}.
     """
     try:
         j = api_get(f"teams/{team_id}", {"include": "sidelined.player;sidelined.type"})
         data = j.get("data", {})
         sidelined = data.get("sidelined") or []
-        out = {}
+        out: Dict[int, str] = {}
         for row in sidelined:
             pid = row.get("player_id") or (row.get("player") or {}).get("id")
             if not pid:
                 continue
             t = (row.get("type") or {}).get("name") or (row.get("type") or {}).get("code") or "sidelined"
-            out[int(pid)] = str(t)
+            try:
+                out[int(pid)] = str(t)
+            except Exception:
+                continue
         return out
     except Exception:
         return {}
 
-# ---------- Predict XI ----------
 def extract_starters_from_fixture(fx: dict, team_id: int) -> List[dict]:
     li = fx.get("lineups") or []
     starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
@@ -254,15 +257,12 @@ def extract_starters_from_fixture(fx: dict, team_id: int) -> List[dict]:
     return starters[:11]
 
 def predict_xi_for_team(team_id: int, league_id: int) -> List[dict]:
-    """
-    Return a list of starter dicts with minimal fields (player_id, player_name, jersey_number, position_id).
-    """
     last = last_league_fixture_with_starters(team_id, league_id)
     if not last:
         return []
     return extract_starters_from_fixture(last, team_id)
 
-# ---------- Orchestrate ----------
+# ---------- IO ----------
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
@@ -271,6 +271,7 @@ def write_json(path: str, payload: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False)
 
+# ---------- main ----------
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--shards", type=int, default=1, help="total number of shards")
@@ -310,12 +311,10 @@ def main():
         fid = int(fx["id"])
 
         if idx % BATCH_SIZE == 1:
-            # small marker per batch
             print(f"\n-- Batch starting at item {idx}/{len(fixtures)} --")
-
         print(f"[{idx:>3}/{len(fixtures)}] L{lid} {LEAGUE_NAMES.get(lid, lid)} | FID {fid} | {hname} vs {aname}")
 
-        # Predicted XIs (with small caching at team level within the run)
+        # Per-team caching within run
         key_h = (hid, lid)
         key_a = (aid, lid)
         if key_h not in team_xi_cache:
@@ -326,7 +325,7 @@ def main():
         home_xi = team_xi_cache[key_h]
         away_xi = team_xi_cache[key_a]
 
-        # Sidelined maps (fetch once per team)
+        # Sidelined maps (once per team)
         if hid not in team_sidelined_cache:
             team_sidelined_cache[hid] = team_sidelined_map(hid)
         if aid not in team_sidelined_cache:
