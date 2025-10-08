@@ -1,284 +1,243 @@
 #!/usr/bin/env python3
 """
-Fetch upcoming fixtures from Sportmonks and persist results to the repo.
+Fetch upcoming fixtures (Sportmonks v3) for a fixed set of leagues, within a rolling window.
 
-Outputs (all overwritten on each run):
-- data/fixtures/latest.json                -> merged fixtures across all ALLOWED_LEAGUES
-- data/fixtures/by_league/{league_id}.json -> fixtures per league
-- data/fixtures/summary.txt                -> header summary (counts, dates, leagues)
-- data/fixtures/fixtures.txt               -> human-readable list of all fixtures
+What it does
+------------
+- Queries **per league** to avoid cross-league leakage.
+- Paginates defensively.
+- Hard-filters results by ALLOWED_LEAGUES (double safety).
+- Dedupes by fixture id.
+- Sorts output by (starting_at, league_id, id).
+- Writes:
+    data/fixtures/latest.json
+    data/fixtures/summary.txt
+    data/fixtures/by_league/<league_id>.json
+  These files are **overwritten** each run.
 
-Environment:
-- SPORTMONKS_TOKEN (required)
-- FIXTURE_WINDOW_DAYS (default: 21)
-- FIXTURE_REQUEST_DELAY_SEC (default: 0.3)
-- FIXTURE_LIST_LIMIT (default: 0 = no cap)
+Env vars
+--------
+SPORTMONKS_API_TOKEN  (required)
+DAYS_AHEAD            (optional, default 21)
 """
 
-from __future__ import annotations
 import os
 import sys
 import json
-import time
-import pathlib
-import datetime as dt
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from datetime import datetime, date, timedelta
+from typing import Dict, List, Any
 import urllib.request
 import urllib.parse
 
-# -------------------------
-# Config
-# -------------------------
+# ----- config -----
+ALLOWED_LEAGUES = [8, 9, 82, 301, 384, 387, 564, 567, 600]  # keep sorted
+DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "21"))
+API_TOKEN = os.getenv("SPORTMONKS_API_TOKEN", "").strip()
 
-# The only leagues we care about
-ALLOWED_LEAGUES = [
-    8,    # Premier League
-    9,    # Championship
-    384,  # Serie A
-    387,  # Serie B
-    82,   # Bundesliga
-    301,  # Ligue 1
-    564,  # La Liga
-    567,  # La Liga 2
-    600,  # Süper Lig
-]
+BASE_URL = "https://api.sportmonks.com/v3/football/fixtures/between/{start}/{end}"
+INCLUDE = ",".join([
+    "participants",
+    "league",
+    "season",
+    "venue",
+    "round",
+])
 
-WINDOW_DAYS = int(os.getenv("FIXTURE_WINDOW_DAYS", "21"))
-BASE_DIR = pathlib.Path("data/fixtures")
+OUT_ROOT = Path("data/fixtures")
+OUT_BY_LEAGUE = OUT_ROOT / "by_league"
+OUT_LATEST_JSON = OUT_ROOT / "latest.json"
+OUT_SUMMARY_TXT = OUT_ROOT / "summary.txt"
 
-SPORTMONKS_TOKEN = os.getenv("SPORTMONKS_TOKEN")
-API_BASE = "https://api.sportmonks.com/v3/football/fixtures/between"
 
-PER_REQUEST_SLEEP = float(os.getenv("FIXTURE_REQUEST_DELAY_SEC", "0.3"))
-
-# -------------------------
-# Helpers
-# -------------------------
-
-def _ensure_env() -> None:
-    if not SPORTMONKS_TOKEN:
-        print("ERROR: SPORTMONKS_TOKEN is not set.", file=sys.stderr)
-        sys.exit(1)
-
-def _dates_utc() -> tuple[str, str, str]:
-    now = dt.datetime.now(dt.timezone.utc)
-    start = now.date()
-    end = (now + dt.timedelta(days=WINDOW_DAYS)).date()
-    return now.isoformat(), start.isoformat(), end.isoformat()
-
-def _http_get(url: str) -> Dict[str, Any]:
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+# ----- http helper -----
+def api_get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    q = urllib.parse.urlencode(params, doseq=True)
+    full = f"{url}?{q}"
+    req = urllib.request.Request(full, headers={"User-Agent": "fixtures-bot/1.0"})
     with urllib.request.urlopen(req, timeout=60) as r:
-        raw = r.read()
+        body = r.read()
     try:
-        return json.loads(raw.decode("utf-8"))
-    except json.JSONDecodeError:
-        return json.loads(raw.decode("utf-8", errors="ignore"))
+        return json.loads(body.decode("utf-8"))
+    except Exception as e:
+        raise RuntimeError(f"Failed to decode JSON from: {full}\nError: {e}\nBody: {body[:500]!r}") from e
 
-def _build_base_url(start_date: str, end_date: str, league_id: int) -> str:
-    qs = {
-        "api_token": SPORTMONKS_TOKEN,
-        "leagues": str(league_id),  # some deployments ignore this; we also hard-filter client-side
-        "per_page": "200",
-    }
-    return f"{API_BASE}/{urllib.parse.quote(start_date)}/{urllib.parse.quote(end_date)}?{urllib.parse.urlencode(qs)}"
 
-def _next_link(payload: Dict[str, Any]) -> Optional[str]:
+def paginate_between(start_iso: str, end_iso: str, league_id: int) -> List[Dict[str, Any]]:
     """
-    Try multiple common pagination shapes:
-    - {"links": {"next": "https://...&page=2"}}
-    - {"meta": {"next_page": 2, "current_page": 1}}
-    - {"pagination": {"next_page": 2}}
-    If only a page number is exposed, we return None and let the caller add ?page=.
+    Fetch fixtures between start/end for a single league, following pagination.
+    Works against typical Sportmonks v3 pagination shapes:
+      - meta.pagination.{current_page,total_pages,next_page,per_page}
+      - or 'pagination' at top-level (defensive).
     """
-    # Direct link
-    links = payload.get("links") or {}
-    if isinstance(links, dict):
-        nxt = links.get("next")
-        if isinstance(nxt, str) and nxt.strip():
-            return nxt
-
-    # Page number hints
-    for key in ("meta", "pagination"):
-        meta = payload.get(key) or {}
-        if isinstance(meta, dict):
-            np = meta.get("next_page")
-            if np:
-                # signal that there is a next page, caller will attach &page=np
-                return str(np)  # not a URL; caller handles
-    return None
-
-def _fetch_all_pages(base_url: str) -> List[Dict[str, Any]]:
-    """
-    Fetch first page and follow pagination until exhausted.
-    Supports both absolute next links and page-number hints.
-    """
-    page_items: List[Dict[str, Any]] = []
-
-    url = base_url
-    page_param_mode = False  # switch to ?page= if we only get numeric hints
+    url = BASE_URL.format(start=start_iso, end=end_iso)
+    page = 1
+    collected: List[Dict[str, Any]] = []
 
     while True:
-        payload = _http_get(url)
-        data = payload.get("data") or []
-        if not isinstance(data, list):
-            data = []
+        params = {
+            "api_token": API_TOKEN,
+            "include": INCLUDE,
+            "filters": f"league_id:{league_id}",
+            "per_page": 200,
+            "page": page,
+        }
+        payload = api_get(url, params)
 
-        page_items.extend(data)
-
-        nxt = _next_link(payload)
-        if not nxt:
+        # Most v3 responses are shaped as {"data": [...], "meta": {...}}
+        data = payload.get("data")
+        if isinstance(data, list):
+            collected.extend(data)
+        elif isinstance(payload, dict) and all(k in payload for k in ("id", "starting_at", "league_id")):
+            # extremely defensive: a single object response
+            collected.append(payload)
+        else:
+            # nothing more (or unexpected)
             break
 
-        # If nxt looks like a URL, follow it directly
-        if nxt.startswith("http"):
-            url = nxt
-        else:
-            # nxt is a page number hint
-            page_param_mode = True
-            parsed = urllib.parse.urlsplit(base_url)
-            q = dict(urllib.parse.parse_qsl(parsed.query))
-            q["page"] = nxt
-            url = urllib.parse.urlunsplit((
-                parsed.scheme,
-                parsed.netloc,
-                parsed.path,
-                urllib.parse.urlencode(q),
-                parsed.fragment
-            ))
-        time.sleep(PER_REQUEST_SLEEP)
+        # detect next page
+        meta = payload.get("meta", {}) or payload.get("pagination", {}) or {}
+        pg = meta.get("pagination", meta)
+        cur = pg.get("current_page")
+        tot = pg.get("total_pages")
+        nxt = pg.get("next_page")
+        if isinstance(cur, int) and isinstance(tot, int):
+            if cur < tot:
+                page += 1
+                continue
+            break
+        if nxt:
+            page = int(nxt)
+            continue
+        # if no pagination signals, assume single page
+        break
 
-    # Some APIs only expose total_pages without next; try a minimal fallback loop:
-    if not page_items:
-        # nothing fetched – at least return an empty list
-        return page_items
+    return collected
 
-    # Done
-    return page_items
 
-def _is_future_not_started(fx: Dict[str, Any]) -> bool:
-    try:
-        st_ts = int(fx.get("starting_at_timestamp") or 0)
-    except Exception:
-        st_ts = 0
-    state_id = fx.get("state_id")
-    now_ts = int(time.time())
-    return (state_id in (1, None)) and (st_ts == 0 or st_ts > now_ts)
+# ----- utilities -----
+def coerce_starting_at(s: Any) -> str:
+    """Return a safe 'YYYY-MM-DD HH:MM:SS' string or empty string."""
+    if not s:
+        return ""
+    # API often returns 'YYYY-MM-DD HH:MM:SS'
+    return str(s)
 
-def _sort_key(fx: Dict[str, Any]):
-    return (
-        int(fx.get("starting_at_timestamp") or 0),
-        int(fx.get("league_id") or 0),
-        int(fx.get("id") or 0),
-    )
 
-def _write_text(path: pathlib.Path, content: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+def hard_filter_and_dedupe(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Keep only allowed leagues; dedupe by id."""
+    by_id: Dict[int, Dict[str, Any]] = {}
+    for it in items:
+        try:
+            lid = int(it.get("league_id"))
+        except Exception:
+            continue
+        if lid not in ALLOWED_LEAGUES:
+            continue
+        fid = int(it.get("id"))
+        by_id[fid] = it
+    # sort
+    def sort_key(it: Dict[str, Any]):
+        ts = coerce_starting_at(it.get("starting_at"))
+        lid = int(it.get("league_id", 0))
+        fid = int(it.get("id", 0))
+        return (ts, lid, fid)
+    return sorted(by_id.values(), key=sort_key)
 
-def _write_json(path: pathlib.Path, obj: Any) -> None:
+
+def write_json(path: Path, obj: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
+        json.dump(obj, f, ensure_ascii=False, separators=(",", ":"), indent=2)
 
-# -------------------------
-# Main
-# -------------------------
+
+def write_summary(path: Path, header: str, rows: List[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        f.write(header.rstrip() + "\n")
+        if rows:
+            f.write("\n".join(rows) + "\n")
+
 
 def main() -> int:
-    _ensure_env()
-    generated_at_utc, start_date, end_date = _dates_utc()
+    if not API_TOKEN:
+        print("ERROR: SPORTMONKS_API_TOKEN is not set.", file=sys.stderr)
+        return 1
 
-    all_fixtures: List[Dict[str, Any]] = []
-    per_league: Dict[int, List[Dict[str, Any]]] = {}
+    # dates
+    start = date.today()
+    end = start + timedelta(days=DAYS_AHEAD)
+    start_iso = start.isoformat()
+    end_iso = end.isoformat()
+
+    # ensure folders exist
+    OUT_BY_LEAGUE.mkdir(parents=True, exist_ok=True)
+    OUT_ROOT.mkdir(parents=True, exist_ok=True)
+
+    # fetch per league
+    all_raw: List[Dict[str, Any]] = []
+    per_league_raw: Dict[int, List[Dict[str, Any]]] = {}
 
     for lid in ALLOWED_LEAGUES:
-        base_url = _build_base_url(start_date, end_date, lid)
         try:
-            items = _fetch_all_pages(base_url)
+            items = paginate_between(start_iso, end_iso, lid)
         except Exception as e:
-            print(f"[warn] league {lid}: request failed: {e}", file=sys.stderr)
-            continue
+            print(f"[WARN] League {lid}: fetch error: {e}", file=sys.stderr)
+            items = []
+        per_league_raw[lid] = items
+        all_raw.extend(items)
 
-        # **Hard filters**: only that league, only future/not-started
-        filtered = []
-        for fx in items:
-            try:
-                fx_league = int(fx.get("league_id") or 0)
-            except Exception:
-                fx_league = 0
-            if fx_league != lid:
-                continue
-            if not _is_future_not_started(fx):
-                continue
-            filtered.append(fx)
+    # hard filter + dedupe globally
+    all_clean = hard_filter_and_dedupe(all_raw)
 
-        filtered.sort(key=_sort_key)
-        per_league[lid] = filtered
-        all_fixtures.extend(filtered)
+    # also prepare per-league cleaned files
+    per_league_clean: Dict[int, List[Dict[str, Any]]] = {lid: [] for lid in ALLOWED_LEAGUES}
+    for it in all_clean:
+        per_league_clean[int(it["league_id"])].append(it)
 
-        # Overwrite per-league file
-        _write_json(BASE_DIR / "by_league" / f"{lid}.json", {
-            "generated_at_utc": generated_at_utc,
-            "start_date": start_date,
-            "end_date": end_date,
-            "league_id": str(lid),
-            "count": len(filtered),
-            "data": filtered,
-        })
+    # sort each league subset by date then id (already mostly sorted)
+    for lid in ALLOWED_LEAGUES:
+        per_league_clean[lid] = sorted(
+            per_league_clean[lid],
+            key=lambda it: (coerce_starting_at(it.get("starting_at")), int(it.get("id", 0))),
+        )
 
-        time.sleep(PER_REQUEST_SLEEP)
+    # write by-league json (overwrite)
+    for lid in ALLOWED_LEAGUES:
+        write_json(OUT_BY_LEAGUE / f"{lid}.json", per_league_clean[lid])
 
-    # Deduplicate by global fixture id
-    dedup: Dict[int, Dict[str, Any]] = {}
-    for fx in all_fixtures:
-        try:
-            fid = int(fx.get("id") or 0)
-        except Exception:
-            fid = 0
-        if fid:
-            dedup[fid] = fx
-    merged = list(dedup.values())
-    merged.sort(key=_sort_key)
-
-    latest_obj = {
-        "generated_at_utc": generated_at_utc,
-        "start_date": start_date,
-        "end_date": end_date,
+    # write latest.json (overwrite)
+    meta = {
+        "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "start_date": start_iso,
+        "end_date": end_iso,
         "league_ids": [str(l) for l in ALLOWED_LEAGUES],
-        "count": len(merged),
-        "data": merged,
+        "count": len(all_clean),
+        "data": all_clean,
     }
-    _write_json(BASE_DIR / "latest.json", latest_obj)
+    write_json(OUT_LATEST_JSON, meta)
 
-    # Human-readable verification files
-    header = [
-        f"fixtures = Time (UTC): {generated_at_utc}",
-        f"Window    : {start_date} -> {end_date}",
-        f"Leagues   : {','.join(str(l) for l in ALLOWED_LEAGUES)}",
-        f"Fixtures  : {len(merged)} (written {len(merged)})",
-        "",
-    ]
-    _write_text(BASE_DIR / "summary.txt", "\n".join(header) + "\n")
-
-    # fixtures.txt (full list)
+    # write summary.txt (overwrite)
     lines: List[str] = []
-    for fx in merged:
-        fid = fx.get("id")
-        when = fx.get("starting_at") or ""
-        name = fx.get("name") or ""
-        lines.append(f"{fid} | {when} | {name}")
+    for it in all_clean:
+        fid = it.get("id")
+        kick = coerce_starting_at(it.get("starting_at"))
+        name = it.get("name") or ""
+        lines.append(f"{fid} | {kick} | {name}")
 
-    limit = int(os.getenv("FIXTURE_LIST_LIMIT", "0"))
-    if limit > 0:
-        lines = lines[:limit]
+    header = (
+        "fixtures = "
+        f"Time (UTC): {datetime.utcnow().isoformat(timespec='seconds')}Z\n"
+        f"Window    : {start_iso} -> {end_iso}\n"
+        f"Leagues   : {','.join(str(x) for x in ALLOWED_LEAGUES)}\n"
+        f"Fixtures  : {len(all_clean)} (written {len(all_clean)})"
+    )
+    write_summary(OUT_SUMMARY_TXT, header, lines)
 
-    _write_text(BASE_DIR / "fixtures.txt", "\n".join(header + lines) + "\n")
-
-    # Console echo for Actions logs
-    print("\n".join(header[:4]))
-    print(f"(Saved to {BASE_DIR}/latest.json, by_league/*.json, summary.txt, fixtures.txt)")
+    # console log (useful in Actions log)
+    print(header)
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
