@@ -14,7 +14,7 @@ Env:
   export SPORTMONKS_TOKEN=YOUR_TOKEN
 
 Rate-friendly:
-- Reuses the fixture window we already fetched: data/fixtures/by_league/{league_id}.json
+- Reuses the fixture window we already fetched from disk.
 - Only looks up each team once (last fixture with starters in this league).
 """
 
@@ -30,7 +30,7 @@ SM_API_BASE = "https://api.sportmonks.com/v3"
 SM_SPORT = "football"
 API_TOKEN = os.getenv("SPORTMONKS_TOKEN", "")
 
-# Target leagues (same set we fetched fixtures for)
+# Target leagues
 LEAGUES: Dict[int, str] = {
     8:   "Premier League",
     9:   "Championship",
@@ -44,7 +44,8 @@ LEAGUES: Dict[int, str] = {
 }
 
 DATA_ROOT = "data"
-FIX_ROOT = os.path.join(DATA_ROOT, "fixtures", "by_league")
+FIX_ROOT_MAIN = os.path.join(DATA_ROOT, "fixtures")              # fallback
+FIX_ROOT_BY_LEAGUE = os.path.join(DATA_ROOT, "fixtures", "by_league")
 OUT_ROOT = os.path.join(DATA_ROOT, "predicted", "by_league")
 SUMMARY_PATH = os.path.join(DATA_ROOT, "predicted", "summary.txt")
 
@@ -109,15 +110,14 @@ def norm_lower(s: Optional[str]) -> str:
 
 def first_present(d: dict, *keys):
     for k in keys:
-        if isinstance(d.get(k), dict) or isinstance(d.get(k), str):
+        if d.get(k) is not None:
             return d.get(k)
     return None
 
 def code_from_detailed_position_name(name: Optional[str]) -> Optional[str]:
     """
-    Map Sportmonks detailedPosition 'name'/'code' to a short code.
-    Primary goal: distinguish RB/LB/CB (+ wing-backs).
-    We'll also map a few common midfield/forward labels for nicer summaries.
+    Map Sportmonks detailedPosition name/code to a short code.
+    Primary goal: distinguish RB/LB/CB (+ wing-backs). Also a few mids/fwds niceties.
     """
     if not name:
         return None
@@ -134,7 +134,7 @@ def code_from_detailed_position_name(name: Optional[str]) -> Optional[str]:
         if "centre" in n or "center" in n or "central" in n: return "CB"
         return "CB"
 
-    # keep a few extra nice-to-haves (not required)
+    # optional: mids/fwds
     if "defensive" in n and "mid" in n: return "DM"
     if "attacking" in n and "mid" in n: return "AM"
     if "central" in n and "mid" in n:   return "CM"
@@ -149,21 +149,16 @@ def code_from_detailed_position_name(name: Optional[str]) -> Optional[str]:
 def extract_detailed_position(lp: dict) -> Tuple[Optional[str], Optional[str]]:
     """
     Returns (code, name) from the lineup row using the included detailedPosition entity when available.
-    We look across a few possible casings just in case.
     """
-    # included object may be under these keys depending on payload casing
     ent = first_present(lp, "detailedPosition", "detailedposition", "detailed_position")
     name = None
     code = None
     if isinstance(ent, dict):
-        # sportmonks 'Type' fields typically: id, name, code (sometimes), developer_name, etc.
         code = ent.get("code")
         name = ent.get("name") or ent.get("name_short") or ent.get("short_name") or code
-    # If include didn’t resolve, try the raw name from code mapping anyway
     if not code:
         code = code_from_detailed_position_name(name)
     else:
-        # Normalize codes like "Right-Back" -> RB if code is verbose
         short = code_from_detailed_position_name(code)
         if short:
             code = short
@@ -171,7 +166,7 @@ def extract_detailed_position(lp: dict) -> Tuple[Optional[str], Optional[str]]:
         code = code_from_detailed_position_name(name)
     return code, name
 
-# ---------------------- core lookups ----------------------
+# ---------------------- fixtures helpers ----------------------
 def get_fixtures_for_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]:
     params = {
         "include": "participants;state;league",
@@ -273,11 +268,18 @@ def build_predicted_xi_from_fixture(fixture: dict, team_id: int) -> List[dict]:
     return out
 
 def load_fixtures_league_file(league_id: int) -> Optional[dict]:
-    path = os.path.join(FIX_ROOT, f"{league_id}.json")
-    if not os.path.isfile(path):
-        return None
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """
+    Try both locations so we’re robust no matter where fixtures were written.
+    - data/fixtures/by_league/{lid}.json
+    - data/fixtures/{lid}.json
+    """
+    p1 = os.path.join(FIX_ROOT_BY_LEAGUE, f"{league_id}.json")
+    p2 = os.path.join(FIX_ROOT_MAIN, f"{league_id}.json")
+    for path in (p1, p2):
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    return None
 
 def predict_for_league(league_id: int, league_name: str) -> dict:
     fx_doc = load_fixtures_league_file(league_id) or {}
@@ -285,7 +287,7 @@ def predict_for_league(league_id: int, league_name: str) -> dict:
     window_start = fx_doc.get("window_start")
     window_end = fx_doc.get("window_end")
 
-    # Build unique team set from fixtures
+    # Collect unique teams from fixtures
     teams = []
     for fx in fixtures:
         parts = fx.get("participants") or []
@@ -294,11 +296,10 @@ def predict_for_league(league_id: int, league_name: str) -> dict:
         if a: teams.append(a["id"])
     team_ids = sorted({t for t in teams if t})
 
-    # map team_id -> predicted XI (from last league fixture with starters)
+    # If fixtures are empty, we still do nothing gracefully
     team_xi: Dict[int, List[dict]] = {}
     team_name: Dict[int, str] = {}
 
-    # small sleep between fetches to smooth rate
     for tid in team_ids:
         last = get_team_last_fixture_with_xi(tid, league_id)
         if not last:
@@ -319,7 +320,7 @@ def predict_for_league(league_id: int, league_name: str) -> dict:
     for fx in fixtures:
         parts = fx.get("participants") or []
         h, a = pick_home_away(parts)
-        if not (h and a): 
+        if not (h and a):
             continue
         home_id, away_id = h["id"], a["id"]
         out_fixtures.append({
