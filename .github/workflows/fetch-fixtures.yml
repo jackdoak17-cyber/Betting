@@ -1,17 +1,15 @@
-name: Fetch fixtures (next 14 days)
+name: Fetch fixtures
 
 on:
+  schedule:
+    - cron: "0 6 * * 1"   # 06:00 UTC every Monday
   workflow_dispatch:
-    inputs:
-      start:
-        description: "Start date (YYYY-MM-DD). Leave empty for today"
-        required: false
-      end:
-        description: "End date (YYYY-MM-DD). Leave empty for today+14"
-        required: false
+
+permissions:
+  contents: write   # required to push the updated JSON files
 
 jobs:
-  fixtures:
+  fetch:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,24 +21,33 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          # If you keep a repo requirements.txt, this will use it;
+          # otherwise we install requests which this script needs.
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
 
-      - name: Run fixtures fetcher
+      - name: Run fetcher
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          SPORTMONKS_BASE_URL: https://api.sportmonks.com/v3
-          FIXTURES_START: ${{ github.event.inputs.start }}
-          FIXTURES_END: ${{ github.event.inputs.end }}
-        run: |
-          python scripts/fetch_fixtures.py
+          LEAGUE_IDS: "8,9,384,387,82,301,564,567,600"
+          DAYS_AHEAD: "21"             # clamp to max 100 by the script
+          OUT_DIR: "data/fixtures"
+        run: python scripts/fetch_fixtures.py
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: fixtures
-          path: |
-            data/fixtures_window.json
-            data/fixtures_window.csv
+      - name: Commit & push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(fixtures): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
