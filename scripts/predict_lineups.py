@@ -2,140 +2,123 @@
 # -*- coding: utf-8 -*-
 
 """
-Predict XIs for all saved fixtures (rate-limit friendly, batches of 3).
+Predict lineups for all fixtures we have fetched, in *shards* to respect rate limits.
 
 Rules:
-- Do NOT rely on official XIs. Predict from each team's most recent LEAGUE match
-  that has a recorded starting XI (starters only).
-- Mark players as OUT if Sportmonks reports an active injury/suspension.
-- Otherwise mark as EXPECTED (we're not picking replacements).
-- Write one JSON per fixture plus a summary.
+- NO official current-match lineup; we *assume* the previous league fixture XI.
+- If we can't find a last-league XI fast, we stop early (no deep day-by-day scan).
+- Mark players OUT if team sidelined list says injury/suspension (best-effort).
+- Process fixtures in batches of 3 (light throttle) + per-request micro-sleep.
+- Shardable: use --shards 3 --shard 0/1/2 to split the workload across scheduled runs.
 
-Inputs (already created by your fetch script):
-  data/fixtures/by_league/<league_id>.json   # preferred
-  or
-  data/fixtures/<league_id>.json             # fallback
+Input:
+- Reads fixtures from data/fixtures/by_league/{LEAGUE_ID}.json
+  (falls back to data/fixtures/{LEAGUE_ID}.json)
 
-Outputs:
-  data/predicted_xi/<league_id>/<fixture_id>.json
-  data/predicted_xi/summary.txt
+Output:
+- data/predicted_xi/{league_id}/{fixture_id}.json
+- data/predicted_xi/summary.txt
 
 Env:
-  export SPORTMONKS_TOKEN=...   (uses repository secret in Actions)
+  SPORTMONKS_TOKEN
 """
 
 import os
 import re
 import json
 import time
-import math
+import argparse
 import datetime as dt
-from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import requests
 
-# ---------- config ----------
-SM_API_BASE = "https://api.sportmonks.com/v3"
-SM_SPORT = "football"
-API_TOKEN = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN") or os.getenv("SPORTMONKS_TOKEN".lower())
+# ---------- Config ----------
+API_BASE = "https://api.sportmonks.com/v3/football"
+API_TOKEN = os.getenv("SPORTMONKS_TOKEN")
 if not API_TOKEN:
     raise SystemExit("ERROR: SPORTMONKS_TOKEN is not set.")
 
-DATE_FMT = "%Y-%m-%d"
-LINEUP_TYPE_STARTER = 11
-APPEARANCE_MINUTES_THRESHOLD = 45
-
-# Batching / rate limiting
-BATCH_SIZE = 3
-GLOBAL_MIN_DELAY = 0.15  # small delay between Sportmonks calls
+# Throttling / retries
 TIMEOUT = 25
 RETRIES = 3
-BACKOFF = 1.8
+BACKOFF = 1.6
+GLOBAL_MIN_DELAY = 0.18           # micro-sleep between GETs
+BATCH_SIZE = 3                    # fixtures per “batch”
+SLEEP_BETWEEN_BATCHES = 1.5       # seconds between batches
 
-# On-disk cache (24h TTL)
-CACHE_DIR = Path(".cache_smonks")
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-CACHE_TTL_SECS = 24 * 3600
+# Limits to avoid long scans
+MAX_FALLBACK_DAYS = 45            # stop scanning after this many days
+LINEUP_TYPE_STARTER = 11
 
-# I/O paths
-FIXT_ROOT = Path("data/fixtures")
-PRED_ROOT = Path("data/predicted_xi")
-PRED_ROOT.mkdir(parents=True, exist_ok=True)
+# Known leagues we work with (for tidy output names)
+LEAGUE_NAMES = {
+    8:   "Premier League",
+    9:   "Championship",
+    384: "Serie A",
+    387: "Serie B",
+    82:  "Bundesliga",
+    301: "Ligue 1",
+    564: "La Liga",
+    567: "La Liga 2",
+    600: "Super Lig",
+}
 
-# ---------- tiny cache ----------
-import hashlib
-MEMO: Dict[str, dict] = {}
+# ---------- tiny HTTP cache (in-memory only during a run) ----------
+_MEMO: Dict[str, dict] = {}
 
-def _cache_key(url: str, params: dict) -> str:
-    base = url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
-    return hashlib.sha256(base.encode("utf-8")).hexdigest()
+def _k(url: str, params: dict) -> str:
+    return url + "?" + "&".join(f"{k}={params[k]}" for k in sorted(params))
 
-def _cache_path(key: str) -> Path:
-    return CACHE_DIR / f"{key}.json"
+def _sleep_for_rate_control(last_ts: float) -> float:
+    now = time.time()
+    if now - last_ts < GLOBAL_MIN_DELAY:
+        time.sleep(GLOBAL_MIN_DELAY - (now - last_ts))
+    return time.time()
 
-def _cache_load(key: str) -> Optional[dict]:
-    p = _cache_path(key)
-    if not p.is_file():
-        return None
-    try:
-        if (time.time() - p.stat().st_mtime) > CACHE_TTL_SECS:
-            return None
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return None
+_last_call_ts = 0.0
 
-def _cache_save(key: str, payload: dict) -> None:
-    try:
-        _cache_path(key).write_text(json.dumps(payload), encoding="utf-8")
-    except Exception:
-        pass
-
-def sm_get(path: str, params: Optional[dict] = None) -> dict:
+def api_get(path: str, params: Optional[dict] = None) -> dict:
+    global _last_call_ts
     if params is None:
         params = {}
     params = {**params, "api_token": API_TOKEN}
-    url = f"{SM_API_BASE}/{SM_SPORT}/{path.lstrip('/')}"
-    key = _cache_key(url, params)
-
-    if key in MEMO:
-        return MEMO[key]
-    cached = _cache_load(key)
-    if cached is not None:
-        MEMO[key] = cached
-        return cached
+    url = f"{API_BASE}/{path.lstrip('/')}"
+    key = _k(url, params)
+    hit = _MEMO.get(key)
+    if hit is not None:
+        return hit
 
     last_exc = None
     for attempt in range(1, RETRIES + 1):
+        _last_call_ts = _sleep_for_rate_control(_last_call_ts)
         try:
-            # smooth out calls
-            prev = getattr(sm_get, "_last_ts", 0.0)
-            now = time.time()
-            if now - prev < GLOBAL_MIN_DELAY:
-                time.sleep(GLOBAL_MIN_DELAY - (now - prev))
-
             r = requests.get(url, params=params, timeout=TIMEOUT)
-            setattr(sm_get, "_last_ts", time.time())
             if r.status_code == 429:
-                sleep = min(90, (BACKOFF ** attempt) * 2.0)
+                sleep = min(60, (BACKOFF ** attempt) * 2.0)
+                print(f"[429] {path} — sleeping {sleep:.1f}s")
                 time.sleep(sleep)
                 continue
             r.raise_for_status()
             j = r.json()
-            MEMO[key] = j
-            _cache_save(key, j)
+            _MEMO[key] = j
             return j
         except Exception as e:
             last_exc = e
             if attempt < RETRIES:
-                time.sleep((BACKOFF ** attempt))
+                sleep = (BACKOFF ** attempt)
+                print(f"[RETRY] {path} (attempt {attempt}) sleeping {sleep:.1f}s")
+                time.sleep(sleep)
             else:
                 raise
-    raise last_exc
+    raise last_exc  # pragma: no cover
 
 # ---------- helpers ----------
 def today_utc() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
+
+def date_str(d: dt.date) -> str:
+    return d.strftime("%Y-%m-%d")
 
 def pos_id_to_label(position_id: Optional[int]) -> str:
     return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(position_id or 0, "?")
@@ -145,327 +128,280 @@ def pick_home_away(participants: List[dict]) -> Tuple[Optional[dict], Optional[d
     away = next((p for p in participants if (p.get("meta") or {}).get("location") == "away"), None)
     return home, away
 
-def league_ids_present() -> List[int]:
-    ids = []
-    # prefer by_league/
-    by_lg = FIXT_ROOT / "by_league"
-    if by_lg.is_dir():
-        for p in sorted(by_lg.glob("*.json")):
-            try:
-                ids.append(int(p.stem))
-            except Exception:
-                continue
-        return ids
-    # fallback to flat
-    for p in sorted(FIXT_ROOT.glob("*.json")):
+# ---------- inputs ----------
+def _load_json(path: str) -> Optional[dict]:
+    if not os.path.isfile(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
         try:
-            ids.append(int(p.stem))
+            return json.load(f)
         except Exception:
-            continue
-    return ids
+            return None
 
 def load_all_fixtures() -> List[dict]:
-    fixtures = []
-    by_lg = FIXT_ROOT / "by_league"
-    if by_lg.is_dir():
-        files = sorted(by_lg.glob("*.json"))
-        for f in files:
-            try:
-                obj = json.loads(f.read_text(encoding="utf-8"))
-                arr = obj.get("fixtures") or []
-                fixtures.extend(arr)
-            except Exception:
-                continue
-        return fixtures
-    # fallback flat
-    for f in sorted(FIXT_ROOT.glob("*.json")):
-        try:
-            obj = json.loads(f.read_text(encoding="utf-8"))
-            arr = obj.get("fixtures") or obj  # in case a flat file is raw array
-            if isinstance(arr, list):
-                fixtures.extend(arr)
-            elif isinstance(obj, dict) and "fixtures" in obj:
-                fixtures.extend(obj["fixtures"])
-        except Exception:
-            continue
-    return fixtures
+    """
+    Load fixtures from data/fixtures/by_league/* (preferred) or top-level files.
+    Returns a flat list of fixture dicts (with participants etc.).
+    """
+    base = "data/fixtures"
+    by_league = os.path.join(base, "by_league")
+    fixtures: List[dict] = []
 
-def get_fixtures_for_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]:
-    params = {"include": "participants;state;league", "order": "asc", "page": 1}
-    j = sm_get(f"fixtures/date/{date_str}", params)
-    data = j.get("data", []) or []
-    meta = j.get("meta") or {}
-    last_page = meta.get("last_page", 1)
-    for p in range(2, last_page + 1):
-        params["page"] = p
-        jp = sm_get(f"fixtures/date/{date_str}", params)
-        data.extend(jp.get("data", []) or [])
+    def consume_file(fp: str):
+        blob = _load_json(fp)
+        if not blob:
+            return
+        if isinstance(blob, dict) and "fixtures" in blob:
+            fixtures.extend(blob["fixtures"])
+        elif isinstance(blob, list):
+            fixtures.extend(blob)
+        else:
+            # permissive: some files might just be {count, fixtures:[...]}
+            fxs = blob.get("fixtures") if isinstance(blob, dict) else None
+            if isinstance(fxs, list):
+                fixtures.extend(fxs)
+
+    if os.path.isdir(by_league):
+        for name in os.listdir(by_league):
+            if name.endswith(".json"):
+                consume_file(os.path.join(by_league, name))
+    else:
+        for name in os.listdir(base):
+            if name.endswith(".json") and name not in ("latest.json",):
+                consume_file(os.path.join(base, name))
+
+    # Clean minimal shape
     out = []
-    for fx in data:
-        lid = fx.get("league_id")
-        if league_filter and lid not in league_filter:
-            continue
-        if not fx.get("participants"):
-            continue
-        out.append(fx)
+    for fx in fixtures:
+        if fx and fx.get("participants") and fx.get("id"):
+            out.append(fx)
     return out
 
-def get_team_last_fixture_with_xi(team_id: int, league_id: int) -> Optional[dict]:
-    """Team's most recent league fixture (this/last season) with recorded starters."""
+# ---------- Sportmonks helpers ----------
+def get_fixtures_for_date(date_s: str, league_filter: Optional[set] = None) -> List[dict]:
+    """
+    Light fallback scan — limited by MAX_FALLBACK_DAYS. Used only when absolutely needed.
+    """
+    j = api_get(f"fixtures/date/{date_s}", {"include": "participants;lineups;lineups.player;league;state"})
+    data = j.get("data", []) or []
+    if league_filter:
+        data = [d for d in data if d.get("league_id") in league_filter]
+    return data
+
+def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[dict]:
+    """
+    Fast path: use teams/{id}?include=latest.league;latest.lineups;latest.lineups.player
+    If that fails, scan backwards by DATE but capped at MAX_FALLBACK_DAYS.
+    """
+    # 1) fast path via 'latest'
     try:
-        j = sm_get(f"teams/{team_id}", {"include": "latest.league;latest.lineups;latest.lineups.player"})
+        j = api_get(f"teams/{team_id}", {
+            "include": "latest.league;latest.lineups;latest.lineups.player"
+        })
         latest = j.get("data", {}).get("latest")
         lst = latest if isinstance(latest, list) else ([latest] if latest else [])
-        cand = [fx for fx in lst if (fx or {}).get("league_id") == league_id]
-        cand.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
-        for fx in cand:
-            fid = fx.get("id")
-            if not fid:
-                continue
-            full = sm_get(f"fixtures/{fid}", {"include": "lineups;lineups.player"}).get("data", {})
-            if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id for l in (full.get("lineups") or [])):
-                full["participants"] = fx.get("participants") or []
-                return full
+        lst = [fx for fx in lst if (fx or {}).get("league_id") == league_id]
+        lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
+        for fx in lst:
+            lineups = fx.get("lineups") or []
+            starters = [l for l in lineups if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+            if starters:
+                return fx
     except Exception:
         pass
 
-    # Fallback small date-walk (≤180 days)
+    # 2) bounded fallback: scan last MAX_FALLBACK_DAYS dates (same league only)
     start = today_utc()
-    for back in range(1, 181):
-        d = (start - dt.timedelta(days=back)).strftime(DATE_FMT)
+    for back in range(1, MAX_FALLBACK_DAYS + 1):
+        d = date_str(start - dt.timedelta(days=back))
         try:
             fxs = get_fixtures_for_date(d, league_filter={league_id})
         except Exception:
             continue
         for fx in fxs:
             if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
-                full = sm_get(f"fixtures/{fx['id']}", {"include": "lineups;lineups.player"}).get("data", {})
-                if any(l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id for l in (full.get("lineups") or [])):
-                    full["participants"] = fx.get("participants") or []
-                    return full
+                lineups = fx.get("lineups") or []
+                starters = [l for l in lineups if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+                if starters:
+                    return fx
     return None
 
-# ---- Unavailability (injuries/suspensions) ----
-def _parse_sidelined_records(container) -> Dict[int, dict]:
+def team_sidelined_map(team_id: int) -> Dict[int, str]:
     """
-    Parse various shapes Sportmonks might return for 'sidelined'.
-    Returns {player_id: record}
+    Best-effort: map player_id -> reason ("injury", "suspension", etc.).
+    If sidelined endpoint/shape differs, we just return an empty map.
     """
-    res: Dict[int, dict] = {}
-    if not container:
-        return res
-
-    def consider(rec):
-        if not isinstance(rec, dict):
-            return
-        pid = rec.get("player_id")
-        if not pid and isinstance(rec.get("player"), dict):
-            pid = rec["player"].get("id")
-        try:
-            pid = int(pid)
-        except Exception:
-            return
-        status = (rec.get("status") or rec.get("type") or "").lower()
-        reason = rec.get("reason") or rec.get("description") or rec.get("type") or ""
-        # dates are often like 'YYYY-MM-DD' or full ISO
-        end = rec.get("end") or rec.get("until") or rec.get("to")
-        start = rec.get("start") or rec.get("from")
-        res[pid] = {"status": status, "reason": reason, "start": start, "end": end}
-
-    if isinstance(container, list):
-        for r in container:
-            consider(r)
-    elif isinstance(container, dict):
-        # sometimes { data: [...] } or keyed by id
-        if "data" in container and isinstance(container["data"], list):
-            for r in container["data"]:
-                consider(r)
-        else:
-            for r in container.values():
-                consider(r)
-    return res
-
-def _is_active_sidelined(rec: dict, today: dt.date) -> bool:
-    """Return True if injury/suspension is likely active now."""
-    end = rec.get("end")
-    if end:
-        # tolerate multiple formats
-        try:
-            if len(end) == 10:
-                end_date = dt.date.fromisoformat(end[:10])
-            else:
-                end_date = dt.datetime.fromisoformat(end.replace("Z","")).date()
-            if end_date < today:
-                return False
-        except Exception:
-            # unknown format -> assume active
-            pass
-    status = (rec.get("status") or "").lower()
-    # If status explicitly says recovered/returned etc -> not active
-    if any(k in status for k in ("recovered", "returned", "fit", "available")):
-        return False
-    return True
-
-def get_team_unavailable_player_ids(team_id: int) -> Dict[int, dict]:
-    """
-    Try a few shapes to find injuries/suspensions for a team.
-    Best-effort; if the API doesn't expose it for this plan, returns {}.
-    """
-    today = today_utc()
-    out: Dict[int, dict] = {}
-
-    # Attempt 1: team include sidelined
     try:
-        j = sm_get(f"teams/{team_id}", {"include": "sidelined;players.sidelined"})
-        data = j.get("data") or {}
-        for key in ("sidelined",):
-            out.update({pid: rec for pid, rec in _parse_sidelined_records(data.get(key)).items()
-                        if _is_active_sidelined(rec, today)})
-        # also check players[].sidelined
-        players = data.get("players") or []
-        for p in players:
-            pid = p.get("id")
-            recs = _parse_sidelined_records(p.get("sidelined"))
-            for sid_pid, rec in recs.items():
-                if _is_active_sidelined(rec, today):
-                    out[sid_pid] = rec
+        j = api_get(f"teams/{team_id}", {"include": "sidelined.player;sidelined.type"})
+        data = j.get("data", {})
+        sidelined = data.get("sidelined") or []
+        out = {}
+        for row in sidelined:
+            pid = row.get("player_id") or (row.get("player") or {}).get("id")
+            if not pid:
+                continue
+            t = (row.get("type") or {}).get("name") or (row.get("type") or {}).get("code") or "sidelined"
+            out[int(pid)] = str(t)
+        return out
     except Exception:
-        pass
+        return {}
 
-    # Attempt 2: generic sidelined search endpoints (best-effort)
-    for path in (f"sidelined?team_id={team_id}", f"sidelined/teams/{team_id}"):
-        try:
-            j = sm_get(path)
-            recs = _parse_sidelined_records(j.get("data") if isinstance(j, dict) else j)
-            for pid, rec in recs.items():
-                if _is_active_sidelined(rec, today):
-                    out[pid] = rec
-        except Exception:
-            pass
-
-    return out
-
-# ---------- prediction ----------
-def predict_team_xi_from_last(team_id: int, league_id: int) -> Tuple[List[dict], dict, str]:
-    """
-    Returns (predicted_xi, unavailable_map, source_note)
-    predicted_xi: list of 11 (or fewer if last XI < 11) with fields:
-      {player_id, player_name, pos, jersey_number, availability: EXPECTED|OUT, unavailable_reason}
-    unavailable_map: {player_id: sidelined_record}
-    """
-    last = get_team_last_fixture_with_xi(team_id, league_id)
-    if not last:
-        return [], {}, "no_last_xi_found"
-
-    lineups = last.get("lineups") or []
-    starters = [l for l in lineups if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
+# ---------- Predict XI ----------
+def extract_starters_from_fixture(fx: dict, team_id: int) -> List[dict]:
+    li = fx.get("lineups") or []
+    starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
     starters.sort(key=lambda x: x.get("formation_position") or 9999)
+    return starters[:11]
 
-    unavailable = get_team_unavailable_player_ids(team_id)
+def predict_xi_for_team(team_id: int, league_id: int) -> List[dict]:
+    """
+    Return a list of starter dicts with minimal fields (player_id, player_name, jersey_number, position_id).
+    """
+    last = last_league_fixture_with_starters(team_id, league_id)
+    if not last:
+        return []
+    return extract_starters_from_fixture(last, team_id)
 
-    xi = []
-    for lp in starters[:11]:
-        pid = int(lp.get("player_id"))
-        xi.append({
-            "player_id": pid,
-            "player_name": (lp.get("player_name") or "").strip(),
-            "pos": pos_id_to_label(lp.get("position_id")),
-            "jersey_number": lp.get("jersey_number"),
-            "availability": "OUT" if pid in unavailable else "EXPECTED",
-            "unavailable_reason": (unavailable.get(pid) or {}).get("reason") if pid in unavailable else None,
-        })
-    return xi, unavailable, "last_league_fixture"
+# ---------- Orchestrate ----------
+def ensure_dir(path: str) -> None:
+    os.makedirs(path, exist_ok=True)
 
-def ensure_dir(p: Path) -> None:
-    p.parent.mkdir(parents=True, exist_ok=True)
+def write_json(path: str, payload: dict) -> None:
+    ensure_dir(os.path.dirname(path))
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False)
 
-def write_fixture_prediction(fx: dict, payload: dict) -> None:
-    league_id = fx.get("league_id")
-    fid = fx.get("id")
-    outp = PRED_ROOT / str(league_id) / f"{fid}.json"
-    ensure_dir(outp)
-    outp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-# ---------- main ----------
 def main():
-    fixtures = load_all_fixtures()
-    if not fixtures:
-        raise SystemExit("No fixtures found under data/fixtures/. Run the fetch job first.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--shards", type=int, default=1, help="total number of shards")
+    parser.add_argument("--shard", type=int, default=0, help="this shard index (0..shards-1)")
+    args = parser.parse_args()
+    if args.shards < 1 or not (0 <= args.shard < args.shards):
+        raise SystemExit("Bad shard config: --shards N --shard i with 0<=i<N")
 
-    total = len(fixtures)
-    print(f"Predicting lineups for {total} fixtures (batches of {BATCH_SIZE})…")
+    all_fixtures = load_all_fixtures()
+    if not all_fixtures:
+        print("No fixtures found under data/fixtures; nothing to do.")
+        return
+
+    # Deterministic ordering
+    all_fixtures.sort(key=lambda x: (x.get("league_id"), x.get("starting_at") or "", x.get("id")))
+
+    # Shard
+    fixtures = [fx for i, fx in enumerate(all_fixtures) if (i % args.shards) == args.shard]
+    print(f"Total fixtures: {len(all_fixtures)} | Processing this shard [{args.shard}/{args.shards}]: {len(fixtures)}")
+
+    out_root = "data/predicted_xi"
+    ensure_dir(out_root)
 
     processed = 0
-    written = 0
-    per_league_counts: Dict[int, int] = {}
+    by_league_counts: Dict[int, int] = {}
+    team_sidelined_cache: Dict[int, Dict[int, str]] = {}
+    team_xi_cache: Dict[Tuple[int, int], List[dict]] = {}  # (team_id, league_id) -> starters
 
-    batch_counter = 0
-    for fx in fixtures:
-        fid = fx.get("id"); lid = fx.get("league_id")
+    for idx, fx in enumerate(fixtures, 1):
+        lid = int(fx.get("league_id"))
         parts = fx.get("participants") or []
         home, away = pick_home_away(parts)
-        if not (fid and lid and home and away):
+        if not (home and away):
             continue
+        hid, aid = int(home["id"]), int(away["id"])
+        hname, aname = home.get("name") or "Home", away.get("name") or "Away"
+        fid = int(fx["id"])
 
-        # Build for both teams (always from last league XI)
-        home_xi, home_out_map, src_h = predict_team_xi_from_last(home["id"], lid)
-        away_xi, away_out_map, src_a = predict_team_xi_from_last(away["id"], lid)
+        if idx % BATCH_SIZE == 1:
+            # small marker per batch
+            print(f"\n-- Batch starting at item {idx}/{len(fixtures)} --")
+
+        print(f"[{idx:>3}/{len(fixtures)}] L{lid} {LEAGUE_NAMES.get(lid, lid)} | FID {fid} | {hname} vs {aname}")
+
+        # Predicted XIs (with small caching at team level within the run)
+        key_h = (hid, lid)
+        key_a = (aid, lid)
+        if key_h not in team_xi_cache:
+            team_xi_cache[key_h] = predict_xi_for_team(hid, lid)
+        if key_a not in team_xi_cache:
+            team_xi_cache[key_a] = predict_xi_for_team(aid, lid)
+
+        home_xi = team_xi_cache[key_h]
+        away_xi = team_xi_cache[key_a]
+
+        # Sidelined maps (fetch once per team)
+        if hid not in team_sidelined_cache:
+            team_sidelined_cache[hid] = team_sidelined_map(hid)
+        if aid not in team_sidelined_cache:
+            team_sidelined_cache[aid] = team_sidelined_map(aid)
+
+        h_sidelined = team_sidelined_cache[hid]
+        a_sidelined = team_sidelined_cache[aid]
+
+        def pack_player(lp: dict, sidelined_map: Dict[int, str]) -> dict:
+            pid = int(lp.get("player_id"))
+            status = "OK"
+            if pid in sidelined_map:
+                status = f"OUT: {sidelined_map[pid]}"
+            return {
+                "player_id": pid,
+                "name": (lp.get("player_name") or "").strip(),
+                "jersey": lp.get("jersey_number"),
+                "position": pos_id_to_label(lp.get("position_id")),
+                "status": status,
+            }
 
         payload = {
             "fixture_id": fid,
             "league_id": lid,
-            "fixture_name": fx.get("name"),
+            "league_name": LEAGUE_NAMES.get(lid, f"{lid}"),
             "starting_at": fx.get("starting_at"),
-            "computed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-            "assumptions": "No official XI used; predicted from last league fixture starters. Players with active injury/suspension flagged as OUT when available from API.",
-            "teams": {
-                "home": {
-                    "team_id": home["id"],
-                    "team_name": home.get("name"),
-                    "predicted_xi": home_xi,
-                    "unavailable": home_out_map,   # raw records keyed by player_id
-                    "source": src_h
-                },
-                "away": {
-                    "team_id": away["id"],
-                    "team_name": away.get("name"),
-                    "predicted_xi": away_xi,
-                    "unavailable": away_out_map,
-                    "source": src_a
-                }
-            }
+            "home": {
+                "team_id": hid,
+                "name": hname,
+                "predicted_xi": [pack_player(p, h_sidelined) for p in home_xi],
+            },
+            "away": {
+                "team_id": aid,
+                "name": aname,
+                "predicted_xi": [pack_player(p, a_sidelined) for p in away_xi],
+            },
+            "assumption": "Last league fixture starters (no current official XI).",
         }
 
-        write_fixture_prediction(fx, payload)
-        written += 1
-        per_league_counts[lid] = per_league_counts.get(lid, 0) + 1
+        out_path = os.path.join(out_root, str(lid), f"{fid}.json")
+        write_json(out_path, payload)
 
+        by_league_counts[lid] = by_league_counts.get(lid, 0) + 1
         processed += 1
-        batch_counter += 1
 
-        if batch_counter >= BATCH_SIZE:
-            # brief pause between batches to be extra gentle
-            time.sleep(2.0)
-            batch_counter = 0
+        # batch pause
+        if idx % BATCH_SIZE == 0:
+            time.sleep(SLEEP_BETWEEN_BATCHES)
 
-    # summary
-    summary_path = PRED_ROOT / "summary.txt"
-    lines = [
-        f"Time (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}",
-        f"Fixtures processed: {processed}",
-        f"Files written: {written}",
-        "",
-        "Per league counts:",
-    ]
-    for lid in sorted(per_league_counts):
-        lines.append(f"  - {lid}: {per_league_counts[lid]}")
-    summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # Summary
+    summary_lines = []
+    summary_lines.append(f"Time (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}")
+    summary_lines.append(f"Shard      : {args.shard+1}/{args.shards}")
+    summary_lines.append(f"Fixtures   : {processed}")
+    summary_lines.append("")
+    summary_lines.append("Per league counts:")
+    for lid in sorted(by_league_counts):
+        summary_lines.append(f"  - {lid} ({LEAGUE_NAMES.get(lid, lid)}): {by_league_counts[lid]}")
+    summary = "\n".join(summary_lines)
 
-    print("\n".join(lines))
+    write_json(os.path.join(out_root, "latest.json"), {
+        "utc_time": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "shard": args.shard,
+        "shards": args.shards,
+        "processed": processed,
+        "by_league": by_league_counts,
+    })
+    with open(os.path.join(out_root, "summary.txt"), "w", encoding="utf-8") as f:
+        f.write(summary + "\n")
+
+    print("\nDone.")
+    print(summary)
 
 if __name__ == "__main__":
     try:
         main()
-    except requests.HTTPError as e:
-        print(f"\nHTTPError: {e}\n")
-        raise
+    except KeyboardInterrupt:
+        pass
