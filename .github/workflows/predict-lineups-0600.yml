@@ -1,4 +1,5 @@
-name: Predict lineups (Mon 06:00 UTC)
+      - name: Predict lineups
+        run: python scripts/predict_lineups.py --shards 3 --shard 0
 
 on:
   schedule:
