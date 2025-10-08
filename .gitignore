@@ -1,3 +1,24 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+*.orig
+
+# Python
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.egg-info/
+env/
+venv/
+.venv/
+build/
+dist/
+
+# Logs
+logs/
+*.log
+
+# Data (ignore by default) — BUT keep our fixtures output
+data/
+!data/fixtures/
+!data/fixtures/**
