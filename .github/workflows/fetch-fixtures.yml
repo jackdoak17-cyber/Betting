@@ -3,22 +3,20 @@ name: Fetch fixtures (Sportmonks only)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * 1"  # Mondays 05:00 UTC
+    - cron: "0 5 * * 1"   # Every Monday at 05:00 UTC
 
-# ✅ allow pushing commits
 permissions:
   contents: write
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true  # keep token for git push
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,20 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Fetch fixtures
-        env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          DAYS_AHEAD: "21"
+      - name: Run fetcher
         run: python scripts/fetch_fixtures.py
 
-      - name: Commit & push if changed
+      - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A data/fixtures
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(fixtures): update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/fixtures
+          git commit -m "chore(fixtures): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git push
