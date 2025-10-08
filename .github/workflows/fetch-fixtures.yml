@@ -1,9 +1,10 @@
-name: Fetch fixtures
+name: Fetch fixtures (Sportmonks only)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * *"
+    # Every Monday at 05:00 UTC
+    - cron: "0 5 * * 1"
 
 jobs:
   fetch:
@@ -11,10 +12,9 @@ jobs:
     permissions:
       contents: write
     env:
-      # Map your existing repo secret to BOTH names so any script works
+      # Repo secret required: SPORTMONKS_TOKEN
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
       SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
       DAYS_AHEAD: "21"
 
     steps:
@@ -29,11 +29,11 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install requests
 
-      - name: Sanity check required env vars
+      - name: Sanity check env vars
         run: |
-          for v in SPORTMONKS_TOKEN SPORTMONKS_API_TOKEN ODDS_API_KEY; do
+          for v in SPORTMONKS_TOKEN SPORTMONKS_API_TOKEN; do
             if [ -z "${!v}" ]; then
               echo "Missing env var: $v"; exit 1
             fi
