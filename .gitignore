@@ -1,24 +1,17 @@
-# OS / editor
-.DS_Store
-*.swp
-*.swo
-*.orig
-
-# Python
+# Python cruft
 __pycache__/
 *.py[cod]
 *.egg-info/
-env/
-venv/
 .venv/
-build/
-dist/
+.env
 
-# Logs
-logs/
-*.log
+# Editors
+.vscode/
+.idea/
 
-# Data (ignore by default) — BUT keep our fixtures output
-data/
+# ---- outputs you WANT to keep in git ----
+# Ensure fixtures & txt are NOT ignored (negations are harmless if nothing matches)
+!data/
 !data/fixtures/
 !data/fixtures/**
+!*.txt
