@@ -3,8 +3,7 @@ name: Fetch fixtures (Sportmonks only)
 on:
   workflow_dispatch:
   schedule:
-    # Every Monday at 05:00 UTC
-    - cron: "0 5 * * 1"
+    - cron: "0 5 * * 1"   # every Monday 05:00 UTC
 
 jobs:
   fetch:
@@ -14,6 +13,7 @@ jobs:
     env:
       # Repo secret required: SPORTMONKS_TOKEN
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      # Alias env in case the script expects this older name
       SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
       DAYS_AHEAD: "21"
 
@@ -33,12 +33,9 @@ jobs:
 
       - name: Sanity check env vars
         run: |
-          for v in SPORTMONKS_TOKEN SPORTMONKS_API_TOKEN; do
-            if [ -z "${!v}" ]; then
-              echo "Missing env var: $v"; exit 1
-            fi
-          done
-          echo "All required env vars are present."
+          : "${SPORTMONKS_TOKEN:?Missing SPORTMONKS_TOKEN}"
+          : "${SPORTMONKS_API_TOKEN:?Missing SPORTMONKS_API_TOKEN}"
+          echo "Env looks good."
 
       - name: Run fetcher
         run: python scripts/fetch_fixtures.py
@@ -47,7 +44,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A data/fixtures
+          git add -A data/fixtures || true
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
