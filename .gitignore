@@ -1,17 +1,6 @@
-# Python cruft
 __pycache__/
 *.py[cod]
-*.egg-info/
 .venv/
 .env
-
-# Editors
 .vscode/
 .idea/
-
-# ---- outputs you WANT to keep in git ----
-# Ensure fixtures & txt are NOT ignored (negations are harmless if nothing matches)
-!data/
-!data/fixtures/
-!data/fixtures/**
-!*.txt
