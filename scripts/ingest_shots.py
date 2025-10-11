@@ -4,10 +4,9 @@
 """
 Last-10 league shots per tracked player from predicted_xi.
 
-Inputs (already produced by your earlier job):
+Inputs:
   data/predicted_xi/by_league/*.json
-    Each file contains fixtures with home/away predicted_xi arrays.
-    We read: league_id, team_id, team_name, player_id, player_name, position (if present)
+    (we read league_id, team_id, team_name, player_id, player_name, position if present)
 
 Outputs:
   data/player_stats/shots/by_league/{league_id}.json
@@ -15,11 +14,10 @@ Outputs:
   data/player_stats/shots/summary_verbose.txt
 
 Rules:
-- League matches only (filter by fixture.league_id == our league).
-- Sequence is OLDEST → NEWEST (as requested).
-- Total shots = SHOTS_TOTAL if present, otherwise
-  SHOTS_ON_TARGET + SHOTS_OFF_TARGET + (SHOTS_BLOCKED or BLOCKED_SHOTS).
-- If a player appears (we see them in lineups/stat rows) but has no shot stat, record 0.
+- League matches only (fixture.league_id == our league).
+- Sequence is OLDEST → NEWEST.
+- Total shots = SHOTS_TOTAL if present, else (SHOTS_ON_TARGET + SHOTS_OFF_TARGET + SHOTS_BLOCKED/BLOCKED_SHOTS).
+- If a player appeared but no shot stat exists, record 0.
 - Up to last 10 fixtures per player.
 
 Env:
@@ -44,13 +42,13 @@ MONTHS_BACK = int(os.getenv("SHOTS_MONTHS_BACK", "9"))
 TIMEOUT = 25
 BACKOFF = 1.6
 RETRIES_429 = 3
-PACE = 0.12  # tiny delay to be nice
+PACE = 0.12  # tiny delay between requests
 
 PRED_ROOT = "data/predicted_xi/by_league"
 OUT_ROOT = "data/player_stats/shots"
 BY_LG_DIR = os.path.join(OUT_ROOT, "by_league")
 
-# -------- tiny memo --------
+# -------- memo/cache --------
 _MEMO: Dict[str, dict] = {}
 _last_ts = 0.0
 
@@ -116,7 +114,7 @@ def load_tracked() -> Tuple[Dict[int, dict], Dict[int, Set[int]], Set[int]]:
     leagues: Set[int] = set()
 
     for fn in os.listdir(PRED_ROOT):
-        if not fn.endswith(".json"): 
+        if not fn.endswith(".json"):
             continue
         path = os.path.join(PRED_ROOT, fn)
         try:
@@ -136,7 +134,7 @@ def load_tracked() -> Tuple[Dict[int, dict], Dict[int, Set[int]], Set[int]]:
                     pid = int(p.get("player_id") or 0)
                     if not pid:
                         continue
-                    pos = p.get("position") or p.get("pos") or p.get("role") or ""  # best-effort
+                    pos = p.get("position") or p.get("pos") or p.get("role") or ""
                     players[pid] = {
                         "name": (p.get("name") or p.get("player_name") or "").strip(),
                         "team_id": team_id,
@@ -185,7 +183,7 @@ def fixtures_by_day(date_d: dt.date) -> List[dict]:
     return data
 
 def collect_league_team_fixtures(league_id: int, team_ids: Set[int]) -> List[dict]:
-    """Newest → oldest scan in month chunks, with daily fallback."""
+    """Newest → oldest scan in month chunks, with daily fallback. Then filter to our league+teams and sort oldest → newest."""
     out: Dict[int, dict] = {}
     end = today_utc()
     cursor_end = end
@@ -195,18 +193,17 @@ def collect_league_team_fixtures(league_id: int, team_ids: Set[int]) -> List[dic
         end_iso   = f"{dstr(cursor_end)} 23:59:59"
         got = fixtures_between(start_iso, end_iso)
         if not got:
-            # fast daily fallback
+            # daily fallback
             d = start
             while d <= cursor_end:
                 for fx in fixtures_by_day(d):
-                    out[ int(fx.get("id") or 0) ] = fx
+                    out[int(fx.get("id") or 0)] = fx
                 d += dt.timedelta(days=1)
         else:
             for fx in got:
-                out[ int(fx.get("id") or 0) ] = fx
+                out[int(fx.get("id") or 0)] = fx
         cursor_end = start - dt.timedelta(days=1)
 
-    # Filter to our league + teams
     res = []
     for fx in out.values():
         if int(fx.get("league_id") or 0) != league_id:
@@ -217,15 +214,14 @@ def collect_league_team_fixtures(league_id: int, team_ids: Set[int]) -> List[dic
             continue
         res.append(fx)
 
-    # Oldest → newest
-    res.sort(key=lambda x: (x.get("starting_at") or "", x.get("id") or 0))
+    res.sort(key=lambda x: (x.get("starting_at") or "", x.get("id") or 0))  # oldest → newest
     return res
 
 # -------- parse per-fixture stats --------
-SHOT_DEV_TOTAL = {"SHOTS", "SHOTS_TOTAL"}  # developer_name
+SHOT_DEV_TOTAL = {"SHOTS", "SHOTS_TOTAL"}
 SHOT_DEV_SOT   = {"SHOTS_ON_TARGET"}
 SHOT_DEV_SOFF  = {"SHOTS_OFF_TARGET"}
-SHOT_DEV_BLK   = {"SHOTS_BLOCKED", "BLOCKED_SHOTS"}  # seen both ways
+SHOT_DEV_BLK   = {"SHOTS_BLOCKED", "BLOCKED_SHOTS"}
 
 def _intish(v) -> Optional[int]:
     if isinstance(v, bool):
@@ -233,7 +229,6 @@ def _intish(v) -> Optional[int]:
     if isinstance(v, (int, float)):
         return int(v)
     if isinstance(v, dict):
-        # sometimes { "total": 3 }
         t = v.get("total")
         return _intish(t)
     try:
@@ -262,21 +257,16 @@ def _shots_from_details(details: List[dict]) -> Optional[int]:
     return tot if (sot or soff or blk) else None
 
 def _shots_from_flat_player_row(pr: dict) -> Optional[int]:
-    # common flat shapes under statistics.player
-    # 1) pr["shots_total"] = 3
     for k in ("shots_total", "total_shots", "shots"):
         if k in pr:
             v = pr.get(k)
-            # could be int or { "total": 3 }
             iv = _intish(v)
             if iv is not None:
                 return iv
-            # sometimes nested dict with "total":
             if isinstance(v, dict):
                 iv = _intish(v.get("total"))
                 if iv is not None:
                     return iv
-    # 2) pr["shots"] = {"on_target": X, "off_target": Y, "blocked": Z}
     shots = pr.get("shots")
     if isinstance(shots, dict):
         x = 0
@@ -288,42 +278,45 @@ def _shots_from_flat_player_row(pr: dict) -> Optional[int]:
                 any_part = True
         if any_part:
             return x
-    # 3) pr["details"] with typed stats
     details = pr.get("details")
     if isinstance(details, list):
         return _shots_from_details(details)
     return None
 
 def fetch_fixture_full(fid: int) -> dict:
-    # one heavy call to get both shapes
+    # IMPORTANT: ok404=True so we skip non-existent/forbidden fixture details gracefully
     j = api_get(f"fixtures/{fid}", {
         "include": "participants;state;lineups.details.type;statistics;statistics.player",
-    }, ok404=False)
+    }, ok404=True)
     return j.get("data") or {}
 
 def build_shots_for_fixture(fid: int) -> Tuple[Dict[int, int], Set[int]]:
     """
     Returns:
       shots_map {player_id: shots_int}
-      appeared   set(player_ids)  (anyone we can confidently say 'played' for 0 fallback)
+      appeared  set(player_ids)  (anyone we can say 'played' -> 0 fallback)
     """
     data = fetch_fixture_full(fid)
+    if not data:
+        print(f"[SKIP 404] fixture {fid} — no details available")
+        return {}, set()
+
     shots_map: Dict[int, int] = {}
     appeared: Set[int] = set()
 
-    # A) lineups.details.type path
+    # A) lineups.details.type
     for lp in (data.get("lineups") or []):
         pid = lp.get("player_id")
         if not pid:
             continue
         pid = int(pid)
-        appeared.add(pid)  # being in lineups = appeared
+        appeared.add(pid)  # listed in lineups → appeared
         details = lp.get("details") or []
         s = _shots_from_details(details)
         if s is not None:
             shots_map[pid] = s
 
-    # B) statistics.player path (various shapes)
+    # B) statistics.player
     for statrow in (data.get("statistics") or []):
         players = statrow.get("players") or statrow.get("player") or []
         if isinstance(players, dict):
@@ -353,62 +346,55 @@ def main():
 
     verbose_lines: List[str] = []
     verbose_lines.append(f"Time (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}")
-    verbose_lines.append("Endpoint   : between-monthly (fallback to daily), parsing lineups.details + statistics.player")
+    verbose_lines.append("Endpoint   : between-monthly (fallback to daily), lineups.details + statistics.player")
     verbose_lines.append("Metric     : Total shots per league match (shots_total OR on+off+blocked)")
     verbose_lines.append("Order      : oldest → newest\n")
 
-    # Build cache of league -> fixtures (only those with our teams)
+    # pre-collect fixtures per league (filtered to our teams)
     league_fixtures: Dict[int, List[dict]] = {}
     for lid in sorted(leagues):
-        our_teams = {tid for tid, pset in team_to_players.items() 
+        our_teams = {tid for tid, pset in team_to_players.items()
                      if any(players[pid]["league_id"] == lid for pid in pset)}
         fxs = collect_league_team_fixtures(lid, our_teams)
         league_fixtures[lid] = fxs
 
-    # For output per league
+    # per league output
     for lid in sorted(leagues):
         fxs = league_fixtures.get(lid, [])
-        # Build team -> fixture ids (oldest → newest)
+
         team_to_fids: Dict[int, List[int]] = {}
         for fx in fxs:
             fid = int(fx.get("id") or 0)
-            parts = fx.get("participants") or []
-            for p in parts:
+            for p in (fx.get("participants") or []):
                 tid = int(p.get("id") or 0)
-                if tid in team_to_players:
-                    team_to_fids.setdefault(tid, []).append(fid)
+                team_to_fids.setdefault(tid, []).append(fid)
 
-        # For each fixture once, compute per-player shots + appeared
         fixture_cache: Dict[int, Tuple[Dict[int, int], Set[int]]] = {}
 
         out_rows: List[dict] = []
-        # Group players by team to reuse fixtures
         for tid in sorted(team_to_players.keys()):
-            # only teams in this league
             pids_here = [pid for pid in team_to_players[tid] if players[pid]["league_id"] == lid]
             if not pids_here:
                 continue
             fids = team_to_fids.get(tid, [])
-            # per-player series collector
             series: Dict[int, List[int]] = {pid: [] for pid in pids_here}
 
             for fid in fids:
-                # stop early if everyone has 10
                 if all(len(series[pid]) >= 10 for pid in pids_here):
                     break
                 if fid not in fixture_cache:
                     fixture_cache[fid] = build_shots_for_fixture(fid)
                 shots_map, appeared = fixture_cache[fid]
-
+                if not shots_map and not appeared:
+                    # fixture unavailable (404) → skip
+                    continue
                 for pid in pids_here:
                     if len(series[pid]) >= 10:
                         continue
-                    # if player appeared, record shots (or 0 if absent)
                     if pid in appeared:
                         val = shots_map.get(pid, 0)
                         series[pid].append(val)
 
-            # pack rows
             for pid in sorted(pids_here, key=lambda x: (players[x]["name"] or "").lower()):
                 meta = players[pid]
                 out_rows.append({
@@ -417,13 +403,11 @@ def main():
                     "position": meta.get("position") or "",
                     "team_id": meta["team_id"],
                     "team_name": meta["team_name"],
-                    "last10_shots": series[pid][-10:],  # already oldest→newest
+                    "last10_shots": series[pid][-10:],  # oldest→newest
                 })
 
-        # sort rows for stable diffs
         out_rows.sort(key=lambda r: ((r["team_name"] or "").lower(), (r["player_name"] or "").lower(), r["player_id"]))
 
-        # write JSON
         payload = {
             "utc_time": dt.datetime.now(dt.timezone.utc).isoformat(),
             "league_id": lid,
@@ -432,7 +416,6 @@ def main():
         with open(os.path.join(BY_LG_DIR, f"{lid}.json"), "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False)
 
-        # verbose summary
         verbose_lines.append(f"===== League {lid} =====")
         last_team = None
         for r in out_rows:
@@ -445,7 +428,6 @@ def main():
             verbose_lines.append(f"  {r['player_name']}{pos_txt} = {seq_s}")
         verbose_lines.append("")
 
-    # write summaries
     with open(os.path.join(OUT_ROOT, "summary.txt"), "w", encoding="utf-8") as f:
         f.write(f"Time (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}\n")
         f.write("Endpoint   : between-monthly (fallback to daily)\n")
