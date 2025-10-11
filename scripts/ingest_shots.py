@@ -80,7 +80,6 @@ def api_get(path: str, params: Optional[dict] = None, allow_404: bool = False) -
         try:
             r = requests.get(url, params=params, timeout=TIMEOUT)
             if r.status_code == 404 and allow_404:
-                # Treat as empty result
                 _MEMO[key] = None
                 return None
             if r.status_code == 429:
@@ -186,20 +185,19 @@ def fetch_team_fixtures_between(team_id: int, d_from: dt.date, d_to: dt.date) ->
             allow_404=True,
         )
         if j is None:
-            # between not available -> fall back below
-            break
+            break  # use fallback
         data = j.get("data") or []
         all_rows.extend(data)
         meta = j.get("meta") or {}
         last_page = meta.get("last_page", page)
         if page >= last_page:
-            return all_rows  # success via fast path
+            return all_rows
         page += 1
         if len(all_rows) >= PER_TEAM_MAX_FIXTURES:
             return all_rows
 
     # --- fallback: per-day ---
-    # Walk from d_to down to d_from (inclusive), page each date
+    seen_ids: Set[int] = set()
     day = d_to
     while day >= d_from:
         page = 1
@@ -214,10 +212,13 @@ def fetch_team_fixtures_between(team_id: int, d_from: dt.date, d_to: dt.date) ->
                 allow_404=True,
             )
             if j is None:
-                # No fixtures for this date in account (404) → move on
-                break
+                break  # no fixtures that date
             data = j.get("data") or []
-            all_rows.extend(data)
+            for fx in data:
+                fid = fx.get("id")
+                if fid and fid not in seen_ids:
+                    seen_ids.add(fid)
+                    all_rows.append(fx)
             meta = j.get("meta") or {}
             last_page = meta.get("last_page", page)
             if page >= last_page:
@@ -294,6 +295,11 @@ def collect_last10_for_team_players_in_league(team_id: int, league_id: int, play
             if st in {"scheduled", "postponed", "cancelled"}:
                 continue
 
+            # ensure team participated
+            parts = fx.get("participants") or []
+            if not any(int(p.get("id") or -1) == int(team_id) for p in parts):
+                continue
+
             stats = fx.get("statistics") or []
             if not stats:
                 continue
@@ -341,13 +347,14 @@ def main():
     leagues = load_from_predicted_xi()
 
     now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
-    print(f"Leagues (from predicted_xi): {sorted(leagues.keys())}")
+    lids_sorted = sorted(leagues.keys())
+    print(f"Leagues (from predicted_xi): {lids_sorted}")
     total_tracked = sum(len(info["players"]) for info in leagues.values())
     print(f"Tracked players (unique across leagues): {total_tracked}")
 
     per_league_player_series: Dict[int, Dict[int, List[Tuple[int, str]]]] = {}
 
-    for lid in sorted(leagues.keys()):
+    for lid in lids_sorted:
         info = leagues[lid]
         teams = info["teams"]
         print(f"\n=== League {lid} ===")
@@ -358,7 +365,6 @@ def main():
             try:
                 series_map = collect_last10_for_team_players_in_league(team_id, lid, player_ids)
             except requests.HTTPError as e:
-                # Hard failure (non-404/429) → log and continue with empty
                 print(f"[WARN] team {team_id} league {lid}: {e}", file=sys.stderr)
                 series_map = {pid: [] for pid in player_ids}
             league_series.update(series_map)
@@ -381,7 +387,9 @@ def main():
                 "position_id": meta.get("position_id"),
                 "last10_shots": seq,
             })
-        pack["players"].sort(key=lambda x: (x["team"] or "", x["name"] or "").lower())
+
+        # ✅ FIX: sort by team then name (case-insensitive) — lower() per element, not on the tuple
+        pack["players"].sort(key=lambda x: ((x.get("team") or "").lower(), (x.get("name") or "").lower()))
 
         with open(os.path.join(OUT_BY_LEAGUE, f"{lid}.json"), "w", encoding="utf-8") as f:
             json.dump(pack, f, ensure_ascii=False)
@@ -392,7 +400,7 @@ def main():
     lines.append("Endpoint   : between (fast) → date fallback (on 404)")
     lines.append("Filter     : league-only; newest → older")
     lines.append("")
-    for lid in sorted(leagues.keys()):
+    for lid in lids_sorted:
         lines.append(f"===== League {lid} =====")
         info = leagues[lid]
         pmeta = info["players"]
@@ -401,7 +409,7 @@ def main():
         for pid, meta in pmeta.items():
             team_groups.setdefault(meta.get("team") or "?", []).append(pid)
 
-        for team_name in sorted(team_groups.keys()):
+        for team_name in sorted(team_groups.keys(), key=lambda s: (s or "").lower()):
             lines.append(f"{team_name}")
             for pid in sorted(team_groups[team_name], key=lambda p: (pmeta[p].get("name") or "").lower()):
                 meta = pmeta[pid]
