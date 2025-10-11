@@ -6,26 +6,25 @@ Predict lineups for ALL leagues/fixtures previously fetched, then write:
   - data/predicted_xi/by_league/{league_id}.json
   - data/predicted_xi/combined.json
   - data/predicted_xi/summary.txt
-  - data/predicted_xi/summary_verbose.txt
+  - data/predicted_xi/summary_verbose.txt  (human-check: now prints LB/RB/CB etc.)
 
-Enhancement:
-- Adds `role` with finer labels for defenders (LB/RB/CB/WB). Falls back to DEF.
-- Uses players/{id}?include=position (best-effort) + text heuristics with caching.
+Key change:
+- We now request **lineups.detailedPosition** from Sportmonks and map it to
+  role codes (LB, RB, CB, LWB, RWB, DM, CM, AM, LW, RW, ST, GK).
+- If detailed position isn’t available for a player, we fall back to GK/DEF/MID/FWD.
 
 Assumptions:
-- No official matchday XI; we copy starters from each team’s last league match
-  that has a recorded XI (bounded 45 days fallback).
-- If a player is sidelined (injury/suspension), we KEEP them in XI but mark status.
+- No official matchday XI; copy starters from each team’s previous **league** match
+  with a recorded XI (bounded 45 days back). Players flagged sidelined remain in
+  the XI but are annotated OUT.
 
 Env:
   SPORTMONKS_TOKEN
 """
 
 import os
-import re
 import json
 import time
-import hashlib
 import datetime as dt
 from typing import Dict, List, Optional, Tuple
 
@@ -61,11 +60,6 @@ LEAGUE_NAMES = {
     567: "La Liga 2",
     600: "Super Lig",
 }
-
-# Caching
-CACHE_DIR = ".cache_smonks"
-PLAYER_CACHE_TTL = 3 * 24 * 3600  # 3 days for player role info
-os.makedirs(CACHE_DIR, exist_ok=True)
 
 # ---------------- HTTP helper with memo ----------------
 _MEMO: Dict[str, dict] = {}
@@ -122,7 +116,7 @@ def dstr(d: dt.date) -> str:
     return d.strftime("%Y-%m-%d")
 
 def pos_id_to_label(position_id: Optional[int]) -> str:
-    return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(int(position_id or 0), "?")
+    return {24: "GK", 25: "DEF", 26: "MID", 27: "FWD"}.get(position_id or 0, "?")
 
 def pick_home_away(participants: List[dict]):
     home = next((p for p in participants if (p.get("meta") or {}).get("location") == "home"), None)
@@ -172,114 +166,11 @@ def load_all_fixtures() -> List[dict]:
 
     return [fx for fx in fixtures if fx.get("id")]
 
-# ---------------- Player role resolution (LB/RB/CB/WB) ----------------
-ROLE_MAP = {
-    "left back": "LB",
-    "right back": "RB",
-    "centre back": "CB",
-    "center back": "CB",
-    "central defender": "CB",
-    "centre-back": "CB",
-    "center-back": "CB",
-    "wing back": "WB",
-    "left wing back": "WB",
-    "right wing back": "WB",
-    # short codes sometimes appear in text fields
-    "d(l)": "LB",
-    "d(r)": "RB",
-    "d(c)": "CB",
-    "d(lc)": "LB",
-    "d(rc)": "RB",
-    "d(lr)": "WB",
-}
-
-def _norm(s: Optional[str]) -> str:
-    return re.sub(r"\s+", " ", (s or "").strip().lower())
-
-def _player_cache_path(pid: int) -> str:
-    h = hashlib.sha256(f"player:{pid}".encode("utf-8")).hexdigest()
-    return os.path.join(CACHE_DIR, f"{h}.json")
-
-def _player_cache_get(pid: int) -> Optional[dict]:
-    p = _player_cache_path(pid)
-    if not os.path.isfile(p):
-        return None
-    try:
-        if (time.time() - os.stat(p).st_mtime) > PLAYER_CACHE_TTL:
-            return None
-        with open(p, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return None
-
-def _player_cache_put(pid: int, data: dict) -> None:
-    p = _player_cache_path(pid)
-    try:
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(data, f)
-    except Exception:
-        pass
-
-PLAYER_ROLE_MEMO: Dict[int, str] = {}
-
-def resolve_defender_role(player_id: int, group_label: str) -> str:
-    """
-    Try to map a defender to LB/RB/CB/WB using players/{id}?include=position.
-    If not resolvable, return 'DEF'. Non-defenders: return group_label (GK/MID/FWD).
-    """
-    if group_label != "DEF":
-        return group_label  # only refine defenders
-
-    if player_id in PLAYER_ROLE_MEMO:
-        return PLAYER_ROLE_MEMO[player_id]
-
-    # Disk cache
-    cached = _player_cache_get(player_id)
-    if cached is None:
-        # Fetch from API
-        try:
-            j = api_get(f"players/{player_id}", {"include": "position"})
-            cached = j.get("data") or {}
-        except Exception:
-            cached = {}
-        _player_cache_put(player_id, cached)
-
-    # Search common fields for clues
-    candidates = []
-    for key in ("position", "position_name", "detailed_position", "common_name", "short_name"):
-        val = cached.get(key)
-        if isinstance(val, str):
-            candidates.append(_norm(val))
-        elif isinstance(val, dict):
-            candidates.append(_norm(val.get("name") or val.get("short_name")))
-    # also explicit relation 'position'
-    pos_rel = cached.get("position")
-    if isinstance(pos_rel, dict):
-        candidates.append(_norm(pos_rel.get("name") or pos_rel.get("short_name")))
-    elif isinstance(pos_rel, list) and pos_rel:
-        c = pos_rel[0] or {}
-        candidates.append(_norm(c.get("name") or c.get("short_name")))
-
-    # decide
-    for cand in candidates:
-        if not cand:
-            continue
-        for needle, role in ROLE_MAP.items():
-            if needle in cand:
-                PLAYER_ROLE_MEMO[player_id] = role
-                return role
-        # If it clearly says 'defender' but no side/centre
-        if cand in ("defender", "defence", "defense", "def", "d") or "defend" in cand:
-            PLAYER_ROLE_MEMO[player_id] = "DEF"
-            return "DEF"
-
-    PLAYER_ROLE_MEMO[player_id] = "DEF"
-    return "DEF"
-
 # ---------------- Sportmonks helpers ----------------
 def fixtures_on_date(date_s: str, leagues: Optional[set] = None) -> List[dict]:
+    # NOW includes detailedPosition and position so we can read roles
     j = api_get(f"fixtures/date/{date_s}", {
-        "include": "participants;lineups;lineups.player;league;state"
+        "include": "participants;lineups;lineups.player;lineups.position;lineups.detailedPosition;league;state"
     })
     data = j.get("data", []) or []
     if leagues:
@@ -287,24 +178,26 @@ def fixtures_on_date(date_s: str, leagues: Optional[set] = None) -> List[dict]:
     return data
 
 def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[dict]:
-    # fast path via team.latest (+lineups)
+    """
+    Fast path via team.latest (with lineups + detailedPosition).
+    Bounded fallback: scan last MAX_FALLBACK_DAYS for a same-league fixture with starters.
+    """
     try:
         j = api_get(f"teams/{team_id}", {
-            "include": "latest.league;latest.lineups;latest.lineups.player"
+            "include": "latest.league;latest.lineups;latest.lineups.player;latest.lineups.position;latest.lineups.detailedPosition"
         })
         latest = j.get("data", {}).get("latest")
         lst = latest if isinstance(latest, list) else ([latest] if latest else [])
         lst = [fx for fx in lst if (fx or {}).get("league_id") == league_id]
         lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
         for fx in lst:
-            starters = [l for l in (fx.get("lineups") or [])
-                        if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+            li = fx.get("lineups") or []
+            starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
             if starters:
                 return fx
     except Exception:
         pass
 
-    # bounded fallback scan (≤45 days)
     start = today_utc()
     for back in range(1, MAX_FALLBACK_DAYS + 1):
         day = dstr(start - dt.timedelta(days=back))
@@ -314,8 +207,8 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
             continue
         for fx in day_fixtures:
             if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
-                starters = [l for l in (fx.get("lineups") or [])
-                            if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+                li = fx.get("lineups") or []
+                starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
                 if starters:
                     return fx
     return None
@@ -347,6 +240,66 @@ def sidelined_map(team_id: int) -> Dict[int, str]:
         return out
     except Exception:
         return {}
+
+# ---- role mapping (LB/RB/CB/etc.) ----
+def _abbr_from_name_or_code(name: Optional[str], code: Optional[str]) -> Optional[str]:
+    s = ((code or "") + " " + (name or "")).strip().lower()
+
+    # fullbacks / backs
+    if "left wing back" in s or "lwb" in s: return "LWB"
+    if "right wing back" in s or "rwb" in s: return "RWB"
+    if "left back" in s or "lb" in s: return "LB"
+    if "right back" in s or "rb" in s: return "RB"
+    if "center back" in s or "centre back" in s or "cb" in s: return "CB"
+    if "full back" in s:  # generic
+        if "left" in s: return "LB"
+        if "right" in s: return "RB"
+        return "FB"
+
+    # mids
+    if "defensive midfielder" in s or "cdm" in s or s == "dm": return "DM"
+    if "central midfielder" in s or "centre midfielder" in s or "cm" in s: return "CM"
+    if "attacking midfielder" in s or "am" in s: return "AM"
+    if "left midfielder" in s or "lm" in s: return "LM"
+    if "right midfielder" in s or "rm" in s: return "RM"
+
+    # wide forwards / wingers
+    if "left winger" in s or s == "lw": return "LW"
+    if "right winger" in s or s == "rw": return "RW"
+
+    # forwards
+    if "striker" in s or "center forward" in s or "centre forward" in s or "cf" in s or s == "st": return "ST"
+
+    # keeper
+    if "goalkeeper" in s or s == "gk": return "GK"
+
+    return None
+
+def role_from_lineup(lp: dict) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Returns (role_abbrev, role_name) if detailedPosition/position info found.
+    """
+    # detailedPosition relation (preferred)
+    det = lp.get("detailed_position") or lp.get("detailedPosition") or lp.get("detailedposition")
+    if isinstance(det, dict):
+        name = det.get("name") or det.get("short_name") or det.get("description") or ""
+        code = det.get("code") or det.get("short_code") or ""
+        ab = _abbr_from_name_or_code(name, code)
+        if ab:
+            return ab, (name or code or ab)
+
+    # position relation (generic)
+    pos = lp.get("position") or lp.get("Position")
+    if isinstance(pos, dict):
+        name = pos.get("name") or pos.get("short_name") or ""
+        code = pos.get("code") or pos.get("short_code") or ""
+        ab = _abbr_from_name_or_code(name, code)
+        if ab:
+            return ab, (name or code or ab)
+
+    # fall back to broad bucket
+    bucket = pos_id_to_label(lp.get("position_id"))
+    return (bucket, bucket) if bucket else (None, None)
 
 # ---------------- Main ----------------
 def main():
@@ -398,18 +351,21 @@ def main():
 
         def pack(lp: dict, sidemap: Dict[int, str]) -> dict:
             pid = int(lp.get("player_id"))
-            group = pos_id_to_label(lp.get("position_id"))
-            role = resolve_defender_role(pid, group)
             status = "OK"
             if pid in sidemap:
                 status = f"OUT: {sidemap[pid]}"
+
+            role_abbrev, role_name = role_from_lineup(lp)
+
             return {
                 "player_id": pid,
                 "name": (lp.get("player_name") or "").strip(),
                 "jersey": lp.get("jersey_number"),
                 "position_id": lp.get("position_id"),
-                "position_label": group,            # GK/DEF/MID/FWD
-                "role": role,                       # LB/RB/CB/WB/DEF/... or GK/MID/FWD
+                "position_label": pos_id_to_label(lp.get("position_id")),
+                "detailed_position_id": lp.get("detailed_position_id"),
+                "role": role_abbrev,         # e.g., LB/RB/CB/DM/AM/LW/RW/ST/GK
+                "role_name": role_name,      # e.g., "Left Back"
                 "formation_position": lp.get("formation_position"),
                 "status": status,
             }
@@ -417,33 +373,11 @@ def main():
         home_xi = [pack(p, sidelined_cache[hid]) for p in xi_cache[key_h]]
         away_xi = [pack(p, sidelined_cache[aid]) for p in xi_cache[key_a]]
 
-        # helpful grouping for quick filtering in your consumers
-        def role_buckets(xi: List[dict]) -> Dict[str, List[int]]:
-            buckets = {"LB": [], "RB": [], "CB": [], "WB": [], "DEF": [], "GK": [], "MID": [], "FWD": []}
-            for p in xi:
-                r = p["role"]
-                if r in buckets:
-                    buckets[r].append(p["player_id"])
-                else:
-                    # stick unknowns back into their group
-                    buckets.setdefault(p["position_label"] or "DEF", []).append(p["player_id"])
-            return buckets
-
         item = {
             "fixture_id": fid,
             "starting_at": start_at,
-            "home": {
-                "team_id": hid,
-                "name": hname,
-                "predicted_xi": home_xi,
-                "defender_roles": role_buckets(home_xi),  # quick LB/RB/CB/WB lists
-            },
-            "away": {
-                "team_id": aid,
-                "name": aname,
-                "predicted_xi": away_xi,
-                "defender_roles": role_buckets(away_xi),
-            },
+            "home": {"team_id": hid, "name": hname, "predicted_xi": home_xi},
+            "away": {"team_id": aid, "name": aname, "predicted_xi": away_xi},
             "assumption": "Copied starters from previous league match; OUT tags from team sidelined list.",
         }
         league_payloads.setdefault(lid, []).append(item)
@@ -469,7 +403,7 @@ def main():
         with open(os.path.join(by_league_root, f"{lid}.json"), "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False)
 
-    # Optional combined JSON (kept for convenience)
+    # Optional combined JSON
     combined_rows: List[dict] = []
     for lid in sorted(league_payloads):
         combined_rows.extend(league_payloads[lid])
@@ -490,7 +424,7 @@ def main():
         for lid in sorted(by_league_counts):
             f.write(f"  - {lid} ({LEAGUE_NAMES.get(lid, lid)}): {by_league_counts[lid]}\n")
 
-    # verbose fixture-by-fixture with XI lines (show roles)
+    # verbose (now prints role if available)
     lines: List[str] = []
     lines.append(f"Time (UTC): {now_iso}")
     lines.append(f"Fixtures   : {processed}")
@@ -506,7 +440,7 @@ def main():
                 parts = []
                 for p in team["predicted_xi"]:
                     nm = p["name"] or f"#{p.get('jersey')}"
-                    tag = p["role"] or p.get("position_label") or "?"
+                    tag = p.get("role") or p.get("position_label") or "?"
                     if p["status"].startswith("OUT"):
                         nm = f"{nm} [{tag}][OUT]"
                     else:
