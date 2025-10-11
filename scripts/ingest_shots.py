@@ -4,39 +4,21 @@
 """
 Gather per-player SHOTS for players in predicted XIs — LEAGUE MATCHES ONLY.
 
-For each league we track (from data/predicted_xi/by_league/*.json):
-  • Build the set of (team, players) from predicted XIs (with position info).
-  • For each team, fetch fixtures via /v3/football/fixtures/between/{from}/{to}?teams=<team_id>
-    and include participants;statistics;statistics.player;state, then
-    **filter to fixtures with league_id == <that league>**.
-  • For each tracked player, collect the shot count for their **last 10 league appearances**
-    (newest → older). If a stats row exists but no explicit shots field, treat as 0.
+Strategy
+- Read teams/players (with positions) from data/predicted_xi/by_league/*.json
+- For each team:
+    1) Try /v3/football/fixtures/between/{from}/{to}?teams=<team_id>
+    2) If that 404s, FALL BACK to per-day: /fixtures/date/YYYY-MM-DD (same window)
+       and keep only fixtures that (a) match league_id and (b) include the team.
+- From each matching fixture, take per-player statistics and extract "shots".
+- Build each player's last 10 league appearances' shots (newest → older).
 
-Outputs:
-  data/player_stats/shots/by_league/<league_id>.json
-     {
-       "utc_time": "...",
-       "league_id": 8,
-       "players": [
-         {
-           "player_id": 123,
-           "name": "Bukayo Saka",
-           "team": "Arsenal",
-           "position_label": "FWD",
-           "position_id": 27,
-           "last10_shots": [3,2,1, ...]   # newest → older
-         },
-         ...
-       ]
-     }
+Outputs
+- data/player_stats/shots/by_league/<league_id>.json
+- data/player_stats/shots/summary_shots.txt
 
-  data/player_stats/shots/summary_shots.txt
-     Human-readable lines grouped by league -> team:
-       Arsenal
-         Bukayo Saka [FWD] = 3,2,1,...
-
-Env:
-  SPORTMONKS_TOKEN (required)
+Env
+- SPORTMONKS_TOKEN
 """
 
 import os
@@ -62,7 +44,7 @@ GLOBAL_MIN_DELAY = 0.15
 # rolling windows to walk back in time until we have last10 per player
 WINDOW_DAYS = 35
 MAX_ROLLING_WINDOWS = 14           # ~16 months worst case
-PER_TEAM_MAX_FIXTURES = 400        # guardrail
+PER_TEAM_MAX_FIXTURES = 500        # guardrail
 
 # IO
 PRED_XI_DIR = "data/predicted_xi/by_league"
@@ -70,7 +52,7 @@ OUT_BASE = "data/player_stats/shots"
 OUT_BY_LEAGUE = os.path.join(OUT_BASE, "by_league")
 os.makedirs(OUT_BY_LEAGUE, exist_ok=True)
 
-# memoize GETs per run
+# memo per run
 _MEMO: Dict[str, dict] = {}
 _last_call = 0.0
 
@@ -83,7 +65,7 @@ def _throttle():
     _last_call = time.time()
 
 
-def api_get(path: str, params: Optional[dict] = None) -> dict:
+def api_get(path: str, params: Optional[dict] = None, allow_404: bool = False) -> Optional[dict]:
     if params is None:
         params = {}
     params = {**params, "api_token": API_TOKEN}
@@ -97,6 +79,10 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
         _throttle()
         try:
             r = requests.get(url, params=params, timeout=TIMEOUT)
+            if r.status_code == 404 and allow_404:
+                # Treat as empty result
+                _MEMO[key] = None
+                return None
             if r.status_code == 429:
                 sleep = min(60, (BACKOFF ** i) * 2.0)
                 print(f"[429] {path} — sleeping {sleep:.1f}s")
@@ -113,6 +99,9 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
                 print(f"[RETRY] {path} (attempt {i}) sleeping {sleep:.1f}s")
                 time.sleep(sleep)
             else:
+                if allow_404 and isinstance(e, requests.HTTPError) and e.response is not None and e.response.status_code == 404:
+                    _MEMO[key] = None
+                    return None
                 raise
     raise last_exc  # pragma: no cover
 
@@ -130,20 +119,10 @@ def _load_json(path: str) -> Optional[dict]:
 def load_from_predicted_xi():
     """
     Read data/predicted_xi/by_league/*.json and return:
-
-    leagues -> {
-      lid: {
-        'teams': { team_id: set(player_ids), ... },
-        'players': {
-           player_id: {
-              'name': 'Player',
-              'team': 'Team Name',
-              'position_label': 'GK/DEF/MID/FWD',
-              'position_id': 24/25/26/27
-           }, ...
-        }
-      }, ...
-    }
+      { league_id: {
+           "teams": { team_id: set(player_ids) },
+           "players": { player_id: {name, team, position_label, position_id} }
+        }, ... }
     """
     if not os.path.isdir(PRED_XI_DIR):
         raise SystemExit("No predicted XI folder found. Run the predicted lineups job first.")
@@ -173,7 +152,6 @@ def load_from_predicted_xi():
                         continue
                     pid = int(pid)
                     info["teams"][int(tid)].add(pid)
-                    # carry position info from predicted_xi
                     info["players"][pid] = {
                         "name": (p.get("name") or "").strip(),
                         "team": tname,
@@ -189,9 +167,12 @@ def iso(d: dt.date) -> str:
 
 def fetch_team_fixtures_between(team_id: int, d_from: dt.date, d_to: dt.date) -> List[dict]:
     """
-    One window fetch with pagination; includes per-player statistics.
+    Try the /fixtures/between fast path; if it returns None (404), fall back to per-day.
+    Returns a flat list of fixtures with participants/statistics/league included.
     """
     all_rows: List[dict] = []
+
+    # --- fast path ---
     page = 1
     while True:
         j = api_get(
@@ -200,28 +181,58 @@ def fetch_team_fixtures_between(team_id: int, d_from: dt.date, d_to: dt.date) ->
                 "teams": team_id,
                 "order": "desc",
                 "page": page,
-                "include": "participants;statistics;statistics.player;state;league"
+                "include": "participants;statistics;statistics.player;state;league",
             },
+            allow_404=True,
         )
+        if j is None:
+            # between not available -> fall back below
+            break
         data = j.get("data") or []
         all_rows.extend(data)
         meta = j.get("meta") or {}
         last_page = meta.get("last_page", page)
         if page >= last_page:
-            break
+            return all_rows  # success via fast path
         page += 1
         if len(all_rows) >= PER_TEAM_MAX_FIXTURES:
+            return all_rows
+
+    # --- fallback: per-day ---
+    # Walk from d_to down to d_from (inclusive), page each date
+    day = d_to
+    while day >= d_from:
+        page = 1
+        while True:
+            j = api_get(
+                f"fixtures/date/{iso(day)}",
+                {
+                    "order": "desc",
+                    "page": page,
+                    "include": "participants;statistics;statistics.player;state;league",
+                },
+                allow_404=True,
+            )
+            if j is None:
+                # No fixtures for this date in account (404) → move on
+                break
+            data = j.get("data") or []
+            all_rows.extend(data)
+            meta = j.get("meta") or {}
+            last_page = meta.get("last_page", page)
+            if page >= last_page:
+                break
+            page += 1
+        day -= dt.timedelta(days=1)
+        if len(all_rows) >= PER_TEAM_MAX_FIXTURES:
             break
+
     return all_rows
 
 
 def extract_shots_from_statrow(row: dict) -> Optional[int]:
     """
-    Be generous with v3 shapes:
-      - direct numeric fields: shots_total / total_shots / shots
-      - nested dict: shots = { total|attempts|total_attempts: N }
-      - nested *-shots*: try common numeric keys
-      - details[] / stats[]: look for entries with 'shots' & ('total' or plain)
+    Heuristic extractor for per-player shot totals across common v3 shapes.
     """
     for k in ("shots_total", "total_shots", "shots"):
         v = row.get(k)
@@ -257,8 +268,9 @@ def extract_shots_from_statrow(row: dict) -> Optional[int]:
 
 def collect_last10_for_team_players_in_league(team_id: int, league_id: int, player_ids: Set[int]) -> Dict[int, List[Tuple[int, str]]]:
     """
-    Return {player_id: [(shots, starting_at_iso), ...]} for LEAGUE fixtures only (matching league_id).
-    Newest → older. Only counts fixtures where the player's statistics row exists for this team.
+    Return {player_id: [(shots, starting_at_iso), ...]} for LEAGUE fixtures only.
+    Newest → older. Only count fixtures that contain a statistics row for the player
+    and belong to the given team_id.
     """
     res: Dict[int, List[Tuple[int, str]]] = {pid: [] for pid in player_ids}
 
@@ -271,7 +283,8 @@ def collect_last10_for_team_players_in_league(team_id: int, league_id: int, play
     while windows_done < MAX_ROLLING_WINDOWS and not all_done():
         start = end - dt.timedelta(days=WINDOW_DAYS)
         fixtures = fetch_team_fixtures_between(team_id, start, end)
-        # **league-only filter**
+
+        # League-only filter + basic cleanup
         fixtures = [fx for fx in fixtures if int(fx.get("league_id") or 0) == int(league_id)]
         fixtures.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
 
@@ -296,7 +309,7 @@ def collect_last10_for_team_players_in_league(team_id: int, league_id: int, play
                 if pid is None or pid not in player_ids:
                     continue
 
-                # ensure row is for this team (ignore if player's row belongs to another club)
+                # ensure stat row is recorded for THIS team
                 team_in_row = row.get("team_id") or (row.get("participant") or {}).get("id")
                 try:
                     if team_in_row is not None and int(team_in_row) != int(team_id):
@@ -332,7 +345,6 @@ def main():
     total_tracked = sum(len(info["players"]) for info in leagues.values())
     print(f"Tracked players (unique across leagues): {total_tracked}")
 
-    # For each league, gather stats team-by-team
     per_league_player_series: Dict[int, Dict[int, List[Tuple[int, str]]]] = {}
 
     for lid in sorted(leagues.keys()):
@@ -343,7 +355,12 @@ def main():
         tcount = len(teams)
         for idx, (team_id, player_ids) in enumerate(teams.items(), 1):
             print(f"[{idx}/{tcount}] Team {team_id} — players: {len(player_ids)} (league {lid})")
-            series_map = collect_last10_for_team_players_in_league(team_id, lid, player_ids)
+            try:
+                series_map = collect_last10_for_team_players_in_league(team_id, lid, player_ids)
+            except requests.HTTPError as e:
+                # Hard failure (non-404/429) → log and continue with empty
+                print(f"[WARN] team {team_id} league {lid}: {e}", file=sys.stderr)
+                series_map = {pid: [] for pid in player_ids}
             league_series.update(series_map)
         per_league_player_series[lid] = league_series
 
@@ -364,7 +381,6 @@ def main():
                 "position_id": meta.get("position_id"),
                 "last10_shots": seq,
             })
-        # Sort by team then name for stable diffs
         pack["players"].sort(key=lambda x: (x["team"] or "", x["name"] or "").lower())
 
         with open(os.path.join(OUT_BY_LEAGUE, f"{lid}.json"), "w", encoding="utf-8") as f:
@@ -373,8 +389,8 @@ def main():
     # Human summary
     lines: List[str] = []
     lines.append(f"Time (UTC): {now_iso}")
-    lines.append("Endpoint   : fixtures-between (LEAGUE ONLY)")
-    lines.append("Order      : most recent → older")
+    lines.append("Endpoint   : between (fast) → date fallback (on 404)")
+    lines.append("Filter     : league-only; newest → older")
     lines.append("")
     for lid in sorted(leagues.keys()):
         lines.append(f"===== League {lid} =====")
