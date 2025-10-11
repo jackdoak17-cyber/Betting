@@ -1,48 +1,50 @@
-name: Weekly stats (shots only)
+name: Weekly stats – shots (last 10)
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 7 * * 1'  # Mondays 07:00 UTC
+    - cron: "30 7 * * 1"   # Mondays 07:30 UTC (after your 06:00 lineups)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
 
 jobs:
-  stats:
+  shots:
     runs-on: ubuntu-latest
-    env:
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      SMONKS_CACHE_DIR: .cache_smonks
-      DATA_DIR: data
-      DB_PATH: data/data.db
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 90
+    concurrency:
+      group: weekly-stats-shots
+      cancel-in-progress: false
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
 
-      - name: Ensure data folders
-        run: |
-          mkdir -p "${SMONKS_CACHE_DIR}" "${DATA_DIR}"
-
-      - name: Fetch fixtures (next 6 days)
-        run: |
-          python scripts/fetch_fixtures.py > fixtures.json
+      - name: Build last-10 shots
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-
-      - name: Compute shots stats
+          SHOTS_BACK_DAYS: "150"
         run: |
           python scripts/ingest_shots.py
 
-      - name: Upload artifacts (fixtures + db)
-        uses: actions/upload-artifact@v4
-        with:
-          name: weekly-shots
-          path: |
-            fixtures.json
-            data/**
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/player_stats/shots
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(shots): last-10 update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
