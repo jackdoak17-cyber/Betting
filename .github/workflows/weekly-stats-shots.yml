@@ -1,20 +1,19 @@
-name: Gather shots (last-10 per player)
+name: Weekly stats (shots)
 
 on:
-  schedule:
-    - cron: "20 6 * * 1"    # Mondays 06:20 UTC
   workflow_dispatch: {}
+  schedule:
+    - cron: "30 6 * * 1"   # Mondays 06:30 UTC (after your 06:00 lineups if you like)
 
 permissions:
   contents: write
 
 jobs:
-  gather:
+  shots:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,22 +23,22 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
 
-      - name: Gather shots
+      - name: Ingest shots (last 10, all comps)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
         run: |
-          python scripts/gather_shots.py
+          python scripts/ingest_shots.py
 
-      - name: Commit & push results
+      - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/stats/shots
+          git add data/player_stats/shots
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "No changes."
           else
-            git commit -m "chore(shots): last-10 series $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git commit -m "chore(stats): update shots (last10, all comps) $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             git push
           fi
