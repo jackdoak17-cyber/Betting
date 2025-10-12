@@ -8,7 +8,7 @@ Opponent stats captured (latest -> older):
 - opp_shots_on_target   (86)
 - opp_fouls             (56)
 - opp_tackles           (78)
-- opp_cards_total       (yellow 84 + red 83)
+- opp_cards_total       (yellow 84 + red 83 [+ optional second yellow 85])
 - opp_saves             (57)
 - opp_goal_kicks        (53)
 - opp_corners           (34)
@@ -20,8 +20,8 @@ Writes:
 
 Notes:
 - Only finished fixtures (state_id == 5) in the target league/season.
-- We use include=participants;statistics;state (NOT 'teams').
-- We filter by fixtureStatisticTypes to keep payloads lean.
+- include=participants;statistics;state
+- Filter by fixtureStatisticTypes to keep payloads lean.
 """
 
 import os, json, time, datetime as dt
@@ -42,7 +42,7 @@ if not API_TOKEN:
 TIMEOUT = 25
 RETRIES = 3
 BACKOFF = 1.6
-GLOBAL_MIN_DELAY = 0.18  # gentle pacing between calls
+GLOBAL_MIN_DELAY = 0.18  # gentle pacing
 
 # ---- Type IDs (override via env if needed) ----
 SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))
@@ -51,11 +51,13 @@ FOULS            = int(os.getenv("TEAM_STAT_FOULS_ID", "56"))
 TACKLES          = int(os.getenv("TEAM_STAT_TACKLES_ID", "78"))
 YELLOW           = int(os.getenv("TEAM_STAT_YELLOW_CARDS_ID", "84"))
 RED              = int(os.getenv("TEAM_STAT_RED_CARDS_ID", "83"))
+SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))  # optional in cards
 SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
 
-# ---- Collection rules ----
+INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1", "true", "TRUE", "yes", "YES")
+
 LAST_N = int(os.getenv("TEAM_OPP_STATS_LAST_N", "10"))
 
 # ---- IO ----
@@ -160,28 +162,61 @@ def get_season_bounds(season_id: int) -> Tuple[dt.date, dt.date]:
 
 def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, league_id: int, type_ids: List[int], page: int = 1) -> dict:
     """
-    GET fixtures for team in [start,end] with league & statistic type filters, latest first.
+    GET fixtures for team in [start,end] with league & statistic type filters.
     """
     path = f"fixtures/between/{dstr(start)}/{dstr(end)}/{team_id}"
-    # Valid includes are participants;statistics;state
     includes = "participants;statistics;state"
     filt = f"fixtureLeagues:{league_id};fixtureStatisticTypes:{','.join(str(x) for x in type_ids)}"
     params = {
         "include": includes,
         "filters": filt,
+        "order": "desc",        # if supported; we'll still sort locally
         "per_page": 50,
         "page": page,
     }
     try:
         return api_get(path, params)
     except requests.HTTPError as e:
-        # Belt-and-braces fallback: probe without statistics, then bulk fetch by IDs
         if getattr(e, "response", None) is not None and e.response.status_code == 404:
             probe = api_get(path, {"include": "participants;state", "filters": f"fixtureLeagues:{league_id}", "per_page": 50, "page": page})
             ids = ",".join(str(fx.get("id")) for fx in (probe.get("data") or []) if fx.get("id"))
             if ids:
                 return api_get(f"fixtures/{ids}", {"include": "participants;statistics;state"})
         raise
+
+def _parse_start_ts(fx: dict) -> int:
+    """
+    Best-effort: return a UNIX timestamp for fixture kickoff.
+    """
+    st = fx.get("starting_at")
+    # Common shape: starting_at: { "date_time": "YYYY-MM-DD HH:MM:SS", "timestamp": 1234567890 }
+    if isinstance(st, dict):
+        ts = st.get("timestamp") or st.get("ts")
+        if isinstance(ts, (int, float)):
+            return int(ts)
+        dt_str = st.get("date_time") or st.get("date") or st.get("starting_at")
+        if isinstance(dt_str, str):
+            try:
+                # tolerate "YYYY-MM-DD HH:MM:SS" or ISO-ish
+                s = dt_str.replace("Z", "").replace("T", " ")
+                return int(dt.datetime.strptime(s[:19], "%Y-%m-%d %H:%M:%S").timestamp())
+            except Exception:
+                pass
+    # Sometimes under "time" blob
+    tm = fx.get("time")
+    if isinstance(tm, dict):
+        ts = tm.get("timestamp") or (tm.get("starting_at") or {}).get("timestamp")
+        if isinstance(ts, (int, float)):
+            return int(ts)
+        dt_str = (tm.get("starting_at") or {}).get("date_time") or tm.get("starting_at")
+        if isinstance(dt_str, str):
+            try:
+                s = dt_str.replace("Z", "").replace("T", " ")
+                return int(dt.datetime.strptime(s[:19], "%Y-%m-%d %H:%M:%S").timestamp())
+            except Exception:
+                pass
+    # Fallback: 0 (will sort last)
+    return 0
 
 def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
     """
@@ -206,36 +241,34 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
     Build opponent stat series for the given team.
     Returns:
       {
-        'stats': {
-            'opp_shots_total':[...],'opp_shots_on_target':[...],'opp_fouls':[...],'opp_tackles':[...],
-            'opp_cards_total':[...],'opp_saves':[...],'opp_goal_kicks':[...],'opp_corners':[...]
-        },
+        'stats': {... eight series ...},
         'fixtures': [ids],  # aligned to the series; latest->older
       }
     """
-    type_ids = list({SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS})
+    needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS}
+    # Add second yellow to the filter so it's available if included in cards
+    if INCLUDE_SECOND_YELLOW_IN_CARDS:
+        needed_type_ids.add(SECOND_YELLOW)
+
     start_season, end_today = get_season_bounds(season_id)
     end = end_today
 
-    series = {
-        "opp_shots_total": [], "opp_shots_on_target": [], "opp_fouls": [], "opp_tackles": [],
-        "opp_cards_total": [], "opp_saves": [], "opp_goal_kicks": [], "opp_corners": []
-    }
-    fixture_ids: List[int] = []
+    # Collect all candidate fixtures first (dedup), then sort, then build arrays
+    recs: List[dict] = []
+    seen_fids: set[int] = set()
 
-    def have_enough() -> bool:
-        return all(len(series[k]) >= LAST_N for k in series.keys())
+    def got_enough_unique() -> bool:
+        return len(recs) >= LAST_N
 
-    while end >= start_season and not have_enough():
+    while end >= start_season and not got_enough_unique():
         win_start = max(start_season, end - dt.timedelta(days=99))  # 100-day window
         page = 1
         has_more = True
-        while has_more and not have_enough():
-            j = fetch_team_fixtures_window(team_id, win_start, end, league_id, type_ids, page=page)
+        while has_more and not got_enough_unique():
+            j = fetch_team_fixtures_window(team_id, win_start, end, league_id, sorted(needed_type_ids), page=page)
             data = j.get("data") or []
             meta = j.get("meta") or {}
             per_page = 50
-            # meta.has_more may not always be present; infer from page size as fallback
             has_more = bool(meta.get("has_more")) or (len(data) == per_page)
             page += 1
 
@@ -248,11 +281,14 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
                     continue
 
                 fid = int(fx.get("id") or 0)
+                if fid in seen_fids:
+                    continue
+
                 opp_id = _opponent_id_from_fixture(fx, team_id)
                 if opp_id is None:
                     continue
 
-                # Gather opponent stats: type_id -> value
+                # Build opponent type -> value
                 by_type_opp: Dict[int, int] = {}
                 for s in (fx.get("statistics") or []):
                     try:
@@ -263,31 +299,48 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
                         val = vobj.get("value") if isinstance(vobj, dict) else None
                         if val is None:
                             continue
-                        by_type_opp[t] = int(float(val))
+                        by_type_opp[t] = int(float(str(val).strip().replace("%", "")))
                     except Exception:
                         continue
 
-                cards_total = int(by_type_opp.get(YELLOW, 0)) + int(by_type_opp.get(RED, 0))
-
-                series["opp_shots_total"].append(int(by_type_opp.get(SHOTS_TOTAL, 0)))
-                series["opp_shots_on_target"].append(int(by_type_opp.get(SHOTS_ON_TARGET, 0)))
-                series["opp_fouls"].append(int(by_type_opp.get(FOULS, 0)))
-                series["opp_tackles"].append(int(by_type_opp.get(TACKLES, 0)))
-                series["opp_cards_total"].append(cards_total)
-                series["opp_saves"].append(int(by_type_opp.get(SAVES, 0)))
-                series["opp_goal_kicks"].append(int(by_type_opp.get(GOAL_KICKS, 0)))
-                series["opp_corners"].append(int(by_type_opp.get(CORNERS, 0)))
-                fixture_ids.append(fid)
-
-                if have_enough():
-                    break
+                start_ts = _parse_start_ts(fx)
+                recs.append({"fid": fid, "ts": start_ts, "by_type": by_type_opp})
+                seen_fids.add(fid)
 
         end = win_start - dt.timedelta(days=1)
 
-    # clamp latest->older to LAST_N
-    for k in series:
-        series[k] = series[k][:LAST_N]
-    fixture_ids = fixture_ids[:LAST_N]
+    # Sort newest -> older, then build arrays
+    recs.sort(key=lambda r: r["ts"], reverse=True)
+
+    def card_sum(bt: Dict[int, int]) -> int:
+        base = int(bt.get(YELLOW, 0)) + int(bt.get(RED, 0))
+        if INCLUDE_SECOND_YELLOW_IN_CARDS:
+            base += int(bt.get(SECOND_YELLOW, 0))
+        return base
+
+    series = {
+        "opp_shots_total": [],
+        "opp_shots_on_target": [],
+        "opp_fouls": [],
+        "opp_tackles": [],
+        "opp_cards_total": [],
+        "opp_saves": [],
+        "opp_goal_kicks": [],
+        "opp_corners": [],
+    }
+    fixture_ids: List[int] = []
+
+    for r in recs[:LAST_N]:
+        bt = r["by_type"]
+        series["opp_shots_total"].append(int(bt.get(SHOTS_TOTAL, 0)))
+        series["opp_shots_on_target"].append(int(bt.get(SHOTS_ON_TARGET, 0)))
+        series["opp_fouls"].append(int(bt.get(FOULS, 0)))
+        series["opp_tackles"].append(int(bt.get(TACKLES, 0)))
+        series["opp_cards_total"].append(card_sum(bt))
+        series["opp_saves"].append(int(bt.get(SAVES, 0)))
+        series["opp_goal_kicks"].append(int(bt.get(GOAL_KICKS, 0)))
+        series["opp_corners"].append(int(bt.get(CORNERS, 0)))
+        fixture_ids.append(int(r["fid"]))
 
     return {"stats": series, "fixtures": fixture_ids}
 
