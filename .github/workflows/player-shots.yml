@@ -44,6 +44,9 @@ jobs:
       - name: Render team summary
         run: python scripts/render_player_shots_summary.py
 
+      - name: Coverage check vs predicted XIs
+        run: python scripts/check_player_shots_coverage.py
+
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
