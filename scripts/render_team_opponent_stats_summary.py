@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Human-checkable per league summary of opponent series:
+Human-checkable per-league summary of opponent series:
 - data/team_opponent_stats/by_league/*.json -> data/team_opponent_stats/summary_by_team.txt
 """
 
