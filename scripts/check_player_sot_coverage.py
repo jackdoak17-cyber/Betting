@@ -2,90 +2,122 @@
 # -*- coding: utf-8 -*-
 
 """
-Coverage check for SOT vs predicted XIs.
+Coverage report for shots-on-target histories vs predicted XI targets.
+
+Reads:
+  - data/predicted_xi/by_league/{league_id}.json
+  - data/player_shots_on_target/by_league/{league_id}.json
 
 Writes:
-  - data/player_sot/coverage.txt
-  - data/player_sot/coverage.json
+  - data/player_shots_on_target/coverage.txt   (human summary)
+  - data/player_shots_on_target/coverage.json  (structured)
 """
 
 import json, glob
 from pathlib import Path
 from typing import Dict, List, Any
 
-ROOT = Path(".")
-PX_DIR  = ROOT / "data" / "predicted_xi" / "by_league"
-SOT_DIR = ROOT / "data" / "player_sot" / "by_league"
-OUT_TXT = ROOT / "data" / "player_sot" / "coverage.txt"
-OUT_JSON= ROOT / "data" / "player_sot" / "coverage.json"
+PX_DIR   = Path("data/predicted_xi/by_league")
+SOT_DIR  = Path("data/player_shots_on_target/by_league")
+OUT_TXT  = Path("data/player_shots_on_target/coverage.txt")
+OUT_JSON = Path("data/player_shots_on_target/coverage.json")
 
-def _load_json(p: Path):
+def _load_json(p: Path) -> Any:
     if not p.is_file(): return None
     with p.open("r", encoding="utf-8") as f:
         try: return json.load(f)
         except Exception: return None
 
-def _px_players(lid: int) -> Dict[int, dict]:
-    out: Dict[int, dict] = {}
-    blob = _load_json(PX_DIR / f"{lid}.json") or {}
-    for fx in (blob.get("fixtures") or []):
-        for side in ("home","away"):
-            s = fx.get(side) or {}
-            tid, tname = s.get("team_id"), s.get("name")
-            for p in (s.get("predicted_xi") or []):
-                pid = p.get("player_id")
-                if isinstance(pid, int):
-                    out[pid] = {"player_id": pid, "name": p.get("name"), "team_id": tid, "team_name": tname}
+def _predicted_players_by_league() -> Dict[int, List[dict]]:
+    out: Dict[int, List[dict]] = {}
+    for p in PX_DIR.glob("*.json"):
+        blob = _load_json(p) or {}
+        lid = int(blob.get("league_id") or p.stem)
+        rows = []
+        for fx in (blob.get("fixtures") or []):
+            for side in ("home", "away"):
+                t = fx.get(side) or {}
+                team_id = t.get("team_id")
+                team_name = t.get("name")
+                for lp in (t.get("predicted_xi") or []):
+                    rows.append({
+                        "league_id": lid,
+                        "team_id": team_id,
+                        "team_name": team_name,
+                        "player_id": lp.get("player_id"),
+                        "name": lp.get("name"),
+                    })
+        out[lid] = rows
     return out
 
-def _sot_index(lid: int) -> Dict[int, dict]:
-    idx: Dict[int, dict] = {}
-    blob = _load_json(SOT_DIR / f"{lid}.json") or {}
-    for r in (blob.get("players") or []):
-        pid = r.get("player_id")
-        if isinstance(pid, int):
-            idx[pid] = r
-    return idx
+def _sot_players_by_league() -> Dict[int, Dict[int, dict]]:
+    by_l: Dict[int, Dict[int, dict]] = {}
+    for p in SOT_DIR.glob("*.json"):
+        blob = _load_json(p) or {}
+        lid = int(blob.get("league_id") or p.stem)
+        idx: Dict[int, dict] = {}
+        for r in (blob.get("players") or []):
+            idx[int(r.get("player_id") or 0)] = r
+        by_l[lid] = idx
+    return by_l
 
 def main():
-    leagues = []
-    for p in glob.glob(str(SOT_DIR / "*.json")):
-        try: leagues.append(int(Path(p).stem))
-        except Exception: pass
-    leagues = sorted(set(leagues))
+    predicted = _predicted_players_by_league()
+    sot_index = _sot_players_by_league()
 
-    lines: List[str] = []
-    out = {"by_league": {}}
+    txt_lines: List[str] = []
+    json_out = {"by_league": {}}
 
-    for lid in leagues:
-        px = _px_players(lid)
-        ix = _sot_index(lid)
-        total = len(px)
+    for lid in sorted(predicted.keys()):
+        preds = predicted[lid]
+        seen = sot_index.get(lid, {})
+
+        total = len(preds)
         present = 0
         non_empty = 0
-        missing, empty = [], []
+        missing: List[dict] = []
+        empty: List[dict] = []
 
-        for pid, meta in px.items():
-            row = ix.get(pid)
-            if row is None:
-                missing.append(meta)
-                continue
-            present += 1
-            seq = row.get("sot_last_n") or []
-            if isinstance(seq, list) and len(seq) > 0:
-                non_empty += 1
+        for row in preds:
+            pid = int(row.get("player_id") or 0)
+            data = seen.get(pid)
+            if data:
+                present += 1
+                series = data.get("on_target_last_n") or []
+                if isinstance(series, list) and any(int(x or 0) > 0 for x in series):
+                    non_empty += 1
+                else:
+                    empty.append(row)
             else:
-                empty.append(meta)
+                missing.append(row)
 
-        lines.append(f"===== League {lid} =====")
-        lines.append(f"Predicted XI players: {total}")
-        lines.append(f"Found in SOT file:   {present}")
-        lines.append(f"Non-empty series:     {non_empty}")
-        lines.append(f"Empty series:         {len(empty)}")
-        lines.append(f"Missing entirely:     {len(missing)}")
-        lines.append("")
+        txt_lines.append(f"===== League {lid} =====")
+        txt_lines.append(f"Predicted XI players: {total}")
+        txt_lines.append(f"Found in SOT file : {present}")
+        txt_lines.append(f"Non-empty series : {non_empty}")
+        txt_lines.append(f"Empty series     : {len(empty)}")
+        txt_lines.append(f"Missing entirely : {len(missing)}")
 
-        out["by_league"][str(lid)] = {
+        if missing:
+            txt_lines.append(" -- Missing players --")
+            by_team: Dict[str, List[str]] = {}
+            for m in missing:
+                key = f"{m.get('team_name')} (TID {m.get('team_id')})"
+                by_team.setdefault(key, []).append(m.get("name") or f"PID {m.get('player_id')}")
+            for k in sorted(by_team.keys()):
+                txt_lines.append(f"   {k}: " + ", ".join(sorted(by_team[k])))
+
+        if empty:
+            txt_lines.append(" -- Present but empty series --")
+            by_team: Dict[str, List[str]] = {}
+            for m in empty:
+                key = f"{m.get('team_name')} (TID {m.get('team_id')})"
+                by_team.setdefault(key, []).append(m.get("name") or f"PID {m.get('player_id')}")
+            for k in sorted(by_team.keys()):
+                txt_lines.append(f"   {k}: " + ", ".join(sorted(by_team[k])))
+        txt_lines.append("")
+
+        json_out["by_league"][str(lid)] = {
             "predicted_total": total,
             "found": present,
             "non_empty": non_empty,
@@ -97,9 +129,10 @@ def main():
 
     OUT_TXT.parent.mkdir(parents=True, exist_ok=True)
     with OUT_TXT.open("w", encoding="utf-8") as f:
-        f.write("\n".join(lines).rstrip() + "\n")
+        f.write("\n".join(txt_lines).rstrip() + "\n")
     with OUT_JSON.open("w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
+        json.dump(json_out, f, ensure_ascii=False, indent=2)
+
     print(f"[OK] wrote {OUT_TXT} and {OUT_JSON}")
 
 if __name__ == "__main__":
