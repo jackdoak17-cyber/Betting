@@ -2,7 +2,7 @@ name: Player shots on target (current season, league-only, ≥45')
 
 on:
   schedule:
-    - cron: "15 8 * * 1" # Every Monday at 08:15 UTC
+    - cron: "15 8 * * 1"   # Mondays at 08:15 UTC
   workflow_dispatch: {}
 
 permissions:
@@ -12,6 +12,9 @@ jobs:
   sot:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    concurrency:
+      group: fetch-player-sot
+      cancel-in-progress: false
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
     steps:
@@ -26,30 +29,21 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            pip install requests
-          fi
+          pip install -r requirements.txt
 
-      # Build SOT series from the same fixtures used by player_shots
-      - name: Fetch shots on target
-        run: python scripts/fetch_player_sot.py
-
-      # Pretty team-grouped summary
-      - name: Render per-team SOT summary
-        run: python scripts/render_player_sot_summary.py
-
-      # Coverage vs predicted XIs
-      - name: Coverage check (SOT vs predicted XIs)
-        run: python scripts/check_player_sot_coverage.py
+      - name: Build SOT series
+        run: |
+          python scripts/fetch_player_sot.py
 
       - name: Commit & push
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin main || true
-          git pull --rebase origin main || true
-          git add data/player_sot
-          git commit -m "chore(player_sot): weekly update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
-          git push || (git pull --rebase origin main && git push)
+          git pull --rebase
+          git add data/player_shots_on_target
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(player_sot): weekly update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
