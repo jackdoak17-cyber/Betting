@@ -335,7 +335,7 @@ def main():
         out = BY_LEAGUE_DIR / f"{lid}.json"
         ensure_dir(out)
         tmp = out.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"))
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         tmp.replace(out)
         print(f"Wrote {out}")
 
@@ -348,7 +348,7 @@ def main():
     outc = OUT_ROOT / "combined.json"
     ensure_dir(outc)
     tmpc = outc.with_suffix(".json.tmp")
-    tmpc.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8"))
+    tmpc.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8")
     tmpc.replace(outc)
 
     # summary (counts per league)
