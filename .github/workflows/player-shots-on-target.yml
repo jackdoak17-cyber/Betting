@@ -1,22 +1,23 @@
-name: Player shots on target (current season, league-only, ≥45')
+name: Player shots on target histories
 
 on:
   schedule:
-    - cron: "15 8 * * 1"   # Mondays at 08:15 UTC
+    - cron: "30 6 * * 1"   # Every Monday at 06:30 UTC (after predict_lineups)
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
-  sot:
+  build-sot:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     concurrency:
-      group: fetch-player-sot
+      group: player-sot
       cancel-in-progress: false
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,21 +30,25 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
 
-      - name: Build SOT series
+      - name: Build shots-on-target histories
         run: |
-          python scripts/fetch_player_sot.py
+          python scripts/player_shots_on_target.py
 
-      - name: Commit & push
+      - name: Coverage & summaries
+        run: |
+          python scripts/check_player_sot_coverage.py
+          python scripts/render_player_sot_summary.py
+
+      - name: Commit & push SOT data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase
           git add data/player_shots_on_target
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(player_sot): weekly update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git commit -m "chore(player_sot): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           fi
