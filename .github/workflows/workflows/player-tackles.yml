@@ -1,0 +1,54 @@
+name: Player tackles histories
+
+on:
+  schedule:
+    - cron: "30 7 * * 1"   # Every Monday at 07:30 UTC (after predict_lineups at 06:00 & fouls at 07:00)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-tackles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: player-tackles
+      cancel-in-progress: false
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
+
+      - name: Build tackles histories
+        run: |
+          python scripts/player_tackles.py
+
+      - name: Coverage & summaries
+        run: |
+          python scripts/check_player_tackles_coverage.py
+          python scripts/render_player_tackles_summary.py
+
+      - name: Commit & push tackles data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/player_tackles
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(player_tackles): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
