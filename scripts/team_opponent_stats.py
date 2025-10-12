@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Per-team LAST_N opponent series from Sportmonks v3 fixture team statistics.
+Collect per-team LAST_N opponent series from Sportmonks v3 fixture team statistics.
 
-Opponent stats captured (type_ids in comments):
-- opp_shots_total (42)
-- opp_shots_on_target (86)
-- opp_fouls (56)
-- opp_tackles (78)
-- opp_cards_total = yellow (84) + red (83)
-- opp_saves (57)
-- opp_goal_kicks (53)
-- opp_corners (34)
+Opponent stats captured (latest -> older):
+- opp_shots_total       (type_id 42)
+- opp_shots_on_target   (86)
+- opp_fouls             (56)
+- opp_tackles           (78)
+- opp_cards_total       (yellow 84 + red 83)
+- opp_saves             (57)
+- opp_goal_kicks        (53)
+- opp_corners           (34)
 
 Writes:
   - data/team_opponent_stats/by_league/{league_id}.json
@@ -19,9 +19,9 @@ Writes:
   - data/team_opponent_stats/summary.txt
 
 Notes:
-- Only finished fixtures in the target league & season.
-- 'statistics' include returns team stats with participant_id == team_id; we take the *other* team as opponent.
-- We filter by fixtureStatisticTypes to keep responses lean.
+- Only finished fixtures (state_id == 5) in the target league/season.
+- We use include=participants;statistics;state (NOT 'teams').
+- We filter by fixtureStatisticTypes to keep payloads lean.
 """
 
 import os, json, time, datetime as dt
@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import requests
 
+# ---- API config ----
 API_BASE = "https://api.sportmonks.com/v3/football"
 API_TOKEN = (
     os.getenv("SPORTMONKS_TOKEN")
@@ -41,10 +42,9 @@ if not API_TOKEN:
 TIMEOUT = 25
 RETRIES = 3
 BACKOFF = 1.6
-GLOBAL_MIN_DELAY = 0.18
+GLOBAL_MIN_DELAY = 0.18  # gentle pacing between calls
 
 # ---- Type IDs (override via env if needed) ----
-# (Docs-backed IDs: Shots 42, SOT 86, Fouls 56, Tackles 78, Yellow 84, Red 83, Saves 57, Goal Kicks 53, Corners 34)
 SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))
 SHOTS_ON_TARGET  = int(os.getenv("TEAM_STAT_SHOTS_ON_TARGET_ID", "86"))
 FOULS            = int(os.getenv("TEAM_STAT_FOULS_ID", "56"))
@@ -55,13 +55,16 @@ SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
 
+# ---- Collection rules ----
 LAST_N = int(os.getenv("TEAM_OPP_STATS_LAST_N", "10"))
 
+# ---- IO ----
 PX_DIR = Path("data/predicted_xi/by_league")
 OUT_ROOT = Path("data/team_opponent_stats")
 BY_LEAGUE_DIR = OUT_ROOT / "by_league"
 BY_LEAGUE_DIR.mkdir(parents=True, exist_ok=True)
 
+# ---- tiny http helpers ----
 _last_call = 0.0
 def _pace():
     global _last_call
@@ -97,6 +100,7 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
                 raise
     raise last_exc
 
+# ---- helpers ----
 def today_utc_date() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
 
@@ -108,8 +112,8 @@ def ensure_dir(path: Path) -> None:
 
 def load_target_teams() -> Dict[Tuple[int, int], Dict[int, str]]:
     """
-    Returns teams_by_league_season[(league_id, season_id)] = {team_id: team_name}
-    from predicted XI files to keep scope aligned with your player workflows.
+    Returns: teams_by_league_season[(league_id, season_id)] = {team_id: team_name}
+    Pulls from predicted_xi files (home/away). If season_id missing, resolve via a fixture lookup.
     """
     teams: Dict[Tuple[int, int], Dict[int, str]] = {}
     if not PX_DIR.exists():
@@ -156,28 +160,42 @@ def get_season_bounds(season_id: int) -> Tuple[dt.date, dt.date]:
 
 def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, league_id: int, type_ids: List[int], page: int = 1) -> dict:
     """
-    GET fixtures for team in [start,end] with league & statistic type filters, ordered desc.
+    GET fixtures for team in [start,end] with league & statistic type filters, latest first.
     """
     path = f"fixtures/between/{dstr(start)}/{dstr(end)}/{team_id}"
+    # Valid includes are participants;statistics;state
+    includes = "participants;statistics;state"
+    filt = f"fixtureLeagues:{league_id};fixtureStatisticTypes:{','.join(str(x) for x in type_ids)}"
     params = {
-        "include": "statistics;teams;state",
-        "filters": f"fixtureStatisticTypes:{','.join(str(x) for x in type_ids)};fixtureLeagues:{league_id}",
-        "order": "desc",
+        "include": includes,
+        "filters": filt,
         "per_page": 50,
         "page": page,
     }
-    return api_get(path, params)
+    try:
+        return api_get(path, params)
+    except requests.HTTPError as e:
+        # Belt-and-braces fallback: probe without statistics, then bulk fetch by IDs
+        if getattr(e, "response", None) is not None and e.response.status_code == 404:
+            probe = api_get(path, {"include": "participants;state", "filters": f"fixtureLeagues:{league_id}", "per_page": 50, "page": page})
+            ids = ",".join(str(fx.get("id")) for fx in (probe.get("data") or []) if fx.get("id"))
+            if ids:
+                return api_get(f"fixtures/{ids}", {"include": "participants;statistics;state"})
+        raise
 
 def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
-    # Prefer teams include
-    teams = fx.get("teams")
-    if isinstance(teams, list) and len(teams) >= 2:
-        ids = [int(t.get("id")) for t in teams if t.get("id") is not None]
+    """
+    Prefer participants include; fallback to any statistics participant != team_id.
+    """
+    parts = fx.get("participants")
+    if isinstance(parts, list) and len(parts) >= 2:
+        ids = [int(p.get("id")) for p in parts if p.get("id") is not None]
         others = [i for i in ids if i != team_id]
         if others:
             return others[0]
-    # Fallback: infer from statistics participants (any id != team_id)
-    participants = {int(s.get("participant_id")) for s in (fx.get("statistics") or []) if s.get("participant_id") is not None}
+    # Fallback
+    stats = fx.get("statistics") or []
+    participants = {int(s.get("participant_id")) for s in stats if s.get("participant_id") is not None}
     others = [i for i in participants if i != team_id]
     if others:
         return others[0]
@@ -185,6 +203,7 @@ def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
 
 def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dict:
     """
+    Build opponent stat series for the given team.
     Returns:
       {
         'stats': {
@@ -208,14 +227,16 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         return all(len(series[k]) >= LAST_N for k in series.keys())
 
     while end >= start_season and not have_enough():
-        win_start = max(start_season, end - dt.timedelta(days=99))
+        win_start = max(start_season, end - dt.timedelta(days=99))  # 100-day window
         page = 1
         has_more = True
         while has_more and not have_enough():
             j = fetch_team_fixtures_window(team_id, win_start, end, league_id, type_ids, page=page)
             data = j.get("data") or []
             meta = j.get("meta") or {}
-            has_more = bool(meta.get("has_more"))
+            per_page = 50
+            # meta.has_more may not always be present; infer from page size as fallback
+            has_more = bool(meta.get("has_more")) or (len(data) == per_page)
             page += 1
 
             for fx in data:
@@ -263,7 +284,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
 
         end = win_start - dt.timedelta(days=1)
 
-    # Clamp latest->older to LAST_N
+    # clamp latest->older to LAST_N
     for k in series:
         series[k] = series[k][:LAST_N]
     fixture_ids = fixture_ids[:LAST_N]
@@ -273,7 +294,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
 def main():
     teams_by_ls = load_target_teams()
     if not teams_by_ls:
-        print("No targets found. Did predict_lineups run?")
+        print("No targets found. Did predicted_xi run?")
         return
 
     generated_at = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -314,7 +335,7 @@ def main():
         out = BY_LEAGUE_DIR / f"{lid}.json"
         ensure_dir(out)
         tmp = out.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"))
         tmp.replace(out)
         print(f"Wrote {out}")
 
@@ -327,7 +348,7 @@ def main():
     outc = OUT_ROOT / "combined.json"
     ensure_dir(outc)
     tmpc = outc.with_suffix(".json.tmp")
-    tmpc.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmpc.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8"))
     tmpc.replace(outc)
 
     # summary (counts per league)
