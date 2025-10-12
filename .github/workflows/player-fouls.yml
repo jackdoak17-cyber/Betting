@@ -1,0 +1,54 @@
+name: Player fouls histories
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"   # Every Monday at 07:00 UTC (after predict_lineups at 06:00 UTC)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-fouls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    concurrency:
+      group: player-fouls
+      cancel-in-progress: false
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
+
+      - name: Build fouls histories
+        run: |
+          python scripts/player_fouls.py
+
+      - name: Coverage & summaries
+        run: |
+          python scripts/check_player_fouls_coverage.py
+          python scripts/render_player_fouls_summary.py
+
+      - name: Commit & push fouls data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/player_fouls
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(player_fouls): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
