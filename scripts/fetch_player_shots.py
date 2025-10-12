@@ -28,6 +28,7 @@ import requests
 
 # ---------------- Config ----------------
 API_BASE = "https://api.sportmonks.com/v3/football"
+CORE_BASE = "https://api.sportmonks.com/v3/core"  # Separate for core endpoints
 API_TOKEN = os.getenv("SPORTMONKS_TOKEN")
 if not API_TOKEN:
     raise SystemExit("ERROR: SPORTMONKS_TOKEN is not set.")
@@ -73,11 +74,11 @@ def _pace():
         time.sleep(GLOBAL_MIN_DELAY - (now - _last_call_ts))
     _last_call_ts = time.time()
 
-def api_get(path: str, params: Optional[dict] = None) -> dict:
+def api_get(path: str, params: Optional[dict] = None, base: str = API_BASE) -> dict:
     if params is None:
         params = {}
     params = {**params, "api_token": API_TOKEN}
-    url = f"{API_BASE}/{path.lstrip('/')}"
+    url = f"{base}/{path.lstrip('/')}"
     k = _key(url, params)
     if k in _MEMO:
         return _MEMO[k]
@@ -140,7 +141,7 @@ def load_all_predicted_xi() -> Dict[int, dict]:
 
 # ---------------- Get shots type ID ----------------
 def get_shots_type_id() -> int:
-    j = api_get("core/types", {"filters": "developer_name:SHOTS_TOTAL"})
+    j = api_get("types", {"filters": "developer_name:SHOTS_TOTAL"}, base=CORE_BASE)
     data = j.get("data", [])
     for t in data:
         if t.get("developer_name") == "SHOTS_TOTAL":
@@ -264,12 +265,12 @@ def main():
         with open(os.path.join(by_league_root, f"{lid}.json"), "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False)
 
-        league_payloads[lid] = payload
+        league_payloads[lid] = payload["fixtures"]  # Store fixtures for combined
 
     # Optional combined JSON
     combined_fixtures: List[dict] = []
     for lid in sorted(league_payloads):
-        combined_fixtures.extend(league_payloads[lid]["fixtures"])
+        combined_fixtures.extend(league_payloads[lid])
     ensure_dir(out_root)
     with open(os.path.join(out_root, "combined.json"), "w", encoding="utf-8") as f:
         json.dump({
@@ -295,7 +296,7 @@ def main():
     for lid in sorted(league_payloads):
         lname = LEAGUE_NAMES.get(lid, str(lid))
         lines.append(f"===== {lname} (LID {lid}) =====")
-        for r in league_payloads[lid]["fixtures"]:
+        for r in league_payloads[lid]:
             dt_str = (r.get("starting_at") or "").replace("T", " ").replace("Z", "")
             lines.append(f"{dt_str}  —  {r['home']['name']} vs {r['away']['name']}  (FID {r['fixture_id']})")
 
