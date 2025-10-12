@@ -1,0 +1,58 @@
+name: Team stats (Sportmonks)
+
+on:
+  schedule:
+    - cron: "0 7 * * 1"   # Every Monday at 07:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  team_stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+      TEAM_STATS_LAST_N: "10"
+      # Optional overrides for type IDs if Sportmonks changes them:
+      # TEAM_STAT_SHOTS_TOTAL_ID: "42"
+      # TEAM_STAT_SHOTS_ON_TARGET_ID: "86"
+      # TEAM_STAT_FOULS_ID: "56"
+      # TEAM_STAT_TACKLES_ID: "78"
+      # TEAM_STAT_YELLOW_CARDS_ID: "84"
+      # TEAM_STAT_RED_CARDS_ID: "83"
+      # TEAM_STAT_SAVES_ID: "57"
+      # TEAM_STAT_GOAL_KICKS_ID: "53"
+      # TEAM_STAT_CORNERS_ID: "34"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
+
+      - name: Build team stats
+        run: |
+          python scripts/team_stats.py
+          python scripts/render_team_stats_summary.py
+          python scripts/check_team_stats_coverage.py
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/team_stats
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(team_stats): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
