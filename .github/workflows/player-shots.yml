@@ -41,6 +41,9 @@ jobs:
       - name: Run player-shots
         run: python scripts/player_shots.py
 
+      - name: Render team summary
+        run: python scripts/render_player_shots_summary.py
+
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
