@@ -98,8 +98,8 @@ def main():
                     empty_by_stat[k].append({"team_id": tid, "team_name": tname})
 
         txt_lines.append(f"===== League {lid} =====")
-        txt_lines.append(f"Teams in predicted_xi: {total}")
-        txt_lines.append(f"Present in opponent_stats: {present}")
+        txt_lines.append(f"Teams in predicted_xi      : {total}")
+        txt_lines.append(f"Present in opponent_stats  : {present}")
         for k in STAT_KEYS:
             label = k.replace("_last_n", "")
             txt_lines.append(f"Non-empty {label:<24}: {per_stat_non_empty[k]}")
