@@ -141,11 +141,16 @@ def load_all_predicted_xi() -> Dict[int, dict]:
 
 # ---------------- Get shots type ID ----------------
 def get_shots_type_id() -> int:
-    j = api_get("types", {"filters": "developer_name:SHOTS_TOTAL"}, base=CORE_BASE)
-    data = j.get("data", [])
-    for t in data:
-        if t.get("developer_name") == "SHOTS_TOTAL":
-            return int(t["id"])
+    page = 1
+    while True:
+        j = api_get("types", {"per_page": 50, "page": page}, base=CORE_BASE)
+        data = j.get("data", [])
+        for t in data:
+            if t.get("developer_name") == "SHOTS_TOTAL":
+                return int(t["id"])
+        if not j.get("pagination", {}).get("has_more", False):
+            break
+        page += 1
     raise ValueError("SHOTS_TOTAL type not found")
 
 # ---------------- Main ----------------
@@ -161,7 +166,7 @@ def main():
 
     processed = 0
     by_league_counts: Dict[int, int] = {}
-    league_payloads: Dict[int, List[dict]] = {}
+    league_payloads: Dict[int, dict] = {}
 
     # Get shots type ID
     shots_type_id = get_shots_type_id()
@@ -262,15 +267,14 @@ def main():
             "season_id": season_id,
             "fixtures": sorted(league_items, key=lambda r: (r.get("starting_at") or "", r["fixture_id"])),
         }
+        league_payloads[lid] = payload
         with open(os.path.join(by_league_root, f"{lid}.json"), "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False)
-
-        league_payloads[lid] = payload["fixtures"]  # Store fixtures for combined
 
     # Optional combined JSON
     combined_fixtures: List[dict] = []
     for lid in sorted(league_payloads):
-        combined_fixtures.extend(league_payloads[lid])
+        combined_fixtures.extend(league_payloads[lid]["fixtures"])
     ensure_dir(out_root)
     with open(os.path.join(out_root, "combined.json"), "w", encoding="utf-8") as f:
         json.dump({
@@ -296,7 +300,7 @@ def main():
     for lid in sorted(league_payloads):
         lname = LEAGUE_NAMES.get(lid, str(lid))
         lines.append(f"===== {lname} (LID {lid}) =====")
-        for r in league_payloads[lid]:
+        for r in league_payloads[lid]["fixtures"]:
             dt_str = (r.get("starting_at") or "").replace("T", " ").replace("Z", "")
             lines.append(f"{dt_str}  —  {r['home']['name']} vs {r['away']['name']}  (FID {r['fixture_id']})")
 
