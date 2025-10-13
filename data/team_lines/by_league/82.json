@@ -1,0 +1,6647 @@
+{
+  "generated_at": "2025-10-13T06:58:12.744060",
+  "league_id": 82,
+  "use_last_n": 10,
+  "fixtures": [
+    {
+      "fixture_id": 19433531,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 1079,
+      "home_name": "FC Union Berlin",
+      "away_id": 683,
+      "away_name": "Borussia Mönchengladbach",
+      "starting_at": "2025-10-17 18:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 1079,
+          "opponent_id": 683,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  11,
+                  11,
+                  20,
+                  12,
+                  8
+                ],
+                "opponent_allowed_lastN": [
+                  12,
+                  21,
+                  13,
+                  12,
+                  13,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 12,
+                "min_expected": 10,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 8,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 8
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  5,
+                  7,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  7,
+                  9,
+                  7,
+                  5,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  18,
+                  11,
+                  13,
+                  7,
+                  21
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  8,
+                  12,
+                  9,
+                  5,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 7,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  12,
+                  17,
+                  15,
+                  12,
+                  16
+                ],
+                "opponent_allowed_lastN": [
+                  17,
+                  14,
+                  14,
+                  25,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 14,
+                "min_expected": 12,
+                "max_expected": 14
+              },
+              "p100": {
+                "off": 12,
+                "opp": 13,
+                "min_expected": 12,
+                "max_expected": 13
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  2,
+                  1,
+                  0,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  5,
+                  0,
+                  2,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 0
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  6,
+                  7,
+                  4,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  4,
+                  6,
+                  2,
+                  6,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  6,
+                  15,
+                  1,
+                  8,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  5,
+                  6,
+                  13,
+                  7,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 1,
+                "opp": 5,
+                "min_expected": 1,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  5,
+                  1,
+                  9,
+                  6,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  6,
+                  3,
+                  4,
+                  6,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 683,
+          "opponent_id": 1079,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  11,
+                  13,
+                  19,
+                  15,
+                  17
+                ],
+                "opponent_allowed_lastN": [
+                  20,
+                  16,
+                  19,
+                  9,
+                  11,
+                  21
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  8,
+                  7,
+                  3,
+                  6,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  6,
+                  10,
+                  8,
+                  6,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 6,
+                "min_expected": 4,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  14,
+                  15,
+                  12,
+                  13,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  17,
+                  10,
+                  12,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 10,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  21,
+                  14,
+                  24,
+                  20,
+                  20,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  14,
+                  12,
+                  21,
+                  10,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 15,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 15
+              },
+              "p100": {
+                "off": 14,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 14
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  1,
+                  5,
+                  1,
+                  1,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  3,
+                  3,
+                  1,
+                  0,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  1,
+                  7,
+                  3,
+                  4,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  2,
+                  1,
+                  5,
+                  3,
+                  0
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  7,
+                  4,
+                  7,
+                  7,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  8,
+                  7,
+                  7,
+                  8,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 7,
+                "min_expected": 6,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 4,
+                "opp": 5,
+                "min_expected": 4,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  4,
+                  4,
+                  9,
+                  10,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  3,
+                  5,
+                  2,
+                  4,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 4,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433529,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 2831,
+      "home_name": "Heidenheim",
+      "away_id": 82,
+      "away_name": "Werder Bremen",
+      "starting_at": "2025-10-18 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 2831,
+          "opponent_id": 82,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  11,
+                  20,
+                  6,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  26,
+                  10,
+                  19,
+                  10,
+                  18
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 10,
+                "min_expected": 5,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 5,
+                "opp": 10,
+                "min_expected": 5,
+                "max_expected": 10
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  5,
+                  8,
+                  1,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  13,
+                  5,
+                  3,
+                  4,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  16,
+                  10,
+                  5,
+                  13,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  9,
+                  7,
+                  12,
+                  10,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 5,
+                "opp": 7,
+                "min_expected": 5,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  21,
+                  14,
+                  11,
+                  16,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  16,
+                  13,
+                  17,
+                  20,
+                  12,
+                  21
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 13,
+                "min_expected": 11,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 9,
+                "opp": 12,
+                "min_expected": 9,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  1,
+                  1,
+                  3,
+                  5,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  2,
+                  1,
+                  3,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  1,
+                  7,
+                  6,
+                  4,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  3,
+                  5,
+                  3,
+                  2,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  16,
+                  6,
+                  8,
+                  11,
+                  17,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  7,
+                  10,
+                  7,
+                  9,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 8,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 8
+              },
+              "p100": {
+                "off": 6,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  12,
+                  5,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  0,
+                  7,
+                  0,
+                  9,
+                  7,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 82,
+          "opponent_id": 2831,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  9,
+                  12,
+                  12,
+                  12,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  18,
+                  8,
+                  22,
+                  17,
+                  19,
+                  15
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 15,
+                "min_expected": 10,
+                "max_expected": 15
+              },
+              "p100": {
+                "off": 9,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  3,
+                  5,
+                  7,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  2,
+                  9,
+                  8,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 3,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  8,
+                  4,
+                  13,
+                  9,
+                  11,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  20,
+                  15,
+                  9,
+                  7,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 8,
+                "opp": 9,
+                "min_expected": 8,
+                "max_expected": 9
+              },
+              "p100": {
+                "off": 4,
+                "opp": 7,
+                "min_expected": 4,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  22,
+                  16,
+                  14,
+                  25,
+                  17,
+                  16
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  12,
+                  9,
+                  9,
+                  11,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 16,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 16
+              },
+              "p100": {
+                "off": 14,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 14
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  0,
+                  5,
+                  0,
+                  5,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  6,
+                  5,
+                  3,
+                  2,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 0,
+                "opp": 2,
+                "min_expected": 0,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  8,
+                  3,
+                  2,
+                  1,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  3,
+                  6,
+                  1,
+                  4,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  12,
+                  7,
+                  13,
+                  3,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  10,
+                  9,
+                  4,
+                  5,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  6,
+                  2,
+                  4,
+                  3,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  1,
+                  4,
+                  4,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433530,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 3320,
+      "home_name": "FC Köln",
+      "away_id": 90,
+      "away_name": "FC Augsburg",
+      "starting_at": "2025-10-18 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 3320,
+          "opponent_id": 90,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  15,
+                  13,
+                  14,
+                  18,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  14,
+                  11,
+                  12,
+                  13,
+                  20,
+                  16
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 10,
+                "opp": 11,
+                "min_expected": 10,
+                "max_expected": 11
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  7,
+                  2,
+                  8,
+                  6,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  5,
+                  4,
+                  7,
+                  10,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 4,
+                "min_expected": 2,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 2,
+                "opp": 4,
+                "min_expected": 2,
+                "max_expected": 4
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  12,
+                  8,
+                  11,
+                  12,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  16,
+                  10,
+                  10,
+                  11,
+                  14
+                ]
+              },
+              "p80": {
+                "off": 8,
+                "opp": 10,
+                "min_expected": 8,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 6,
+                "opp": 7,
+                "min_expected": 6,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  9,
+                  12,
+                  12,
+                  9,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  24,
+                  21,
+                  12,
+                  21,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 13,
+                "min_expected": 9,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 9,
+                "opp": 12,
+                "min_expected": 9,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  2,
+                  1,
+                  3,
+                  2,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  1,
+                  3,
+                  1,
+                  4,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  3,
+                  5,
+                  3,
+                  1,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  1,
+                  4,
+                  4,
+                  1,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  11,
+                  7,
+                  10,
+                  9,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  6,
+                  7,
+                  8,
+                  5,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 9
+              },
+              "p100": {
+                "off": 7,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 7
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  8,
+                  5,
+                  4,
+                  3,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  3,
+                  6,
+                  3,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 90,
+          "opponent_id": 3320,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  8,
+                  18,
+                  10,
+                  10,
+                  14
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  15,
+                  18,
+                  14,
+                  12,
+                  19
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 14,
+                "min_expected": 10,
+                "max_expected": 14
+              },
+              "p100": {
+                "off": 8,
+                "opp": 12,
+                "min_expected": 8,
+                "max_expected": 12
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  2,
+                  5,
+                  5,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  5,
+                  8,
+                  6,
+                  2,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  20,
+                  13,
+                  12,
+                  14,
+                  18
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  12,
+                  10,
+                  15,
+                  9,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 9,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  12,
+                  15,
+                  17,
+                  21,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  16,
+                  14,
+                  12,
+                  13,
+                  8,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 10,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 10
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  6,
+                  1,
+                  4,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  2,
+                  1,
+                  2,
+                  1,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  3,
+                  0,
+                  5,
+                  7,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  5,
+                  0,
+                  5,
+                  2,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 0,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 0
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  10,
+                  6,
+                  5,
+                  7,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  8,
+                  4,
+                  5,
+                  9,
+                  7,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  2,
+                  6,
+                  1,
+                  7,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  8,
+                  9,
+                  7,
+                  5,
+                  8
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 7,
+                "min_expected": 2,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 1,
+                "opp": 5,
+                "min_expected": 1,
+                "max_expected": 5
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433532,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 794,
+      "home_name": "FSV Mainz 05",
+      "away_id": 3321,
+      "away_name": "Bayer 04 Leverkusen",
+      "starting_at": "2025-10-18 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 794,
+          "opponent_id": 3321,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  8,
+                  12,
+                  13,
+                  17,
+                  19
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  13,
+                  13,
+                  13,
+                  12,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 8,
+                "opp": 10,
+                "min_expected": 8,
+                "max_expected": 10
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  2,
+                  4,
+                  2,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  6,
+                  7,
+                  2,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  12,
+                  10,
+                  12,
+                  14,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  13,
+                  15,
+                  9,
+                  11,
+                  17
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 11,
+                "min_expected": 10,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 7,
+                "opp": 9,
+                "min_expected": 7,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  17,
+                  12,
+                  14,
+                  13,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  13,
+                  24,
+                  13,
+                  17,
+                  15
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 13,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 10,
+                "opp": 13,
+                "min_expected": 10,
+                "max_expected": 13
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  3,
+                  3,
+                  1,
+                  5,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  3,
+                  5,
+                  3,
+                  5,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  2,
+                  4,
+                  2,
+                  2,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  7,
+                  4,
+                  1,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  8,
+                  7,
+                  8,
+                  6,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  2,
+                  4,
+                  13,
+                  3,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 6,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  7,
+                  6,
+                  3,
+                  10,
+                  8
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  13,
+                  4,
+                  8,
+                  3,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 3321,
+          "opponent_id": 794,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  20,
+                  5,
+                  13,
+                  18,
+                  10,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  10,
+                  18,
+                  19,
+                  11,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 11,
+                "min_expected": 7,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 5,
+                "opp": 10,
+                "min_expected": 5,
+                "max_expected": 10
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  4,
+                  9,
+                  8,
+                  4,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  4,
+                  5,
+                  3,
+                  3,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  11,
+                  12,
+                  10,
+                  10,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  14,
+                  14,
+                  13,
+                  11,
+                  15,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 11,
+                "min_expected": 10,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  14,
+                  14,
+                  25,
+                  12,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  20,
+                  8,
+                  15,
+                  16,
+                  13,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 7,
+                "opp": 8,
+                "min_expected": 7,
+                "max_expected": 8
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  5,
+                  5,
+                  7,
+                  3,
+                  0
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  1,
+                  1,
+                  0,
+                  4,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 0
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  4,
+                  6,
+                  1,
+                  2,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  2,
+                  0,
+                  2,
+                  2,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  9,
+                  6,
+                  16,
+                  9,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  6,
+                  6,
+                  13,
+                  9,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  1,
+                  3,
+                  4,
+                  7,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  5,
+                  6,
+                  5,
+                  3,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433535,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 277,
+      "home_name": "RB Leipzig",
+      "away_id": 2708,
+      "away_name": "Hamburger SV",
+      "starting_at": "2025-10-18 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 277,
+          "opponent_id": 2708,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  20,
+                  18,
+                  19,
+                  19,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  11,
+                  20,
+                  22,
+                  17,
+                  17
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 12,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 12
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  6,
+                  8,
+                  3,
+                  5,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  2,
+                  8,
+                  12,
+                  6,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  9,
+                  10,
+                  11,
+                  7,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  18,
+                  10,
+                  11,
+                  19,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 10,
+                "min_expected": 9,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 7,
+                "opp": 10,
+                "min_expected": 7,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  29,
+                  16,
+                  12,
+                  16,
+                  11,
+                  18
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  12,
+                  14,
+                  8,
+                  26,
+                  15
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 11,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 11
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  1,
+                  0,
+                  2,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  2,
+                  1,
+                  2,
+                  3,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  4,
+                  0,
+                  2,
+                  4,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  6,
+                  7,
+                  2,
+                  2,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  14,
+                  5,
+                  13,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  6,
+                  8,
+                  7,
+                  5,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 6,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  11,
+                  9,
+                  5,
+                  4,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  5,
+                  12,
+                  5,
+                  5,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 4,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 4
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 2708,
+          "opponent_id": 277,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  16,
+                  22,
+                  9,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  22,
+                  13,
+                  13,
+                  5,
+                  19
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 13,
+                "min_expected": 7,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  6,
+                  9,
+                  2,
+                  2,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  2,
+                  2,
+                  3,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  17,
+                  15,
+                  14,
+                  13,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  7,
+                  8,
+                  12,
+                  13,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 10,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  20,
+                  14,
+                  9,
+                  10,
+                  14,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  17,
+                  12,
+                  14,
+                  16,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 13,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 9,
+                "opp": 12,
+                "min_expected": 9,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  3,
+                  5,
+                  2,
+                  4,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  1,
+                  1,
+                  5,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  2,
+                  6,
+                  7,
+                  4,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  5,
+                  5,
+                  2,
+                  4,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  8,
+                  9,
+                  6,
+                  9,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  9,
+                  7,
+                  8,
+                  17,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  1,
+                  3,
+                  2,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  6,
+                  5,
+                  3,
+                  3,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433537,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 510,
+      "home_name": "VfL Wolfsburg",
+      "away_id": 3319,
+      "away_name": "VfB Stuttgart",
+      "starting_at": "2025-10-18 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 510,
+          "opponent_id": 3319,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  22,
+                  9,
+                  14,
+                  11,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  15,
+                  9,
+                  14,
+                  15,
+                  8
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  4,
+                  0,
+                  6,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  7,
+                  2,
+                  6,
+                  6,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  7,
+                  9,
+                  15,
+                  15,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  12,
+                  12,
+                  15,
+                  8,
+                  13,
+                  21
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 12,
+                "min_expected": 7,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 7,
+                "opp": 8,
+                "min_expected": 7,
+                "max_expected": 8
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  24,
+                  17,
+                  20,
+                  13,
+                  13,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  9,
+                  15,
+                  12,
+                  20,
+                  16
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 11,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 11
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  2,
+                  0,
+                  2,
+                  4,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  2,
+                  1,
+                  1,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  5,
+                  3,
+                  5,
+                  2,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  3,
+                  6,
+                  1,
+                  4,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  9,
+                  11,
+                  9,
+                  9,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  16,
+                  11,
+                  5,
+                  5,
+                  7,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 7,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 7
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  6,
+                  3,
+                  7,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  8,
+                  4,
+                  7,
+                  10,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 3319,
+          "opponent_id": 510,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  18,
+                  15,
+                  17,
+                  7,
+                  13,
+                  21
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  20,
+                  12,
+                  14,
+                  17,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 7,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 7
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  5,
+                  8,
+                  2,
+                  5,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  6,
+                  4,
+                  8,
+                  3,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  12,
+                  13,
+                  13,
+                  5,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  9,
+                  10,
+                  11,
+                  14,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 5,
+                "opp": 9,
+                "min_expected": 5,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  14,
+                  14,
+                  10,
+                  14,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  16,
+                  9,
+                  12,
+                  13,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 10,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 10
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  2,
+                  0,
+                  1,
+                  2,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  2,
+                  1,
+                  3,
+                  5,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  5,
+                  3,
+                  3,
+                  6,
+                  0
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  0,
+                  3,
+                  2,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 0
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  4,
+                  3,
+                  10,
+                  7,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  14,
+                  6,
+                  10,
+                  6,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 6,
+                "min_expected": 4,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 3,
+                "opp": 6,
+                "min_expected": 3,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  8,
+                  8,
+                  1,
+                  6,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  11,
+                  9,
+                  4,
+                  10,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 4,
+                "min_expected": 1,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433544,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 82,
+      "home_name": "Werder Bremen",
+      "away_id": 1079,
+      "away_name": "FC Union Berlin",
+      "starting_at": "2025-10-24 18:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 82,
+          "opponent_id": 1079,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  9,
+                  12,
+                  12,
+                  12,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  20,
+                  16,
+                  19,
+                  9,
+                  11,
+                  21
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 11,
+                "min_expected": 10,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  3,
+                  5,
+                  7,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  6,
+                  10,
+                  8,
+                  6,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 6,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  8,
+                  4,
+                  13,
+                  9,
+                  11,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  17,
+                  10,
+                  12,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 8,
+                "opp": 11,
+                "min_expected": 8,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 4,
+                "opp": 10,
+                "min_expected": 4,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  22,
+                  16,
+                  14,
+                  25,
+                  17,
+                  16
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  14,
+                  12,
+                  21,
+                  10,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 16,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 16
+              },
+              "p100": {
+                "off": 14,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 14
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  0,
+                  5,
+                  0,
+                  5,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  3,
+                  3,
+                  1,
+                  0,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 0
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  8,
+                  3,
+                  2,
+                  1,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  2,
+                  1,
+                  5,
+                  3,
+                  0
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  12,
+                  7,
+                  13,
+                  3,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  8,
+                  7,
+                  7,
+                  8,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 3,
+                "opp": 5,
+                "min_expected": 3,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  6,
+                  2,
+                  4,
+                  3,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  3,
+                  5,
+                  2,
+                  4,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 1079,
+          "opponent_id": 82,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  11,
+                  11,
+                  20,
+                  12,
+                  8
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  26,
+                  10,
+                  19,
+                  10,
+                  18
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 8,
+                "opp": 10,
+                "min_expected": 8,
+                "max_expected": 10
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  5,
+                  7,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  13,
+                  5,
+                  3,
+                  4,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  18,
+                  11,
+                  13,
+                  7,
+                  21
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  9,
+                  7,
+                  12,
+                  10,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 7,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  12,
+                  17,
+                  15,
+                  12,
+                  16
+                ],
+                "opponent_allowed_lastN": [
+                  16,
+                  13,
+                  17,
+                  20,
+                  12,
+                  21
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 13,
+                "min_expected": 12,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 12,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  2,
+                  1,
+                  0,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  2,
+                  1,
+                  3,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  6,
+                  7,
+                  4,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  3,
+                  5,
+                  3,
+                  2,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  6,
+                  15,
+                  1,
+                  8,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  7,
+                  10,
+                  7,
+                  9,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 7,
+                "min_expected": 6,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  5,
+                  1,
+                  9,
+                  6,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  0,
+                  7,
+                  0,
+                  9,
+                  7,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433540,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 683,
+      "home_name": "Borussia Mönchengladbach",
+      "away_id": 503,
+      "away_name": "FC Bayern München",
+      "starting_at": "2025-10-25 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 683,
+          "opponent_id": 503,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  11,
+                  13,
+                  19,
+                  15,
+                  17
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  9,
+                  13,
+                  9,
+                  10,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  8,
+                  7,
+                  3,
+                  6,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  3,
+                  4,
+                  2,
+                  3,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  14,
+                  15,
+                  12,
+                  13,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  4,
+                  17,
+                  14,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 10,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  21,
+                  14,
+                  24,
+                  20,
+                  20,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  21,
+                  16,
+                  26,
+                  10,
+                  21,
+                  18
+                ]
+              },
+              "p80": {
+                "off": 15,
+                "opp": 16,
+                "min_expected": 15,
+                "max_expected": 16
+              },
+              "p100": {
+                "off": 14,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 14
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  1,
+                  5,
+                  1,
+                  1,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  0,
+                  1,
+                  2,
+                  3,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  1,
+                  7,
+                  3,
+                  4,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  0,
+                  8,
+                  6,
+                  7,
+                  7,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  7,
+                  4,
+                  7,
+                  7,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  12,
+                  5,
+                  6,
+                  7,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 4,
+                "opp": 5,
+                "min_expected": 4,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  4,
+                  4,
+                  9,
+                  10,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  6,
+                  5,
+                  3,
+                  7,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 4,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 4
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 503,
+          "opponent_id": 683,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  26,
+                  18,
+                  22,
+                  20,
+                  19
+                ],
+                "opponent_allowed_lastN": [
+                  12,
+                  21,
+                  13,
+                  12,
+                  13,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 18,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 18
+              },
+              "p100": {
+                "off": 12,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 12
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  13,
+                  10,
+                  12,
+                  10,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  7,
+                  9,
+                  7,
+                  5,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  9,
+                  9,
+                  11,
+                  11,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  8,
+                  12,
+                  9,
+                  5,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 9
+              },
+              "p100": {
+                "off": 9,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  13,
+                  17,
+                  8,
+                  14,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  17,
+                  14,
+                  14,
+                  25,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 14,
+                "min_expected": 10,
+                "max_expected": 14
+              },
+              "p100": {
+                "off": 8,
+                "opp": 13,
+                "min_expected": 8,
+                "max_expected": 13
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  2,
+                  2,
+                  2,
+                  4,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  5,
+                  0,
+                  2,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 2,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 2
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  3,
+                  2,
+                  1,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  4,
+                  6,
+                  2,
+                  6,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 4,
+                "min_expected": 1,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  7,
+                  5,
+                  7,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  5,
+                  6,
+                  13,
+                  7,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  7,
+                  5,
+                  5,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  6,
+                  3,
+                  4,
+                  6,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433541,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 366,
+      "home_name": "Eintracht Frankfurt",
+      "away_id": 353,
+      "away_name": "St. Pauli",
+      "starting_at": "2025-10-25 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 366,
+          "opponent_id": 353,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  21,
+                  19,
+                  13,
+                  9,
+                  18
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  5,
+                  17,
+                  10,
+                  5,
+                  8
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 9
+              },
+              "p100": {
+                "off": 6,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 6
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  7,
+                  10,
+                  2,
+                  6,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  4,
+                  8,
+                  5,
+                  2,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 4,
+                "min_expected": 2,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  8,
+                  10,
+                  9,
+                  10,
+                  9
+                ],
+                "opponent_allowed_lastN": [
+                  8,
+                  11,
+                  13,
+                  12,
+                  13,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 11,
+                "min_expected": 9,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 8,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 8
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  21,
+                  14,
+                  12,
+                  13,
+                  15,
+                  21
+                ],
+                "opponent_allowed_lastN": [
+                  22,
+                  14,
+                  14,
+                  17,
+                  14,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 14,
+                "min_expected": 13,
+                "max_expected": 14
+              },
+              "p100": {
+                "off": 12,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  2,
+                  3,
+                  3,
+                  3,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  5,
+                  0,
+                  4,
+                  4,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  0,
+                  4,
+                  1,
+                  4,
+                  4,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  3,
+                  5,
+                  4,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 0,
+                "opp": 3,
+                "min_expected": 0,
+                "max_expected": 3
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  6,
+                  5,
+                  7,
+                  13,
+                  13,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  12,
+                  9,
+                  3,
+                  5,
+                  9,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  6,
+                  5,
+                  8,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  1,
+                  8,
+                  1,
+                  2,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 4,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 4
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 353,
+          "opponent_id": 366,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  13,
+                  9,
+                  13,
+                  17,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  12,
+                  11,
+                  11,
+                  18,
+                  17,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 10,
+                "min_expected": 9,
+                "max_expected": 10
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  6,
+                  2,
+                  7,
+                  6,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  8,
+                  5,
+                  8,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 5,
+                "min_expected": 3,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  13,
+                  15,
+                  10,
+                  19,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  14,
+                  11,
+                  10,
+                  14,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  16,
+                  13,
+                  15,
+                  21,
+                  26,
+                  20
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  14,
+                  17,
+                  25,
+                  16,
+                  16
+                ]
+              },
+              "p80": {
+                "off": 15,
+                "opp": 14,
+                "min_expected": 14,
+                "max_expected": 15
+              },
+              "p100": {
+                "off": 13,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 13
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  2,
+                  1,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  1,
+                  2,
+                  7,
+                  2,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  2,
+                  6,
+                  4,
+                  2,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  1,
+                  7,
+                  1,
+                  3,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  5,
+                  8,
+                  5,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  7,
+                  15,
+                  16,
+                  6,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 7,
+                "min_expected": 3,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 2,
+                "opp": 6,
+                "min_expected": 2,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  0,
+                  13,
+                  4,
+                  3,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  1,
+                  4,
+                  4,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433542,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 90,
+      "home_name": "FC Augsburg",
+      "away_id": 277,
+      "away_name": "RB Leipzig",
+      "starting_at": "2025-10-25 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 90,
+          "opponent_id": 277,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  8,
+                  18,
+                  10,
+                  10,
+                  14
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  22,
+                  13,
+                  13,
+                  5,
+                  19
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 13,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 8,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 8
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  2,
+                  5,
+                  5,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  2,
+                  2,
+                  3,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  20,
+                  13,
+                  12,
+                  14,
+                  18
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  7,
+                  8,
+                  12,
+                  13,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 12
+              },
+              "p100": {
+                "off": 9,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 9
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  12,
+                  15,
+                  17,
+                  21,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  17,
+                  12,
+                  14,
+                  16,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 13,
+                "min_expected": 12,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 10,
+                "opp": 12,
+                "min_expected": 10,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  6,
+                  1,
+                  4,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  1,
+                  1,
+                  5,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  3,
+                  0,
+                  5,
+                  7,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  5,
+                  5,
+                  2,
+                  4,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  10,
+                  6,
+                  5,
+                  7,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  9,
+                  7,
+                  8,
+                  17,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  10,
+                  2,
+                  6,
+                  1,
+                  7,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  6,
+                  5,
+                  3,
+                  3,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 277,
+          "opponent_id": 90,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  13,
+                  20,
+                  18,
+                  19,
+                  19,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  14,
+                  11,
+                  12,
+                  13,
+                  20,
+                  16
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 12,
+                "min_expected": 12,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 12,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 12
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  6,
+                  8,
+                  3,
+                  5,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  5,
+                  4,
+                  7,
+                  10,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 4,
+                "min_expected": 1,
+                "max_expected": 4
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  9,
+                  10,
+                  11,
+                  7,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  16,
+                  10,
+                  10,
+                  11,
+                  14
+                ]
+              },
+              "p80": {
+                "off": 9,
+                "opp": 10,
+                "min_expected": 9,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 7,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 7
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  29,
+                  16,
+                  12,
+                  16,
+                  11,
+                  18
+                ],
+                "opponent_allowed_lastN": [
+                  24,
+                  21,
+                  12,
+                  21,
+                  14,
+                  13
+                ]
+              },
+              "p80": {
+                "off": 12,
+                "opp": 13,
+                "min_expected": 12,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 11,
+                "opp": 12,
+                "min_expected": 11,
+                "max_expected": 12
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  2,
+                  1,
+                  0,
+                  2,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  1,
+                  3,
+                  1,
+                  4,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  4,
+                  0,
+                  2,
+                  4,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  1,
+                  4,
+                  4,
+                  1,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  14,
+                  5,
+                  13,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  7,
+                  6,
+                  7,
+                  8,
+                  5,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 5,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  11,
+                  9,
+                  5,
+                  4,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  3,
+                  6,
+                  3,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 4,
+                "opp": 3,
+                "min_expected": 3,
+                "max_expected": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433543,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 2708,
+      "home_name": "Hamburger SV",
+      "away_id": 510,
+      "away_name": "VfL Wolfsburg",
+      "starting_at": "2025-10-25 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 2708,
+          "opponent_id": 510,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  16,
+                  22,
+                  9,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  20,
+                  12,
+                  14,
+                  17,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 10,
+                "min_expected": 7,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 5,
+                "opp": 7,
+                "min_expected": 5,
+                "max_expected": 7
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  6,
+                  9,
+                  2,
+                  2,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  6,
+                  4,
+                  8,
+                  3,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  17,
+                  15,
+                  14,
+                  13,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  9,
+                  9,
+                  10,
+                  11,
+                  14,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 10,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  20,
+                  14,
+                  9,
+                  10,
+                  14,
+                  13
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  16,
+                  9,
+                  12,
+                  13,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 9
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  3,
+                  5,
+                  2,
+                  4,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  2,
+                  2,
+                  1,
+                  3,
+                  5,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  2,
+                  6,
+                  7,
+                  4,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  4,
+                  0,
+                  3,
+                  2,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 2,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 2
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  8,
+                  9,
+                  6,
+                  9,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  14,
+                  6,
+                  10,
+                  6,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 6,
+                "min_expected": 5,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  1,
+                  3,
+                  2,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  11,
+                  9,
+                  4,
+                  10,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 4,
+                "min_expected": 1,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 510,
+          "opponent_id": 2708,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  14,
+                  22,
+                  9,
+                  14,
+                  11,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  11,
+                  20,
+                  22,
+                  17,
+                  17
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 11,
+                "min_expected": 11,
+                "max_expected": 11
+              },
+              "p100": {
+                "off": 9,
+                "opp": 11,
+                "min_expected": 9,
+                "max_expected": 11
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  4,
+                  0,
+                  6,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  2,
+                  8,
+                  12,
+                  6,
+                  4
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 0,
+                "opp": 2,
+                "min_expected": 0,
+                "max_expected": 2
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  7,
+                  9,
+                  15,
+                  15,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  18,
+                  10,
+                  11,
+                  19,
+                  10
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 10,
+                "min_expected": 7,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 7,
+                "opp": 10,
+                "min_expected": 7,
+                "max_expected": 10
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  24,
+                  17,
+                  20,
+                  13,
+                  13,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  12,
+                  14,
+                  8,
+                  26,
+                  15
+                ]
+              },
+              "p80": {
+                "off": 13,
+                "opp": 10,
+                "min_expected": 10,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 11,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 11
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  2,
+                  0,
+                  2,
+                  4,
+                  3
+                ],
+                "opponent_allowed_lastN": [
+                  3,
+                  2,
+                  1,
+                  2,
+                  3,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  2,
+                  5,
+                  3,
+                  5,
+                  2,
+                  1
+                ],
+                "opponent_allowed_lastN": [
+                  5,
+                  6,
+                  7,
+                  2,
+                  2,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  7,
+                  9,
+                  11,
+                  9,
+                  9,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  6,
+                  8,
+                  7,
+                  5,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 7,
+                "opp": 6,
+                "min_expected": 6,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 7,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 7
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  6,
+                  3,
+                  7,
+                  3,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  5,
+                  12,
+                  5,
+                  5,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 3,
+                "opp": 5,
+                "min_expected": 3,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 3,
+                "opp": 4,
+                "min_expected": 3,
+                "max_expected": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "fixture_id": 19433545,
+      "league_id": 82,
+      "season_id": null,
+      "home_id": 2726,
+      "home_name": "TSG Hoffenheim",
+      "away_id": 2831,
+      "away_name": "Heidenheim",
+      "starting_at": "2025-10-25 13:30:00",
+      "use_last_n": 10,
+      "teams": {
+        "home": {
+          "team_id": 2726,
+          "opponent_id": 2831,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  15,
+                  13,
+                  9,
+                  17,
+                  10
+                ],
+                "opponent_allowed_lastN": [
+                  18,
+                  8,
+                  22,
+                  17,
+                  19,
+                  15
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 15,
+                "min_expected": 10,
+                "max_expected": 15
+              },
+              "p100": {
+                "off": 9,
+                "opp": 8,
+                "min_expected": 8,
+                "max_expected": 9
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  4,
+                  4,
+                  4,
+                  8,
+                  5,
+                  5
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  2,
+                  9,
+                  8,
+                  5,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 5,
+                "min_expected": 4,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 4,
+                "opp": 2,
+                "min_expected": 2,
+                "max_expected": 4
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  15,
+                  15,
+                  17,
+                  12,
+                  14,
+                  17
+                ],
+                "opponent_allowed_lastN": [
+                  11,
+                  20,
+                  15,
+                  9,
+                  7,
+                  12
+                ]
+              },
+              "p80": {
+                "off": 14,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 14
+              },
+              "p100": {
+                "off": 12,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 12
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  16,
+                  11,
+                  26,
+                  21,
+                  16,
+                  15
+                ],
+                "opponent_allowed_lastN": [
+                  15,
+                  12,
+                  9,
+                  9,
+                  11,
+                  11
+                ]
+              },
+              "p80": {
+                "off": 15,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 15
+              },
+              "p100": {
+                "off": 11,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 11
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  1,
+                  1,
+                  1,
+                  2,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  6,
+                  5,
+                  3,
+                  2,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  3,
+                  0,
+                  6,
+                  5,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  3,
+                  6,
+                  1,
+                  4,
+                  1
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 0,
+                "opp": 1,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  8,
+                  7,
+                  5,
+                  7,
+                  6,
+                  6
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  10,
+                  9,
+                  4,
+                  5,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 6,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 6
+              },
+              "p100": {
+                "off": 5,
+                "opp": 4,
+                "min_expected": 4,
+                "max_expected": 5
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  11,
+                  8,
+                  5,
+                  2,
+                  4,
+                  4
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  1,
+                  4,
+                  4,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 4,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 4
+              },
+              "p100": {
+                "off": 2,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 2
+              }
+            }
+          }
+        },
+        "away": {
+          "team_id": 2831,
+          "opponent_id": 2726,
+          "stats": {
+            "shots": {
+              "label": "Shots",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  11,
+                  20,
+                  6,
+                  5,
+                  7
+                ],
+                "opponent_allowed_lastN": [
+                  10,
+                  6,
+                  18,
+                  20,
+                  9,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 5,
+                "opp": 7,
+                "min_expected": 5,
+                "max_expected": 7
+              },
+              "p100": {
+                "off": 5,
+                "opp": 6,
+                "min_expected": 5,
+                "max_expected": 6
+              }
+            },
+            "shots_on_target": {
+              "label": "SOT",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  5,
+                  8,
+                  1,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  1,
+                  10,
+                  7,
+                  6,
+                  2
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 2,
+                "min_expected": 1,
+                "max_expected": 2
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              }
+            },
+            "fouls": {
+              "label": "Fouls",
+              "series_used": {
+                "offense_lastN": [
+                  12,
+                  16,
+                  10,
+                  5,
+                  13,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  9,
+                  9,
+                  13,
+                  10,
+                  9
+                ]
+              },
+              "p80": {
+                "off": 10,
+                "opp": 9,
+                "min_expected": 9,
+                "max_expected": 10
+              },
+              "p100": {
+                "off": 5,
+                "opp": 6,
+                "min_expected": 5,
+                "max_expected": 6
+              }
+            },
+            "tackles": {
+              "label": "Tackles",
+              "series_used": {
+                "offense_lastN": [
+                  9,
+                  21,
+                  14,
+                  11,
+                  16,
+                  12
+                ],
+                "opponent_allowed_lastN": [
+                  13,
+                  13,
+                  17,
+                  15,
+                  15,
+                  7
+                ]
+              },
+              "p80": {
+                "off": 11,
+                "opp": 13,
+                "min_expected": 11,
+                "max_expected": 13
+              },
+              "p100": {
+                "off": 9,
+                "opp": 7,
+                "min_expected": 7,
+                "max_expected": 9
+              }
+            },
+            "cards_total": {
+              "label": "Cards",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  1,
+                  1,
+                  3,
+                  5,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  1,
+                  2,
+                  2,
+                  1,
+                  3,
+                  0
+                ]
+              },
+              "p80": {
+                "off": 1,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 1
+              },
+              "p100": {
+                "off": 1,
+                "opp": 0,
+                "min_expected": 0,
+                "max_expected": 1
+              }
+            },
+            "saves": {
+              "label": "Saves",
+              "series_used": {
+                "offense_lastN": [
+                  5,
+                  1,
+                  7,
+                  6,
+                  4,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  4,
+                  3,
+                  3,
+                  4,
+                  4,
+                  3
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 3,
+                "min_expected": 2,
+                "max_expected": 3
+              },
+              "p100": {
+                "off": 1,
+                "opp": 3,
+                "min_expected": 1,
+                "max_expected": 3
+              }
+            },
+            "goal_kicks": {
+              "label": "GoalKicks",
+              "series_used": {
+                "offense_lastN": [
+                  16,
+                  6,
+                  8,
+                  11,
+                  17,
+                  11
+                ],
+                "opponent_allowed_lastN": [
+                  14,
+                  5,
+                  5,
+                  1,
+                  13,
+                  5
+                ]
+              },
+              "p80": {
+                "off": 8,
+                "opp": 5,
+                "min_expected": 5,
+                "max_expected": 8
+              },
+              "p100": {
+                "off": 6,
+                "opp": 1,
+                "min_expected": 1,
+                "max_expected": 6
+              }
+            },
+            "corners": {
+              "label": "Corners",
+              "series_used": {
+                "offense_lastN": [
+                  1,
+                  3,
+                  12,
+                  5,
+                  3,
+                  2
+                ],
+                "opponent_allowed_lastN": [
+                  6,
+                  6,
+                  5,
+                  9,
+                  5,
+                  6
+                ]
+              },
+              "p80": {
+                "off": 2,
+                "opp": 5,
+                "min_expected": 2,
+                "max_expected": 5
+              },
+              "p100": {
+                "off": 1,
+                "opp": 5,
+                "min_expected": 1,
+                "max_expected": 5
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "missing": {
+    "team_offense_missing_for_team_ids": [],
+    "opponent_allowed_missing_for_team_ids": []
+  }
+}
