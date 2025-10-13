@@ -71,4 +71,3 @@ jobs:
           git add data/player_filters/criteria_odds_flags.txt
           git commit -m "feat(criteria-odds-sm): refresh $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes to commit"
           git push
-criteria-odds-sportmonks.yml
