@@ -1,40 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Find player-bet candidates (Shots / Shots on Target) by combining your collected hit rates
-with live prices from Odds-API.io. Bookmakers restricted to bet365 + kambi and returned
-as separate lists.
+Find player-bet candidates (Shots / Shots on Target) using your collected hit rates
+and live odds from Odds-API.io. Results are split into bet365 and kambi lists.
 
-Scope control:
+Scope:
 - Only fixtures where BOTH teams exist in your collected data (predicted_xi + player series)
-  are considered. This effectively limits to "leagues we've already scraped".
+- Markets considered: Player Shots, Player Shots on Target (Over X.5 style)
+- Big-underdog filter for Shots/SOT: exclude if team ML > 3.50
 
-Selection rules (from spec):
-- CERTS: price >= 1.25 and (HR >= 100% or HR >= 90%) with n >= 8
-- VALUE SINGLES: price >= 1.80 and HR >= 80% (n recorded but not enforced)
-- Big Underdog filter (Shots/SOT only): exclude if team ML > 3.50
-
-Reads (already produced by your collectors):
-  - data/predicted_xi/by_league/{lid}.json
-  - data/player_shots/by_league/{lid}.json            (players[].shots_last_n)
-  - data/player_shots_on_target/by_league/{lid}.json  (players[].on_target_last_n)
-
-Writes:
-  - data/bets/player_candidates.json
-      {
-        "bet365": {"certs": [...], "value_singles": [...]},
-        "kambi":  {"certs": [...], "value_singles": [...]},
-        "audited": [...]
-      }
-  - data/bets/player_candidates.txt  # human-friendly sections
-
-Odds API:
-  - GET /v3/events?apiKey=...&sport=football
-  - GET /v3/odds/multi?apiKey=...&eventIds=...&bookmakers=bet365,kambi
-  (chunked to 10 event IDs per call)
+Selection rules:
+- CERTS: price >= 1.25 AND (HR >= 1.00 OR HR >= 0.90) with n >= 8
+- VALUE SINGLES: price >= 1.80 AND HR >= 0.80  (n recorded but not enforced)
 """
 
-import os, re, time, math, random, unicodedata, json
+import os, re, time, math, random, json, unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
 import requests
@@ -42,14 +22,14 @@ import requests
 # ================== CONFIG ==================
 API_KEY = os.getenv("ODDS_API_KEY", "")
 SPORT = "football"
+DEBUG = os.getenv("DEBUG", "0") == "1"
 
-# Odds API: only these two
+# Only these two books
 BOOKMAKERS_PARAM = os.getenv("ODDS_BOOKMAKERS", "bet365,kambi")
-
-# Respect a safe multi limit (10/eventIds per your examples & to avoid 400s)
+# Safe cap for /odds/multi
 MULTI_CHUNK_SIZE = int(os.getenv("ODDS_MULTI_CHUNK", "10"))
 
-# Markets & thresholds
+# Selection thresholds
 CERT_MIN_PRICE   = float(os.getenv("CERT_MIN_PRICE", "1.25"))
 CERT_MIN_N       = int(os.getenv("CERT_MIN_N", "8"))
 VALUE_MIN_PRICE  = float(os.getenv("VALUE_MIN_PRICE", "1.80"))
@@ -63,14 +43,23 @@ SOT_DIR    = ROOT / "data" / "player_shots_on_target" / "by_league"
 OUT_JSON   = ROOT / "data" / "bets" / "player_candidates.json"
 OUT_TXT    = ROOT / "data" / "bets" / "player_candidates.txt"
 
-# API endpoints / headers
+# API endpoints
 EVENTS_API_URL = "https://api.odds-api.io/v3/events"
 ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
 HTTP_HEADERS = {"accept": "application/json"}
 
-# ================== GENERIC UTILS ==================
-def chunked(it, n):
-    it = iter(it)
+# ================== UTILS ==================
+def strip_accents(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
+
+def norm(s: str) -> str:
+    s = strip_accents(s or "").lower()
+    s = re.sub(r"[^a-z0-9\s-]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def chunked(seq, n):
+    it = iter(seq)
     while True:
         chunk = list([x for _, x in zip(range(n), it)])
         if not chunk:
@@ -78,53 +67,45 @@ def chunked(it, n):
         yield chunk
 
 def http_get_with_retries(url, params, max_retries=5, base_sleep=1.0, factor=1.8):
-    attempt = 0; last_text = ""
+    attempt = 0; last_status = None; last_text = ""
     while attempt < max_retries:
         try:
             r = requests.get(url, params=params, headers=HTTP_HEADERS, timeout=25)
-            if r.status_code == 200: return r
-            if r.status_code in (429,500,502,503,504):
-                last_text = r.text
-                sleep = base_sleep*(factor**attempt)+random.uniform(0,0.4)
-                print(f"[RETRY] {url} status {r.status_code}. Sleeping {sleep:.1f}s...")
-                time.sleep(sleep); attempt += 1; continue
-            print(f"[ERROR] {url} -> {r.status_code}: {r.text[:160]}"); return None
+            if r.status_code == 200:
+                return r
+            if r.status_code in (429, 500, 502, 503, 504):
+                last_status, last_text = r.status_code, r.text
+                sleep = base_sleep * (factor ** attempt) + random.uniform(0, 0.4)
+                if DEBUG: print(f"[RETRY] {url} -> {r.status_code}. Sleeping {sleep:.1f}s")
+                time.sleep(sleep)
+                attempt += 1
+                continue
+            if DEBUG: print(f"[HTTP] {url} -> {r.status_code}: {r.text[:200]}")
+            return None
         except requests.exceptions.RequestException as e:
-            sleep = base_sleep*(factor**attempt)+random.uniform(0,0.4)
-            print(f"[NET] {url} exception: {e}. Sleeping {sleep:.1f}s...")
+            sleep = base_sleep * (factor ** attempt) + random.uniform(0, 0.4)
+            if DEBUG: print(f"[NET] {url} exception: {e}. Sleeping {sleep:.1f}s")
             time.sleep(sleep); attempt += 1
-    if last_text:
-        print(f"[ERROR] Exhausted retries for {url}. Last: {last_text[:200]}")
-    else:
-        print(f"[ERROR] Exhausted retries for {url}.")
+    if DEBUG: print(f"[ERROR] Retries exhausted for {url}. Last status={last_status}, body={last_text[:200]}")
     return None
 
-def strip_accents(s: str) -> str:
-    return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
-
-def norm(s):
-    s = strip_accents(s or "").lower()
-    s = re.sub(r"[^a-z0-9\s-]", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
+def load_json(p: Path) -> Optional[dict]:
+    if not p.is_file(): return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
 def cleanup_label(label: str) -> str:
     if not label: return ""
-    # drop trailing parenthetical qualifiers: "Name (X)" -> "Name"
     return re.sub(r"(?:\s*\([^)]*\))+$", "", label).strip()
 
-# ================== DATA LOADERS ==================
+# ================== LOCAL DATA INDEXES ==================
 def team_name_index() -> Dict[str, Dict[str, Any]]:
-    """
-    Build a team-name index from predicted_xi (=> "what leagues/teams we have").
-    norm(team_name) -> {team_id, league_id, team_name}
-    """
+    """norm(team_name) -> {team_id, league_id, team_name}"""
     idx: Dict[str, Dict[str, Any]] = {}
     for f in PX_DIR.glob("*.json"):
-        try:
-            blob = json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        blob = load_json(f) or {}
         lid = blob.get("league_id")
         try:
             lid = int(lid if lid is not None else f.stem.split(".")[0])
@@ -153,17 +134,13 @@ def _ints(seq) -> List[int]:
 
 def load_player_series() -> Dict[int, Dict[int, List[dict]]]:
     """
-    Return: per_league[league_id][team_id] -> list of players with series_shots/series_sot
-    Only leagues we *actually* have files for will appear here.
+    per_league[league_id][team_id] -> list[ {player_id,name,team_id,series_shots,series_sot} ]
     """
     per_league: Dict[int, Dict[int, List[dict]]] = {}
 
     # Shots
     for p in SHOTS_DIR.glob("*.json"):
-        try:
-            blob = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        blob = load_json(p) or {}
         try:
             lid = int(blob.get("league_id") or p.stem.split(".")[0])
         except Exception:
@@ -179,13 +156,10 @@ def load_player_series() -> Dict[int, Dict[int, List[dict]]]:
                 "series_sot": None,
             })
 
-    # Shots on target: attach when present
+    # Shots on target
     sot_map = {}
     for p in SOT_DIR.glob("*.json"):
-        try:
-            blob = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
-            continue
+        blob = load_json(p) or {}
         try:
             lid = int(blob.get("league_id") or p.stem.split(".")[0])
         except Exception:
@@ -194,6 +168,7 @@ def load_player_series() -> Dict[int, Dict[int, List[dict]]]:
             key = (lid, int(r.get("team_id") or 0), int(r.get("player_id") or 0))
             sot_map[key] = _ints(r.get("on_target_last_n") or [])
 
+    # attach SOT
     for lid, teams in per_league.items():
         for tid, arr in teams.items():
             for row in arr:
@@ -203,15 +178,10 @@ def load_player_series() -> Dict[int, Dict[int, List[dict]]]:
 
     return per_league
 
-# ================== ODDS API HELPERS ==================
+# ================== ODDS API ==================
 def get_events_all_football() -> List[dict]:
-    """
-    Fetch all upcoming football events (no league param; avoid 404s for some slugs),
-    we will *filter* to our collected leagues/teams afterwards.
-    """
     r = http_get_with_retries(EVENTS_API_URL, {"apiKey": API_KEY, "sport": SPORT})
-    if not (r and r.status_code == 200):
-        return []
+    if not (r and r.status_code == 200): return []
     try:
         data = r.json()
     except Exception:
@@ -219,59 +189,122 @@ def get_events_all_football() -> List[dict]:
     return data if isinstance(data, list) else []
 
 def get_odds_multi_chunked(event_ids: List[int], chunk_size: int = MULTI_CHUNK_SIZE) -> List[dict]:
-    """
-    Call /v3/odds/multi in safe chunks with only bet365,kambi.
-    """
-    all_rows: List[dict] = []
+    rows: List[dict] = []
     for chunk in chunked(event_ids, chunk_size):
         r = http_get_with_retries(ODDS_MULTI_API_URL, {
             "apiKey": API_KEY,
             "eventIds": ",".join(map(str, chunk)),
-            "bookmakers": BOOKMAKERS_PARAM
+            "bookmakers": BOOKMAKERS_PARAM,
         })
         if r and r.status_code == 200:
-            try:
-                data = r.json()
-            except Exception:
-                data = None
-            if isinstance(data, list):
-                all_rows.extend(data)
-    return all_rows
+            try: data = r.json()
+            except Exception: data = None
+            if isinstance(data, list): rows.extend(data)
+    return rows
 
+# ================== MARKET/OPTION PARSERS ==================
 MATCH_WINNER_KEYS = {"1x2","match result","match winner","moneyline","full time result","to win","win/draw/win","wdw","ml"}
 
 def market_is_match_winner(name: str) -> bool:
     s = (name or "").strip().lower()
     return bool(s) and any(k in s for k in MATCH_WINNER_KEYS)
 
-def parse_line_value(opt: dict) -> Optional[float]:
-    for k in ("hdp","line"):
-        if k in opt:
-            try: return float(opt[k])
-            except Exception: pass
-    return None
-
 def classify_bookmaker(name: str) -> Optional[str]:
     n = (name or "").strip().lower()
     if "bet365" in n: return "bet365"
     if "kambi"  in n: return "kambi"
-    return None  # shouldn't happen—API is restricted to bet365,kambi
+    return None
 
-def _bookmakers_iter(bm_payload):
-    if not isinstance(bm_payload, dict): return
-    for bm_name, markets in bm_payload.items():
-        if isinstance(markets, list):
-            for m in markets:
-                if isinstance(m, dict):
-                    yield bm_name, m
-        elif isinstance(markets, dict):
-            yield bm_name, markets
+def detect_market_type(market_name: str, label: str) -> str:
+    """
+    Use BOTH market name and option label to decide 'shots' vs 'sot'.
+    """
+    s = f"{market_name or ''} {label or ''}".lower()
+    if ("shots on target" in s) or ("shot on target" in s) or ("sot" in s and "shot" in s):
+        return "sot"
+    if "shots" in s and "target" not in s:
+        return "shots"
+    return "other"
+
+def parse_line_value(opt: dict, label: str) -> Optional[float]:
+    # common numeric fields
+    for k in ("hdp","line","target","points","handicap","total"):
+        v = opt.get(k)
+        if v is None: continue
+        try: return float(v)
+        except Exception: pass
+    # fallback: parse from label e.g., "Over 0.5", "O 1.5"
+    lbl = (label or "").lower()
+    m = re.search(r"(?:over|under|o|u)\s*([0-9]+(?:\.[0-9]+)?)", lbl)
+    if m:
+        try: return float(m.group(1))
+        except Exception: pass
+    # last resort: any float in label
+    m2 = re.search(r"([0-9]+(?:\.[0-9]+)?)", lbl)
+    if m2:
+        try: return float(m2.group(1))
+        except Exception: pass
+    return None
+
+def extract_price(opt: dict) -> Optional[float]:
+    """
+    Try several common fields for decimal price.
+    """
+    for k in ("over","price","odds","decimal_odds","decimal"):
+        v = opt.get(k)
+        try:
+            if v is None: continue
+            return float(v)
+        except Exception:
+            continue
+    return None
+
+def guess_player_from_label(label: str) -> str:
+    """
+    Handle multiple shapes:
+      "Player Name - Shots"
+      "Player Name - Over 0.5 Shots on Target"
+      "Over 0.5 - Player Name Shots"
+      "Over 0.5 Shots - Player Name"
+      "Player Name"
+    Strategy: remove keywords/nums, what's left is the name candidate.
+    """
+    if not label: return ""
+    s = cleanup_label(label)
+
+    # If " - " exists, check both sides, prefer the side that doesn't contain 'over/under/shots/target'
+    if " - " in s:
+        a, b = [x.strip() for x in s.split(" - ", 1)]
+        def is_namey(x):
+            xl = x.lower()
+            return not any(w in xl for w in ("over","under","shot","shots","target","on target","sot","goals","cards"))
+        cand = a if is_namey(a) else (b if is_namey(b) else "")
+        if cand:
+            return cand
+
+    # Remove known words and numbers
+    kill = r"\b(over|under|o|u|total|player|shots?|on target|sot|goals?|cards?)\b"
+    s2 = re.sub(kill, " ", s, flags=re.IGNORECASE)
+    s2 = re.sub(r"[0-9]+(?:\.[0-9]+)?", " ", s2)
+    s2 = re.sub(r"[_:/|()+]", " ", s2)
+    s2 = re.sub(r"\s+", " ", s2).strip()
+    return s2
+
+def player_label_matches(player_name: str, candidate: str) -> bool:
+    """
+    Tolerant: require last-name presence.
+    """
+    if not player_name or not candidate: return False
+    last = norm(player_name.split()[-1])
+    return last and last in norm(candidate)
+
+def hit_rate_for_line(series: List[int], line: float) -> Tuple[float, int]:
+    if not series: return 0.0, 0
+    hits = sum(1 for v in series if v > line)
+    n = len(series)
+    return (hits / n if n else 0.0), n
 
 def extract_moneyline_prices(market: dict, home_name: str, away_name: str) -> Dict[str, float]:
-    """
-    Robustly pull ML prices across common schema shapes.
-    Returns: {"home": price?, "away": price?}
-    """
     res: Dict[str, float] = {}
     odds = market.get("odds")
     if isinstance(odds, dict):
@@ -296,67 +329,28 @@ def extract_moneyline_prices(market: dict, home_name: str, away_name: str) -> Di
                 res["away"] = min(res.get("away", float("inf")), price)
     return res
 
-# ================== MARKET PARSING ==================
-NEGATIVE_TERMS = {
-    "assist","goal","goals","passes","tackles","fouls","cards","offsides","interceptions",
-    "dribbles","duels","aerial","to be fouled","fouled"
-}
-
-def parse_player_prop(label: str) -> Tuple[str, str]:
-    """
-    Return (player_name, market_type) where market_type in {"shots","sot","other"}.
-    """
-    s = (label or "").strip()
-    if not s: return "", "other"
-    base = cleanup_label(s)
-    parts = [p.strip() for p in base.split(" - ", 1)]
-    player = parts[0] if parts else base
-    rest = parts[1].lower() if len(parts) > 1 else ""
-    if "shots on target" in rest or ("on target" in rest and "shot" in rest):
-        return player, "sot"
-    if "shots" in rest and "on target" not in rest:
-        return player, "shots"
-    r = base.lower()
-    if "shots on target" in r: return player, "sot"
-    if " on target " in r and "shot" in r: return player, "sot"
-    if " shots" in r: return player, "shots"
-    return player, "other"
-
-def player_label_matches(player_name: str, option_label: str) -> bool:
-    """
-    Tolerant match: require last name, allow flexible first initial.
-    """
-    if not player_name or not option_label: return False
-    pl = strip_accents(player_name).replace(".", " ").strip()
-    parts = [p for p in pl.split() if p]
-    if not parts: return False
-    last = norm(parts[-1])
-    label = norm(cleanup_label(option_label))
-    return last in label
-
-# ================== HIT RATE ==================
-def hit_rate_for_line(series: List[int], line: float) -> Tuple[float, int]:
-    """
-    Over X.5 hit: value > line.
-    """
-    if not series: return 0.0, 0
-    hits = sum(1 for v in series if v > line)
-    n = len(series)
-    return (hits / n if n else 0.0), n
+def _bookmakers_iter(bm_payload):
+    if not isinstance(bm_payload, dict): return
+    for bm_name, markets in bm_payload.items():
+        if isinstance(markets, list):
+            for m in markets:
+                if isinstance(m, dict):
+                    yield bm_name, m
+        elif isinstance(markets, dict):
+            yield bm_name, markets
 
 # ================== MAIN ==================
 def main():
     if not API_KEY:
         raise SystemExit("Missing ODDS_API_KEY environment variable.")
 
-    # Index "what we have" from your data
     tindex = team_name_index()
     per_league = load_player_series()
 
-    # Fetch all events, then keep only those where BOTH teams are in our data
-    raw_events = get_events_all_football()
-    events = []
-    for ev in raw_events:
+    # Events -> only those with both teams known + league present in series
+    all_events = get_events_all_football()
+    selected_events = []
+    for ev in all_events:
         eid = ev.get("id")
         home_name = ev.get("home") or ev.get("home_team") or ""
         away_name = ev.get("away") or ev.get("away_team") or ""
@@ -366,10 +360,9 @@ def main():
         hinfo, ainfo = tindex.get(hk), tindex.get(ak)
         if not (hinfo and ainfo):
             continue
-        # Only proceed if we also have player-series for the league
         if hinfo["league_id"] not in per_league or ainfo["league_id"] not in per_league:
             continue
-        events.append({
+        selected_events.append({
             "id": eid,
             "home": home_name,
             "away": away_name,
@@ -377,32 +370,23 @@ def main():
             "away_info": ainfo,
         })
 
-    if not events:
-        print("[WARN] No upcoming events matched your collected leagues/teams.")
-        OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-        OUT_TXT.parent.mkdir(parents=True, exist_ok=True)
-        empty = {"certs": [], "value_singles": []}
-        payload = {"bet365": empty, "kambi": empty, "audited": []}
-        OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        OUT_TXT.write_text(
-            "=== BET365 — CERTS ===\n(none)\n\n=== BET365 — VALUE SINGLES ===\n(none)\n\n"
-            "=== KAMBI — CERTS ===\n(none)\n\n=== KAMBI — VALUE SINGLES ===\n(none)\n",
-            encoding="utf-8"
-        )
+    if DEBUG:
+        print(f"[SUMMARY] events_fetched={len(all_events)} selected_events={len(selected_events)}")
+        print(f"[SUMMARY] leagues_with_series={len(per_league)} teams_indexed={len(tindex)}")
+
+    if not selected_events:
+        _write_empty_outputs()
         return
 
-    # Get odds in chunks (bet365,kambi only)
-    event_ids = [e["id"] for e in events]
-    odds_payloads = {int(row.get("id")): row for row in get_odds_multi_chunked(event_ids)}
+    event_ids = [e["id"] for e in selected_events]
+    odds_rows = get_odds_multi_chunked(event_ids)
+    odds_payloads = {int(row.get("id")): row for row in odds_rows if isinstance(row.get("id"), int)}
 
-    # Output buckets (split per bookmaker family)
-    out = {
-        "bet365": {"certs": [], "value_singles": []},
-        "kambi":  {"certs": [], "value_singles": []},
-    }
+    out = {"bet365": {"certs": [], "value_singles": []},
+           "kambi":  {"certs": [], "value_singles": []}}
     audited: List[dict] = []
 
-    for ev in events:
+    for ev in selected_events:
         eid = ev["id"]
         home_name, away_name = ev["home"], ev["away"]
         home_info, away_info = ev["home_info"], ev["away_info"]
@@ -410,7 +394,7 @@ def main():
 
         event_odds = odds_payloads.get(eid) or {}
 
-        # Extract moneyline for underdog filter
+        # ML for underdog filter
         home_ml, away_ml = None, None
         for bm, mk in _bookmakers_iter(event_odds.get("bookmakers")):
             if market_is_match_winner(mk.get("name")):
@@ -418,7 +402,6 @@ def main():
                 home_ml = prices.get("home", home_ml)
                 away_ml = prices.get("away", away_ml)
 
-        # Build player pools
         team_players = {
             "home": [r for r in per_league.get(lid, {}).get(home_info["team_id"], [])],
             "away": [r for r in per_league.get(lid, {}).get(away_info["team_id"], [])],
@@ -426,31 +409,36 @@ def main():
 
         for bm, mk in _bookmakers_iter(event_odds.get("bookmakers")):
             fam = classify_bookmaker(bm)
-            if fam not in ("bet365","kambi"):
+            if fam not in ("bet365","kambi"):  # should be redundant
                 continue
             odds_list = mk.get("odds")
             if not isinstance(odds_list, list):
                 continue
+
+            mkt_name = mk.get("name") or ""
             for opt in odds_list:
                 label = opt.get("label") or ""
-                try:
-                    over_price = float(opt.get("over"))
-                except Exception:
+                mtype = detect_market_type(mkt_name, label)
+                if mtype not in {"shots","sot"}:
                     continue
-                line = parse_line_value(opt)
+
+                price = extract_price(opt)
+                if price is None:
+                    continue
+                line = parse_line_value(opt, label)
                 if line is None:
                     continue
 
-                player_str, mkt = parse_player_prop(label)
-                if mkt not in {"shots","sot"}:
+                # Who is the player?
+                candidate = guess_player_from_label(label)
+                if not candidate:
                     continue
 
-                # Match player to team (home/away)
                 matched_side = None
                 matched_row = None
                 for side in ("home","away"):
                     for row in team_players[side]:
-                        if player_label_matches(row["name"], player_str):
+                        if player_label_matches(row["name"], candidate):
                             matched_side = side
                             matched_row = row
                             break
@@ -458,19 +446,18 @@ def main():
                 if not matched_row:
                     continue
 
-                series = (matched_row["series_sot"] if mkt == "sot" else matched_row["series_shots"]) or []
+                series = (matched_row["series_sot"] if mtype == "sot" else matched_row["series_shots"]) or []
                 hr, n = hit_rate_for_line(series, line)
 
-                # Big-underdog filter (Shots/SOT only)
+                # Underdog filter (only applies to shots/sot; both are in scope)
                 team_ml = home_ml if matched_side == "home" else away_ml
                 if isinstance(team_ml, (int,float)) and team_ml > UNDERDOG_MAX_ML:
                     continue
 
-                # Classify
                 tag = None
-                if n >= CERT_MIN_N and over_price >= CERT_MIN_PRICE and (hr >= 1.0 or hr >= 0.90):
+                if n >= CERT_MIN_N and price >= CERT_MIN_PRICE and (hr >= 1.0 or hr >= 0.90):
                     tag = "CERT"
-                elif over_price >= VALUE_MIN_PRICE and hr >= 0.80:
+                elif price >= VALUE_MIN_PRICE and hr >= 0.80:
                     tag = "VALUE"
 
                 audited.append({
@@ -479,10 +466,11 @@ def main():
                     "away": away_info["team_name"],
                     "bookmaker": bm,
                     "family": fam,
+                    "market_name": mkt_name,
                     "market_label": label,
-                    "market_type": mkt,
+                    "market_type": mtype,
                     "line": line,
-                    "price": over_price,
+                    "price": price,
                     "player_id": matched_row["player_id"],
                     "player_name": matched_row["name"],
                     "team_side": matched_side,
@@ -502,9 +490,9 @@ def main():
                     "home": home_info["team_name"],
                     "away": away_info["team_name"],
                     "bookmaker": bm,
-                    "market": "Shots on Target" if mkt == "sot" else "Shots",
+                    "market": "Shots on Target" if mtype == "sot" else "Shots",
                     "line": line,
-                    "price": over_price,
+                    "price": price,
                     "player_id": matched_row["player_id"],
                     "player_name": matched_row["name"],
                     "team_side": matched_side,
@@ -517,12 +505,30 @@ def main():
                 else:
                     out[fam]["value_singles"].append(out_row)
 
-    # Sort for readability
+    # Sort and write
     for fam in ("bet365","kambi"):
         out[fam]["certs"].sort(key=lambda r: (-r["hit_rate"], -r["n"], -r["price"]))
         out[fam]["value_singles"].sort(key=lambda r: (-r["price"], -r["hit_rate"], -r["n"]))
 
-    # Write outputs
+    _write_outputs(out, audited)
+    if DEBUG:
+        c = sum(len(out[f]["certs"]) for f in out)
+        v = sum(len(out[f]["value_singles"]) for f in out)
+        print(f"[SUMMARY] certs={c} value_singles={v}")
+
+def _write_empty_outputs():
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUT_TXT.parent.mkdir(parents=True, exist_ok=True)
+    empty = {"certs": [], "value_singles": []}
+    payload = {"bet365": empty, "kambi": empty, "audited": []}
+    OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    OUT_TXT.write_text(
+        "=== BET365 — CERTS ===\n(none)\n\n=== BET365 — VALUE SINGLES ===\n(none)\n\n"
+        "=== KAMBI — CERTS ===\n(none)\n\n=== KAMBI — VALUE SINGLES ===\n(none)\n",
+        encoding="utf-8"
+    )
+
+def _write_outputs(out: dict, audited: List[dict]):
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     payload = {"bet365": out["bet365"], "kambi": out["kambi"], "audited": audited}
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -544,10 +550,7 @@ def main():
     lines.append("")
     lines.append("=== KAMBI — VALUE SINGLES ===")
     lines += [fmt_row("VALUE", r) for r in out["kambi"]["value_singles"]] or ["(none)"]
-
-    OUT_TXT.parent.mkdir(parents=True, exist_ok=True)
     OUT_TXT.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-    print(f"[OK] wrote {OUT_JSON} and {OUT_TXT}")
 
 if __name__ == "__main__":
     try:
