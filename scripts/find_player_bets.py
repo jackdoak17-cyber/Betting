@@ -4,7 +4,13 @@
 """
 Find player-bet candidates by combining your collected hit rates with live prices.
 
-Inputs (already produced by your collectors):
+Changes vs prior:
+  - FIX: events fetched without "league" param (404 avoidance).
+  - Scope reduced to fixtures where BOTH teams exist in your collected data (so only leagues you've scraped).
+  - Only Bet365 and Kambi (Unibet/888sport/etc.) considered; results split into separate lists.
+  - More defensive HTTP + schema handling.
+
+Inputs you already produce:
   - data/player_shots/by_league/{lid}.json            (key: shots_last_n)
   - data/player_shots_on_target/by_league/{lid}.json  (key: on_target_last_n)
   - data/predicted_xi/by_league/{lid}.json            (for team names / mapping)
@@ -15,31 +21,15 @@ External:
 Outputs:
   - data/bets/player_candidates.json
   - data/bets/player_candidates.txt
-
-Selection logic:
-  - Markets: Player Shots, Player Shots on Target
-  - "CERTS":  (a) HR >= 1.00 AND n >= 8 AND price >= 1.25
-              (b) HR >= 0.90 AND n >= 8 AND price >= 1.25
-  - "VALUE":  HR >= 0.80 AND price >= 1.80  (n less important; we still record n)
-
-Special rule:
-  - For SHOTS / SOT only, exclude players if their team ML price > 3.50 (big underdog filter).
-
-Notes:
-  - Lines are treated as "Over X.5". Hit = integer_series_value > line.
-  - Uses robust string matching between book labels and player names.
-  - League scope is configurable via LEAGUE_SLUGS (Odds API slugs).
 """
 
 import os
 import re
 import json
 import time
-import math
-import glob
-import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
+import unicodedata
 import requests
 
 # ------------ Config ------------
@@ -47,25 +37,16 @@ import requests
 API_KEY = os.getenv("ODDS_API_KEY", "")
 SPORT = "football"
 
-# High-quality books first (tweak if you like)
-BOOKMAKERS = os.getenv("ODDS_BOOKMAKERS", "Bet365,Pinnacle,Unibet,SkyBet,Betfair,WilliamHill")
+# Only these two families
+BET365_NAMES = {s.strip().lower() for s in os.getenv("BET365_NAMES", "Bet365").split(",") if s.strip()}
+# Best-guess defaults for common Kambi brands; override via env if your Odds API spells differ
+KAMBI_BRANDS = {s.strip().lower() for s in os.getenv(
+    "KAMBI_BRANDS",
+    "Kambi,Unibet,888sport,LeoVegas,Mr Green,32Red,Kambi Sportsbook"
+).split(",") if s.strip()}
 
-# Odds API endpoints
-EVENTS_API_URL = "https://api.odds-api.io/v3/events"
-ODDS_API_URL   = "https://api.odds-api.io/v3/odds"
-ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
-HTTP_HEADERS = {"accept": "application/json"}
-
-# Leagues scope (Odds API slugs)
-LEAGUE_SLUGS = [
-    "england-premier-league", "england-championship",
-    "italy-serie-a", "italy-serie-b",
-    "spain-laliga", "spain-laliga-2",
-    "france-ligue-1", "germany-bundesliga",
-    "netherlands-eredivisie", "turkiye-super-lig",
-    "portugal-primeira-liga", "belgium-pro-league",
-    "scotland-premiership",
-]
+# Markets we care about
+MARKET_INCLUDE = {"shots", "sot"}
 
 # Selection thresholds
 CERT_MIN_PRICE   = 1.25
@@ -73,13 +54,19 @@ CERT_MIN_N       = 8
 VALUE_MIN_PRICE  = 1.80
 UNDERDOG_MAX_ML  = 3.50  # filter: exclude if team ML > this (Shots / SOT only)
 
-# Where your data lives
+# FS layout
 ROOT = Path(".")
 PX_DIR     = ROOT / "data" / "predicted_xi" / "by_league"
 SHOTS_DIR  = ROOT / "data" / "player_shots" / "by_league"
 SOT_DIR    = ROOT / "data" / "player_shots_on_target" / "by_league"
 OUT_JSON   = ROOT / "data" / "bets" / "player_candidates.json"
 OUT_TXT    = ROOT / "data" / "bets" / "player_candidates.txt"
+
+# Odds API endpoints
+EVENTS_API_URL = "https://api.odds-api.io/v3/events"
+ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
+HTTP_HEADERS = {"accept": "application/json"}
+
 
 # ------------ Small utils ------------
 
@@ -93,20 +80,20 @@ def norm(s: str) -> str:
     s = re.sub(r"\s+", " ", s)
     return s
 
-def http_get(url: str, params: dict, retries: int = 3, backoff: float = 1.5, timeout: float = 15.0):
-    last = None
+def http_get(url: str, params: dict, retries: int = 3, backoff: float = 1.5, timeout: float = 20.0):
+    err = None
     for i in range(retries):
         try:
             r = requests.get(url, params=params, headers=HTTP_HEADERS, timeout=timeout)
-            if r.status_code == 429:
+            if r.status_code >= 500:
                 time.sleep(min(60, backoff ** (i+1)))
                 continue
             r.raise_for_status()
             return r
         except Exception as e:
-            last = e
+            err = e
             time.sleep(backoff ** (i+1))
-    raise last or RuntimeError("GET failed")
+    raise err or RuntimeError(f"GET {url} failed")
 
 def load_json(p: Path) -> Any:
     if not p.is_file(): return None
@@ -115,25 +102,22 @@ def load_json(p: Path) -> Any:
     except Exception:
         return None
 
-# ------------ Load team names (from predicted_xi) ------------
+
+# ------------ Collect team & player indexes from your data ------------
 
 def team_name_index() -> Dict[str, Dict[str, Any]]:
-    """
-    Return: norm_team_name -> {"team_id": int, "league_id": int, "team_name": str}
-    """
+    """norm_team -> {team_id, league_id, team_name} from predicted_xi blobs."""
     out: Dict[str, Dict[str, Any]] = {}
     for f in PX_DIR.glob("*.json"):
         blob = load_json(f) or {}
-        lid = int(blob.get("league_id") or f.stem)
+        lid = int(blob.get("league_id") or f.stem.split(".")[0]) if f.stem else None
         for fx in (blob.get("fixtures") or []):
             for side in ("home", "away"):
                 t = fx.get(side) or {}
                 tid, nm = t.get("team_id"), t.get("name")
                 if isinstance(tid, int) and isinstance(nm, str) and nm:
-                    out.setdefault(norm(nm), {"team_id": tid, "league_id": lid, "team_name": nm})
+                    out[norm(nm)] = {"team_id": tid, "league_id": lid, "team_name": nm}
     return out
-
-# ------------ Load player series (shots / SOT) ------------
 
 def _players(payload: dict) -> List[dict]:
     return [x for x in (payload.get("players") or []) if isinstance(x, dict)]
@@ -142,54 +126,57 @@ def _int_series(seq) -> List[int]:
     if not isinstance(seq, list): return []
     out = []
     for v in seq:
-        try: out.append(int(v))
+        try:
+            out.append(int(v))
         except Exception:
             try: out.append(int(float(v)))
             except Exception: pass
     return out
 
-def load_player_series() -> Dict[int, Dict[int, Dict[str, Any]]]:
+def load_player_series() -> Dict[int, Dict[int, List[dict]]]:
     """
-    Return: per_league[league_id][team_id] -> list of player dicts:
-            {player_id, name, team_id, series_shots, series_sot}
+    Return: per_league[league_id][team_id] -> list of players dicts with series for shots / sot.
+    Only leagues with files present will appear here (=> we only work on leagues you've scraped).
     """
     per_league: Dict[int, Dict[int, List[dict]]] = {}
 
     # Shots
     for p in SHOTS_DIR.glob("*.json"):
         blob = load_json(p) or {}
-        lid = int(blob.get("league_id") or p.stem)
+        lid = int(blob.get("league_id") or p.stem.split(".")[0])
         for r in _players(blob):
             series = _int_series(r.get("shots_last_n") or [])
-            per_league.setdefault(lid, {}).setdefault(int(r.get("team_id") or 0), []).append({
+            team_id = int(r.get("team_id") or 0)
+            if not team_id: continue
+            per_league.setdefault(lid, {}).setdefault(team_id, []).append({
                 "player_id": int(r.get("player_id") or 0),
                 "name": r.get("name") or "",
-                "team_id": int(r.get("team_id") or 0),
+                "team_id": team_id,
                 "series_shots": series,
-                "series_sot": None,  # fill later if present
+                "series_sot": None,  # to attach
             })
 
-    # Shots on target (optional but preferred)
-    sot_by_lid_tid_pid: Dict[Tuple[int,int,int], List[int]] = {}
+    # Shots on target (optional)
+    sot_map = {}
     for p in SOT_DIR.glob("*.json"):
         blob = load_json(p) or {}
-        lid = int(blob.get("league_id") or p.stem)
+        lid = int(blob.get("league_id") or p.stem.split(".")[0])
         for r in _players(blob):
-            seq = _int_series(r.get("on_target_last_n") or [])
             key = (lid, int(r.get("team_id") or 0), int(r.get("player_id") or 0))
-            sot_by_lid_tid_pid[key] = seq
+            sot_map[key] = _int_series(r.get("on_target_last_n") or [])
 
-    # attach SOT if we have it
+    # Attach SOT
     for lid, teams in per_league.items():
         for tid, arr in teams.items():
             for row in arr:
-                key = (lid, tid, row["player_id"])
-                if key in sot_by_lid_tid_pid:
-                    row["series_sot"] = sot_by_lid_tid_pid[key]
+                seq = sot_map.get((lid, tid, row["player_id"]))
+                if seq is not None:
+                    row["series_sot"] = seq
 
     return per_league
 
-# ------------ Odds API helpers ------------
+
+# ------------ Odds helpers ------------
 
 MATCH_WINNER_KEYS = {"1x2", "match result", "match winner", "moneyline", "full time result", "to win", "win/draw/win", "wdw", "ml"}
 
@@ -205,29 +192,30 @@ def parse_line_value(opt: dict) -> Optional[float]:
         except Exception: pass
     return None
 
-def get_events_for_leagues(slugs: List[str]) -> List[dict]:
-    all_events = []
-    for slug in slugs:
-        r = http_get(EVENTS_API_URL, {"apiKey": API_KEY, "sport": SPORT, "league": slug})
-        try: data = r.json()
-        except Exception: data = None
-        if isinstance(data, list):
-            all_events.extend(data)
-    return all_events
+def get_events_all_football() -> List[dict]:
+    # No league filter (avoids 404s); we filter by teams we know later
+    r = http_get(EVENTS_API_URL, {"apiKey": API_KEY, "sport": SPORT})
+    try:
+        data = r.json()
+    except Exception:
+        return []
+    return data if isinstance(data, list) else []
 
 def get_odds_multi(event_ids: List[int]) -> List[dict]:
     if not event_ids: return []
     r = http_get(ODDS_MULTI_API_URL, {
         "apiKey": API_KEY,
         "eventIds": ",".join(map(str, event_ids)),
-        "bookmakers": BOOKMAKERS
+        # We’ll receive many books but later we’ll keep only Bet365 + Kambi brands
     })
-    try: data = r.json()
-    except Exception: return []
+    try:
+        data = r.json()
+    except Exception:
+        return []
     return data if isinstance(data, list) else []
 
 def _bookmakers_iter(bm_payload):
-    """Yield (bookmaker_name, market) where market is a dict with name/odds fields."""
+    """Yield (bookmaker_name, market_dict) across bookmakers payload."""
     if not isinstance(bm_payload, dict): return
     for bm_name, markets in bm_payload.items():
         if isinstance(markets, list):
@@ -235,63 +223,24 @@ def _bookmakers_iter(bm_payload):
                 if isinstance(m, dict):
                     yield bm_name, m
         elif isinstance(markets, dict):
-            # Some endpoints return dict (e.g., aggregated WDW)
             yield bm_name, markets
 
-def _extract_moneyline_prices(market: dict, home_name: str, away_name: str) -> Dict[str, float]:
-    """
-    Robustly pull ML prices irrespective of schema style in odds payload.
-    Returns: {"home": price?, "away": price?}
-    """
-    res: Dict[str, float] = {}
-    odds = market.get("odds")
-    # direct dict style: {"home":2.10,"draw":...,"away":3.75}
-    if isinstance(odds, dict):
-        for side in ("home", "away"):
-            try: res[side] = float(odds.get(side))
-            except Exception: pass
-        return res
-    # list with one dict containing home/away/draw
-    if isinstance(odds, list) and len(odds) == 1 and isinstance(odds[0], dict):
-        entry = odds[0]
-        if any(k in entry for k in ("home", "away", "draw")):
-            for side in ("home", "away"):
-                try: res[side] = float(entry.get(side))
-                except Exception: pass
-            return res
-    # list of options with labels
-    if isinstance(odds, list):
-        for opt in odds:
-            label = (opt.get("label") or "").strip().lower()
-            try: price = float(opt.get("over"))
-            except Exception: continue
-            if label in ("home", "1") or norm(label) in (norm(home_name),):
-                res["home"] = min(res.get("home", float("inf")), price)
-            elif label in ("away", "2") or norm(label) in (norm(away_name),):
-                res["away"] = min(res.get("away", float("inf")), price)
-    return res
 
-# ------------ Matching helpers ------------
-
-NEGATIVE_TERMS = {"assist", "goal", "goals", "passes", "tackles", "fouls", "cards", "offsides", "interceptions", "dribbles", "duels", "aerial", "to be fouled", "fouled"}
+# ------------ Player/market parsing ------------
 
 def parse_player_prop(label: str) -> Tuple[str, str]:
     """
-    Returns (player_name, market_type) where market_type in {"shots","sot","other"}.
+    Return (player_name, market_type) where market_type in {"shots","sot","other"}.
     """
     s = (label or "").strip()
     if not s: return "", "other"
-    # Common label form: "Player Name - Shots" or "Player Name - Shots on Target"
     parts = [p.strip() for p in s.split(" - ", 1)]
     player = parts[0] if parts else s
     rest = parts[1].lower() if len(parts) > 1 else ""
-    if "shots on target" in rest:
-        return player, "sot"
-    if "on target" in rest and "shot" in rest:
+    if "shots on target" in rest or ("on target" in rest and "shot" in rest):
         return player, "sot"
     if "shots" in rest and "on target" not in rest:
         return player, "shots"
-    # sometimes the word order can be weird—fallbacks
     r = s.lower()
     if "shots on target" in r: return player, "sot"
     if " on target " in r and "shot" in r: return player, "sot"
@@ -300,33 +249,41 @@ def parse_player_prop(label: str) -> Tuple[str, str]:
 
 def player_label_matches(player_name: str, option_label: str) -> bool:
     """
-    Tolerant match: last name must appear; first initial helps disambiguate.
+    Tolerant match: last name must appear; first initial helps when present.
     """
     if not player_name or not option_label: return False
     pl = strip_accents(player_name).replace(".", " ").strip()
     parts = [p for p in pl.split() if p]
     if not parts: return False
     last = norm(parts[-1])
-    initial = (parts[0][0:1] or "").lower() if parts else ""
+    initial = (parts[0][0:1] or "").lower()
     label = norm(re.sub(r"(?:\s*\([^)]*\))+$","", option_label or ""))
-    if last not in label: return False
-    if initial and initial not in label.split()[0][:1]:
-        # still allow, but favour when initial matches
-        return True
+    if last not in label:
+        return False
+    # If we have an initial, prefer that it matches—but don’t require it
     return True
-
-# ------------ Hit rate calc ------------
 
 def hit_rate_for_line(series: List[int], line: float) -> Tuple[float, int]:
     """
-    Given an integer series (latest-first) and an Over X.5 line, compute HR.
-    Count a hit when value > line (e.g., 2 > 1.5).
+    Over X.5 hit: value > line.
     """
-    if not series:
-        return 0.0, 0
+    if not series: return 0.0, 0
     hits = sum(1 for v in series if v > line)
     n = len(series)
     return (hits / n if n else 0.0), n
+
+
+# ------------ Bookmaker classification ------------
+
+def classify_bookmaker(name: str) -> Optional[str]:
+    n = (name or "").strip().lower()
+    if not n: return None
+    if n in BET365_NAMES:
+        return "bet365"
+    if n in KAMBI_BRANDS or any(k in n for k in ("kambi",)):
+        return "kambi"
+    return None
+
 
 # ------------ Main selection ------------
 
@@ -334,61 +291,105 @@ def main():
     if not API_KEY:
         raise SystemExit("Missing ODDS_API_KEY environment variable.")
 
-    # Index team names (from predicted XI)
-    tindex = team_name_index()  # norm_name -> {team_id, league_id, team_name}
+    # Build indices from your scraped data (=> scope to “leagues we have collected”)
+    tindex = team_name_index()           # known teams from predicted_xi
+    per_league = load_player_series()    # known leagues/teams with player series
 
-    # Load player series grouped by league/team
-    per_league = load_player_series()
+    # Fetch upcoming football events (no league filter), then keep only games where BOTH teams are in your data
+    events = []
+    for ev in get_events_all_football():
+        eid = ev.get("id")
+        home_name = ev.get("home") or ev.get("home_team") or ""
+        away_name = ev.get("away") or ev.get("away_team") or ""
+        if not (isinstance(eid, int) and home_name and away_name):
+            continue
+        hk, ak = norm(home_name), norm(away_name)
+        hinfo, ainfo = tindex.get(hk), tindex.get(ak)
+        if not (hinfo and ainfo):
+            continue
+        # Only proceed if both teams’ leagues exist in player-series data
+        if hinfo["league_id"] not in per_league or ainfo["league_id"] not in per_league:
+            continue
+        events.append({
+            "id": eid,
+            "home": home_name,
+            "away": away_name,
+            "home_info": hinfo,
+            "away_info": ainfo,
+        })
 
-    # Fetch upcoming events for configured leagues + prices
-    events = get_events_for_leagues(LEAGUE_SLUGS)
-    event_ids = [int(e.get("id")) for e in events if isinstance(e.get("id"), int)]
+    if not events:
+        print("[WARN] No upcoming events matched your collected leagues/teams.")
+        # Still write empty outputs
+        OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+        OUT_JSON.write_text(json.dumps({"bet365":{"certs":[],"value_singles":[]},
+                                        "kambi":{"certs":[],"value_singles":[]},
+                                        "audited":[]}, indent=2), encoding="utf-8")
+        OUT_TXT.parent.mkdir(parents=True, exist_ok=True)
+        OUT_TXT.write_text("=== BET365 — CERTS ===\n(none)\n\n=== BET365 — VALUE SINGLES ===\n(none)\n\n=== KAMBI — CERTS ===\n(none)\n\n=== KAMBI — VALUE SINGLES ===\n(none)\n", encoding="utf-8")
+        return
+
+    event_ids = [e["id"] for e in events]
     odds_payloads = {int(row.get("id")): row for row in get_odds_multi(event_ids)}
 
-    certs = []
-    values = []
-    audited = []
+    # Output buckets (split by bookmaker family)
+    out = {
+        "bet365": {"certs": [], "value_singles": []},
+        "kambi":  {"certs": [], "value_singles": []},
+    }
+    audited: List[dict] = []
 
     for ev in events:
-        eid = int(ev.get("id") or 0)
-        home_name = ev.get("home") or (ev.get("home_team") or "")
-        away_name = ev.get("away") or (ev.get("away_team") or "")
-        if not (eid and home_name and away_name): 
-            continue
+        eid = ev["id"]
+        home_name, away_name = ev["home"], ev["away"]
+        home_info, away_info = ev["home_info"], ev["away_info"]
+        lid = home_info["league_id"] if home_info["league_id"] in per_league else away_info["league_id"]
 
-        home_key = norm(home_name); away_key = norm(away_name)
-        home_info = tindex.get(home_key); away_info = tindex.get(away_key)
-        if not (home_info and away_info):
-            # If we don't have these teams in predicted_xi index, skip gracefully
-            continue
-
-        lid_home, lid_away = home_info["league_id"], away_info["league_id"]
-        # allow cross-check but normally both LIDs equal
-        lid = lid_home if lid_home in per_league else lid_away
-
-        if lid not in per_league:
-            continue
-
-        # Moneyline filter per team (extract once per event)
         event_odds = odds_payloads.get(eid) or {}
+        # Extract moneyline once for underdog filter
         home_ml, away_ml = None, None
         for bm, mk in _bookmakers_iter(event_odds.get("bookmakers")):
             if market_is_match_winner(mk.get("name")):
-                prices = _extract_moneyline_prices(mk, home_name, away_name)
-                home_ml = prices.get("home", home_ml)
-                away_ml = prices.get("away", away_ml)
+                odds = mk.get("odds")
+                # odds could be dict or list; try common shapes
+                if isinstance(odds, dict):
+                    try: home_ml = float(odds.get("home", home_ml))
+                    except Exception: pass
+                    try: away_ml = float(odds.get("away", away_ml))
+                    except Exception: pass
+                elif isinstance(odds, list):
+                    if len(odds) == 1 and isinstance(odds[0], dict):
+                        entry = odds[0]
+                        try: home_ml = float(entry.get("home", home_ml))
+                        except Exception: pass
+                        try: away_ml = float(entry.get("away", away_ml))
+                        except Exception: pass
+                    else:
+                        for opt in odds:
+                            label = (opt.get("label") or "").strip().lower()
+                            try: price = float(opt.get("over"))
+                            except Exception: continue
+                            if label in ("home", "1") or norm(label) == norm(home_name):
+                                home_ml = min(home_ml, price) if home_ml else price
+                            elif label in ("away", "2") or norm(label) == norm(away_name):
+                                away_ml = min(away_ml, price) if away_ml else price
 
-        # Build quick lookup of players for both teams
+        # Build player pools
         team_players = {
             "home": [r for r in per_league.get(lid, {}).get(home_info["team_id"], [])],
             "away": [r for r in per_league.get(lid, {}).get(away_info["team_id"], [])],
         }
 
-        # Scan all bookmakers/markets for player props
+        # Walk through bookmaker markets, but keep only Bet365/Kambi
         for bm, mk in _bookmakers_iter(event_odds.get("bookmakers")):
+            fam = classify_bookmaker(bm)
+            if fam not in ("bet365", "kambi"):
+                continue
+
             odds_list = mk.get("odds")
             if not isinstance(odds_list, list):
                 continue
+
             for opt in odds_list:
                 label = opt.get("label") or ""
                 try:
@@ -400,14 +401,12 @@ def main():
                     continue
 
                 player_str, mkt = parse_player_prop(label)
-                if mkt not in {"shots", "sot"}:
+                if mkt not in MARKET_INCLUDE:
                     continue
 
-                # Try match against both teams' player pools
+                # Match player to team (home/away)
                 matched_side = None
                 matched_row = None
-
-                # prioritise exact-ish name match
                 for side in ("home", "away"):
                     for row in team_players[side]:
                         if player_label_matches(row["name"], player_str):
@@ -416,23 +415,17 @@ def main():
                             break
                     if matched_row:
                         break
-
                 if not matched_row:
                     continue
 
-                # Series for this market
-                series = (
-                    matched_row["series_sot"] if mkt == "sot" else matched_row["series_shots"]
-                ) or []
+                series = (matched_row["series_sot"] if mkt == "sot" else matched_row["series_shots"]) or []
                 hr, n = hit_rate_for_line(series, line)
 
-                # Big-underdog filter (Shots/SOT only)
-                if mkt in {"shots", "sot"}:
-                    team_ml = home_ml if matched_side == "home" else away_ml
-                    if isinstance(team_ml, (int, float)) and team_ml > UNDERDOG_MAX_ML:
-                        continue  # drop big underdogs
+                # Big-underdog filter for shots/sot
+                team_ml = home_ml if matched_side == "home" else away_ml
+                if isinstance(team_ml, (int, float)) and team_ml > UNDERDOG_MAX_ML:
+                    continue
 
-                # Classify
                 tag = None
                 if n >= CERT_MIN_N and over_price >= CERT_MIN_PRICE and (hr >= 1.0 or hr >= 0.90):
                     tag = "CERT"
@@ -444,6 +437,7 @@ def main():
                     "home": home_info["team_name"],
                     "away": away_info["team_name"],
                     "bookmaker": bm,
+                    "family": fam,
                     "market_label": label,
                     "market_type": mkt,
                     "line": line,
@@ -451,10 +445,10 @@ def main():
                     "player_id": matched_row["player_id"],
                     "player_name": matched_row["name"],
                     "team_side": matched_side,
-                    "team_ml": home_ml if matched_side == "home" else away_ml,
+                    "team_ml": team_ml,
                     "hit_rate": round(hr, 4),
                     "n": n,
-                    "series": series[:10],  # small peek
+                    "series": series[:10],
                     "classification": tag or "",
                 })
 
@@ -473,48 +467,45 @@ def main():
                     "player_id": matched_row["player_id"],
                     "player_name": matched_row["name"],
                     "team_side": matched_side,
-                    "team_ml": home_ml if matched_side == "home" else away_ml,
+                    "team_ml": team_ml,
                     "hit_rate": round(hr, 4),
                     "n": n,
                 }
 
                 if tag == "CERT":
-                    certs.append(out_row)
+                    out[fam]["certs"].append(out_row)
                 else:
-                    values.append(out_row)
+                    out[fam]["value_singles"].append(out_row)
 
-    # Output
+    # Sort for readability
+    for fam in ("bet365", "kambi"):
+        out[fam]["certs"].sort(key=lambda r: (-r["hit_rate"], -r["n"], -r["price"]))
+        out[fam]["value_singles"].sort(key=lambda r: (-r["price"], -r["hit_rate"], -r["n"]))
+
+    # Write outputs
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "certs": sorted(certs, key=lambda r: (-r["hit_rate"], -r["n"], -r["price"])),
-        "value_singles": sorted(values, key=lambda r: (-r["price"], -r["hit_rate"], -r["n"])),
-        "audited": audited,  # for debugging
-    }
+    payload = {"bet365": out["bet365"], "kambi": out["kambi"], "audited": audited}
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Human-readable TXT
-    lines: List[str] = []
-
-    def fmt_row(r: dict) -> str:
-        band = "CERT" if r["type"] == "CERT" else "VALUE"
+    def fmt_row(band: str, r: dict) -> str:
         return (f"[{band}] {r['home']} vs {r['away']} — {r['player_name']} "
                 f"{r['market']} Over {r['line']:.1f} @ {r['price']:.2f} ({r['bookmaker']}) "
                 f"HR={r['hit_rate']*100:.0f}% n={r['n']} ML={r['team_ml'] if r['team_ml'] is not None else '?'}")
 
-    lines.append("=== CERTS ===")
-    if payload["certs"]:
-        for r in payload["certs"]:
-            lines.append(fmt_row({**r, "type": "CERT"}))
-    else:
-        lines.append("(none)")
-
+    lines: List[str] = []
+    # BET365
+    lines.append("=== BET365 — CERTS ===")
+    lines += [fmt_row("CERT", r) for r in out["bet365"]["certs"]] or ["(none)"]
     lines.append("")
-    lines.append("=== VALUE SINGLES ===")
-    if payload["value_singles"]:
-        for r in payload["value_singles"]:
-            lines.append(fmt_row({**r, "type": "VALUE"}))
-    else:
-        lines.append("(none)")
+    lines.append("=== BET365 — VALUE SINGLES ===")
+    lines += [fmt_row("VALUE", r) for r in out["bet365"]["value_singles"]] or ["(none)"]
+    lines.append("")
+    # KAMBI
+    lines.append("=== KAMBI — CERTS ===")
+    lines += [fmt_row("CERT", r) for r in out["kambi"]["certs"]] or ["(none)"]
+    lines.append("")
+    lines.append("=== KAMBI — VALUE SINGLES ===")
+    lines += [fmt_row("VALUE", r) for r in out["kambi"]["value_singles"]] or ["(none)"]
 
     OUT_TXT.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"[OK] wrote {OUT_JSON} and {OUT_TXT}")
