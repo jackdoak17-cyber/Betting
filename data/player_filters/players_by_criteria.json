@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-10-13T06:34:28.558570",
+  "generated_at": "2025-10-13T07:42:19.342795",
   "criteria": {
     "order": [
       "100pct_all (n>=8)",
@@ -306,6 +306,7 @@
               "name": "Álex Calatrava",
               "position": "MID",
               "series": [
+                5,
                 3,
                 1,
                 3,
@@ -316,7 +317,7 @@
                 2
               ],
               "team": "Castellón",
-              "n": 8,
+              "n": 9,
               "hit_rate": 1.0,
               "threshold": 1
             },
@@ -349,6 +350,7 @@
               "position": "FWD",
               "series": [
                 1,
+                1,
                 5,
                 2,
                 1,
@@ -358,7 +360,7 @@
                 4
               ],
               "team": "Deportivo La Coruña",
-              "n": 8,
+              "n": 9,
               "hit_rate": 1.0,
               "threshold": 1
             },
@@ -369,6 +371,7 @@
               "name": "David Larrubia",
               "position": "MID",
               "series": [
+                5,
                 1,
                 2,
                 1,
@@ -379,7 +382,7 @@
                 4
               ],
               "team": "Málaga",
-              "n": 8,
+              "n": 9,
               "hit_rate": 1.0,
               "threshold": 1
             },
@@ -390,6 +393,7 @@
               "name": "Stipe Biuk",
               "position": "MID",
               "series": [
+                2,
                 3,
                 4,
                 2,
@@ -400,7 +404,7 @@
                 1
               ],
               "team": "Real Valladolid",
-              "n": 8,
+              "n": 9,
               "hit_rate": 1.0,
               "threshold": 1
             },
@@ -411,6 +415,7 @@
               "name": "Juan Otero",
               "position": "FWD",
               "series": [
+                1,
                 2,
                 2,
                 3,
@@ -421,7 +426,7 @@
                 2
               ],
               "team": "Sporting Gijón",
-              "n": 8,
+              "n": 9,
               "hit_rate": 1.0,
               "threshold": 1
             },
@@ -2434,6 +2439,7 @@
               "position": "MID",
               "series": [
                 3,
+                3,
                 4,
                 2,
                 2,
@@ -2441,6 +2447,25 @@
                 4
               ],
               "team": "Albacete",
+              "n": 7,
+              "hit_last5": 5,
+              "threshold": 1
+            },
+            {
+              "league_id": 567,
+              "team_id": 10008,
+              "player_id": 19979243,
+              "name": "Adam Jakobsen",
+              "position": "FWD",
+              "series": [
+                2,
+                1,
+                1,
+                3,
+                1,
+                0
+              ],
+              "team": "Castellón",
               "n": 6,
               "hit_last5": 5,
               "threshold": 1
@@ -2468,30 +2493,11 @@
             {
               "league_id": 567,
               "team_id": 12330,
-              "player_id": 188044,
-              "name": "José Matos",
-              "position": "LB",
-              "series": [
-                1,
-                1,
-                1,
-                1,
-                1,
-                0,
-                1
-              ],
-              "team": "Ceuta",
-              "n": 7,
-              "hit_last5": 5,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 12330,
               "player_id": 37608472,
               "name": "Marcos Fernández",
               "position": "FWD",
               "series": [
+                1,
                 3,
                 4,
                 1,
@@ -2500,7 +2506,7 @@
                 1
               ],
               "team": "Ceuta",
-              "n": 6,
+              "n": 7,
               "hit_last5": 5,
               "threshold": 1
             },
@@ -2549,6 +2555,7 @@
               "series": [
                 1,
                 1,
+                1,
                 3,
                 1,
                 2,
@@ -2557,7 +2564,25 @@
                 5
               ],
               "team": "Cádiz",
-              "n": 8,
+              "n": 9,
+              "hit_last5": 5,
+              "threshold": 1
+            },
+            {
+              "league_id": 567,
+              "team_id": 6827,
+              "player_id": 6599935,
+              "name": "Iuri Tabatadze",
+              "position": "MID",
+              "series": [
+                2,
+                2,
+                2,
+                1,
+                3
+              ],
+              "team": "Cádiz",
+              "n": 5,
               "hit_last5": 5,
               "threshold": 1
             },
@@ -2698,18 +2723,18 @@
             },
             {
               "league_id": 567,
-              "team_id": 9818,
-              "player_id": 187160,
-              "name": "Asier Villalibre",
+              "team_id": 126,
+              "player_id": 37592574,
+              "name": "Rafa Rodríguez",
               "position": "FWD",
               "series": [
+                1,
                 2,
                 3,
-                2,
-                3,
-                1
+                1,
+                3
               ],
-              "team": "Racing Santander",
+              "team": "Málaga",
               "n": 5,
               "hit_last5": 5,
               "threshold": 1
@@ -2717,40 +2742,41 @@
             {
               "league_id": 567,
               "team_id": 9818,
-              "player_id": 533882,
-              "name": "Iñigo Vicente",
+              "player_id": 3219728,
+              "name": "Andrés Martín",
               "position": "MID",
               "series": [
+                3,
+                1,
+                1,
                 2,
-                1,
-                1,
-                1,
+                3,
+                0,
+                4,
                 2,
-                1,
-                2
+                5
               ],
               "team": "Racing Santander",
-              "n": 7,
+              "n": 9,
               "hit_last5": 5,
               "threshold": 1
             },
             {
               "league_id": 567,
               "team_id": 9818,
-              "player_id": 186292,
-              "name": "Marco Sangalli",
-              "position": "MID",
+              "player_id": 187160,
+              "name": "Asier Villalibre",
+              "position": "FWD",
               "series": [
                 1,
+                2,
                 3,
                 2,
-                2,
-                1,
-                2,
-                0
+                3,
+                1
               ],
               "team": "Racing Santander",
-              "n": 7,
+              "n": 6,
               "hit_last5": 5,
               "threshold": 1
             },
@@ -2761,6 +2787,7 @@
               "name": "Jonathan Dubasin",
               "position": "MID",
               "series": [
+                3,
                 1,
                 2,
                 1,
@@ -2771,7 +2798,7 @@
                 1
               ],
               "team": "Sporting Gijón",
-              "n": 8,
+              "n": 9,
               "hit_last5": 5,
               "threshold": 1
             },
@@ -6280,6 +6307,7 @@
               "name": "Agus Medina",
               "position": "FWD",
               "series": [
+                3,
                 2,
                 2,
                 5,
@@ -6290,147 +6318,27 @@
                 3
               ],
               "team": "Albacete",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 8366,
-              "player_id": 37316515,
-              "name": "David González",
-              "position": "MID",
-              "series": [
-                2,
-                1,
-                1,
-                0,
-                2,
-                2,
-                1,
-                2
-              ],
-              "team": "Burgos",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 8366,
-              "player_id": 7698438,
-              "name": "Iván Morante",
-              "position": "MID",
-              "series": [
-                0,
-                1,
-                3,
-                3,
-                1,
-                0,
-                1,
-                1
-              ],
-              "team": "Burgos",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 10008,
-              "player_id": 19979243,
-              "name": "Adam Jakobsen",
-              "position": "FWD",
-              "series": [
-                1,
-                1,
-                3,
-                1,
-                0
-              ],
-              "team": "Castellón",
-              "n": 5,
+              "n": 9,
               "hit_last5": 4,
               "threshold": 1
             },
             {
               "league_id": 567,
               "team_id": 12330,
-              "player_id": 37547774,
-              "name": "Aisar Ahmed",
-              "position": "FWD",
+              "player_id": 188044,
+              "name": "José Matos",
+              "position": "LB",
               "series": [
-                1,
-                2,
                 0,
                 1,
                 1,
-                0,
-                0
-              ],
-              "team": "Ceuta",
-              "n": 7,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 12330,
-              "player_id": 187166,
-              "name": "Kuki Zalazar",
-              "position": "MID",
-              "series": [
-                2,
-                0,
-                2,
-                2,
                 1,
-                3,
-                1,
-                3
-              ],
-              "team": "Ceuta",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 12330,
-              "player_id": 20335204,
-              "name": "Youness Lachhab",
-              "position": "MID",
-              "series": [
                 1,
                 1,
                 0,
-                1,
-                1,
                 1
               ],
               "team": "Ceuta",
-              "n": 6,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 429,
-              "player_id": 21539180,
-              "name": "Diego Villares",
-              "position": "MID",
-              "series": [
-                2,
-                0,
-                1,
-                1,
-                1,
-                1,
-                1,
-                0
-              ],
-              "team": "Deportivo La Coruña",
               "n": 8,
               "hit_last5": 4,
               "threshold": 1
@@ -6442,6 +6350,7 @@
               "name": "Luismi Cruz",
               "position": "MID",
               "series": [
+                1,
                 2,
                 0,
                 1,
@@ -6451,7 +6360,51 @@
                 0
               ],
               "team": "Deportivo La Coruña",
-              "n": 7,
+              "n": 8,
+              "hit_last5": 4,
+              "threshold": 1
+            },
+            {
+              "league_id": 567,
+              "team_id": 429,
+              "player_id": 24468971,
+              "name": "Mario Soriano",
+              "position": "MID",
+              "series": [
+                2,
+                2,
+                0,
+                1,
+                2,
+                0,
+                0,
+                1,
+                2
+              ],
+              "team": "Deportivo La Coruña",
+              "n": 9,
+              "hit_last5": 4,
+              "threshold": 1
+            },
+            {
+              "league_id": 567,
+              "team_id": 429,
+              "player_id": 382668,
+              "name": "Miguel Loureiro",
+              "position": "CB",
+              "series": [
+                2,
+                1,
+                0,
+                2,
+                1,
+                0,
+                3,
+                0,
+                0
+              ],
+              "team": "Deportivo La Coruña",
+              "n": 9,
               "hit_last5": 4,
               "threshold": 1
             },
@@ -6543,6 +6496,7 @@
               "name": "Iker Kortajarena",
               "position": "MID",
               "series": [
+                1,
                 0,
                 2,
                 2,
@@ -6553,7 +6507,7 @@
                 3
               ],
               "team": "Huesca",
-              "n": 8,
+              "n": 9,
               "hit_last5": 4,
               "threshold": 1
             },
@@ -6622,6 +6576,7 @@
               "name": "Dani Lorenzo",
               "position": "MID",
               "series": [
+                0,
                 1,
                 1,
                 4,
@@ -6629,25 +6584,46 @@
                 0
               ],
               "team": "Málaga",
-              "n": 5,
+              "n": 6,
               "hit_last5": 4,
               "threshold": 1
             },
             {
               "league_id": 567,
               "team_id": 9818,
-              "player_id": 3219728,
-              "name": "Andrés Martín",
+              "player_id": 533882,
+              "name": "Iñigo Vicente",
               "position": "MID",
               "series": [
-                1,
-                1,
-                2,
-                3,
                 0,
-                4,
                 2,
-                5
+                1,
+                1,
+                1,
+                2,
+                1,
+                2
+              ],
+              "team": "Racing Santander",
+              "n": 8,
+              "hit_last5": 4,
+              "threshold": 1
+            },
+            {
+              "league_id": 567,
+              "team_id": 9818,
+              "player_id": 186292,
+              "name": "Marco Sangalli",
+              "position": "MID",
+              "series": [
+                0,
+                1,
+                3,
+                2,
+                2,
+                1,
+                2,
+                0
               ],
               "team": "Racing Santander",
               "n": 8,
@@ -6661,6 +6637,7 @@
               "name": "Juanmi Latasa",
               "position": "FWD",
               "series": [
+                3,
                 2,
                 4,
                 3,
@@ -6668,27 +6645,6 @@
                 4,
                 4,
                 6
-              ],
-              "team": "Real Valladolid",
-              "n": 7,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 361,
-              "player_id": 32405545,
-              "name": "Víctor Meseguer",
-              "position": "MID",
-              "series": [
-                2,
-                1,
-                2,
-                0,
-                1,
-                0,
-                1,
-                1
               ],
               "team": "Real Valladolid",
               "n": 8,
@@ -6723,6 +6679,7 @@
               "name": "Gaspar Campos",
               "position": "MID",
               "series": [
+                2,
                 0,
                 2,
                 4,
@@ -6730,7 +6687,7 @@
                 1
               ],
               "team": "Sporting Gijón",
-              "n": 5,
+              "n": 6,
               "hit_last5": 4,
               "threshold": 1
             },
@@ -6742,6 +6699,7 @@
               "position": "CB",
               "series": [
                 1,
+                1,
                 2,
                 0,
                 1,
@@ -6751,27 +6709,7 @@
                 0
               ],
               "team": "Sporting Gijón",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 1
-            },
-            {
-              "league_id": 567,
-              "team_id": 344,
-              "player_id": 537094,
-              "name": "Àlex Corredera",
-              "position": "MID",
-              "series": [
-                1,
-                1,
-                0,
-                1,
-                1,
-                0,
-                1
-              ],
-              "team": "Sporting Gijón",
-              "n": 7,
+              "n": 9,
               "hit_last5": 4,
               "threshold": 1
             },
@@ -7421,6 +7359,7 @@
               "position": "MID",
               "series": [
                 3,
+                3,
                 4,
                 2,
                 2,
@@ -7428,7 +7367,7 @@
                 4
               ],
               "team": "Albacete",
-              "n": 6,
+              "n": 7,
               "hit_last5": 5,
               "threshold": 2
             },
@@ -7447,6 +7386,28 @@
               ],
               "team": "Deportivo La Coruña",
               "n": 5,
+              "hit_last5": 5,
+              "threshold": 2
+            },
+            {
+              "league_id": 567,
+              "team_id": 361,
+              "player_id": 24838180,
+              "name": "Stipe Biuk",
+              "position": "MID",
+              "series": [
+                2,
+                3,
+                4,
+                2,
+                2,
+                1,
+                1,
+                1,
+                1
+              ],
+              "team": "Real Valladolid",
+              "n": 9,
               "hit_last5": 5,
               "threshold": 2
             }
@@ -8288,11 +8249,34 @@
             },
             {
               "league_id": 567,
+              "team_id": 3169,
+              "player_id": 188849,
+              "name": "Agus Medina",
+              "position": "FWD",
+              "series": [
+                3,
+                2,
+                2,
+                5,
+                0,
+                1,
+                1,
+                1,
+                3
+              ],
+              "team": "Albacete",
+              "n": 9,
+              "hit_last5": 4,
+              "threshold": 2
+            },
+            {
+              "league_id": 567,
               "team_id": 10008,
               "player_id": 37544761,
               "name": "Álex Calatrava",
               "position": "MID",
               "series": [
+                5,
                 3,
                 1,
                 3,
@@ -8303,26 +8287,7 @@
                 2
               ],
               "team": "Castellón",
-              "n": 8,
-              "hit_last5": 4,
-              "threshold": 2
-            },
-            {
-              "league_id": 567,
-              "team_id": 12330,
-              "player_id": 37608472,
-              "name": "Marcos Fernández",
-              "position": "FWD",
-              "series": [
-                3,
-                4,
-                1,
-                4,
-                5,
-                1
-              ],
-              "team": "Ceuta",
-              "n": 6,
+              "n": 9,
               "hit_last5": 4,
               "threshold": 2
             },
@@ -8362,6 +8327,24 @@
               ],
               "team": "Cultural Leonesa",
               "n": 8,
+              "hit_last5": 4,
+              "threshold": 2
+            },
+            {
+              "league_id": 567,
+              "team_id": 6827,
+              "player_id": 6599935,
+              "name": "Iuri Tabatadze",
+              "position": "MID",
+              "series": [
+                2,
+                2,
+                2,
+                1,
+                3
+              ],
+              "team": "Cádiz",
+              "n": 5,
               "hit_last5": 4,
               "threshold": 2
             },
@@ -8473,6 +8456,7 @@
               "name": "Asier Villalibre",
               "position": "FWD",
               "series": [
+                1,
                 2,
                 3,
                 2,
@@ -8480,7 +8464,7 @@
                 1
               ],
               "team": "Racing Santander",
-              "n": 5,
+              "n": 6,
               "hit_last5": 4,
               "threshold": 2
             },
@@ -8491,6 +8475,7 @@
               "name": "Juanmi Latasa",
               "position": "FWD",
               "series": [
+                3,
                 2,
                 4,
                 3,
@@ -8500,28 +8485,26 @@
                 6
               ],
               "team": "Real Valladolid",
-              "n": 7,
+              "n": 8,
               "hit_last5": 4,
               "threshold": 2
             },
             {
               "league_id": 567,
-              "team_id": 361,
-              "player_id": 24838180,
-              "name": "Stipe Biuk",
+              "team_id": 344,
+              "player_id": 18574331,
+              "name": "Gaspar Campos",
               "position": "MID",
               "series": [
-                3,
+                2,
+                0,
+                2,
                 4,
-                2,
-                2,
-                1,
-                1,
-                1,
+                5,
                 1
               ],
-              "team": "Real Valladolid",
-              "n": 8,
+              "team": "Sporting Gijón",
+              "n": 6,
               "hit_last5": 4,
               "threshold": 2
             },
@@ -8532,6 +8515,7 @@
               "name": "Juan Otero",
               "position": "FWD",
               "series": [
+                1,
                 2,
                 2,
                 3,
@@ -8542,7 +8526,7 @@
                 2
               ],
               "team": "Sporting Gijón",
-              "n": 8,
+              "n": 9,
               "hit_last5": 4,
               "threshold": 2
             },
@@ -9123,20 +9107,23 @@
             },
             {
               "league_id": 567,
-              "team_id": 12330,
-              "player_id": 37608472,
-              "name": "Marcos Fernández",
-              "position": "FWD",
+              "team_id": 10008,
+              "player_id": 37544761,
+              "name": "Álex Calatrava",
+              "position": "MID",
               "series": [
-                3,
-                4,
-                1,
-                4,
                 5,
-                1
+                3,
+                1,
+                3,
+                3,
+                2,
+                3,
+                3,
+                2
               ],
-              "team": "Ceuta",
-              "n": 6,
+              "team": "Castellón",
+              "n": 9,
               "hit_last5": 4,
               "threshold": 3
             },
