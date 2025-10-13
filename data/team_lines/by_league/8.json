@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-10-13T06:58:12.698272",
+  "generated_at": "2025-10-13T07:10:43.743379",
   "league_id": 8,
   "use_last_n": 10,
   "fixtures": [
@@ -43,14 +43,18 @@
               "p80": {
                 "off": 5,
                 "opp": 11,
-                "min_expected": 5,
-                "max_expected": 11
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 5,
                 "opp": 7,
-                "min_expected": 5,
-                "max_expected": 7
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -78,14 +82,18 @@
               "p80": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -113,14 +121,18 @@
               "p80": {
                 "off": 11,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 11
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -148,14 +160,18 @@
               "p80": {
                 "off": 12,
                 "opp": 16,
-                "min_expected": 12,
-                "max_expected": 16
+                "min": 12,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 11,
                 "opp": 11,
-                "min_expected": 11,
-                "max_expected": 11
+                "min": 11,
+                "min_src": "both",
+                "max": 11,
+                "max_src": "both"
               }
             },
             "cards_total": {
@@ -183,14 +199,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -218,14 +238,18 @@
               "p80": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -253,14 +277,18 @@
               "p80": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 4,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -288,14 +316,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             }
           }
@@ -329,14 +361,18 @@
               "p80": {
                 "off": 12,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 12
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 12,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 8,
-                "min_expected": 5,
-                "max_expected": 8
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 8,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -364,14 +400,18 @@
               "p80": {
                 "off": 3,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 3
+                "min": 3,
+                "min_src": "both",
+                "max": 3,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -399,14 +439,18 @@
               "p80": {
                 "off": 9,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 9
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 9,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 9
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -434,14 +478,18 @@
               "p80": {
                 "off": 15,
                 "opp": 11,
-                "min_expected": 11,
-                "max_expected": 15
+                "min": 11,
+                "min_src": "Opp-Allowed",
+                "max": 15,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 13,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 13
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 13,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -469,14 +517,18 @@
               "p80": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -504,14 +556,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -539,14 +595,18 @@
               "p80": {
                 "off": 6,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 6
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 4,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -574,14 +634,18 @@
               "p80": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 5
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -628,14 +692,18 @@
               "p80": {
                 "off": 9,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 9
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               }
             },
             "shots_on_target": {
@@ -663,14 +731,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -698,14 +770,18 @@
               "p80": {
                 "off": 9,
                 "opp": 11,
-                "min_expected": 9,
-                "max_expected": 11
+                "min": 9,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 7,
                 "opp": 11,
-                "min_expected": 7,
-                "max_expected": 11
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "tackles": {
@@ -733,14 +809,18 @@
               "p80": {
                 "off": 15,
                 "opp": 16,
-                "min_expected": 15,
-                "max_expected": 16
+                "min": 15,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 12,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 12
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 12,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -768,14 +848,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -803,14 +887,18 @@
               "p80": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -838,14 +926,18 @@
               "p80": {
                 "off": 6,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 6
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 6,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -873,14 +965,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             }
           }
@@ -914,14 +1010,18 @@
               "p80": {
                 "off": 7,
                 "opp": 9,
-                "min_expected": 7,
-                "max_expected": 9
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 7,
-                "min_expected": 3,
-                "max_expected": 7
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -949,14 +1049,18 @@
               "p80": {
                 "off": 2,
                 "opp": 4,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -984,14 +1088,18 @@
               "p80": {
                 "off": 8,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 8
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
+                "max_src": "both"
               },
               "p100": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -1019,14 +1127,18 @@
               "p80": {
                 "off": 11,
                 "opp": 13,
-                "min_expected": 11,
-                "max_expected": 13
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 13,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 10,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 10
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -1054,14 +1166,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "saves": {
@@ -1089,14 +1205,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -1124,14 +1244,18 @@
               "p80": {
                 "off": 4,
                 "opp": 9,
-                "min_expected": 4,
-                "max_expected": 9
+                "min": 4,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 6,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -1159,14 +1283,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             }
           }
@@ -1213,14 +1341,18 @@
               "p80": {
                 "off": 7,
                 "opp": 11,
-                "min_expected": 7,
-                "max_expected": 11
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 4,
                 "opp": 10,
-                "min_expected": 4,
-                "max_expected": 10
+                "min": 4,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -1248,14 +1380,18 @@
               "p80": {
                 "off": 3,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 3
+                "min": 3,
+                "min_src": "both",
+                "max": 3,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 2,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -1283,14 +1419,18 @@
               "p80": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               },
               "p100": {
                 "off": 6,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 6
+                "min": 6,
+                "min_src": "both",
+                "max": 6,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -1318,14 +1458,18 @@
               "p80": {
                 "off": 11,
                 "opp": 14,
-                "min_expected": 11,
-                "max_expected": 14
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 14,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 9,
                 "opp": 12,
-                "min_expected": 9,
-                "max_expected": 12
+                "min": 9,
+                "min_src": "Team-Offense",
+                "max": 12,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -1353,14 +1497,18 @@
               "p80": {
                 "off": 0,
                 "opp": 2,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -1388,14 +1536,18 @@
               "p80": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -1423,14 +1575,18 @@
               "p80": {
                 "off": 6,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 4,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -1458,14 +1614,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             }
           }
@@ -1499,14 +1659,18 @@
               "p80": {
                 "off": 7,
                 "opp": 11,
-                "min_expected": 7,
-                "max_expected": 11
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 6,
                 "opp": 10,
-                "min_expected": 6,
-                "max_expected": 10
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -1534,14 +1698,18 @@
               "p80": {
                 "off": 2,
                 "opp": 3,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -1569,14 +1737,18 @@
               "p80": {
                 "off": 11,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 11
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 10,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 10
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -1604,14 +1776,18 @@
               "p80": {
                 "off": 13,
                 "opp": 14,
-                "min_expected": 13,
-                "max_expected": 14
+                "min": 13,
+                "min_src": "Team-Offense",
+                "max": 14,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 9,
                 "opp": 11,
-                "min_expected": 9,
-                "max_expected": 11
+                "min": 9,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -1639,14 +1815,18 @@
               "p80": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "saves": {
@@ -1674,14 +1854,18 @@
               "p80": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -1709,14 +1893,18 @@
               "p80": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 3,
                 "opp": 4,
-                "min_expected": 3,
-                "max_expected": 4
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -1744,14 +1932,18 @@
               "p80": {
                 "off": 3,
                 "opp": 5,
-                "min_expected": 3,
-                "max_expected": 5
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 5,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 2,
                 "opp": 3,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             }
           }
@@ -1798,14 +1990,18 @@
               "p80": {
                 "off": 6,
                 "opp": 11,
-                "min_expected": 6,
-                "max_expected": 11
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 10,
-                "min_expected": 3,
-                "max_expected": 10
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -1833,14 +2029,18 @@
               "p80": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -1868,14 +2068,18 @@
               "p80": {
                 "off": 9,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 9
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 6,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 6
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -1903,14 +2107,18 @@
               "p80": {
                 "off": 18,
                 "opp": 14,
-                "min_expected": 14,
-                "max_expected": 18
+                "min": 14,
+                "min_src": "Opp-Allowed",
+                "max": 18,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 15,
                 "opp": 11,
-                "min_expected": 11,
-                "max_expected": 15
+                "min": 11,
+                "min_src": "Opp-Allowed",
+                "max": 15,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -1938,14 +2146,18 @@
               "p80": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -1973,14 +2185,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -2008,14 +2224,18 @@
               "p80": {
                 "off": 6,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 6
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 4,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 4
+                "min": 4,
+                "min_src": "both",
+                "max": 4,
+                "max_src": "both"
               }
             },
             "corners": {
@@ -2043,14 +2263,18 @@
               "p80": {
                 "off": 2,
                 "opp": 5,
-                "min_expected": 2,
-                "max_expected": 5
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 5,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 3,
-                "min_expected": 0,
-                "max_expected": 3
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             }
           }
@@ -2084,14 +2308,18 @@
               "p80": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               },
               "p100": {
                 "off": 4,
                 "opp": 5,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Team-Offense",
+                "max": 5,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -2119,14 +2347,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -2154,14 +2386,18 @@
               "p80": {
                 "off": 7,
                 "opp": 8,
-                "min_expected": 7,
-                "max_expected": 8
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 8,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 6,
                 "opp": 8,
-                "min_expected": 6,
-                "max_expected": 8
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 8,
+                "max_src": "Opp-Allowed"
               }
             },
             "tackles": {
@@ -2189,14 +2425,18 @@
               "p80": {
                 "off": 11,
                 "opp": 12,
-                "min_expected": 11,
-                "max_expected": 12
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 12,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 9,
                 "opp": 10,
-                "min_expected": 9,
-                "max_expected": 10
+                "min": 9,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -2224,14 +2464,18 @@
               "p80": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -2259,14 +2503,18 @@
               "p80": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -2294,14 +2542,18 @@
               "p80": {
                 "off": 6,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 6
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 4,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -2329,14 +2581,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -2383,14 +2639,18 @@
               "p80": {
                 "off": 12,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 12
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 12,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 7,
-                "min_expected": 5,
-                "max_expected": 7
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -2418,14 +2678,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -2453,14 +2717,18 @@
               "p80": {
                 "off": 9,
                 "opp": 9,
-                "min_expected": 9,
-                "max_expected": 9
+                "min": 9,
+                "min_src": "both",
+                "max": 9,
+                "max_src": "both"
               },
               "p100": {
                 "off": 9,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 9
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -2488,14 +2756,18 @@
               "p80": {
                 "off": 15,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 15
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 15,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 13,
                 "opp": 9,
-                "min_expected": 9,
-                "max_expected": 13
+                "min": 9,
+                "min_src": "Opp-Allowed",
+                "max": 13,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -2523,14 +2795,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -2558,14 +2834,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -2593,14 +2873,18 @@
               "p80": {
                 "off": 6,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 6
+                "min": 6,
+                "min_src": "both",
+                "max": 6,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
                 "opp": 4,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -2628,14 +2912,18 @@
               "p80": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 5
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -2669,14 +2957,18 @@
               "p80": {
                 "off": 8,
                 "opp": 11,
-                "min_expected": 8,
-                "max_expected": 11
+                "min": 8,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 6,
                 "opp": 7,
-                "min_expected": 6,
-                "max_expected": 7
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -2704,14 +2996,18 @@
               "p80": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 2,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -2739,14 +3035,18 @@
               "p80": {
                 "off": 6,
                 "opp": 8,
-                "min_expected": 6,
-                "max_expected": 8
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 8,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 5,
                 "opp": 7,
-                "min_expected": 5,
-                "max_expected": 7
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "tackles": {
@@ -2774,14 +3074,18 @@
               "p80": {
                 "off": 13,
                 "opp": 16,
-                "min_expected": 13,
-                "max_expected": 16
+                "min": 13,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 10,
                 "opp": 11,
-                "min_expected": 10,
-                "max_expected": 11
+                "min": 10,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -2809,14 +3113,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -2844,14 +3152,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -2879,14 +3191,18 @@
               "p80": {
                 "off": 6,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 6
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 5
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -2914,14 +3230,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -2968,14 +3288,18 @@
               "p80": {
                 "off": 8,
                 "opp": 9,
-                "min_expected": 8,
-                "max_expected": 9
+                "min": 8,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 4,
                 "opp": 8,
-                "min_expected": 4,
-                "max_expected": 8
+                "min": 4,
+                "min_src": "Team-Offense",
+                "max": 8,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -3003,14 +3327,18 @@
               "p80": {
                 "off": 2,
                 "opp": 3,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -3038,14 +3366,18 @@
               "p80": {
                 "off": 10,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 10
+                "min": 10,
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               },
               "p100": {
                 "off": 8,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 8
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -3073,14 +3405,18 @@
               "p80": {
                 "off": 10,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 10
+                "min": 10,
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               },
               "p100": {
                 "off": 10,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 10
+                "min": 10,
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               }
             },
             "cards_total": {
@@ -3108,14 +3444,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -3143,14 +3483,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -3178,14 +3522,18 @@
               "p80": {
                 "off": 4,
                 "opp": 6,
-                "min_expected": 4,
-                "max_expected": 6
+                "min": 4,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 6,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -3213,14 +3561,18 @@
               "p80": {
                 "off": 5,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 5
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             }
           }
@@ -3254,14 +3606,18 @@
               "p80": {
                 "off": 7,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 7
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 7,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 5
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             },
             "shots_on_target": {
@@ -3289,14 +3645,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             },
             "fouls": {
@@ -3324,14 +3684,18 @@
               "p80": {
                 "off": 11,
                 "opp": 9,
-                "min_expected": 9,
-                "max_expected": 11
+                "min": 9,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 10,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 10
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -3359,14 +3723,18 @@
               "p80": {
                 "off": 11,
                 "opp": 13,
-                "min_expected": 11,
-                "max_expected": 13
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 13,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 10,
                 "opp": 11,
-                "min_expected": 10,
-                "max_expected": 11
+                "min": 10,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -3394,14 +3762,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -3429,14 +3801,18 @@
               "p80": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -3464,14 +3840,18 @@
               "p80": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 4,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 4
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -3499,14 +3879,18 @@
               "p80": {
                 "off": 3,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -3553,14 +3937,18 @@
               "p80": {
                 "off": 11,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 11
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 9,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 9
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 9,
+                "max_src": "Team-Offense"
               }
             },
             "shots_on_target": {
@@ -3588,14 +3976,18 @@
               "p80": {
                 "off": 3,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "fouls": {
@@ -3623,14 +4015,18 @@
               "p80": {
                 "off": 8,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 8
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
+                "max_src": "both"
               },
               "p100": {
                 "off": 8,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 8
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 8,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -3658,14 +4054,18 @@
               "p80": {
                 "off": 13,
                 "opp": 9,
-                "min_expected": 9,
-                "max_expected": 13
+                "min": 9,
+                "min_src": "Opp-Allowed",
+                "max": 13,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 12,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 12
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 12,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -3693,14 +4093,18 @@
               "p80": {
                 "off": 0,
                 "opp": 2,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -3728,14 +4132,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "goal_kicks": {
@@ -3763,14 +4171,18 @@
               "p80": {
                 "off": 2,
                 "opp": 4,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 3,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "corners": {
@@ -3798,14 +4210,18 @@
               "p80": {
                 "off": 4,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 4
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             }
           }
@@ -3839,14 +4255,18 @@
               "p80": {
                 "off": 8,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 8
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 8,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 6,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 6,
+                "max_src": "Team-Offense"
               }
             },
             "shots_on_target": {
@@ -3874,14 +4294,18 @@
               "p80": {
                 "off": 4,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 4
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 3,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 3
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               }
             },
             "fouls": {
@@ -3909,14 +4333,18 @@
               "p80": {
                 "off": 10,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 10
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 7,
-                "min_expected": 5,
-                "max_expected": 7
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 7,
+                "max_src": "Opp-Allowed"
               }
             },
             "tackles": {
@@ -3944,14 +4372,18 @@
               "p80": {
                 "off": 16,
                 "opp": 12,
-                "min_expected": 12,
-                "max_expected": 16
+                "min": 12,
+                "min_src": "Opp-Allowed",
+                "max": 16,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 10,
                 "opp": 11,
-                "min_expected": 10,
-                "max_expected": 11
+                "min": 10,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -3979,14 +4411,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -4014,14 +4450,18 @@
               "p80": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -4049,14 +4489,18 @@
               "p80": {
                 "off": 8,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 8
+                "min": 7,
+                "min_src": "Opp-Allowed",
+                "max": 8,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               }
             },
             "corners": {
@@ -4084,14 +4528,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             }
           }
@@ -4138,14 +4586,18 @@
               "p80": {
                 "off": 7,
                 "opp": 9,
-                "min_expected": 7,
-                "max_expected": 9
+                "min": 7,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 6,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -4173,14 +4625,18 @@
               "p80": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "fouls": {
@@ -4208,14 +4664,18 @@
               "p80": {
                 "off": 8,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 8
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
+                "max_src": "both"
               },
               "p100": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -4243,14 +4703,18 @@
               "p80": {
                 "off": 11,
                 "opp": 17,
-                "min_expected": 11,
-                "max_expected": 17
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 17,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 10,
                 "opp": 16,
-                "min_expected": 10,
-                "max_expected": 16
+                "min": 10,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -4278,14 +4742,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "saves": {
@@ -4313,14 +4781,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -4348,14 +4820,18 @@
               "p80": {
                 "off": 4,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 4
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 3,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 3
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -4383,14 +4859,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             }
           }
@@ -4424,14 +4904,18 @@
               "p80": {
                 "off": 10,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 10
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               }
             },
             "shots_on_target": {
@@ -4459,14 +4943,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               }
             },
             "fouls": {
@@ -4494,14 +4982,18 @@
               "p80": {
                 "off": 6,
                 "opp": 11,
-                "min_expected": 6,
-                "max_expected": 11
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 5,
                 "opp": 11,
-                "min_expected": 5,
-                "max_expected": 11
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 11,
+                "max_src": "Opp-Allowed"
               }
             },
             "tackles": {
@@ -4529,14 +5021,18 @@
               "p80": {
                 "off": 13,
                 "opp": 16,
-                "min_expected": 13,
-                "max_expected": 16
+                "min": 13,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 8,
                 "opp": 10,
-                "min_expected": 8,
-                "max_expected": 10
+                "min": 8,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -4564,14 +5060,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -4599,14 +5099,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -4634,14 +5138,18 @@
               "p80": {
                 "off": 4,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 4
+                "min": 4,
+                "min_src": "both",
+                "max": 4,
+                "max_src": "both"
               },
               "p100": {
                 "off": 3,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 3
+                "min": 3,
+                "min_src": "both",
+                "max": 3,
+                "max_src": "both"
               }
             },
             "corners": {
@@ -4669,14 +5177,18 @@
               "p80": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             }
           }
@@ -4723,14 +5235,18 @@
               "p80": {
                 "off": 11,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 11
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 10,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 10
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 10,
+                "max_src": "Team-Offense"
               }
             },
             "shots_on_target": {
@@ -4758,14 +5274,18 @@
               "p80": {
                 "off": 3,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 3
+                "min": 3,
+                "min_src": "both",
+                "max": 3,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
                 "opp": 3,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -4793,14 +5313,18 @@
               "p80": {
                 "off": 8,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 8
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 8,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 7,
                 "opp": 6,
-                "min_expected": 6,
-                "max_expected": 7
+                "min": 6,
+                "min_src": "Opp-Allowed",
+                "max": 7,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -4828,14 +5352,18 @@
               "p80": {
                 "off": 12,
                 "opp": 11,
-                "min_expected": 11,
-                "max_expected": 12
+                "min": 11,
+                "min_src": "Opp-Allowed",
+                "max": 12,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 10,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 10
+                "min": 10,
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               }
             },
             "cards_total": {
@@ -4863,14 +5391,18 @@
               "p80": {
                 "off": 2,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 2
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -4898,14 +5430,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -4933,14 +5469,18 @@
               "p80": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -4968,14 +5508,18 @@
               "p80": {
                 "off": 4,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 4
+                "min": 4,
+                "min_src": "both",
+                "max": 4,
+                "max_src": "both"
               },
               "p100": {
                 "off": 4,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 4
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 4,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -5009,14 +5553,18 @@
               "p80": {
                 "off": 5,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 5
+                "min": 5,
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             },
             "shots_on_target": {
@@ -5044,14 +5592,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "fouls": {
@@ -5079,14 +5631,18 @@
               "p80": {
                 "off": 11,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 11
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -5114,14 +5670,18 @@
               "p80": {
                 "off": 12,
                 "opp": 16,
-                "min_expected": 12,
-                "max_expected": 16
+                "min": 12,
+                "min_src": "Team-Offense",
+                "max": 16,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 11,
                 "opp": 11,
-                "min_expected": 11,
-                "max_expected": 11
+                "min": 11,
+                "min_src": "both",
+                "max": 11,
+                "max_src": "both"
               }
             },
             "cards_total": {
@@ -5149,14 +5709,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -5184,14 +5748,18 @@
               "p80": {
                 "off": 2,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 2
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Opp-Allowed",
+                "max": 2,
+                "max_src": "Team-Offense"
               }
             },
             "goal_kicks": {
@@ -5219,14 +5787,18 @@
               "p80": {
                 "off": 5,
                 "opp": 6,
-                "min_expected": 5,
-                "max_expected": 6
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 4,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 4
+                "min": 4,
+                "min_src": "both",
+                "max": 4,
+                "max_src": "both"
               }
             },
             "corners": {
@@ -5254,14 +5826,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             }
           }
@@ -5308,14 +5884,18 @@
               "p80": {
                 "off": 6,
                 "opp": 15,
-                "min_expected": 6,
-                "max_expected": 15
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 15,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 6,
                 "opp": 9,
-                "min_expected": 6,
-                "max_expected": 9
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -5343,14 +5923,18 @@
               "p80": {
                 "off": 3,
                 "opp": 4,
-                "min_expected": 3,
-                "max_expected": 4
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "fouls": {
@@ -5378,14 +5962,18 @@
               "p80": {
                 "off": 11,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 11
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 11,
                 "opp": 5,
-                "min_expected": 5,
-                "max_expected": 11
+                "min": 5,
+                "min_src": "Opp-Allowed",
+                "max": 11,
+                "max_src": "Team-Offense"
               }
             },
             "tackles": {
@@ -5413,14 +6001,18 @@
               "p80": {
                 "off": 21,
                 "opp": 10,
-                "min_expected": 10,
-                "max_expected": 21
+                "min": 10,
+                "min_src": "Opp-Allowed",
+                "max": 21,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 16,
                 "opp": 8,
-                "min_expected": 8,
-                "max_expected": 16
+                "min": 8,
+                "min_src": "Opp-Allowed",
+                "max": 16,
+                "max_src": "Team-Offense"
               }
             },
             "cards_total": {
@@ -5448,14 +6040,18 @@
               "p80": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "saves": {
@@ -5483,14 +6079,18 @@
               "p80": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 0,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 0
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -5518,14 +6118,18 @@
               "p80": {
                 "off": 5,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 5
+                "min": 4,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 4,
                 "opp": 4,
-                "min_expected": 4,
-                "max_expected": 4
+                "min": 4,
+                "min_src": "both",
+                "max": 4,
+                "max_src": "both"
               }
             },
             "corners": {
@@ -5553,14 +6157,18 @@
               "p80": {
                 "off": 2,
                 "opp": 5,
-                "min_expected": 2,
-                "max_expected": 5
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 5,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 2,
                 "opp": 3,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             }
           }
@@ -5594,14 +6202,18 @@
               "p80": {
                 "off": 5,
                 "opp": 10,
-                "min_expected": 5,
-                "max_expected": 10
+                "min": 5,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 3,
                 "opp": 6,
-                "min_expected": 3,
-                "max_expected": 6
+                "min": 3,
+                "min_src": "Team-Offense",
+                "max": 6,
+                "max_src": "Opp-Allowed"
               }
             },
             "shots_on_target": {
@@ -5629,14 +6241,18 @@
               "p80": {
                 "off": 2,
                 "opp": 4,
-                "min_expected": 2,
-                "max_expected": 4
+                "min": 2,
+                "min_src": "Team-Offense",
+                "max": 4,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 3,
-                "min_expected": 0,
-                "max_expected": 3
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 3,
+                "max_src": "Opp-Allowed"
               }
             },
             "fouls": {
@@ -5664,14 +6280,18 @@
               "p80": {
                 "off": 8,
                 "opp": 9,
-                "min_expected": 8,
-                "max_expected": 9
+                "min": 8,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 7,
                 "opp": 7,
-                "min_expected": 7,
-                "max_expected": 7
+                "min": 7,
+                "min_src": "both",
+                "max": 7,
+                "max_src": "both"
               }
             },
             "tackles": {
@@ -5699,14 +6319,18 @@
               "p80": {
                 "off": 11,
                 "opp": 12,
-                "min_expected": 11,
-                "max_expected": 12
+                "min": 11,
+                "min_src": "Team-Offense",
+                "max": 12,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 6,
                 "opp": 10,
-                "min_expected": 6,
-                "max_expected": 10
+                "min": 6,
+                "min_src": "Team-Offense",
+                "max": 10,
+                "max_src": "Opp-Allowed"
               }
             },
             "cards_total": {
@@ -5734,14 +6358,18 @@
               "p80": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 0,
                 "opp": 1,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Team-Offense",
+                "max": 1,
+                "max_src": "Opp-Allowed"
               }
             },
             "saves": {
@@ -5769,14 +6397,18 @@
               "p80": {
                 "off": 3,
                 "opp": 2,
-                "min_expected": 2,
-                "max_expected": 3
+                "min": 2,
+                "min_src": "Opp-Allowed",
+                "max": 3,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 1,
                 "opp": 1,
-                "min_expected": 1,
-                "max_expected": 1
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
@@ -5804,14 +6436,18 @@
               "p80": {
                 "off": 8,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 8
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 8,
+                "max_src": "Team-Offense"
               },
               "p100": {
                 "off": 5,
                 "opp": 3,
-                "min_expected": 3,
-                "max_expected": 5
+                "min": 3,
+                "min_src": "Opp-Allowed",
+                "max": 5,
+                "max_src": "Team-Offense"
               }
             },
             "corners": {
@@ -5839,14 +6475,18 @@
               "p80": {
                 "off": 1,
                 "opp": 2,
-                "min_expected": 1,
-                "max_expected": 2
+                "min": 1,
+                "min_src": "Team-Offense",
+                "max": 2,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
                 "opp": 0,
-                "min_expected": 0,
-                "max_expected": 1
+                "min": 0,
+                "min_src": "Opp-Allowed",
+                "max": 1,
+                "max_src": "Team-Offense"
               }
             }
           }
