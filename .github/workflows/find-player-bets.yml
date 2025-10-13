@@ -2,7 +2,7 @@ name: Find player bet candidates
 
 on:
   schedule:
-    # Run after your Monday 07:30 UTC "player-filters" job; tweak as needed
+    # Stagger after your player selectors (adjust as needed)
     - cron: "45 7 * * 1"
   workflow_dispatch: {}
 
@@ -30,8 +30,15 @@ jobs:
       - name: Run finder
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-          # Optional overrides:
-          # ODDS_BOOKMAKERS: "Bet365,Pinnacle,Unibet"
+          # Hard-lock to just these books
+          ODDS_BOOKMAKERS: "bet365,kambi"
+          # Keep multi calls safe/lightweight
+          ODDS_MULTI_CHUNK: "10"
+          # (Optional tuning)
+          CERT_MIN_PRICE: "1.25"
+          CERT_MIN_N: "8"
+          VALUE_MIN_PRICE: "1.80"
+          UNDERDOG_MAX_ML: "3.50"
         run: |
           python scripts/find_player_bets.py
 
