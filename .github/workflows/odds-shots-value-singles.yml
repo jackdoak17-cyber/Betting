@@ -1,4 +1,4 @@
-name: Odds — Shots Value Singles (1+ @ ≥1.72)
+name: Odds — Shots Value Singles (1+)
 
 on:
   workflow_dispatch:
@@ -12,6 +12,15 @@ on:
       window_days:
         description: "Event window in days (0 = no limit)"
         default: "7"
+      allow_dnb_fallback:
+        description: "Use Draw No Bet if ML missing? (0/1)"
+        default: "1"
+      min_capture_price:
+        description: "Capture threshold for diagnostics (e.g., 1.20)"
+        default: "1.20"
+      show_near_misses:
+        description: "Show near-misses if none pass MIN_DEC_PRICE? (0/1)"
+        default: "1"
   schedule:
     # 06:10 UTC ≈ 07:10 London during BST
     - cron: "10 6 * * *"
@@ -26,6 +35,9 @@ env:
   MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.72' }}"
   TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
   WINDOW_DAYS:   "${{ github.event.inputs.window_days || '7' }}"
+  ALLOW_DNB_FALLBACK: "${{ github.event.inputs.allow_dnb_fallback || '1' }}"
+  MIN_CAPTURE_PRICE:  "${{ github.event.inputs.min_capture_price || '1.20' }}"
+  SHOW_NEAR_MISSES:   "${{ github.event.inputs.show_near_misses || '1' }}"
 
 jobs:
   run:
@@ -58,13 +70,16 @@ jobs:
           MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
           TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
           WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
+          ALLOW_DNB_FALLBACK: ${{ env.ALLOW_DNB_FALLBACK }}
+          MIN_CAPTURE_PRICE:  ${{ env.MIN_CAPTURE_PRICE }}
+          SHOW_NEAR_MISSES:   ${{ env.SHOW_NEAR_MISSES }}
         run: |
           mkdir -p "${RESULTS_DIR}"
           python scripts/odds/value_bets_shots_value_singles.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
           {
             echo ""
             echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")"
-            echo "Params: MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_WIN_MAX=${TEAM_WIN_MAX} WINDOW_DAYS=${WINDOW_DAYS}"
+            echo "Params: MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_WIN_MAX=${TEAM_WIN_MAX} WINDOW_DAYS=${WINDOW_DAYS} DNB_FB=${ALLOW_DNB_FALLBACK} MIN_CAPTURE_PRICE=${MIN_CAPTURE_PRICE} SHOW_NEAR_MISSES=${SHOW_NEAR_MISSES}"
           } >> "${RESULTS_DIR}/${RESULTS_FILE}"
 
       - uses: actions/upload-artifact@v4
