@@ -2,7 +2,7 @@ name: Fetch fixtures (Sportmonks only)
 
 on:
   schedule:
-    - cron: "5 6 * * 1"     # every Monday 06:05 UTC (adjust as you like)
+    - cron: "5 6 * * *"   # every day 06:05 UTC (adjust as needed)
   workflow_dispatch: {}
 
 permissions:
@@ -12,6 +12,7 @@ jobs:
   fetch_fixtures:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
           DAYS_AHEAD: "7"
         run: python scripts/fetch_fixtures.py
 
-      - name: Commit & push
+      - name: Commit & push fixture files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
