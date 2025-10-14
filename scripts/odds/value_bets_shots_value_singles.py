@@ -60,7 +60,7 @@ LEAGUE_SLUG_BY_ID = {
 
 EVENTS_API_URL = "https://api.odds-api.io/v3/events"
 ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-value-singles/1.2"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-value-singles/1.3"}
 TIMEOUT = 25
 
 ROOT = Path(".")
@@ -91,7 +91,6 @@ def norm(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-# Common team alias expansions to help team mapping
 TEAM_ALIAS = {
     "man city": "manchester city",
     "man utd": "manchester united",
@@ -219,7 +218,8 @@ def collect_candidates() -> List[dict]:
             tid = rec.get("team_id")
             team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
             if not team: continue
-            pos = rec.get("position") or rec.get("pos") or ""
+            # <<< FIX: include position_tag >>>
+            pos = rec.get("position_tag") or rec.get("position") or rec.get("pos") or ""
             out.append({
                 "league_id": lid, "player": player, "team": team, "position": pos,
                 "series": series[:10], "hits7": hits7, "hits5": hits5,
@@ -508,7 +508,7 @@ def main():
         ser5 = ",".join(map(str, x["series"][:5])) if x["series"] else ""
         pos = f"[{x['position']}]" if x.get("position") else ""
         return (f" • {x['player']} {pos} — {x['team']} | {x['fixture']} | "
-                f"Over 0.5 @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | "
+                f"Over 0.5 @ {x['price']:.3f} | Team Win (ML) {x['team_ml']:.3f} | "
                 f"last7: {x['hits7']}/7 (series7: {ser7}) | last5: {x['hits5']}/5 (series5: {ser5})")
 
     for key, title in [("5of5","===== VALUE — 1+ Shots (5/5) ====="),
