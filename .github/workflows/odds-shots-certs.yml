@@ -1,43 +1,75 @@
-name: Find player shots 1+ certs
+name: Odds — Shots Certs (1+ in 7/7)
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      min_decimal_price:
+        description: "Minimum decimal price (e.g., 1.30)"
+        default: "1.30"
+      team_win_max:
+        description: "Maximum team ML price to include (e.g., 3.50)"
+        default: "3.50"
   schedule:
-    - cron: "20 6 * * *"   # 06:20 UTC daily, after your fixtures job
+    # 06:05 UTC ≈ 07:05 London during BST
+    - cron: "5 6 * * *"
 
 permissions:
   contents: write
 
+env:
+  PYTHON_VERSION: "3.11"
+  RESULTS_DIR: "data/value_bets"
+  RESULTS_FILE: "shots_certs.txt"
+  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
+  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+
 jobs:
-  certs:
+  run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify inputs
+        run: |
+          test -n "${{ secrets.ODDS_API_KEY }}" || (echo "ODDS_API_KEY missing" >&2; exit 1)
+          test -f "scripts/odds/value_bets_shots_certs.py" || (echo "script missing" >&2; exit 1)
+          test -d "data/player_shots/by_league" || (echo "shots dir missing" >&2; exit 1)
+          test -d "data/predicted_xi/by_league" || (echo "predicted XI dir missing" >&2; exit 1)
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install requests
 
-      - name: Run certs (Player Shots 1+)
+      - name: Run shots certs
         env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-          ODDS_MIN_PRICE: "1.30"
-          ODDS_BOOKMAKERS: "bet365,kambi"
-          ODDS_SOURCE: "auto"
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
         run: |
-          python scripts/find_player_shot_certs.py
+          mkdir -p "${RESULTS_DIR}"
+          python scripts/odds/value_bets_shots_certs.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
+          echo "" >> "${RESULTS_DIR}/${RESULTS_FILE}"
+          echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")" >> "${RESULTS_DIR}/${RESULTS_FILE}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shots-certs-${{ github.run_number }}
+          path: ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/player_shots/certs_shots1plus.json
-          git commit -m "feat(certs): player shots 1+ $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
-          git push
+          git add "${RESULTS_DIR}/${RESULTS_FILE}"
+          git diff --cached --quiet || git commit -m "feat(odds): update shots certs [skip ci]"
+          git push || true
