@@ -1,0 +1,83 @@
+name: Odds — Shots Value Singles (1+ @ ≥1.72)
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_decimal_price:
+        description: "Minimum decimal price (e.g., 1.72)"
+        default: "1.72"
+      team_win_max:
+        description: "Maximum team ML price to include (e.g., 3.50)"
+        default: "3.50"
+      window_days:
+        description: "Event window in days (0 = no limit)"
+        default: "7"
+  schedule:
+    # 06:10 UTC ≈ 07:10 London during BST
+    - cron: "10 6 * * *"
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  RESULTS_DIR: "data/value_bets"
+  RESULTS_FILE: "shots_value_singles.txt"
+  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.72' }}"
+  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+  WINDOW_DAYS:   "${{ github.event.inputs.window_days || '7' }}"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify repo structure & secrets
+        run: |
+          test -n "${{ secrets.ODDS_API_KEY }}" || (echo "ODDS_API_KEY missing in repo secrets" >&2; exit 1)
+          test -f "scripts/odds/value_bets_shots_value_singles.py" || (echo "scripts/odds/value_bets_shots_value_singles.py not found" >&2; exit 1)
+          test -d "data/player_shots/by_league" || (echo "data/player_shots/by_league missing" >&2; exit 1)
+          test -d "data/predicted_xi/by_league" || (echo "data/predicted_xi/by_league missing" >&2; exit 1)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run value singles (1+ shots)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+          WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
+        run: |
+          mkdir -p "${RESULTS_DIR}"
+          python scripts/odds/value_bets_shots_value_singles.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
+          {
+            echo ""
+            echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")"
+            echo "Params: MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_WIN_MAX=${TEAM_WIN_MAX} WINDOW_DAYS=${WINDOW_DAYS}"
+          } >> "${RESULTS_DIR}/${RESULTS_FILE}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shots-value-singles-${{ github.run_number }}
+          path: ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${RESULTS_DIR}/${RESULTS_FILE}"
+          git diff --cached --quiet || git commit -m "feat(odds): update shots value singles [skip ci]"
+          git push || true
