@@ -2,30 +2,30 @@
 # -*- coding: utf-8 -*-
 
 """
-Fetch upcoming fixtures from Sportmonks for specific leagues and write:
-- data/fixtures/latest.json
-- data/fixtures/{league_id}.json
-- data/fixtures/by_league/{league_id}.json
-- data/fixtures/fixtures.txt
+Robust Sportmonks fixtures fetcher (v3)
+
+- Tries the BETWEEN endpoint first with server-side filters.
+- Falls back to the per-day endpoint if the BETWEEN result looks suspiciously small.
+- Handles both pagination styles seen in v3 (`last_page` OR `pagination.has_more`).
+- Writes:
+  data/fixtures/latest.json
+  data/fixtures/{league_id}.json
+  data/fixtures/by_league/{league_id}.json
+  data/fixtures/fixtures.txt
 
 Env:
   SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN or SM_TOKEN)
-  DAYS_AHEAD  (default: 7)
-
-Leagues:
-  8,9,82,301,384,387,564,567,600
+  DAYS_AHEAD (default 7)
 """
 
 import os
 import sys
 import json
 import datetime as dt
-from typing import List, Dict, Optional, Tuple
 from pathlib import Path
-
+from typing import List, Dict, Optional, Tuple
 import requests
 
-# ---------- Config ----------
 API_BASE = "https://api.sportmonks.com/v3"
 SPORT = "football"
 API_TOKEN = (
@@ -33,8 +33,11 @@ API_TOKEN = (
     or os.getenv("SPORTMONKS_API_TOKEN")
     or os.getenv("SM_TOKEN")
 )
+DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "7"))
+DATE_FMT = "%Y-%m-%d"
+TIMEOUT = 25
 
-LEAGUES: Dict[int, str] = {
+LEAGUES = {
     8:   "Premier League",
     9:   "Championship",
     82:  "Bundesliga",
@@ -47,20 +50,21 @@ LEAGUES: Dict[int, str] = {
 }
 LEAGUE_IDS = sorted(LEAGUES.keys())
 
-DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "7"))
-DATE_FMT = "%Y-%m-%d"
-TIMEOUT = 25
-
 ROOT = Path(".")
 OUT_DIR = ROOT / "data" / "fixtures"
 BY_LEAGUE_DIR = OUT_DIR / "by_league"
 
-# ---------- Utils ----------
 def today_utc_date() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
 
 def dstr(d: dt.date) -> str:
     return d.strftime(DATE_FMT)
+
+def daterange(start: dt.date, end_inclusive: dt.date):
+    d = start
+    while d <= end_inclusive:
+        yield d
+        d += dt.timedelta(days=1)
 
 def api_get(path: str, params: Optional[dict] = None) -> dict:
     if params is None:
@@ -71,91 +75,148 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
     r.raise_for_status()
     return r.json()
 
-def _to_int(v):
+def to_int(v):
     try:
         return int(v)
     except Exception:
         return None
 
-def _get_total_pages(meta: dict) -> int:
-    # v3 sometimes exposes either meta.last_page or meta.pagination.total_pages
-    if not meta:
-        return 1
-    if "last_page" in meta and meta.get("last_page"):
-        try:
-            return int(meta["last_page"])
-        except Exception:
-            pass
-    pag = meta.get("pagination") or {}
-    if "total_pages" in pag and pag.get("total_pages"):
-        try:
-            return int(pag["total_pages"])
-        except Exception:
-            pass
-    return 1
-
-# ---------- Core ----------
-def get_fixtures_between(start: dt.date, end: dt.date, league_ids: List[int]) -> List[dict]:
-    """
-    Use the between endpoint with server-side league filtering + robust pagination.
-    """
-    leagues_csv = ",".join(str(x) for x in league_ids)
-
-    params = {
-        "include": "participants;state;league",
-        "order": "asc",
-        "per_page": 200,              # <- be explicit: avoid silent 15/25 caps
-        "page": 1,
-        "leagues": leagues_csv,       # server-side filter
+def normalize_fixture(fx: dict) -> dict:
+    parts = fx.get("participants") or []
+    return {
+        "id": to_int(fx.get("id")),
+        "league_id": to_int(fx.get("league_id")),
+        "season_id": to_int(fx.get("season_id")),
+        "stage_id": to_int(fx.get("stage_id")),
+        "round_id": to_int(fx.get("round_id")),
+        "name": fx.get("name"),
+        "starting_at": fx.get("starting_at"),
+        "starting_at_timestamp": to_int(fx.get("starting_at_timestamp")),
+        "state_id": to_int(fx.get("state_id")),
+        "venue_id": to_int(fx.get("venue_id")),
+        "participants": [
+            {
+                "id": to_int(p.get("id")),
+                "name": p.get("name"),
+                "short_code": p.get("short_code"),
+                "meta": p.get("meta"),
+            } for p in parts
+        ],
     }
 
-    path = f"fixtures/between/{dstr(start)}/{dstr(end)}"
-    first = api_get(path, params)
-    data = (first.get("data") or [])
-    meta = (first.get("meta") or {})
-    total_pages = _get_total_pages(meta)
+def read_pagination_meta(meta: dict) -> Tuple[Optional[int], Optional[bool]]:
+    """
+    Returns (pages, has_more). Handles both shapes:
+      meta = {"last_page": N, ...}
+      meta = {"pagination": {"total_pages": N, "has_more": bool}, ...}
+      meta may also contain top-level "has_more".
+    """
+    if not isinstance(meta, dict):
+        return (None, None)
+    # Style 1: last_page
+    if "last_page" in meta and meta.get("last_page"):
+        try:
+            return (int(meta["last_page"]), None)
+        except Exception:
+            pass
+    # Style 2: pagination.total_pages / pagination.has_more
+    pag = meta.get("pagination") or {}
+    pages = None
+    if "total_pages" in pag and pag.get("total_pages"):
+        try:
+            pages = int(pag["total_pages"])
+        except Exception:
+            pages = None
+    has_more = None
+    if "has_more" in meta:
+        has_more = bool(meta.get("has_more"))
+    elif "has_more" in pag:
+        has_more = bool(pag.get("has_more"))
+    return (pages, has_more)
 
-    # paginate
-    for p in range(2, total_pages + 1):
-        params["page"] = p
-        jp = api_get(path, params)
-        data.extend(jp.get("data") or [])
+def fetch_between(start: dt.date, end: dt.date, league_ids: List[int]) -> List[dict]:
+    """Server-side filter + robust pagination via fixtures/between."""
+    leagues_csv = ",".join(str(x) for x in league_ids)
+    base = f"fixtures/between/{dstr(start)}/{dstr(end)}"
+    page = 1
+    per_page = 50  # v3 cap often = 50
+    rows_all: List[dict] = []
+    while True:
+        params = {
+            "include": "participants;state;league",
+            "order": "asc",
+            "per_page": per_page,
+            "page": page,
+            # static filter style used by v3
+            "filters": f"fixtureLeagues:{leagues_csv}",
+        }
+        j = api_get(base, params)
+        rows = j.get("data") or []
+        meta = j.get("meta") or {}
+        pages, has_more = read_pagination_meta(meta)
+        rows_all.extend(normalize_fixture(fx) for fx in rows)
+        print(f"[between] page={page} got={len(rows)} total_so_far={len(rows_all)} pages={pages} has_more={has_more}")
+        if pages:
+            if page >= pages:
+                break
+            page += 1
+        elif has_more is not None:
+            if not has_more:
+                break
+            page += 1
+        else:
+            if len(rows) < per_page:
+                break
+            page += 1
+    return rows_all
 
-    # Normalize / coerce
-    out = []
-    dropped_no_parts = 0
-    for fx in data:
-        lid = _to_int(fx.get("league_id"))
-        parts = fx.get("participants") or []
-        if not parts:
-            dropped_no_parts += 1
-            continue
-
-        out.append({
-            "id": _to_int(fx.get("id")),
-            "league_id": lid,
-            "season_id": _to_int(fx.get("season_id")),
-            "stage_id": _to_int(fx.get("stage_id")),
-            "round_id": _to_int(fx.get("round_id")),
-            "name": fx.get("name"),
-            "starting_at": fx.get("starting_at"),
-            "starting_at_timestamp": _to_int(fx.get("starting_at_timestamp")),
-            "state_id": _to_int(fx.get("state_id")),
-            "venue_id": _to_int(fx.get("venue_id")),
-            "participants": [
-                {
-                    "id": _to_int(p.get("id")),
-                    "name": p.get("name"),
-                    "short_code": p.get("short_code"),
-                    "meta": p.get("meta"),
-                } for p in parts
-            ],
-        })
-
-    print(f"[fetch] between {dstr(start)} -> {dstr(end)} pages={total_pages} total={len(out)} dropped_no_participants={dropped_no_parts}")
+def fetch_by_date_loop(start: dt.date, end: dt.date, league_ids: List[int]) -> List[dict]:
+    """Per-day fallback with server-side filter + robust pagination."""
+    leagues_csv = ",".join(str(x) for x in league_ids)
+    per_page = 50
+    out: List[dict] = []
+    for d in daterange(start, end):
+        path = f"fixtures/date/{dstr(d)}"
+        page = 1
+        while True:
+            params = {
+                "include": "participants;state;league",
+                "order": "asc",
+                "per_page": per_page,
+                "page": page,
+                "filters": f"fixtureLeagues:{leagues_csv}",
+            }
+            j = api_get(path, params)
+            rows = j.get("data") or []
+            meta = j.get("meta") or {}
+            pages, has_more = read_pagination_meta(meta)
+            out.extend(normalize_fixture(fx) for fx in rows)
+            print(f"[date {dstr(d)}] page={page} got={len(rows)} total_so_far={len(out)} pages={pages} has_more={has_more}")
+            if pages:
+                if page >= pages:
+                    break
+                page += 1
+            elif has_more is not None:
+                if not has_more:
+                    break
+                page += 1
+            else:
+                if len(rows) < per_page:
+                    break
+                page += 1
     return out
 
-# ---------- Writers ----------
+def unique_by_id(rows: List[dict]) -> List[dict]:
+    seen = set()
+    deduped = []
+    for fx in rows:
+        fid = fx.get("id")
+        if fid is None or fid in seen:
+            continue
+        seen.add(fid)
+        deduped.append(fx)
+    return deduped
+
 def write_json(path: Path, obj: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
@@ -170,7 +231,6 @@ def write_text(path: Path, text: str) -> None:
         f.write(text)
     tmp.replace(path)
 
-# ---------- Main ----------
 def main():
     if not API_TOKEN:
         print("ERROR: SPORTMONKS_TOKEN / SPORTMONKS_API_TOKEN not set.", file=sys.stderr)
@@ -179,16 +239,25 @@ def main():
     start = today_utc_date()
     end = start + dt.timedelta(days=DAYS_AHEAD)
 
-    fixtures = get_fixtures_between(start, end, LEAGUE_IDS)
+    # 1) BETWEEN (fast path)
+    between_rows = fetch_between(start, end, LEAGUE_IDS)
 
-    # bucket per league
+    # 2) Augment with per-day if result looks light
+    # (Heuristic: across 9 leagues, 7 days <<100 is suspicious)
+    if len(between_rows) < 100:
+        day_rows = fetch_by_date_loop(start, end, LEAGUE_IDS)
+        fixtures = unique_by_id(between_rows + day_rows)
+    else:
+        fixtures = unique_by_id(between_rows)
+
+    # Bucket per league
     by_league: Dict[int, List[dict]] = {lid: [] for lid in LEAGUE_IDS}
     for fx in fixtures:
-        lid = int(fx["league_id"] or 0)
+        lid = int(fx.get("league_id") or 0)
         if lid in by_league:
             by_league[lid].append(fx)
 
-    # Sort deterministically
+    # Sort deterministic
     def key_fx(fx): return (fx.get("starting_at_timestamp") or 0, fx.get("id") or 0)
     fixtures.sort(key=key_fx)
     for lid in by_league:
@@ -203,10 +272,8 @@ def main():
         "count": len(fixtures),
     }
 
-    # Write latest.json
+    # Write
     write_json(OUT_DIR / "latest.json", {"meta": meta, "fixtures": fixtures})
-
-    # Write per-league JSONs (top-level and by_league/)
     for lid in LEAGUE_IDS:
         payload = {
             "league_id": lid,
@@ -219,7 +286,7 @@ def main():
         write_json(OUT_DIR / f"{lid}.json", payload)
         write_json(BY_LEAGUE_DIR / f"{lid}.json", payload)
 
-    # Human summary (matches your current formatting)
+    # Human summary (keeps your current format)
     counts = "\n".join([f"  - {lid}: {len(by_league[lid])}" for lid in LEAGUE_IDS])
     text = (
         f"Time (UTC): {generated_at}\n"
