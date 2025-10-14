@@ -10,7 +10,7 @@ Fetch upcoming fixtures from Sportmonks for specific leagues and write:
 
 Env:
   SPORTMONKS_TOKEN or SPORTMONKS_API_TOKEN or SM_TOKEN
-  DAYS_AHEAD  (default: 21)
+  DAYS_AHEAD  (default: 7)
 
 Leagues:
   8,9,82,301,384,387,564,567,600
@@ -47,16 +47,18 @@ LEAGUES: Dict[int, str] = {
 }
 LEAGUE_IDS = sorted(LEAGUES.keys())
 
-DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "21"))
+# ↓ Changed from 21 -> 7 (and still overrideable via env)
+DAYS_AHEAD = int(os.getenv("DAYS_AHEAD", "7"))
+
 DATE_FMT = "%Y-%m-%d"
 TIMEOUT = 25
 
-OUT_DIR = Path("data/fixtures")
+ROOT = Path(".")
+OUT_DIR = ROOT / "data" / "fixtures"
 BY_LEAGUE_DIR = OUT_DIR / "by_league"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
-BY_LEAGUE_DIR.mkdir(parents=True, exist_ok=True)
 
-# ---------- Helpers ----------
+
+# ---------- Utils ----------
 def today_utc_date() -> dt.date:
     return dt.datetime.now(dt.timezone.utc).date()
 
@@ -77,42 +79,60 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
     r.raise_for_status()
     return r.json()
 
+def _to_int(v):
+    try:
+        return int(v)
+    except Exception:
+        return None
+
 def get_fixtures_for_date(date_str: str, league_filter: Optional[set] = None) -> List[dict]:
+    """
+    Fetch fixtures for a single date, include basic relations, paginate, then
+    return a normalized list (league_id coerced to int).
+    """
     params = {"include": "participants;state;league", "order": "asc", "page": 1}
     j = api_get(f"fixtures/date/{date_str}", params)
     data = (j.get("data") or [])
     meta = (j.get("meta") or {})
     last_page = int(meta.get("last_page", 1))
 
-    # paginate
     for p in range(2, last_page + 1):
         params["page"] = p
         jp = api_get(f"fixtures/date/{date_str}", params)
         data.extend(jp.get("data") or [])
 
-    # filter + keep a tidy subset of fields
     out = []
+    dropped_wrong_league = 0
+    dropped_no_parts = 0
+
     for fx in data:
-        lid = fx.get("league_id")
-        if league_filter and lid not in league_filter:
+        lid_raw = fx.get("league_id")
+        lid = _to_int(lid_raw)
+
+        if league_filter and (lid is None or lid not in league_filter):
+            dropped_wrong_league += 1
             continue
+
         parts = fx.get("participants") or []
         if not parts:
+            dropped_no_parts += 1
             continue
+
+        # Keep a tidy subset; coerce ids to int where sensible
         out.append({
-            "id": fx.get("id"),
+            "id": _to_int(fx.get("id")),
             "league_id": lid,
-            "season_id": fx.get("season_id"),
-            "stage_id": fx.get("stage_id"),
-            "round_id": fx.get("round_id"),
+            "season_id": _to_int(fx.get("season_id")),
+            "stage_id": _to_int(fx.get("stage_id")),
+            "round_id": _to_int(fx.get("round_id")),
             "name": fx.get("name"),
             "starting_at": fx.get("starting_at"),
-            "starting_at_timestamp": fx.get("starting_at_timestamp"),
-            "state_id": fx.get("state_id"),
-            "venue_id": fx.get("venue_id"),
+            "starting_at_timestamp": _to_int(fx.get("starting_at_timestamp")),
+            "state_id": _to_int(fx.get("state_id")),
+            "venue_id": _to_int(fx.get("venue_id")),
             "participants": [
                 {
-                    "id": p.get("id"),
+                    "id": _to_int(p.get("id")),
                     "name": p.get("name"),
                     "short_code": p.get("short_code"),
                     "meta": p.get("meta"),  # home/away info lives here
@@ -120,6 +140,10 @@ def get_fixtures_for_date(date_str: str, league_filter: Optional[set] = None) ->
                 for p in parts
             ],
         })
+
+    if dropped_wrong_league or dropped_no_parts:
+        print(f"[{date_str}] dropped: wrong_league={dropped_wrong_league}, no_participants={dropped_no_parts}")
+
     return out
 
 def write_json(path: Path, obj: dict) -> None:
@@ -135,6 +159,7 @@ def write_text(path: Path, text: str) -> None:
     with tmp.open("w", encoding="utf-8") as f:
         f.write(text)
     tmp.replace(path)
+
 
 # ---------- Main ----------
 def main():
@@ -165,7 +190,6 @@ def main():
     for lid in by_league:
         by_league[lid].sort(key=key_fx)
 
-    # latest.json — always updates thanks to generated_at
     generated_at = dt.datetime.now(dt.timezone.utc).isoformat()
     meta = {
         "generated_at": generated_at,
@@ -174,9 +198,11 @@ def main():
         "leagues": LEAGUE_IDS,
         "count": len(all_fixtures),
     }
+
+    # Write latest.json
     write_json(OUT_DIR / "latest.json", {"meta": meta, "fixtures": all_fixtures})
 
-    # per-league JSON (top-level and by_league/)
+    # Write per-league JSONs (top-level and by_league/)
     for lid in LEAGUE_IDS:
         payload = {
             "league_id": lid,
@@ -189,7 +215,7 @@ def main():
         write_json(OUT_DIR / f"{lid}.json", payload)
         write_json(BY_LEAGUE_DIR / f"{lid}.json", payload)
 
-    # fixtures.txt summary
+    # Human summary
     counts = "\n".join([f"  - {lid}: {len(by_league[lid])}" for lid in LEAGUE_IDS])
     text = (
         f"Time (UTC): {generated_at}\n"
