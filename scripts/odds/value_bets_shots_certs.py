@@ -1,21 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Value bets — SHOTS certs (expanded)
-Adds:
-  • Player Shots Over 0.5, 1.5, 2.5  (1+, 2+, 3+)
-  • Player Shots On Target Over 0.5, 1.5  (1+, 2+)
+Value bets — SHOTS & SOT certs (per-threshold gating on last 7)
 
-Candidate rule: player has 1+ shot in 100% of last 7 matches (n>=7)
-Bookmaker: Bet365 only
-Price filter: >= MIN_DEC_PRICE (default 1.30)
-Underdog filter: team ML < TEAM_WIN_MAX (default 3.50)
-Output: data/value_bets/shots_certs.txt (also printed)
+Buckets (each requires n>=7 and every one of the last 7 games >= threshold):
+  • Player Shots: Over 0.5 (1+), Over 1.5 (2+), Over 2.5 (3+)
+  • Player Shots On Target: Over 0.5 (1+), Over 1.5 (2+)
+
+Data inputs:
+  - Shots histories:          data/player_shots/by_league/{league_id}.json
+  - Shots on target histories:data/player_shots_on_target/by_league/{league_id}.json
+  - Predicted XI (team names):data/predicted_xi/by_league/{league_id}.json  (for team_id->name fallback)
+
+Bookmaker / odds filters:
+  - Bet365 only
+  - Minimum price >= MIN_DEC_PRICE (default 1.30)
+  - Team ML (match winner) for player's side must be < TEAM_WIN_MAX (default 3.50)
+
+Output:
+  - data/value_bets/shots_certs.txt  (also printed to console)
+  - No kickoff time included in lines, only fixture "Home vs Away".
 
 ENV:
-  ODDS_API_KEY  (required)
-  MIN_DEC_PRICE (optional, default 1.30)
-  TEAM_WIN_MAX  (optional, default 3.50)
+  ODDS_API_KEY   (required)
+  MIN_DEC_PRICE  (optional, default 1.30)
+  TEAM_WIN_MAX   (optional, default 3.50)
 """
 
 import os, re, json, math, time, random, unicodedata, datetime as dt
@@ -30,7 +39,6 @@ BOOKMAKERS = "Bet365"
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.30"))
 TEAM_ML_MAX = float(os.getenv("TEAM_WIN_MAX", "3.50"))
 
-# Limit to the leagues you care about (expand if needed)
 LEAGUE_SLUG_BY_ID = {
     8:   "england-premier-league",
     9:   "england-championship",
@@ -46,17 +54,17 @@ LEAGUE_SLUG_BY_ID = {
 
 EVENTS_API_URL = "https://api.odds-api.io/v3/events"
 ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-certs/1.1"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-certs/1.2"}
 TIMEOUT = 25
 
-ROOT = Path(".")
-PX_DIR    = ROOT / "data" / "predicted_xi" / "by_league"   # team_id -> name map
-SHOTS_DIR = ROOT / "data" / "player_shots" / "by_league"   # per-league player shots histories
-OUT_DIR   = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
-OUT_FILE  = OUT_DIR / "shots_certs.txt"
+ROOT     = Path(".")
+PX_DIR   = ROOT / "data" / "predicted_xi" / "by_league"
+SH_DIR   = ROOT / "data" / "player_shots" / "by_league"
+SOT_DIR  = ROOT / "data" / "player_shots_on_target" / "by_league"
+OUT_DIR  = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
+OUT_FILE = OUT_DIR / "shots_certs.txt"
 
 # ========= MARKET FILTERS =========
-# (Keep "shots" clean: exclude SOT/outside/halves/headers etc.)
 NEGATIVE_SHOTS_TERMS = {
     "on target","sot","outside","outside box","outside of box","from outside","outside the box",
     "header","headers","head","left foot","right foot","right-foot","left-foot",
@@ -66,9 +74,8 @@ NEGATIVE_SHOTS_TERMS = {
 }
 def market_is_player_shots(name: str) -> bool:
     s = re.sub(r"\s+", " ", (name or "")).strip().lower()
-    return (bool(s) and "player" in s and "shot" in s and not any(b in s for b in NEGATIVE_SHOTS_TERMS))
+    return bool(s) and "player" in s and "shot" in s and not any(b in s for b in NEGATIVE_SHOTS_TERMS)
 
-# SOT should include 'target' and still avoid outside/halves/headers variants.
 NEGATIVE_SOT_TERMS = {
     "outside","outside box","outside of box","from outside","outside the box",
     "header","headers","head",
@@ -77,11 +84,7 @@ NEGATIVE_SOT_TERMS = {
 }
 def market_is_player_sot(name: str) -> bool:
     s = re.sub(r"\s+", " ", (name or "")).strip().lower()
-    return (bool(s) and "player" in s and "shot" in s and "target" in s and not any(b in s for b in NEGATIVE_SOT_TERMS))
-
-# Lines to collect
-SHOT_LINES = [0.5, 1.5, 2.5]  # 1+, 2+, 3+
-SOT_LINES  = [0.5, 1.5]       # 1+, 2+
+    return bool(s) and "player" in s and "shot" in s and "target" in s and not any(b in s for b in NEGATIVE_SOT_TERMS)
 
 # ========= STRING NORMALISATION =========
 def strip_accents(s: str) -> str:
@@ -142,7 +145,6 @@ def _load_json(p: Path) -> Any:
         return None
 
 def _team_name_map(league_id: int) -> Dict[int, str]:
-    """Map team_id -> team_name from predicted_xi file."""
     blob = _load_json(PX_DIR / f"{league_id}.json") or {}
     m: Dict[int, str] = {}
     for fx in (blob.get("fixtures") or []):
@@ -153,42 +155,43 @@ def _team_name_map(league_id: int) -> Dict[int, str]:
                 m.setdefault(tid, nm)
     return m
 
-def discover_leagues() -> List[int]:
+def discover_leagues(dirpath: Path) -> List[int]:
     lids = set()
-    for p in (SHOTS_DIR.glob("*.json")):
+    for p in dirpath.glob("*.json"):
         try: lids.add(int(p.stem))
         except: pass
     return sorted(lids)
 
-def last7_all_one_plus(series: List[int]) -> bool:
+def last7_all_at_least(series: List[int], k: int) -> bool:
     seq = [x for x in series if isinstance(x, int)]
     if len(seq) < 7: return False
-    sub = seq[:7]  # assume newest -> older
-    return all(x >= 1 for x in sub)
+    sub = seq[:7]  # newest -> older
+    return all(x >= k for x in sub)
 
-def collect_candidates() -> List[dict]:
+def collect_stat_rows(dirpath: Path, need_k: int) -> List[dict]:
     """
-    Load per-league player shots histories.
-    Accepts keys: 'series' | 'shots_last_n' | 'shots'
+    Collect rows from a per-league directory, requiring last 7 all >= need_k.
+    Accepts keys: 'series' | 'last_n' | 'shots' | 'sot'
     """
     out = []
-    for lid in discover_leagues():
-        shots_blob = _load_json(SHOTS_DIR / f"{lid}.json") or {}
+    for lid in discover_leagues(dirpath):
+        blob = _load_json(dirpath / f"{lid}.json") or {}
         team_map = _team_name_map(lid)
-        players = shots_blob.get("players") or shots_blob.get("rows") or shots_blob.get("data") or []
+        players = blob.get("players") or blob.get("rows") or blob.get("data") or []
         for rec in players:
-            series = rec.get("series") or rec.get("shots_last_n") or rec.get("shots") or []
+            series = (rec.get("series") or rec.get("last_n") or
+                      rec.get("shots") or rec.get("sot") or [])
             if not isinstance(series, list): continue
-            if not last7_all_one_plus(series): continue
+            if not last7_all_at_least(series, need_k): continue
             player = rec.get("name") or rec.get("player_name") or rec.get("player")
             if not player: continue
             tid = rec.get("team_id")
             team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
             if not team: continue
-            pos = rec.get("position") or rec.get("pos")
+            pos = rec.get("position") or rec.get("pos") or ""
             out.append({
                 "league_id": lid, "player": player, "team": team,
-                "position": pos or "", "series": series[:10]
+                "position": pos, "series": series[:10]
             })
     return out
 
@@ -290,40 +293,57 @@ def main():
     if not api_key:
         raise SystemExit("ERROR: ODDS_API_KEY not set.")
 
-    # 1) Candidates from your player_shots data (1+ in each of last 7)
-    candidates = collect_candidates()
-    if not candidates:
-        print("[RESULT] No player candidates with 1+ in each of last 7.")
+    # Build candidate pools per bucket with correct stat/source
+    buckets_cfg = [
+        # kind, line, need_k, source_dir
+        ("shots", 0.5, 1, SH_DIR),
+        ("shots", 1.5, 2, SH_DIR),
+        ("shots", 2.5, 3, SH_DIR),
+        ("sot",   0.5, 1, SOT_DIR),
+        ("sot",   1.5, 2, SOT_DIR),
+    ]
+    # Gather candidates per bucket
+    candidates_by_bucket: Dict[Tuple[str,float], List[dict]] = {}
+    leagues_needed = set()
+    for kind, line, need_k, src in buckets_cfg:
+        rows = collect_stat_rows(src, need_k)
+        candidates_by_bucket[(kind, line)] = rows
+        leagues_needed.update(r["league_id"] for r in rows)
+
+    if not leagues_needed:
+        print("[RESULT] No candidates meet last-7 thresholds for any bucket.")
         return
 
-    # 2) Fetch events per league
-    lids_used = sorted({c["league_id"] for c in candidates})
-    slug_used = {lid: LEAGUE_SLUG_BY_ID.get(lid) for lid in lids_used if LEAGUE_SLUG_BY_ID.get(lid)}
+    # Fetch events per league
     events_by_league: Dict[int, List[dict]] = {}
-    for lid, slug in slug_used.items():
+    for lid in sorted(leagues_needed):
+        slug = LEAGUE_SLUG_BY_ID.get(lid)
+        if not slug: 
+            events_by_league[lid] = []
+            continue
         evs = get_events_for_league(slug, api_key)
         events_by_league[lid] = evs
         print(f"[EVENTS] {slug}: {len(evs)}")
 
-    # 3) Map each candidate to its event id(s)
-    def find_event_id_for_team(lid: int, team: str) -> List[int]:
+    # Map teams -> event ids
+    def find_event_ids(lid: int, team: str) -> List[int]:
         evs = events_by_league.get(lid, [])
         out = []
         for ev in evs:
             if team_names_match(team, ev.get("home","")) or team_names_match(team, ev.get("away","")):
-                if isinstance(ev.get("id"), int):
-                    out.append(ev["id"])
+                if isinstance(ev.get("id"), int): out.append(ev["id"])
         return out
 
-    for c in candidates:
-        c["event_ids"] = find_event_id_for_team(c["league_id"], c["team"])
+    for rows in candidates_by_bucket.values():
+        for r in rows:
+            r["event_ids"] = find_event_ids(r["league_id"], r["team"])
 
-    event_ids = sorted({eid for c in candidates for eid in (c.get("event_ids") or [])})
-    print(f"[ODDS] Unique events to query: {len(event_ids)}")
+    # Collect unique event ids and fetch odds
+    all_event_ids = sorted({eid for rows in candidates_by_bucket.values() for r in rows for eid in (r.get("event_ids") or [])})
+    print(f"[ODDS] Unique events to query: {len(all_event_ids)}")
 
-    # 4) Fetch odds for all events (batches of 10)
     odds_payloads: List[dict] = []
-    for i, batch in enumerate(chunked(event_ids, 10), start=1):
+    for i, batch in enumerate(chunked(all_event_ids, 10), start=1):
         print(f"[ODDS] batch {i} — {len(batch)} ids")
         odds_payloads.extend(get_odds_multi(batch, api_key))
     if not odds_payloads:
@@ -331,143 +351,95 @@ def main():
         return
     id_to_ev = {o.get("id"): o for o in odds_payloads if isinstance(o.get("id"), int)}
 
-    # 5) Scan markets — get best price per (player, fixture, market_type, line)
-    # categories for output
-    buckets = {
-        ("shots", 0.5): [],
-        ("shots", 1.5): [],
-        ("shots", 2.5): [],
-        ("sot",   0.5): [],
-        ("sot",   1.5): [],
-    }
+    # Find best prices per player/fixture/bucket
+    results: Dict[Tuple[str,float], List[dict]] = { (k,l): [] for k,l,_,_ in buckets_cfg }
 
-    # helper to store only the best price per key
-    best_map = {}  # key -> row
-    def upsert_row(key, row):
+    def upsert_best(best_map, key, row):
         cur = best_map.get(key)
         if (cur is None) or (row["price"] > cur["price"] + 1e-9):
             best_map[key] = row
 
-    for c in candidates:
-        for ev_id in c.get("event_ids") or []:
-            ev = id_to_ev.get(ev_id)
-            if not ev: continue
-            home, away = ev.get("home",""), ev.get("away","")
-            # Team ML filter first
-            best_home_ml, best_away_ml = min_win_prices(ev)
-            side = "home" if team_names_match(c["team"], home) else ("away" if team_names_match(c["team"], away) else None)
-            if not side: 
-                continue
-            team_ml = best_home_ml if side == "home" else best_away_ml
-            if team_ml is None or team_ml >= TEAM_ML_MAX:
-                continue
+    for (kind, line, need_k, _src) in buckets_cfg:
+        rows = candidates_by_bucket[(kind, line)]
+        best_map = {}
+        for c in rows:
+            for ev_id in c.get("event_ids") or []:
+                ev = id_to_ev.get(ev_id)
+                if not ev: continue
+                home, away = ev.get("home",""), ev.get("away","")
 
-            # scan markets
-            for m in bet365_markets(ev):
-                name = m.get("name","")
-                odds = m.get("odds")
+                # Team ML filter
+                home_ml, away_ml = min_win_prices(ev)
+                side = "home" if team_names_match(c["team"], home) else ("away" if team_names_match(c["team"], away) else None)
+                if not side: 
+                    continue
+                team_ml = home_ml if side == "home" else away_ml
+                if team_ml is None or team_ml >= TEAM_ML_MAX:
+                    continue
 
-                # SHOTS lines
-                if market_is_player_shots(name):
-                    target_lines = set(SHOT_LINES)
-                    if isinstance(odds, list):
-                        for opt in odds:
-                            if not player_label_matches(c["player"], opt.get("label")):
-                                continue
-                            line = parse_line(opt); price = parse_over_price(opt)
-                            if line in target_lines and price is not None and price >= MIN_PRICE:
-                                key = (c["player"], home, away, "shots", float(line))
-                                upsert_row(key, {
-                                    "player": c["player"], "position": c["position"], "team": c["team"],
-                                    "fixture": f"{home} vs {away}",
-                                    "price": float(price), "team_ml": float(team_ml),
-                                    "series": c["series"], "market": name, "line": float(line),
-                                })
-                    elif isinstance(odds, dict):
-                        for label, opt in odds.items():
-                            if not player_label_matches(c["player"], label):
-                                continue
-                            line = parse_line(opt if isinstance(opt, dict) else {})
-                            price = parse_over_price(opt if isinstance(opt, dict) else {})
-                            if line in target_lines and price is not None and price >= MIN_PRICE:
-                                key = (c["player"], home, away, "shots", float(line))
-                                upsert_row(key, {
-                                    "player": c["player"], "position": c["position"], "team": c["team"],
-                                    "fixture": f"{home} vs {away}",
-                                    "price": float(price), "team_ml": float(team_ml),
-                                    "series": c["series"], "market": name, "line": float(line),
-                                })
+                # Market scan
+                for m in bet365_markets(ev):
+                    name = m.get("name","")
+                    if kind == "shots":
+                        if not market_is_player_shots(name): 
+                            continue
+                    else:
+                        if not market_is_player_sot(name):
+                            continue
 
-                # SOT lines
-                if market_is_player_sot(name):
-                    target_lines = set(SOT_LINES)
-                    if isinstance(odds, list):
-                        for opt in odds:
-                            if not player_label_matches(c["player"], opt.get("label")):
-                                continue
-                            line = parse_line(opt); price = parse_over_price(opt)
-                            if line in target_lines and price is not None and price >= MIN_PRICE:
-                                key = (c["player"], home, away, "sot", float(line))
-                                upsert_row(key, {
-                                    "player": c["player"], "position": c["position"], "team": c["team"],
-                                    "fixture": f"{home} vs {away}",
-                                    "price": float(price), "team_ml": float(team_ml),
-                                    "series": c["series"], "market": name, "line": float(line),
-                                })
-                    elif isinstance(odds, dict):
-                        for label, opt in odds.items():
-                            if not player_label_matches(c["player"], label):
-                                continue
-                            line = parse_line(opt if isinstance(opt, dict) else {})
-                            price = parse_over_price(opt if isinstance(opt, dict) else {})
-                            if line in target_lines and price is not None and price >= MIN_PRICE:
-                                key = (c["player"], home, away, "sot", float(line))
-                                upsert_row(key, {
-                                    "player": c["player"], "position": c["position"], "team": c["team"],
-                                    "fixture": f"{home} vs {away}",
-                                    "price": float(price), "team_ml": float(team_ml),
-                                    "series": c["series"], "market": name, "line": float(line),
-                                })
+                    odds = m.get("odds")
+                    # normalize loop over options
+                    def iter_opts():
+                        if isinstance(odds, list):
+                            for opt in odds:
+                                yield opt.get("label"), opt
+                        elif isinstance(odds, dict):
+                            for label, opt in odds.items():
+                                yield label, opt
+                    for label, opt in iter_opts():
+                        if not player_label_matches(c["player"], label): 
+                            continue
+                        l = parse_line(opt); price = parse_over_price(opt)
+                        if l is None or not math.isclose(l, line, abs_tol=1e-6): 
+                            continue
+                        if price is None or price < MIN_PRICE:
+                            continue
+                        key = (c["player"], home, away, kind, float(line))
+                        upsert_best(best_map, key, {
+                            "player": c["player"], "position": c["position"], "team": c["team"],
+                            "fixture": f"{home} vs {away}",
+                            "price": float(price), "team_ml": float(team_ml),
+                            "series": c["series"], "market": name, "line": float(line),
+                        })
+        # flatten
+        results[(kind, line)] = list(best_map.values())
 
-    # Scatter best_map into buckets
-    for key, row in best_map.items():
-        player, home, away, kind, line = key
-        buckets[(kind, float(line))].append(row)
+    # Render
+    def section_title(kind: str, line: float) -> str:
+        n_plus = {0.5:"1+", 1.5:"2+", 2.5:"3+"}.get(line, f"{line}+")
+        base = "Player Shots" if kind == "shots" else "Player Shots On Target"
+        return f"===== CERTS — {base} {n_plus} ====="
 
-    # 6) Render
-    def title_for(kind: str, line: float) -> str:
-        n_plus = {0.5: "1+", 1.5: "2+", 2.5: "3+"}.get(line, f"{line}+")
-        return "Player Shots" + (" On Target" if kind == "sot" else "") + f" {n_plus}"
+    header = f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}"
+    sub = "Candidates per bucket are gated on last 7 for that stat/threshold (n>=7). Bet365 only. Strict market filters."
+    lines_out = [header, sub, ""]
 
-    lines_out = []
-    lines_out.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
-    lines_out.append("Candidates: 1+ shot in each of last 7 (n>=7), Bet365 only, strict market filters.")
-    lines_out.append("")
-
-    # Order of sections
-    sections = [
-        ("shots", 0.5),
-        ("shots", 1.5),
-        ("shots", 2.5),
-        ("sot",   0.5),
-        ("sot",   1.5),
-    ]
-
+    order = [("shots",0.5), ("shots",1.5), ("shots",2.5), ("sot",0.5), ("sot",1.5)]
     any_hit = False
-    for kind, line in sections:
-        arr = buckets.get((kind, line)) or []
-        if not arr:
+    for key in order:
+        arr = results.get(key) or []
+        if not arr: 
             continue
         any_hit = True
         arr.sort(key=lambda x: (-x["price"], x["player"]))
-        lines_out.append(f"===== CERTS — {title_for(kind, line)} =====")
+        lines_out.append(section_title(*key))
         for x in arr:
-            ser = ",".join(map(str, x["series"][:7]))
+            ser7 = ",".join(map(str, x["series"][:7]))
             pos = f"[{x['position']}]" if x.get("position") else ""
-            stat_name = "Player Shots" if kind == "shots" else "Player Shots On Target"
+            stat_name = "Player Shots" if key[0] == "shots" else "Player Shots On Target"
             lines_out.append(
                 f" • {x['player']} {pos} — {x['team']} | {x['fixture']} | "
-                f"{stat_name} Over {x['line']:.1f} @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | series7: {ser}"
+                f"{stat_name} Over {x['line']:.1f} @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | series7: {ser7}"
             )
         lines_out.append("")
 
