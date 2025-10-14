@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Value bets — SHOTS & SOT certs (per-threshold gating on last 7)
+Value bets — SHOTS & SOT certs (robust discovery + per-threshold gating)
 
-Buckets (each requires n>=7 and every one of the last 7 games >= threshold):
+Buckets (each requires n>=7 and last-7 for that stat/threshold):
   • Player Shots: Over 0.5 (1+), Over 1.5 (2+), Over 2.5 (3+)
   • Player Shots On Target: Over 0.5 (1+), Over 1.5 (2+)
 
-Data inputs:
-  - Shots histories:          data/player_shots/by_league/{league_id}.json
-  - Shots on target histories:data/player_shots_on_target/by_league/{league_id}.json
-  - Predicted XI (team names):data/predicted_xi/by_league/{league_id}.json  (for team_id->name fallback)
+Data inputs (scanned recursively; with or without by_league/):
+  - Shots:          data/player_shots/**/*.json
+  - Shots on target:data/player_shots_on_target/**/*.json
+  - Predicted XI:   data/predicted_xi/by_league/{league_id}.json  (optional team_id→name)
 
 Bookmaker / odds filters:
   - Bet365 only
@@ -18,8 +18,7 @@ Bookmaker / odds filters:
   - Team ML (match winner) for player's side must be < TEAM_WIN_MAX (default 3.50)
 
 Output:
-  - data/value_bets/shots_certs.txt  (also printed to console)
-  - No kickoff time included in lines, only fixture "Home vs Away".
+  - data/value_bets/shots_certs.txt  (also printed; no KO time in lines)
 
 ENV:
   ODDS_API_KEY   (required)
@@ -29,7 +28,7 @@ ENV:
 
 import os, re, json, math, time, random, unicodedata, datetime as dt
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Any, Iterable
 import requests
 from itertools import islice
 
@@ -39,6 +38,7 @@ BOOKMAKERS = "Bet365"
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.30"))
 TEAM_ML_MAX = float(os.getenv("TEAM_WIN_MAX", "3.50"))
 
+# Sport → league slug mapping (extend if needed)
 LEAGUE_SLUG_BY_ID = {
     8:   "england-premier-league",
     9:   "england-championship",
@@ -54,13 +54,13 @@ LEAGUE_SLUG_BY_ID = {
 
 EVENTS_API_URL = "https://api.odds-api.io/v3/events"
 ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-certs/1.2"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "odds-shots-certs/1.3"}
 TIMEOUT = 25
 
 ROOT     = Path(".")
 PX_DIR   = ROOT / "data" / "predicted_xi" / "by_league"
-SH_DIR   = ROOT / "data" / "player_shots" / "by_league"
-SOT_DIR  = ROOT / "data" / "player_shots_on_target" / "by_league"
+SH_ROOT  = ROOT / "data" / "player_shots"
+SOT_ROOT = ROOT / "data" / "player_shots_on_target"
 OUT_DIR  = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE = OUT_DIR / "shots_certs.txt"
 
@@ -155,44 +155,108 @@ def _team_name_map(league_id: int) -> Dict[int, str]:
                 m.setdefault(tid, nm)
     return m
 
-def discover_leagues(dirpath: Path) -> List[int]:
-    lids = set()
-    for p in dirpath.glob("*.json"):
-        try: lids.add(int(p.stem))
-        except: pass
-    return sorted(lids)
+def _iter_json_files(root: Path) -> Iterable[Path]:
+    if not root.exists(): return []
+    # recursively find *.json under root
+    return root.rglob("*.json")
+
+def _digits_in(s: str) -> Optional[int]:
+    m = re.search(r"(\d{1,6})", s or "")
+    try: return int(m.group(1)) if m else None
+    except: return None
+
+def _extract_series(rec: dict, prefer_keys: List[str]) -> Optional[List[int]]:
+    for k in prefer_keys + ["series","last_n","values","shots","sot"]:
+        v = rec.get(k)
+        if isinstance(v, list):
+            nums = []
+            for x in v:
+                try: nums.append(int(x))
+                except: nums.append(0)
+            return nums
+    return None
 
 def last7_all_at_least(series: List[int], k: int) -> bool:
     seq = [x for x in series if isinstance(x, int)]
     if len(seq) < 7: return False
-    sub = seq[:7]  # newest -> older
-    return all(x >= k for x in sub)
+    head7 = seq[:7]
+    tail7 = seq[-7:]
+    return all(x >= k for x in head7) or all(x >= k for x in tail7)
 
-def collect_stat_rows(dirpath: Path, need_k: int) -> List[dict]:
+def collect_stat_rows(root_dir: Path, need_k: int, prefer_keys: List[str]) -> List[dict]:
     """
-    Collect rows from a per-league directory, requiring last 7 all >= need_k.
-    Accepts keys: 'series' | 'last_n' | 'shots' | 'sot'
+    Scan any JSON under root_dir for player rows. Tries common shapes:
+      - top-level { players|rows|data: [...] }
+      - top-level list [...]
+      - nested under { stats: { shots|shots_on_target: { players: [...] } } } (fallback)
+    Each row must have: player name, team (or team_id), league_id, and a numeric series list.
     """
     out = []
-    for lid in discover_leagues(dirpath):
-        blob = _load_json(dirpath / f"{lid}.json") or {}
-        team_map = _team_name_map(lid)
-        players = blob.get("players") or blob.get("rows") or blob.get("data") or []
-        for rec in players:
-            series = (rec.get("series") or rec.get("last_n") or
-                      rec.get("shots") or rec.get("sot") or [])
-            if not isinstance(series, list): continue
-            if not last7_all_at_least(series, need_k): continue
-            player = rec.get("name") or rec.get("player_name") or rec.get("player")
-            if not player: continue
-            tid = rec.get("team_id")
-            team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
-            if not team: continue
-            pos = rec.get("position") or rec.get("pos") or ""
-            out.append({
-                "league_id": lid, "player": player, "team": team,
-                "position": pos, "series": series[:10]
-            })
+    # group team name map cache per league
+    team_maps: Dict[int, Dict[int, str]] = {}
+
+    for fp in _iter_json_files(root_dir):
+        blob = _load_json(fp)
+        if blob is None: 
+            continue
+
+        # Harvest candidate rows array from various layouts
+        candidate_arrays = []
+
+        if isinstance(blob, list):
+            candidate_arrays.append(blob)
+        elif isinstance(blob, dict):
+            for key in ("players","rows","data"):
+                if isinstance(blob.get(key), list):
+                    candidate_arrays.append(blob[key])
+            # nested stat shapes
+            stats = blob.get("stats") if isinstance(blob.get("stats"), dict) else None
+            if stats:
+                for sk in ("shots","shots_on_target"):
+                    node = stats.get(sk)
+                    if isinstance(node, dict):
+                        for key in ("players","rows","data"):
+                            if isinstance(node.get(key), list):
+                                candidate_arrays.append(node[key])
+
+        if not candidate_arrays:
+            continue
+
+        for arr in candidate_arrays:
+            for rec in arr:
+                if not isinstance(rec, dict): 
+                    continue
+                # player
+                player = rec.get("name") or rec.get("player_name") or rec.get("player")
+                if not player: 
+                    continue
+                # series
+                series = _extract_series(rec, prefer_keys) or []
+                if not isinstance(series, list) or len(series) < 7:
+                    continue
+                if not last7_all_at_least(series, need_k):
+                    continue
+                # league id
+                lid = rec.get("league_id") or (rec.get("league", {}) or {}).get("id")
+                if not isinstance(lid, int):
+                    lid = _digits_in(fp.stem)  # fallback to digits in filename
+                if not isinstance(lid, int):
+                    continue
+                # team
+                team = rec.get("team") or rec.get("team_name")
+                if not team:
+                    tid = rec.get("team_id")
+                    if isinstance(tid, int):
+                        if lid not in team_maps:
+                            team_maps[lid] = _team_name_map(lid)
+                        team = team_maps[lid].get(tid)
+                if not team:
+                    continue
+                pos = rec.get("position") or rec.get("pos") or ""
+                out.append({
+                    "league_id": lid, "player": player, "team": team,
+                    "position": pos, "series": series[:10]
+                })
     return out
 
 # ========= ODDS API =========
@@ -293,33 +357,42 @@ def main():
     if not api_key:
         raise SystemExit("ERROR: ODDS_API_KEY not set.")
 
-    # Build candidate pools per bucket with correct stat/source
+    # Buckets: (kind, line, need_k, prefer_keys_for_series)
     buckets_cfg = [
-        # kind, line, need_k, source_dir
-        ("shots", 0.5, 1, SH_DIR),
-        ("shots", 1.5, 2, SH_DIR),
-        ("shots", 2.5, 3, SH_DIR),
-        ("sot",   0.5, 1, SOT_DIR),
-        ("sot",   1.5, 2, SOT_DIR),
+        ("shots", 0.5, 1, ["shots","series"]),
+        ("shots", 1.5, 2, ["shots","series"]),
+        ("shots", 2.5, 3, ["shots","series"]),
+        ("sot",   0.5, 1, ["sot","shots_on_target","series"]),
+        ("sot",   1.5, 2, ["sot","shots_on_target","series"]),
     ]
-    # Gather candidates per bucket
+
+    # Gather candidates per bucket (robust scanning)
     candidates_by_bucket: Dict[Tuple[str,float], List[dict]] = {}
     leagues_needed = set()
-    for kind, line, need_k, src in buckets_cfg:
-        rows = collect_stat_rows(src, need_k)
+    for kind, line, need_k, keys in buckets_cfg:
+        root = SH_ROOT if kind == "shots" else SOT_ROOT
+        rows = collect_stat_rows(root, need_k, keys)
         candidates_by_bucket[(kind, line)] = rows
         leagues_needed.update(r["league_id"] for r in rows)
 
+    # Diagnostics to help if empty
+    total_cands = sum(len(v) for v in candidates_by_bucket.values())
+    print(f"[CANDIDATES] Total across buckets: {total_cands}")
+    for k in candidates_by_bucket:
+        print(f"[CANDIDATES] {k}: {len(candidates_by_bucket[k])}")
+
     if not leagues_needed:
         print("[RESULT] No candidates meet last-7 thresholds for any bucket.")
+        print(f"Scanned SH_ROOT={SH_ROOT.resolve()}  SOT_ROOT={SOT_ROOT.resolve()}")
         return
 
     # Fetch events per league
     events_by_league: Dict[int, List[dict]] = {}
     for lid in sorted(leagues_needed):
         slug = LEAGUE_SLUG_BY_ID.get(lid)
-        if not slug: 
+        if not slug:
             events_by_league[lid] = []
+            print(f"[WARN] No slug mapping for league_id={lid}; skipping its candidates.")
             continue
         evs = get_events_for_league(slug, api_key)
         events_by_league[lid] = evs
@@ -359,7 +432,7 @@ def main():
         if (cur is None) or (row["price"] > cur["price"] + 1e-9):
             best_map[key] = row
 
-    for (kind, line, need_k, _src) in buckets_cfg:
+    for (kind, line, need_k, _keys) in buckets_cfg:
         rows = candidates_by_bucket[(kind, line)]
         best_map = {}
         for c in rows:
@@ -388,15 +461,14 @@ def main():
                             continue
 
                     odds = m.get("odds")
-                    # normalize loop over options
-                    def iter_opts():
-                        if isinstance(odds, list):
-                            for opt in odds:
-                                yield opt.get("label"), opt
-                        elif isinstance(odds, dict):
-                            for label, opt in odds.items():
-                                yield label, opt
-                    for label, opt in iter_opts():
+                    if isinstance(odds, list):
+                        it = ((opt.get("label"), opt) for opt in odds)
+                    elif isinstance(odds, dict):
+                        it = odds.items()
+                    else:
+                        continue
+
+                    for label, opt in it:
                         if not player_label_matches(c["player"], label): 
                             continue
                         l = parse_line(opt); price = parse_over_price(opt)
@@ -411,7 +483,6 @@ def main():
                             "price": float(price), "team_ml": float(team_ml),
                             "series": c["series"], "market": name, "line": float(line),
                         })
-        # flatten
         results[(kind, line)] = list(best_map.values())
 
     # Render
