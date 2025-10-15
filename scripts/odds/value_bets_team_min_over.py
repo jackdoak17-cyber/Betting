@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Value bets - Team MIN (p80 & p100) floors -> Over lines
+Value bets — Team MIN (p80 & p100) floors → Over lines
 
 Inputs:
-  - data/team_lines/by_league/*.json (from scripts/build_fixture_team_lines.py)
+  - data/team_lines/by_league/*.json
 
 Bookmaker: Bet365 only
 Markets used (team-level):
@@ -14,12 +14,10 @@ Markets used (team-level):
   - Team Tackles (Home/Away)
 
 Logic:
-  - For each upcoming fixture (from team_lines files), read each team’s MIN floors:
-      p80_min, p100_min per stat.
-  - For Bet365 'Over X.5' lines: to be covered by a MIN floor T, require ceil(X.5) <= T.
-    (Example: if p80_min Shots = 11, then Over 10.5 qualifies; Over 11.5 does not.)
-  - Capture the best price among qualifying Over options; filter by MIN_DEC_PRICE (default 1.20).
-  - Render two lists: MIN 80 and MIN 100, ranked by price desc.
+  - For each upcoming fixture, read each team’s MIN floors: p80.min and p100.min per stat.
+  - For 'Over X.5' lines: covered by MIN floor T if ceil(X.5) <= T. (Generalized: ceil(hdp) <= T)
+  - Capture best Over price, filter by MIN_DEC_PRICE (default 1.20).
+  - Output two lists: MIN 80 and MIN 100, ranked by odds desc.
 
 ENV:
   ODDS_API_KEY (required)
@@ -38,20 +36,20 @@ import requests
 # ========= CONFIG =========
 SPORT = "football"
 BOOKMAKERS = os.getenv("BOOKMAKERS", "Bet365")
-MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.20"))
-CAPTURE_FLOOR = float(os.getenv("CAPTURE_FLOOR", "1.10"))
-WINDOW_DAYS = int(os.getenv("WINDOW_DAYS", "7"))  # 0 disables time filter
+MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.20"))   # final filter
+CAPTURE_FLOOR = float(os.getenv("CAPTURE_FLOOR", "1.10"))   # capture for diagnostics
+WINDOW_DAYS = int(os.getenv("WINDOW_DAYS", "7"))            # 0 disables time filter
 TIMEOUT = 25
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "team-min-over/1.0"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "team-min-over/1.1"}
 
 ROOT = Path(".")
 LINES_DIR = ROOT / "data" / "team_lines" / "by_league"
 PX_DIR    = ROOT / "data" / "predicted_xi" / "by_league"
-OUT_DIR = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
-OUT_TXT = OUT_DIR / "team_min_over.txt"
-OUT_NDJSON = OUT_DIR / "team_min_over.ndjson"
+OUT_DIR   = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
+OUT_TXT   = OUT_DIR / "team_min_over.txt"
+OUT_NDJSON= OUT_DIR / "team_min_over.ndjson"
 
-EVENTS_API_URL = "https://api.odds-api.io/v3/events"
+EVENTS_API_URL     = "https://api.odds-api.io/v3/events"
 ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
 
 # ========= LEAGUE MAPPING (SportMonks -> Odds-API) =========
@@ -69,14 +67,12 @@ LEAGUE_SLUG_BY_ID = {
 }
 
 # ========= TEAM MARKET MAP =========
-# Only include markets that commonly exist at team level in Odds API
-STAT_MARKETS = {
+STAT_MARKETS = {  # allowed team markets
     "shots": "team shots",
     "shots_on_target": "team shots on target",
     "corners": "team corners",
     "tackles": "team tackles",
 }
-
 TEAM_MARKET_KEYS = {
     "team shots": "shots",
     "team shots on target": "shots_on_target",
@@ -111,7 +107,6 @@ TEAM_ALIAS = {
     "celta": "rc celta de vigo",
     "deportivo alaves": "deportivo alaves",
 }
-
 GENERIC_TEAM_TOKENS = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
 
 def expand_alias(name: str) -> str:
@@ -203,7 +198,10 @@ def within_next_days(ev: dict, days: int) -> bool:
 
 def get_odds_multi(event_ids: List[int], api_key: str) -> List[dict]:
     if not event_ids: return []
-    r = http_get_with_retries(ODDS_MULTI_API_URL, {"apiKey": api_key, "eventIds": ",".join(map(str, event_ids)), "bookmakers": BOOKMAKERS})
+    r = http_get_with_retries(
+        ODDS_MULTI_API_URL,
+        {"apiKey": api_key, "eventIds": ",".join(map(str, event_ids)), "bookmakers": BOOKMAKERS}
+    )
     if not (r and r.status_code == 200): return []
     try: data = r.json()
     except: return []
@@ -218,6 +216,7 @@ def bet365_markets(ev: dict):
 def market_side_and_stat(name: str) -> Tuple[Optional[str], Optional[str]]:
     s = norm(name)
     side = None
+    # identify side from suffix/word
     if s.endswith(" home") or " home" in s:
         side = "home"; s = s.replace(" home", "").strip()
     elif s.endswith(" away") or " away" in s:
@@ -246,25 +245,38 @@ class TeamLines:
         self.fixtures = body.get("fixtures") or []
 
     def iter_thresholds(self):
-        """Yield (fixture_meta, side, stat, p80_min, p100_min, team_id, opp_id, team_name, opp_name)."""
+        """
+        Yield: (meta, side, stat, p80_min, p100_min, team_id, opp_id, team_name, opp_name).
+        We pull names from both teams[side] and fixture-level fields for robustness.
+        """
         for fx in self.fixtures:
             league_id = fx.get("league_id") or self.league_id
             meta = {
                 "fixture_id": fx.get("fixture_id"),
                 "league_id": league_id,
                 "starting_at": fx.get("starting_at"),
+                "home_id": fx.get("home_id"),
+                "away_id": fx.get("away_id"),
+                "home_name": fx.get("home_name"),
+                "away_name": fx.get("away_name"),
             }
             teams = fx.get("teams") or {}
             for side in ("home", "away"):
                 t = (teams.get(side) or {})
                 opp_side = "away" if side == "home" else "home"
                 opp = (teams.get(opp_side) or {})
-                team_id = t.get("team_id"); opp_id = opp.get("team_id")
-                team_name = t.get("name") or t.get("team_name")
-                opp_name  = opp.get("name") or opp.get("team_name")
+
+                # prefer per-team names; fallback to fixture-level
+                team_id = t.get("team_id") or (meta["home_id"] if side == "home" else meta["away_id"])
+                opp_id  = opp.get("team_id") or (meta["away_id"] if side == "home" else meta["home_id"])
+                team_name = t.get("name") or t.get("team_name") \
+                            or (meta["home_name"] if side == "home" else meta["away_name"])
+                opp_name  = opp.get("name") or opp.get("team_name") \
+                            or (meta["away_name"] if side == "home" else meta["home_name"])
+
                 stats = (t.get("stats") or {})
                 for stat_key, m in stats.items():
-                    if stat_key not in STAT_MARKETS:  # skip unsupported markets
+                    if stat_key not in STAT_MARKETS:
                         continue
                     p80 = (m.get("p80") or {}).get("min")
                     p100 = (m.get("p100") or {}).get("min")
@@ -277,7 +289,7 @@ def ceil_from_half_line(hdp: float) -> int:
     return math.ceil(float(hdp))
 
 def best_over_price_for_threshold(ev: dict, team_side: str, stat: str, T: int) -> Optional[Tuple[float, float, str]]:
-    """Return (price, line, market_name) for the best Over with ceil(hdp) <= T."""
+    """Return (price, line, market_name) for best Over with ceil(hdp) <= T."""
     best = None
     for m in bet365_markets(ev):
         side, stat_key = market_side_and_stat(m.get("name", ""))
@@ -306,12 +318,18 @@ def main():
 
     # Load team-lines
     leagues: Dict[int, TeamLines] = {}
-    for p in sorted(LINES_DIR.glob("*.json")):
+    files = sorted(LINES_DIR.glob("*.json"))
+    for p in files:
         try:
             body = json.loads(p.read_text(encoding="utf-8"))
         except Exception:
+            print(f"[WARN] Could not parse {p}")
             continue
-        lid = int(body.get("league_id") or re.findall(r"(\d+)", p.stem)[0])
+        try:
+            lid = int(body.get("league_id") or re.findall(r"(\d+)", p.stem)[0])
+        except Exception:
+            print(f"[WARN] Could not infer league_id from {p.name}")
+            continue
         leagues[lid] = TeamLines(lid, body)
 
     if not leagues:
@@ -326,7 +344,6 @@ def main():
             continue
         name_map = team_name_map_from_px(lid)
         for meta, side, stat, p80, p100, team_id, opp_id, team_name, opp_name in TL.iter_thresholds():
-            # fill names from PX if missing
             if not team_name and isinstance(team_id, int):
                 team_name = name_map.get(team_id)
             if not opp_name and isinstance(opp_id, int):
@@ -375,16 +392,17 @@ def main():
         w["event_ids"] = find_event_ids(w["league_id"], w.get("team",""), w.get("opp",""))
 
     mapped = [w for w in wants if w.get("event_ids")]
-    print(f"[MAP] mapped={len(mapped)}/{len(wants)} thresholds")
+    print(f"[MAP] mapped_thresholds={len(mapped)}/{len(wants)}")
 
-    # Fetch odds (batches of 10)
+    # Fetch odds
     event_ids = sorted({eid for w in mapped for eid in w["event_ids"]})
     print(f"[ODDS] Unique events to query: {len(event_ids)}")
     odds_payloads: List[dict] = []
     for i, batch in enumerate(chunked(event_ids, 10), start=1):
-        print(f"[ODDS] batch {i} - {len(batch)} ids")
+        print(f"[ODDS] batch {i} — {len(batch)} ids")
         odds_payloads.extend(get_odds_multi(batch, api_key))
     id_to_ev = {o.get("id"): o for o in odds_payloads if isinstance(o.get("id"), int)}
+    print(f"[ODDS] payloads_received={len(id_to_ev)}")
 
     # Evaluate candidates
     p80_rows: List[dict] = []
@@ -392,15 +410,14 @@ def main():
 
     for w in mapped:
         team = w.get("team") or ""
-        opp = w.get("opp") or ""
-        lid = w.get("league_id")
+        opp  = w.get("opp")  or ""
+        lid  = w.get("league_id")
         stat = w.get("stat")
         side = w.get("side")
         for ev_id in w["event_ids"]:
             ev = id_to_ev.get(ev_id)
             if not ev: continue
             home, away = ev.get("home",""), ev.get("away","")
-            # Determine side in this event
             ev_side = "home" if team_names_match(team, home) else ("away" if team_names_match(team, away) else side)
 
             def maybe_add(T: Optional[int], bucket: str):
@@ -425,7 +442,7 @@ def main():
                 if bucket == "p80": p80_rows.append(row)
                 else: p100_rows.append(row)
 
-            maybe_add(w.get("p80"), "p80")
+            maybe_add(w.get("p80"),  "p80")
             maybe_add(w.get("p100"), "p100")
 
     # Sort and render
@@ -434,7 +451,7 @@ def main():
 
     header = (
         f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}\n"
-        f"Min price: {MIN_DEC_PRICE:.2f}  |  Capture>={CAPTURE_FLOOR:.2f}  |  Bookmaker: {BOOKMAKERS}  |  WINDOW_DAYS={WINDOW_DAYS}\n"
+        f"Min price: {MIN_DEC_PRICE:.2f} | Capture≥{CAPTURE_FLOOR:.2f} | Bookmaker: {BOOKMAKERS} | WINDOW_DAYS={WINDOW_DAYS}\n"
     )
 
     def stat_label(k: str) -> str:
@@ -446,18 +463,17 @@ def main():
         }.get(k, k)
 
     def fmt_row(r: dict) -> str:
-        return (f" • {r['team']} - {stat_label(r['stat'])} Over {r['line']:.1f} @ {r['price']:.3f} | "
+        return (f" • {r['team']} — {stat_label(r['stat'])} Over {r['line']:.1f} @ {r['price']:.3f} | "
                 f"{r['fixture']} | min={r['safe_min']} | {r['market']}")
 
     lines = [header]
-    lines.append("===== TEAM MIN 80 - Over candidates =====")
+    lines.append("===== TEAM MIN 80 — Over candidates =====")
     if p80_rows:
         for r in p80_rows: lines.append(fmt_row(r))
     else:
         lines.append("No matches found (no qualifying Over lines at or above min price).")
     lines.append("")
-
-    lines.append("===== TEAM MIN 100 - Over candidates =====")
+    lines.append("===== TEAM MIN 100 — Over candidates =====")
     if p100_rows:
         for r in p100_rows: lines.append(fmt_row(r))
     else:
@@ -465,14 +481,13 @@ def main():
     lines.append("")
 
     OUT_TXT.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-
     with OUT_NDJSON.open("w", encoding="utf-8") as f:
         for r in p80_rows:
             rr = dict(r); rr["bucket"] = "p80"; f.write(json.dumps(rr, ensure_ascii=False) + "\n")
         for r in p100_rows:
             rr = dict(r); rr["bucket"] = "p100"; f.write(json.dumps(rr, ensure_ascii=False) + "\n")
 
-    print(header)
+    print(header.strip())
     print(f"[RESULT] p80={len(p80_rows)}  p100={len(p100_rows)}  (written to {OUT_TXT})")
 
 if __name__ == "__main__":
