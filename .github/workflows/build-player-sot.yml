@@ -15,6 +15,9 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
+  # expose the secret under BOTH names your script accepts
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+  SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
 
 jobs:
   build-sot:
@@ -22,7 +25,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout (full history for rebase)
+      - name: Checkout (full history)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -37,9 +40,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      - name: Sanity check secret (no token printed)
+        run: |
+          if [ -z "${SPORTMONKS_TOKEN:-}" ] && [ -z "${SPORTMONKS_API_TOKEN:-}" ]; then
+            echo "ERROR: SPORTMONKS_TOKEN secret not available to job." >&2
+            exit 1
+          fi
+
       - name: Build per-league SOT histories
         run: |
-          # adjust if your builder script has a different name/args
           python scripts/build_player_sot.py
           echo "Time (UTC): $(date -u +"%Y-%m-%dT%H:%M:%S%z")"
 
@@ -58,26 +67,24 @@ jobs:
           git config user.name  "$GIT_AUTHOR_NAME"
           git config user.email "$GIT_AUTHOR_EMAIL"
 
-          # Stage only SOT outputs; add/adjust paths as needed
           git add \
             data/player_shots_on_target/by_league/*.json \
             data/player_shots_on_target/coverage.txt \
             data/player_shots_on_target/coverage.json \
             data/player_shots_on_target/summary_by_team.txt || true
 
-          # Create commit if there are changes
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
+
           ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           git commit -m "chore(player_sot): update ${ts}"
 
-          # Robust push: rebase on origin/main and retry
           for attempt in 1 2 3; do
             echo "Push attempt ${attempt}…"
             git fetch origin main
-            git rebase origin/main || (echo "Rebase failed"; git rebase --abort; exit 1)
+            git rebase origin/main || { echo "Rebase failed"; git rebase --abort; exit 1; }
             if git push --force-with-lease origin HEAD:main; then
               echo "Pushed."
               break
