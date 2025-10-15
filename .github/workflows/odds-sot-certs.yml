@@ -7,13 +7,22 @@ on:
         description: "Minimum decimal price (e.g., 1.30)"
         default: "1.30"
       team_win_max:
-        description: "Maximum team ML to include (e.g., 3.50)"
+        description: "Maximum team ML price to include (e.g., 3.50)"
         default: "3.50"
       window_days:
-        description: "Only include fixtures in the next N days (0=all)"
+        description: "Limit fixtures to next N days (0 = no limit)"
         default: "7"
+      min_capture_price:
+        description: "Capture ≥ this price for diagnostics/near misses"
+        default: "1.10"
+      allow_dnb_fallback:
+        description: "Allow DNB fallback if ML missing (0/1)"
+        default: "1"
+      show_near_misses:
+        description: "Show near misses if none at min price (0/1)"
+        default: "1"
   schedule:
-    - cron: "12 6 * * *"  # ~07:12 London
+    - cron: "17 6 * * *"  # daily ~06:17 UTC
 
 permissions:
   contents: write
@@ -25,9 +34,9 @@ env:
   MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
   TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
   WINDOW_DAYS:   "${{ github.event.inputs.window_days   || '7' }}"
-  MIN_CAPTURE_PRICE: "1.20"
-  SHOW_NEAR_MISSES:  "1"
-  ALLOW_DNB_FALLBACK: "1"
+  MIN_CAPTURE_PRICE: "${{ github.event.inputs.min_capture_price || '1.10' }}"
+  ALLOW_DNB_FALLBACK: "${{ github.event.inputs.allow_dnb_fallback || '1' }}"
+  SHOW_NEAR_MISSES: "${{ github.event.inputs.show_near_misses || '1' }}"
 
 jobs:
   run:
@@ -36,11 +45,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify inputs
+      - name: Verify inputs & files
         run: |
           test -n "${{ secrets.ODDS_API_KEY }}" || (echo "ODDS_API_KEY missing" >&2; exit 1)
           test -f "scripts/odds/value_bets_sot_certs.py" || (echo "script missing" >&2; exit 1)
-          test -f "data/player_shots_on_target/combined.json" || (echo "SOT combined.json missing" >&2; exit 1)
+          test -f "data/player_shots_on_target/combined.json" || (echo "combined SOT file missing" >&2; exit 1)
           test -d "data/predicted_xi/by_league" || (echo "predicted XI dir missing" >&2; exit 1)
 
       - uses: actions/setup-python@v5
@@ -60,8 +69,8 @@ jobs:
           TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
           WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
           MIN_CAPTURE_PRICE: ${{ env.MIN_CAPTURE_PRICE }}
-          SHOW_NEAR_MISSES:  ${{ env.SHOW_NEAR_MISSES }}
           ALLOW_DNB_FALLBACK: ${{ env.ALLOW_DNB_FALLBACK }}
+          SHOW_NEAR_MISSES: ${{ env.SHOW_NEAR_MISSES }}
         run: |
           mkdir -p "${RESULTS_DIR}"
           python scripts/odds/value_bets_sot_certs.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
@@ -81,4 +90,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "${RESULTS_DIR}/${RESULTS_FILE}"
           git diff --cached --quiet || git commit -m "feat(odds): update SOT certs [skip ci]"
+          git pull --rebase --autostash
           git push || true
