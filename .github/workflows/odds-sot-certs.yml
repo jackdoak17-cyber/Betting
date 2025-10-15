@@ -1,0 +1,84 @@
+name: Odds — SOT Certs (1+ @ ≥1.30)
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_decimal_price:
+        description: "Minimum decimal price (e.g., 1.30)"
+        default: "1.30"
+      team_win_max:
+        description: "Maximum team ML to include (e.g., 3.50)"
+        default: "3.50"
+      window_days:
+        description: "Only include fixtures in the next N days (0=all)"
+        default: "7"
+  schedule:
+    - cron: "12 6 * * *"  # ~07:12 London
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  RESULTS_DIR: "data/value_bets"
+  RESULTS_FILE: "sot_certs.txt"
+  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
+  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+  WINDOW_DAYS:   "${{ github.event.inputs.window_days   || '7' }}"
+  MIN_CAPTURE_PRICE: "1.20"
+  SHOW_NEAR_MISSES:  "1"
+  ALLOW_DNB_FALLBACK: "1"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify inputs
+        run: |
+          test -n "${{ secrets.ODDS_API_KEY }}" || (echo "ODDS_API_KEY missing" >&2; exit 1)
+          test -f "scripts/odds/value_bets_sot_certs.py" || (echo "script missing" >&2; exit 1)
+          test -f "data/player_shots_on_target/combined.json" || (echo "SOT combined.json missing" >&2; exit 1)
+          test -d "data/predicted_xi/by_league" || (echo "predicted XI dir missing" >&2; exit 1)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run SOT certs
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+          WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
+          MIN_CAPTURE_PRICE: ${{ env.MIN_CAPTURE_PRICE }}
+          SHOW_NEAR_MISSES:  ${{ env.SHOW_NEAR_MISSES }}
+          ALLOW_DNB_FALLBACK: ${{ env.ALLOW_DNB_FALLBACK }}
+        run: |
+          mkdir -p "${RESULTS_DIR}"
+          python scripts/odds/value_bets_sot_certs.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
+          echo "" >> "${RESULTS_DIR}/${RESULTS_FILE}"
+          echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")" >> "${RESULTS_DIR}/${RESULTS_FILE}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sot-certs-${{ github.run_number }}
+          path: ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${RESULTS_DIR}/${RESULTS_FILE}"
+          git diff --cached --quiet || git commit -m "feat(odds): update SOT certs [skip ci]"
+          git push || true
