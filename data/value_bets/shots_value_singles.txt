@@ -19,9 +19,9 @@
 [ODDS] batch 9 — 10 ids
 [ODDS] batch 10 — 9 ids
 [CANDS] total=479  mapped_to_event=456
-[CANDS] passed_team_ml(<3.5)=356  had_player_shots_market=267
+[CANDS] passed_team_ml(<3.5)=358  had_player_shots_market=267
 [PRICE] captured_players(>= 1.2)=79  eligible(>= 1.72)=13
-Generated at (UTC): 2025-10-14T21:21:33.197223 | Min price: 1.72 | Capture≥1.20 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
+Generated at (UTC): 2025-10-15T06:52:29.465827 | Min price: 1.72 | Capture≥1.20 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
 Market: Bet365 — Player Shots Over 0.5 only (NOT SOT / outside box / halves). Most recent windows strictly used.
 
 ===== VALUE — 1+ Shots (5/7) =====
@@ -42,5 +42,5 @@ Market: Bet365 — Player Shots Over 0.5 only (NOT SOT / outside box / halves). 
  • Michal Helik [CB] — Oxford United | Oxford United vs Derby County | Over 0.5 @ 1.727 | Team Win (ML) 2.450 | last7: 4/7 (series7: 1,1,1,1,0,0,0) | last5: 4/5 (series5: 1,1,1,1,0)
 
 
-Run timestamp (UTC): 2025-10-14 21:21:33
+Run timestamp (UTC): 2025-10-15 06:52:29
 Params: MIN_DEC_PRICE=1.72 TEAM_WIN_MAX=3.50 WINDOW_DAYS=7 DNB_FB=1 MIN_CAPTURE_PRICE=1.20 SHOW_NEAR_MISSES=1
