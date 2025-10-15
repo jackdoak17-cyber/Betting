@@ -319,4 +319,161 @@ def main():
         if n >= 7 and c7 >= 6:
             cand_B.append({"league_id": league_id, "team": team, "team_id": team_id,
                            "player": player, "position": pos, "series": series[:10],
-                           "bucket": "B", "w5": w5, "w7": w7, "c5": c5, "c
+                           "bucket": "B", "w5": w5, "w7": w7, "c5": c5, "c7": c7})
+
+    print(f"[STATS] total_players={len(players)}  bucketA(100% last5)={len(cand_A)}  bucketB(6/7 last7)={len(cand_B)}")
+
+    if not cand_A and not cand_B:
+        print("[RESULT] No SOT candidates meeting stat windows (pre-odds).")
+        _render([], [], reason="pre-odds empty")
+        return
+
+    # 2) Fetch events for leagues we actually need (next WINDOW_DAYS)
+    need_lids = sorted({c["league_id"] for c in (cand_A + cand_B)})
+    slugs = {lid: LEAGUE_SLUG_BY_ID.get(lid) for lid in need_lids if LEAGUE_SLUG_BY_ID.get(lid)}
+    events_by_league: Dict[int, List[dict]] = {}
+    for lid, slug in slugs.items():
+        evs = get_events_for_league(slug, api_key)
+        events_by_league[lid] = evs
+        print(f"[EVENTS] {slug}: {len(evs)} (next {WINDOW_DAYS}d)")
+
+    # Map candidates to event ids
+    def map_event_ids(c_list: List[dict]):
+        for c in c_list:
+            evs = events_by_league.get(c["league_id"], [])
+            ids = []
+            for ev in evs:
+                if team_names_match(c["team"], ev.get("home","")) or team_names_match(c["team"], ev.get("away","")):
+                    if isinstance(ev.get("id"), int):
+                        ids.append(ev["id"])
+            c["event_ids"] = ids
+
+    map_event_ids(cand_A); map_event_ids(cand_B)
+    mapped_A = sum(1 for c in cand_A if c.get("event_ids")); mapped_B = sum(1 for c in cand_B if c.get("event_ids"))
+    print(f"[MAP] bucketA mapped={mapped_A}/{len(cand_A)}  bucketB mapped={mapped_B}/{len(cand_B)}")
+
+    # 3) Fetch odds for all unique events
+    all_ids = sorted({eid for c in (cand_A + cand_B) for eid in (c.get("event_ids") or [])})
+    print(f"[ODDS] Unique events to query: {len(all_ids)}")
+    odds_payloads: List[dict] = []
+    for i, batch in enumerate(chunked(all_ids, 10), start=1):
+        print(f"[ODDS] batch {i} — {len(batch)} ids")
+        odds_payloads.extend(get_odds_multi(batch, api_key))
+    id_to_ev = {o.get("id"): o for o in odds_payloads if isinstance(o.get("id"), int)}
+
+    # 4) Evaluate prices and ML filter; pick best Over 0.5 SOT per player (highest odds)
+    def evaluate(c_list: List[dict]) -> List[dict]:
+        out = []
+        for c in c_list:
+            best = None
+            best_market = None
+            best_fixture = None
+            best_kick = None
+            best_team_ml = None
+            for ev_id in c.get("event_ids") or []:
+                ev = id_to_ev.get(ev_id)
+                if not ev: continue
+                home, away = ev.get("home",""), ev.get("away","")
+                side = "home" if team_names_match(c["team"], home) else ("away" if team_names_match(c["team"], away) else None)
+                if not side: continue
+                # Team ML filter
+                h_ml, a_ml = min_win_prices(ev)
+                team_ml = h_ml if side=="home" else a_ml
+                if team_ml is None or team_ml >= TEAM_ML_MAX:  # exclude underdogs >= 3.50
+                    continue
+                # Scan "Player Shots On Target" market ONLY, line 0.5
+                for m in bet365_markets(ev):
+                    if not market_is_player_sot(m.get("name","")):
+                        continue
+                    odds = m.get("odds")
+                    if isinstance(odds, list):
+                        for opt in odds:
+                            if not player_label_matches(c["player"], opt.get("label")): continue
+                            line = parse_line(opt)
+                            if line is None or not math.isclose(line, 0.5, abs_tol=1e-6): continue
+                            price = parse_over_price(opt)
+                            if price is None or price < MIN_PRICE: continue
+                            if (best is None) or (price > best + 1e-9):
+                                best = price; best_market = m.get("name") or "Player Shots On Target"
+                                best_fixture = f"{home} vs {away}"
+                                best_kick = (ev.get("date") or "").replace("T"," ").replace("Z","")
+                                best_team_ml = team_ml
+                    elif isinstance(odds, dict):
+                        for label, opt in odds.items():
+                            if not player_label_matches(c["player"], label): continue
+                            line = parse_line(opt if isinstance(opt, dict) else {})
+                            if line is None or not math.isclose(line, 0.5, abs_tol=1e-6): continue
+                            price = parse_over_price(opt if isinstance(opt, dict) else {})
+                            if price is None or price < MIN_PRICE: continue
+                            if (best is None) or (price > best + 1e-9):
+                                best = price; best_market = m.get("name") or "Player Shots On Target"
+                                best_fixture = f"{home} vs {away}"
+                                best_kick = (ev.get("date") or "").replace("T"," ").replace("Z","")
+                                best_team_ml = team_ml
+            if best is not None:
+                out.append({
+                    "player": c["player"], "position": c.get("position",""),
+                    "team": c["team"], "league_id": c["league_id"],
+                    "fixture": best_fixture or "", "kickoff": best_kick or "",
+                    "price": best, "team_ml": best_team_ml,
+                    "market": best_market or "Player Shots On Target",
+                    "series": c["series"], "w5": c.get("w5") or [], "w7": c.get("w7") or [],
+                    "c5": c.get("c5", 0), "c7": c.get("c7", 0),
+                })
+        return out
+
+    hits_A = evaluate(cand_A)
+    hits_B = evaluate(cand_B)
+
+    # Ensure a player appears once: prefer A over B
+    seen = set()
+    A_final, B_final = [], []
+    for x in sorted(hits_A, key=lambda r: (-r["price"], r["player"])):
+        key = norm(x["player"]) + "|" + norm(x["team"])
+        if key in seen: continue
+        seen.add(key); A_final.append(x)
+    for x in sorted(hits_B, key=lambda r: (-r["price"], r["player"])):
+        key = norm(x["player"]) + "|" + norm(x["team"])
+        if key in seen: continue
+        seen.add(key); B_final.append(x)
+
+    print(f"[PRICE] bucketA priced={len(hits_A)} kept={len(A_final)}  bucketB priced={len(hits_B)} kept={len(B_final)}")
+    _render(A_final, B_final)
+
+def _render(A_final: List[dict], B_final: List[dict], reason: str = ""):
+    lines = []
+    lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()} | Min price: {MIN_PRICE:.2f} | Team ML < {TEAM_ML_MAX:.2f} | Window: {WINDOW_DAYS}d")
+    lines.append("Market: Bet365 — Player Shots On Target Over 0.5 only (NOT outside box / halves).")
+    lines.append("")
+
+    def fmt_row(x):
+        pos = f"[{x['position']}]" if x.get("position") else ""
+        ser5 = ",".join(map(str, (x.get("w5") or [])[:5]))
+        ser7 = ",".join(map(str, (x.get("w7") or [])[:7]))
+        return (f" • {x['player']} {pos} — {x['team']} | {x['fixture']} | "
+                f"Over 0.5 @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | "
+                f"last5: {x.get('c5',0)}/5 (series5: {ser5}) | last7: {x.get('c7',0)}/7 (series7: {ser7})")
+
+    if A_final:
+        lines.append("===== CERTS — SOT 1+ (100% last 5, n≥5) =====")
+        for x in A_final:
+            lines.append(fmt_row(x))
+        lines.append("")
+
+    if B_final:
+        lines.append("===== CERTS — SOT 1+ (6 of last 7, n≥7) =====")
+        for x in B_final:
+            lines.append(fmt_row(x))
+        lines.append("")
+
+    if not A_final and not B_final:
+        lines.append("No SOT candidates matched after price/ML filters." + (f" ({reason})" if reason else ""))
+
+    OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    print("\n".join(lines))
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
