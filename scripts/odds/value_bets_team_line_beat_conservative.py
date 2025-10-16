@@ -3,41 +3,28 @@
 """
 Team Line Beat Rates — Conservative
 - Only show picks with combo% >= COMBO_MIN (default 0.50).
-- For Shots & Corners OVER: require Team Match Winner (Bet365) <= TEAM_WIN_MAX (default 3.50).
-  If ML missing, drop the pick (conservative).
-- Keep Unders and SOT/Tackles unaffected by ML filter.
+- Shots, SOT & Corners OVER: require Team Match Winner (Bet365) <= TEAM_WIN_MAX (default 3.50).
+- Shots, SOT & Corners UNDER: require Team Match Winner (Bet365)  > UNDERDOG_MIN (default 3.50).
+  (If ML missing for these filters, drop the pick conservatively.)
+- Tackles: no ML filter (can add if desired).
 - Only include odds >= MIN_DEC_PRICE (default 1.20).
-
-Data source for series:
-  data/team_lines/by_league/*.json  (series_used: offense_lastN, opponent_allowed_lastN)
-
-Odds:
-  Bet365 only; team markets + match winner (1x2) to derive ML per side.
-
-ENV:
-  ODDS_API_KEY (required)
-  MIN_DEC_PRICE (default 1.20)
-  TEAM_WIN_MAX  (default 3.50)
-  COMBO_MIN     (default 0.50)
-  WINDOW_DAYS   (default 7)
-  BOOKMAKERS    (default Bet365)
 """
-
 import os, re, json, math, time, random, datetime as dt, unicodedata
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional
 from itertools import islice
 import requests
 
 # ===== Config =====
 SPORT = "football"
-BOOKMAKERS = os.getenv("BOOKMAKERS", "Bet365")
-MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.20"))
-TEAM_WIN_MAX  = float(os.getenv("TEAM_WIN_MAX", "3.50"))
-COMBO_MIN     = float(os.getenv("COMBO_MIN", "0.50"))
-WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS", "7"))  # 0 = no time filter
+BOOKMAKERS   = os.getenv("BOOKMAKERS", "Bet365")
+MIN_DEC_PRICE= float(os.getenv("MIN_DEC_PRICE", "1.20"))
+TEAM_WIN_MAX = float(os.getenv("TEAM_WIN_MAX", "3.50"))   # OVER (shots/SOT/corners) must be <= this
+UNDERDOG_MIN = float(os.getenv("UNDERDOG_MIN", "3.50"))   # UNDER (shots/SOT/corners) must be > this
+COMBO_MIN    = float(os.getenv("COMBO_MIN", "0.50"))
+WINDOW_DAYS  = int(os.getenv("WINDOW_DAYS", "7"))  # 0 = no time filter
 TIMEOUT = 25
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "team-line-beat-cons/1.0"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "team-line-beat-cons/1.2"}
 
 ROOT = Path(".")
 LINES_DIR = ROOT / "data" / "team_lines" / "by_league"
@@ -47,16 +34,11 @@ ODDS_MULTI_API_URL = "https://api.odds-api.io/v3/odds/multi"
 
 # ===== League mapping (SportMonks -> Odds API slug) =====
 LEAGUE_SLUG_BY_ID = {
-    8:   "england-premier-league",
-    9:   "england-championship",
-    82:  "germany-bundesliga",
-    301: "france-ligue-1",
-    384: "italy-serie-a",
-    387: "italy-serie-b",
-    564: "spain-laliga",
-    567: "spain-laliga-2",
-    72:  "netherlands-eredivisie",
-    600: "turkiye-super-lig",
+    8: "england-premier-league", 9: "england-championship",
+    82: "germany-bundesliga", 301: "france-ligue-1",
+    384: "italy-serie-a", 387: "italy-serie-b",
+    564: "spain-laliga", 567: "spain-laliga-2",
+    72: "netherlands-eredivisie", 600: "turkiye-super-lig",
 }
 
 # ===== Team markets we consider =====
@@ -78,21 +60,11 @@ def norm(s: str) -> str:
     return s
 
 TEAM_ALIAS = {
-    "man city": "manchester city",
-    "man utd": "manchester united",
-    "man united": "manchester united",
-    "spurs": "tottenham hotspur",
-    "wolves": "wolverhampton wanderers",
-    "west brom": "west bromwich albion",
-    "psv": "psv eindhoven",
-    "st pauli": "fc st. pauli",
-    "inter milan": "inter milano",
-    "bayern munich": "bayern munich",
-    "forest": "nottingham forest",
-    "betis": "real betis",
-    "sociedad": "real sociedad",
-    "celta": "rc celta de vigo",
-    "deportivo alaves": "deportivo alaves",
+    "man city":"manchester city","man utd":"manchester united","man united":"manchester united",
+    "spurs":"tottenham hotspur","wolves":"wolverhampton wanderers","west brom":"west bromwich albion",
+    "psv":"psv eindhoven","st pauli":"fc st. pauli","inter milan":"inter milano",
+    "bayern munich":"bayern munich","forest":"nottingham forest","betis":"real betis",
+    "sociedad":"real sociedad","celta":"rc celta de vigo","deportivo alaves":"deportivo alaves",
 }
 GENERIC_TEAM_TOKENS = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
 
@@ -113,7 +85,7 @@ def team_names_match(a: str, b: str) -> bool:
     if ta == tb: return True
     if ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; union = ta | tb
-    if len(inter) / max(1, len(union)) >= 0.5: return True
+    if len(inter)/max(1,len(union)) >= 0.5: return True
     if len(inter) >= 1 and ("madrid" in inter or "milan" in inter or "inter" in inter): return True
     return False
 
@@ -134,23 +106,16 @@ def http_get_with_retries(url: str, params: dict, max_retries=6, base_sleep=1.0,
             if r.status_code in (429,500,502,503,504):
                 last_text = r.text
                 sleep = base_sleep*(factor**attempt)+random.uniform(0,0.4)
-                print(f"[RETRY] {url} {r.status_code}; sleeping {sleep:.1f}s...")
                 time.sleep(sleep); attempt += 1; continue
-            print(f"[HTTP {r.status_code}] {url} :: {r.text[:200]}")
             return None
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             sleep = base_sleep*(factor**attempt)+random.uniform(0,0.4)
-            print(f"[NET] {url} exception: {e}; sleeping {sleep:.1f}s...")
             time.sleep(sleep); attempt += 1
-    if last_text:
-        print(f"[ERROR] Retries exhausted for {url}. Last body: {last_text[:220]}")
-    else:
-        print(f"[ERROR] Retries exhausted for {url}.")
     return None
 
 def get_events_for_league(slug: str, api_key: str) -> List[dict]:
     r = http_get_with_retries(EVENTS_API_URL, {"apiKey": api_key, "sport": SPORT, "league": slug})
-    if not (r and r.status_code == 200): return []
+    if not r: return []
     try: data = r.json()
     except: data = None
     return data if isinstance(data, list) else []
@@ -167,11 +132,10 @@ def within_next_days(ev: dict, days: int) -> bool:
 
 def get_odds_multi(event_ids: List[int], api_key: str) -> List[dict]:
     if not event_ids: return []
-    r = http_get_with_retries(
-        ODDS_MULTI_API_URL,
-        {"apiKey": api_key, "eventIds": ",".join(map(str, event_ids)), "bookmakers": BOOKMAKERS}
-    )
-    if not (r and r.status_code == 200): return []
+    r = http_get_with_retries(ODDS_MULTI_API_URL, {
+        "apiKey": api_key, "eventIds": ",".join(map(str, event_ids)), "bookmakers": BOOKMAKERS
+    })
+    if not r: return []
     try: data = r.json()
     except: return []
     return data if isinstance(data, list) else []
@@ -199,39 +163,34 @@ def market_is_dnb(name: str) -> bool:
     return bool(s) and any(k in s for k in DNB_KEYS)
 
 def min_win_prices(ev: dict) -> Tuple[Optional[float], Optional[float]]:
-    """Return (home_ml, away_ml) best Bet365 prices if present; else (None, None)."""
     best_home = None; best_away = None
     for m in bet365_markets(ev):
         if not market_is_match_winner(m.get("name","")): continue
         for row in (m.get("odds") or []):
             try:
-                h = float(row.get("home")) if row.get("home") not in (None, "N/A") else None
-                a = float(row.get("away")) if row.get("away") not in (None, "N/A") else None
+                h = float(row.get("home")) if row.get("home") not in (None,"N/A") else None
+                a = float(row.get("away")) if row.get("away") not in (None,"N/A") else None
             except: h = a = None
-            if isinstance(h, float): best_home = h if (best_home is None or h < best_home) else best_home
-            if isinstance(a, float): best_away = a if (best_away is None or a < best_away) else best_away
-    # optional DNB fallback if needed
+            if isinstance(h,float): best_home = h if (best_home is None or h < best_home) else best_home
+            if isinstance(a,float): best_away = a if (best_away is None or a < best_away) else best_away
     if best_home is None or best_away is None:
         for m in bet365_markets(ev):
             if not market_is_dnb(m.get("name","")): continue
             for row in (m.get("odds") or []):
                 try:
-                    h = float(row.get("home")) if row.get("home") not in (None, "N/A") else None
-                    a = float(row.get("away")) if row.get("away") not in (None, "N/A") else None
+                    h = float(row.get("home")) if row.get("home") not in (None,"N/A") else None
+                    a = float(row.get("away")) if row.get("away") not in (None,"N/A") else None
                 except: h = a = None
-                if isinstance(h, float) and best_home is None: best_home = h
-                if isinstance(a, float) and best_away is None: best_away = a
+                if isinstance(h,float) and best_home is None: best_home = h
+                if isinstance(a,float) and best_away is None: best_away = a
     return best_home, best_away
 
 def market_side_and_stat(name: str) -> Tuple[Optional[str], Optional[str]]:
     s = norm(name)
     side = None
-    if s.endswith(" home") or " home" in s:
-        side = "home"; s = s.replace(" home", "").strip()
-    elif s.endswith(" away") or " away" in s:
-        side = "away"; s = s.replace(" away", "").strip()
-    if s in TEAM_MARKETS:
-        return side, TEAM_MARKETS[s]
+    if s.endswith(" home") or " home" in s: side="home"; s=s.replace(" home","").strip()
+    elif s.endswith(" away") or " away" in s: side="away"; s=s.replace(" away","").strip()
+    if s in TEAM_MARKETS: return side, TEAM_MARKETS[s]
     return None, None
 
 def parse_line(opt: dict) -> Optional[float]:
@@ -247,10 +206,9 @@ def parse_line(opt: dict) -> Optional[float]:
 
 def parse_price(val) -> Optional[float]:
     try:
-        if val in (None, "N/A"): return None
+        if val in (None,"N/A"): return None
         return float(val)
-    except Exception:
-        return None
+    except: return None
 
 # ===== team_lines loader (series) =====
 def iter_series(lines_blob: dict, league_id: int):
@@ -264,43 +222,33 @@ def iter_series(lines_blob: dict, league_id: int):
         }
         teams = fx.get("teams") or {}
         for side in ("home","away"):
-            t = (teams.get(side) or {})
-            opp_side = "away" if side == "home" else "home"
-            opp = (teams.get(opp_side) or {})
+            t = (teams.get(side) or {}); opp_side = "away" if side=="home" else "home"; opp=(teams.get(opp_side) or {})
             team_name = t.get("name") or t.get("team_name") or (meta["home_name"] if side=="home" else meta["away_name"])
             opp_name  = opp.get("name") or opp.get("team_name") or (meta["away_name"] if side=="home" else meta["home_name"])
             stats = (t.get("stats") or {})
             for stat_key, m in stats.items():
-                if stat_key not in ("shots","shots_on_target","corners","tackles"):
-                    continue
+                if stat_key not in ("shots","shots_on_target","corners","tackles"): continue
                 ser = (m.get("series_used") or {})
-                off = ser.get("offense_lastN") or []
-                oppA = ser.get("opponent_allowed_lastN") or []
+                off = [x for x in (ser.get("offense_lastN") or []) if isinstance(x,int)]
+                oppA= [x for x in (ser.get("opponent_allowed_lastN") or []) if isinstance(x,int)]
                 if not off and not oppA: continue
                 yield {
-                    "meta": meta,
-                    "side": side,
-                    "team_name": team_name or "",
-                    "opp_name": opp_name or "",
-                    "stat": stat_key,
-                    "offense_lastN": [x for x in off if isinstance(x, int)],
-                    "opp_allowed_lastN": [x for x in oppA if isinstance(x, int)],
+                    "meta": meta, "side": side,
+                    "team_name": team_name or "", "opp_name": opp_name or "",
+                    "stat": stat_key, "offense_lastN": off, "opp_allowed_lastN": oppA,
+                    "league_id": meta["league_id"],
                 }
 
 # ===== rates =====
-def over_hits(seq: List[int], line: float) -> Tuple[int,int,float]:
-    if not seq: return 0,0,0.0
+def over_hits(seq: List[int], line: float) -> float:
+    if not seq: return 0.0
     thr = math.ceil(float(line))
-    hits = sum(1 for x in seq if x >= thr)
-    n = len(seq)
-    return hits, n, (hits/n) if n else 0.0
+    return sum(1 for x in seq if x >= thr) / len(seq)
 
-def under_hits(seq: List[int], line: float) -> Tuple[int,int,float]:
-    if not seq: return 0,0,0.0
+def under_hits(seq: List[int], line: float) -> float:
+    if not seq: return 0.0
     thr = math.floor(float(line))
-    hits = sum(1 for x in seq if x <= thr)
-    n = len(seq)
-    return hits, n, (hits/n) if n else 0.0
+    return sum(1 for x in seq if x <= thr) / len(seq)
 
 # ===== main =====
 def main():
@@ -308,45 +256,30 @@ def main():
     if not api_key:
         raise SystemExit("ERROR: ODDS_API_KEY not set.")
 
-    # Load series
+    # Load series contexts
     contexts: List[dict] = []
     for p in sorted(LINES_DIR.glob("*.json")):
         try:
             blob = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
+        except: 
             continue
         try:
             lid = int(blob.get("league_id") or re.findall(r"(\d+)", p.stem)[0])
-        except Exception:
+        except:
             continue
-        for row in iter_series(blob, lid):
-            row["league_id"] = lid
-            contexts.append(row)
+        contexts.extend(iter_series(blob, lid))
 
     if not contexts:
-        print("No team_lines contexts found.")
-        return
+        print("No team_lines contexts found."); return
 
-    # Fetch events per league
+    # Fetch events by league
     events_by_league: Dict[int, List[dict]] = {}
     for lid in sorted({c["league_id"] for c in contexts}):
         slug = LEAGUE_SLUG_BY_ID.get(lid)
         if not slug: continue
-        r = requests.get(EVENTS_API_URL, params={"apiKey": api_key, "sport": SPORT, "league": slug}, headers=HTTP_HEADERS, timeout=TIMEOUT)
-        if not (r.status_code == 200): continue
-        try: evs = r.json()
-        except: evs = []
+        evs = get_events_for_league(slug, api_key)
         if WINDOW_DAYS:
-            filt = []
-            for e in evs or []:
-                ds = e.get("date") or ""
-                try:
-                    dt_utc = dt.datetime.fromisoformat(ds.replace("Z","+00:00"))
-                    now = dt.datetime.utcnow().replace(tzinfo=dt.timezone.utc)
-                    if now <= dt_utc <= (now + dt.timedelta(days=WINDOW_DAYS)):
-                        filt.append(e)
-                except: pass
-            evs = filt
+            evs = [e for e in evs if within_next_days(e, WINDOW_DAYS)]
         events_by_league[lid] = evs
         print(f"[EVENTS] {slug}: {len(evs)}")
 
@@ -363,11 +296,9 @@ def main():
         return out
 
     wants: List[dict] = []
-    for row in contexts:
-        eids = find_event_ids(row["league_id"], row["team_name"], row["opp_name"])
-        if not eids: continue
-        r2 = dict(row); r2["event_ids"] = eids
-        wants.append(r2)
+    for r in contexts:
+        eids = find_event_ids(r["league_id"], r["team_name"], r["opp_name"])
+        if eids: rr = dict(r); rr["event_ids"] = eids; wants.append(rr)
     print(f"[MAP] mapped={len(wants)}/{len(contexts)}")
 
     # Fetch odds payloads
@@ -382,7 +313,6 @@ def main():
             try: odds_payloads.extend(r.json() or [])
             except: pass
         else:
-            print(f"[HTTP {r.status_code}] odds/multi batch {i}")
             time.sleep(0.4)
     id_to_ev = {o.get("id"): o for o in odds_payloads if isinstance(o.get("id"), int)}
     print(f"[ODDS] payloads_received={len(id_to_ev)}")
@@ -397,17 +327,16 @@ def main():
             ev = id_to_ev.get(ev_id)
             if not ev: continue
             home, away = ev.get("home",""), ev.get("away","")
-            # side for team in this event
             ev_side = "home" if team_names_match(team, home) else ("away" if team_names_match(team, away) else ctx_side)
 
-            # team ML (Bet365)
+            # Team ML (Bet365)
             home_ml, away_ml = min_win_prices(ev)
             team_ml = home_ml if ev_side == "home" else away_ml
 
             for m in bet365_markets(ev):
                 side, stat_key = market_side_and_stat(m.get("name",""))
-                if side != ev_side: continue
-                if stat_key != stat: continue
+                if side != ev_side or stat_key != stat:
+                    continue
                 for opt in (m.get("odds") or []):
                     line = parse_line(opt)
                     if line is None: continue
@@ -416,18 +345,13 @@ def main():
 
                     # OVER
                     if p_over is not None and p_over >= MIN_DEC_PRICE:
-                        _, _, rate_t = over_hits(off, line)
-                        _, _, rate_a = over_hits(oppA, line)
-                        combo = min(rate_t, rate_a)
-                        # Conservative: need combo >= COMBO_MIN
-                        if combo < COMBO_MIN: 
-                            pass
-                        else:
-                            # ML filter for Shots/Corners OVER
-                            if stat in ("shots","corners"):
-                                if (team_ml is None) or (team_ml > TEAM_WIN_MAX):
-                                    pass  # drop big underdogs or missing ML
-                                else:
+                        rate_t = over_hits(off, line)
+                        rate_a = over_hits(oppA, line)
+                        combo  = min(rate_t, rate_a)
+                        if combo >= COMBO_MIN:
+                            if stat in ("shots","shots_on_target","corners"):
+                                # Need ML present and <= TEAM_WIN_MAX
+                                if (team_ml is not None) and (team_ml <= TEAM_WIN_MAX):
                                     rows_over.append({
                                         "fixture": f"{home} vs {away}",
                                         "team": team, "opp": opp, "side": ev_side,
@@ -448,25 +372,36 @@ def main():
                                     "market": m.get("name",""),
                                 })
 
-                    # UNDER (no ML filter; still require combo >= COMBO_MIN)
+                    # UNDER — require combo ≥ COMBO_MIN
                     if p_under is not None and p_under >= MIN_DEC_PRICE:
-                        _, _, rate_t = under_hits(off, line)
-                        _, _, rate_a = under_hits(oppA, line)
-                        combo = min(rate_t, rate_a)
-                        if combo < COMBO_MIN:
-                            pass
-                        else:
-                            rows_under.append({
-                                "fixture": f"{home} vs {away}",
-                                "team": team, "opp": opp, "side": ev_side,
-                                "stat": stat, "hdp": float(line),
-                                "price": float(p_under), "pick": "Under",
-                                "team_rate": rate_t, "opp_allowed_rate": rate_a, "combo_rate": combo,
-                                "team_ml": float(team_ml) if isinstance(team_ml, float) else None,
-                                "market": m.get("name",""),
-                            })
+                        rate_t = under_hits(off, line)
+                        rate_a = under_hits(oppA, line)
+                        combo  = min(rate_t, rate_a)
+                        if combo >= COMBO_MIN:
+                            if stat in ("shots","shots_on_target","corners"):
+                                # Only include if underdog: ML present and > UNDERDOG_MIN
+                                if (team_ml is not None) and (team_ml > UNDERDOG_MIN):
+                                    rows_under.append({
+                                        "fixture": f"{home} vs {away}",
+                                        "team": team, "opp": opp, "side": ev_side,
+                                        "stat": stat, "hdp": float(line),
+                                        "price": float(p_under), "pick": "Under",
+                                        "team_rate": rate_t, "opp_allowed_rate": rate_a, "combo_rate": combo,
+                                        "team_ml": float(team_ml),
+                                        "market": m.get("name",""),
+                                    })
+                            else:
+                                rows_under.append({
+                                    "fixture": f"{home} vs {away}",
+                                    "team": team, "opp": opp, "side": ev_side,
+                                    "stat": stat, "hdp": float(line),
+                                    "price": float(p_under), "pick": "Under",
+                                    "team_rate": rate_t, "opp_allowed_rate": rate_a, "combo_rate": combo,
+                                    "team_ml": float(team_ml) if isinstance(team_ml, float) else None,
+                                    "market": m.get("name",""),
+                                })
 
-    # Rank by combo desc then price desc
+    # Rank
     rows_over.sort(key=lambda r: (-r["combo_rate"], -r["price"], r["fixture"], r["team"], r["stat"], r["hdp"]))
     rows_under.sort(key=lambda r: (-r["combo_rate"], -r["price"], r["fixture"], r["team"], r["stat"], r["hdp"]))
 
@@ -476,13 +411,14 @@ def main():
         return f"{x*100:5.1f}%"
 
     print(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}")
-    print(f"Min price: {MIN_DEC_PRICE:.2f} | Combo≥{COMBO_MIN:.2f} | Shots/Corners OVER ML≤{TEAM_WIN_MAX:.2f} | Window={WINDOW_DAYS} | Bookmakers={BOOKMAKERS}")
+    print(f"Min price: {MIN_DEC_PRICE:.2f} | Combo≥{COMBO_MIN:.2f} | "
+          f"Shots/SOT/Corners OVER ML≤{TEAM_WIN_MAX:.2f} | Shots/SOT/Corners UNDER ML>{UNDERDOG_MIN:.2f} | "
+          f"Window={WINDOW_DAYS} | Bookmakers={BOOKMAKERS}")
     print("")
     def dump(title: str, rows: List[dict], limit: int = 120):
         print(title)
         if not rows:
-            print("  No qualifying lines after conservative filters.\n")
-            return
+            print("  No qualifying lines after conservative filters.\n"); return
         for r in rows[:limit]:
             ml = f" | ML={r['team_ml']:.3f}" if isinstance(r.get("team_ml"), float) else ""
             print(f" • {r['team']} — {lab_stat(r['stat'])} {r['pick']} {r['hdp']:.1f} @ {r['price']:.3f} | "
@@ -491,7 +427,7 @@ def main():
                   f"{ml} | {r['market']}")
         print("")
     dump("===== TEAM LINES — OVER (Conservative) =====", rows_over)
-    dump("===== TEAM LINES — UNDER (Conservative) =====", rows_under)
+    dump("===== TEAM LINES — UNDER (Conservative; underdogs only for Shots/SOT/Corners) =====", rows_under)
 
 if __name__ == "__main__":
     try:
