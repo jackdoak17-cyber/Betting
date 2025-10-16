@@ -51,6 +51,8 @@ jobs:
           INCLUDE_ZERO: ${{ env.INCLUDE_ZERO }}
           OUT_FILE: ${{ env.OUT_FILE }}
         run: |
+          set -e
+          mkdir -p "$(dirname "$OUT_FILE")"
           python scripts/reports/team_bet_builder_from_lines.py | tee "$OUT_FILE"
 
       - uses: actions/upload-artifact@v4
@@ -64,7 +66,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          mkdir -p "$(dirname "$OUT_FILE")"
           git add "$OUT_FILE"
           git diff --cached --quiet || git commit -m "chore(report): update team bet builders [skip ci]"
           git push || true
