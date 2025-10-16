@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-10-13T07:32:51.054033+00:00",
+  "generated_at": "2025-10-16T08:04:06.765994+00:00",
   "league_id": 8,
-  "count": 16,
+  "count": 20,
   "teams": [
     {
       "league_id": 8,
@@ -362,6 +362,95 @@
     {
       "league_id": 8,
       "season_id": 25583,
+      "team_id": 78,
+      "team_name": "Brighton & Hove Albion",
+      "order": "latest_first",
+      "n_requested": 10,
+      "fixture_ids": [
+        19427524,
+        19427507,
+        19427497,
+        19427486,
+        19427476,
+        19427470,
+        19427457
+      ],
+      "shots_total_last_n": [
+        17,
+        12,
+        12,
+        6,
+        12,
+        13,
+        10
+      ],
+      "shots_on_target_last_n": [
+        6,
+        3,
+        4,
+        2,
+        7,
+        4,
+        4
+      ],
+      "fouls_last_n": [
+        9,
+        16,
+        10,
+        10,
+        16,
+        15,
+        16
+      ],
+      "tackles_last_n": [
+        19,
+        21,
+        25,
+        20,
+        17,
+        17,
+        19
+      ],
+      "cards_total_last_n": [
+        4,
+        5,
+        1,
+        4,
+        2,
+        3,
+        3
+      ],
+      "saves_last_n": [
+        3,
+        2,
+        2,
+        3,
+        2,
+        1,
+        1
+      ],
+      "goal_kicks_last_n": [
+        3,
+        5,
+        14,
+        6,
+        11,
+        9,
+        8
+      ],
+      "corners_last_n": [
+        8,
+        7,
+        2,
+        4,
+        3,
+        2,
+        4
+      ]
+    },
+    {
+      "league_id": 8,
+      "season_id": 25583,
       "team_id": 27,
       "team_name": "Burnley",
       "order": "latest_first",
@@ -629,6 +718,95 @@
     {
       "league_id": 8,
       "season_id": 25583,
+      "team_id": 13,
+      "team_name": "Everton",
+      "order": "latest_first",
+      "n_requested": 10,
+      "fixture_ids": [
+        19427520,
+        19427509,
+        19427500,
+        19427490,
+        19427484,
+        19427470,
+        19427464
+      ],
+      "shots_total_last_n": [
+        14,
+        12,
+        9,
+        20,
+        10,
+        11,
+        7
+      ],
+      "shots_on_target_last_n": [
+        7,
+        6,
+        2,
+        2,
+        4,
+        3,
+        1
+      ],
+      "fouls_last_n": [
+        13,
+        7,
+        10,
+        17,
+        10,
+        7,
+        8
+      ],
+      "tackles_last_n": [
+        19,
+        11,
+        18,
+        23,
+        16,
+        15,
+        16
+      ],
+      "cards_total_last_n": [
+        2,
+        3,
+        3,
+        3,
+        1,
+        4,
+        2
+      ],
+      "saves_last_n": [
+        5,
+        2,
+        1,
+        1,
+        2,
+        4,
+        2
+      ],
+      "goal_kicks_last_n": [
+        4,
+        7,
+        9,
+        6,
+        10,
+        7,
+        13
+      ],
+      "corners_last_n": [
+        2,
+        3,
+        4,
+        10,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "league_id": 8,
+      "season_id": 25583,
       "team_id": 11,
       "team_name": "Fulham",
       "order": "latest_first",
@@ -807,6 +985,95 @@
     {
       "league_id": 8,
       "season_id": 25583,
+      "team_id": 8,
+      "team_name": "Liverpool",
+      "order": "latest_first",
+      "n_requested": 10,
+      "fixture_ids": [
+        19427519,
+        19427508,
+        19427500,
+        19427488,
+        19427479,
+        19427473,
+        19427455
+      ],
+      "shots_total_last_n": [
+        12,
+        20,
+        11,
+        27,
+        9,
+        5,
+        19
+      ],
+      "shots_on_target_last_n": [
+        2,
+        4,
+        3,
+        4,
+        3,
+        4,
+        10
+      ],
+      "fouls_last_n": [
+        8,
+        8,
+        11,
+        9,
+        7,
+        15,
+        7
+      ],
+      "tackles_last_n": [
+        16,
+        7,
+        18,
+        10,
+        11,
+        13,
+        16
+      ],
+      "cards_total_last_n": [
+        2,
+        3,
+        2,
+        2,
+        2,
+        3,
+        1
+      ],
+      "saves_last_n": [
+        4,
+        5,
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "goal_kicks_last_n": [
+        10,
+        8,
+        6,
+        6,
+        7,
+        6,
+        4
+      ],
+      "corners_last_n": [
+        2,
+        6,
+        5,
+        13,
+        3,
+        1,
+        6
+      ]
+    },
+    {
+      "league_id": 8,
+      "season_id": 25583,
       "team_id": 9,
       "team_name": "Manchester City",
       "order": "latest_first",
@@ -891,6 +1158,95 @@
         2,
         7,
         5
+      ]
+    },
+    {
+      "league_id": 8,
+      "season_id": 25583,
+      "team_id": 14,
+      "team_name": "Manchester United",
+      "order": "latest_first",
+      "n_requested": 10,
+      "fixture_ids": [
+        19427522,
+        19427506,
+        19427501,
+        19427492,
+        19427480,
+        19427471,
+        19427463
+      ],
+      "shots_total_last_n": [
+        15,
+        14,
+        11,
+        12,
+        26,
+        10,
+        22
+      ],
+      "shots_on_target_last_n": [
+        6,
+        6,
+        4,
+        2,
+        6,
+        3,
+        7
+      ],
+      "fouls_last_n": [
+        10,
+        10,
+        13,
+        8,
+        9,
+        10,
+        10
+      ],
+      "tackles_last_n": [
+        17,
+        16,
+        21,
+        23,
+        16,
+        17,
+        22
+      ],
+      "cards_total_last_n": [
+        1,
+        2,
+        3,
+        0,
+        1,
+        1,
+        1
+      ],
+      "saves_last_n": [
+        3,
+        5,
+        0,
+        3,
+        1,
+        2,
+        2
+      ],
+      "goal_kicks_last_n": [
+        8,
+        3,
+        2,
+        5,
+        4,
+        9,
+        5
+      ],
+      "corners_last_n": [
+        2,
+        2,
+        5,
+        4,
+        7,
+        6,
+        3
       ]
     },
     {
