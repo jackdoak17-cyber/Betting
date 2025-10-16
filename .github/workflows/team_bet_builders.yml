@@ -1,0 +1,70 @@
+name: Reports — Team Bet Builders
+
+on:
+  workflow_dispatch:
+    inputs:
+      stats:
+        description: "Comma list of stats to include (shots_on_target,corners,shots,cards_total,fouls,tackles,saves,goal_kicks)"
+        default: "shots_on_target,corners,shots,cards_total"
+      mode:
+        description: "Which sections to output: both | p80 | p100"
+        default: "both"
+      include_zero:
+        description: "Include 0+ lines? (0/1)"
+        default: "0"
+      out_file:
+        description: "Output file path"
+        default: "data/bet_builders/team_bet_builders.txt"
+  schedule:
+    - cron: "15 6 * * *" # 06:15 UTC daily
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  STATS: "${{ github.event.inputs.stats || 'shots_on_target,corners,shots,cards_total' }}"
+  MODE:  "${{ github.event.inputs.mode  || 'both' }}"
+  INCLUDE_ZERO: "${{ github.event.inputs.include_zero || '0' }}"
+  OUT_FILE: "${{ github.event.inputs.out_file || 'data/bet_builders/team_bet_builders.txt' }}"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify repo structure
+        run: |
+          test -d "data/team_lines/by_league" || (echo "data/team_lines/by_league missing" >&2; exit 1)
+          test -f "scripts/reports/team_bet_builder_from_lines.py" || (echo "scripts/reports/team_bet_builder_from_lines.py not found" >&2; exit 1)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build bet builder report
+        env:
+          STATS: ${{ env.STATS }}
+          MODE: ${{ env.MODE }}
+          INCLUDE_ZERO: ${{ env.INCLUDE_ZERO }}
+          OUT_FILE: ${{ env.OUT_FILE }}
+        run: |
+          python scripts/reports/team_bet_builder_from_lines.py | tee "$OUT_FILE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: team-bet-builders-${{ github.run_number }}
+          path: ${{ env.OUT_FILE }}
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Commit results (non-fatal if no push permission)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p "$(dirname "$OUT_FILE")"
+          git add "$OUT_FILE"
+          git diff --cached --quiet || git commit -m "chore(report): update team bet builders [skip ci]"
+          git push || true
