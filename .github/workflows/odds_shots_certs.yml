@@ -9,6 +9,27 @@ on:
       team_win_max:
         description: "Maximum team ML price to include (e.g., 3.50)"
         default: "3.50"
+      bookmaker_name:
+        description: "Preferred bookmaker name (e.g., Bet365)"
+        default: "Bet365"
+      allow_ml_fallback_any:
+        description: "Allow ML from any bookmaker if preferred missing (0/1)"
+        default: "1"
+      allow_ps_fallback_any:
+        description: "Allow Player Shots from any bookmaker (debug) (0/1)"
+        default: "0"
+      name_match_mode:
+        description: "Name match mode (strict|relaxed)"
+        default: "strict"
+      skip_ml_filter:
+        description: "Skip ML filter entirely (debug) (0/1)"
+        default: "0"
+      diag:
+        description: "Enable diagnostics (0/1)"
+        default: "1"
+      diag_sample_fixtures:
+        description: "How many fixtures to sample for PS rows"
+        default: "4"
   schedule:
     # 06:05 UTC ≈ 07:05 London during BST
     - cron: "5 6 * * *"
@@ -20,8 +41,17 @@ env:
   PYTHON_VERSION: "3.11"
   RESULTS_DIR: "data/value_bets"
   RESULTS_FILE: "shots_certs.txt"
-  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
-  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+
+  # Defaults; can be overridden by workflow_dispatch inputs
+  MIN_DEC_PRICE:           "${{ github.event.inputs.min_decimal_price || '1.30' }}"
+  TEAM_WIN_MAX:            "${{ github.event.inputs.team_win_max || '3.50' }}"
+  BOOKMAKER_NAME:          "${{ github.event.inputs.bookmaker_name || 'Bet365' }}"
+  ALLOW_ML_FALLBACK_ANY:   "${{ github.event.inputs.allow_ml_fallback_any || '1' }}"
+  ALLOW_PS_FALLBACK_ANY:   "${{ github.event.inputs.allow_ps_fallback_any || '0' }}"
+  NAME_MATCH_MODE:         "${{ github.event.inputs.name_match_mode || 'strict' }}"
+  SKIP_ML_FILTER:          "${{ github.event.inputs.skip_ml_filter || '0' }}"
+  DIAG:                    "${{ github.event.inputs.diag || '1' }}"
+  DIAG_SAMPLE_FIXTURES:    "${{ github.event.inputs.diag_sample_fixtures || '4' }}"
 
 jobs:
   run:
@@ -35,8 +65,8 @@ jobs:
         run: |
           test -n "${{ secrets.SPORTMONKS_TOKEN }}" || (echo "SPORTMONKS_TOKEN missing" >&2; exit 1)
           test -f "scripts/odds/odds sport monks/value_bets_shots_certs.py" || (echo "script missing" >&2; exit 1)
-          test -d "data/player_shots/by_league" || (echo "shots dir missing" >&2; exit 1)
-          test -d "data/predicted_xi/by_league" || (echo "predicted XI dir missing" >&2; exit 1)
+          test -f "data/player_shots/combined.json" || (echo "data/player_shots/combined.json missing" >&2; exit 1)
+          mkdir -p "${{ env.RESULTS_DIR }}/debug"
 
       - uses: actions/setup-python@v5
         with:
@@ -50,11 +80,16 @@ jobs:
 
       - name: Run shots certs (Sportmonks)
         env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
-          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
-          # Optional: If you know Bet365 ID for your plan, you can set it:
-          # BET365_BOOKMAKER_ID: "2"
+          SPORTMONKS_TOKEN:         ${{ secrets.SPORTMONKS_TOKEN }}
+          MIN_DEC_PRICE:            ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:             ${{ env.TEAM_WIN_MAX }}
+          BOOKMAKER_NAME:           ${{ env.BOOKMAKER_NAME }}
+          ALLOW_ML_FALLBACK_ANY:    ${{ env.ALLOW_ML_FALLBACK_ANY }}
+          ALLOW_PS_FALLBACK_ANY:    ${{ env.ALLOW_PS_FALLBACK_ANY }}
+          NAME_MATCH_MODE:          ${{ env.NAME_MATCH_MODE }}
+          SKIP_ML_FILTER:           ${{ env.SKIP_ML_FILTER }}
+          DIAG:                     ${{ env.DIAG }}
+          DIAG_SAMPLE_FIXTURES:     ${{ env.DIAG_SAMPLE_FIXTURES }}
         run: |
           mkdir -p "${RESULTS_DIR}"
           python "scripts/odds/odds sport monks/value_bets_shots_certs.py" | tee "${RESULTS_DIR}/${RESULTS_FILE}"
@@ -64,14 +99,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: shots-certs-${{ github.run_number }}
-          path: ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
-          if-no-files-found: error
+          path: |
+            ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
+            ${{ env.RESULTS_DIR }}/debug/*.json
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "${RESULTS_DIR}/${RESULTS_FILE}"
+          git add "${RESULTS_DIR}/${RESULTS_FILE}" "${RESULTS_DIR}/debug" || true
           git diff --cached --quiet || git commit -m "feat(odds): update shots certs [skip ci]"
           git push || true
