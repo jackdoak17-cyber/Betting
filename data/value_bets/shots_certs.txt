@@ -3,20 +3,15 @@
 [ODDS] Fixtures with odds payloads: 17 / 17
 [DEBUG] Bookmakers seen (top): bet365(24357), 1xbet(7440), Marathonbet(4431), Pinnacle(3682), 10Bet(3030), Unibet(2910)
 [DEBUG] Top markets returned: Correct Score(6081), Player Shots(4155), Goalscorers(2749), Goals Over/Under(2654), Player to be Sent Off(2337), Player Shots On Target(2136), Asian Handicap(1950), Team Goalscorer(1882), Multi Scorers(1816), Corners(1794), 1st Half Goals(1631), 2nd Half Goals(1150)
-Generated at (UTC): 2025-10-18T15:41:41.698034  |  Min price: 1.30  |  Team ML < 3.50
+Generated at (UTC): 2025-10-18T15:49:18.729921  |  Min price: 1.30  |  Team ML < 3.50
 Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: bet365 Player Shots Over 0.5
 
 No matches found.
 
 [Notes]
 - Bookmakers seen: 10Bet, 188Bet, 1xbet, 888Sport, Betfair, Betsson, CloudBet, Dafabet, HKJC, Interwetten, Ladbrokes, MansionBet, Marathonbet, MelBet, Pinnacle, Sbo, Unibet, WilliamHill, bet365, bwin
-- Player Shots rows: total=4155, over0.5_like=896, label_has_over=15, has_player_text=4155, has_player_ids=0
-- ML rows used (preferred): 72  |  ML rows used (fallback any): 0
+- Player Shots rows: total=4155, over0.5_like=0, label_has_over=9, label_has_under=19, has_player_text=0, has_player_ids=0
 - Name match mode: strict  |  PS bookmaker fallback: 0
-- Wrote candidate diagnostics: data/value_bets/debug/candidate_near_miss.json
-- Wrote up to 4 fixture samples to data/value_bets/debug/fixture_*_playershots_sample.json
-- Tip: set ALLOW_PS_FALLBACK_ANY=1 to test name/ID matching with any bookmaker, not just Bet365.
-- Tip: set NAME_MATCH_MODE=relaxed to test last-name only matching.
-- Tip: set SKIP_ML_FILTER=1 to confirm ML filter is not the blocker.
+- ML filter active (preferred bookmaker unless fallback enabled).
 
-Run timestamp (UTC): 2025-10-18 15:41:41
+Run timestamp (UTC): 2025-10-18 15:49:18
