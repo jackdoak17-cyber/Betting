@@ -306,3 +306,135 @@ def main():
 
     fixtures = get_fixtures_between(token, start_date, end_date, sorted(set(LEAGUE_IDS)))
     if not fixtures:
+        print("No fixtures found for next 7 days.")
+        OUT_FILE.write_text("No fixtures found for next 7 days.\n", encoding="utf-8")
+        return
+
+    # Map team_id -> list of fixture info
+    team_to_fixtures: Dict[int, List[dict]] = {}
+    fixture_info_by_id: Dict[int, dict] = {}
+    for fx in fixtures:
+        meta = parse_fixture_participants(fx)
+        fid = meta.get("fixture_id")
+        if not isinstance(fid, int): continue
+        fixture_info_by_id[fid] = meta
+        for side_id in (meta.get("home_id"), meta.get("away_id")):
+            if isinstance(side_id, int):
+                team_to_fixtures.setdefault(side_id, []).append(meta)
+
+    print(f"[FIXTURES] Retrieved {len(fixtures)} fixtures across {len(set([c['league_id'] for c in candidates]))} leagues (next 7 days).")
+
+    # 3) Fetch odds per fixture where we have candidates’ teams
+    # Build set of relevant fixture_ids
+    relevant_fixture_ids = set()
+    for c in candidates:
+        for meta in team_to_fixtures.get(c["team_id"], []):
+            relevant_fixture_ids.add(meta["fixture_id"])
+
+    if not relevant_fixture_ids:
+        print("[ODDS] No relevant fixtures for candidate teams.")
+        OUT_FILE.write_text("No relevant fixtures for candidate teams.\n", encoding="utf-8")
+        return
+
+    # Fetch odds per fixture and cache
+    odds_by_fixture: Dict[int, List[dict]] = {}
+    for i, fid in enumerate(sorted(relevant_fixture_ids), start=1):
+        odds = fetch_odds_for_fixture(token, fid)
+        odds_by_fixture[fid] = odds or []
+        time.sleep(0.25)  # be nice
+
+    # 4) Scan odds for Player Shots Over 0.5 and apply ML filter
+    flagged: List[dict] = []
+
+    def team_side_for_fixture(team_id: int, meta: dict) -> Optional[str]:
+        if team_id == meta.get("home_id"): return "home"
+        if team_id == meta.get("away_id"): return "away"
+        return None
+
+    for c in candidates:
+        metas = team_to_fixtures.get(c["team_id"], []) or []
+        for meta in metas:
+            fid = meta["fixture_id"]
+            ev_odds = odds_by_fixture.get(fid, [])
+            if not ev_odds: continue
+
+            # Team ML (Match Winner) — find best price for side
+            best_home_ml = best_away_ml = None
+            for odd in ev_odds:
+                if odd.get("bookmaker_id") != BOOKMAKER_ID: continue
+                if odd.get("market_id") != MARKET_MATCH_WINNER: continue
+                # Labels are usually "Home"/"Away" (and possibly "Draw")
+                label = (odd.get("label") or odd.get("name") or "").strip().lower()
+                price = decimals(odd)
+                if price is None: continue
+                if "home" in label:
+                    best_home_ml = price if (best_home_ml is None or price < best_home_ml) else best_home_ml
+                elif "away" in label:
+                    best_away_ml = price if (best_away_ml is None or price < best_away_ml) else best_away_ml
+
+            side = team_side_for_fixture(c["team_id"], meta)
+            if not side: 
+                continue
+            team_ml = best_home_ml if side == "home" else best_away_ml
+            if team_ml is None or team_ml >= TEAM_ML_MAX:
+                continue
+
+            # Player Shots Over 0.5 (market 268)
+            best_price = None
+            market_seen = None
+            for odd in ev_odds:
+                if odd.get("bookmaker_id") != BOOKMAKER_ID: continue
+                if odd.get("market_id") != MARKET_PLAYER_SHOTS: continue
+                # Player name often lives in 'participants'; fallback to 'label' if provider folds it in.
+                who = odd.get("participants") or odd.get("original_label") or odd.get("label") or odd.get("name") or ""
+                if not player_label_matches(c["player"], who): 
+                    continue
+                if not is_over_label(odd): 
+                    continue
+                if not total_is_half(odd): 
+                    continue
+                price = decimals(odd)
+                if price is None: 
+                    continue
+                if price >= MIN_PRICE and (best_price is None or price > best_price + 1e-9):
+                    best_price = price
+                    market_seen = "Player Shots"
+
+            if best_price is not None:
+                home = meta.get("home_name") or "Home"
+                away = meta.get("away_name") or "Away"
+                flagged.append({
+                    "player": c["player"], "position": c["position"], "team_id": c["team_id"],
+                    "fixture": f"{home} vs {away}",
+                    "kickoff": meta.get("kickoff") or "",
+                    "price": best_price, "team_ml": team_ml,
+                    "series": c["series"], "league_id": c["league_id"], "market": market_seen or "Player Shots",
+                })
+
+    # 5) Render
+    flagged.sort(key=lambda x: (-x["price"], x["player"]))
+    lines = []
+    lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
+    lines.append("Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: Bet365 Player Shots Over 0.5")
+    lines.append("")
+
+    if not flagged:
+        lines.append("No matches found.")
+    else:
+        lines.append("===== CERTS — Player Shots 1+ =====")
+        for x in flagged:
+            ser = ",".join(map(str, x["series"][:7]))
+            pos = f"[{x['position']}]" if x.get("position") else ""
+            lines.append(
+                f" • {x['player']} {pos} — {x['fixture']} | {x['kickoff']} | "
+                f"Over 0.5 @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | series7: {ser}"
+            )
+
+    OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    print("\n".join(lines))
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
