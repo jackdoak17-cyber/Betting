@@ -4,33 +4,23 @@
 Value bets — SHOTS certs (1+ in 100% of last 7, min games=7)
 Source data: data/player_shots/combined.json (+ fixtures from Sportmonks)
 Provider: Sportmonks only
-Bookmaker: Bet365 only (bookmaker_id=2)
-Markets: Player Shots (market_id=268), Match Winner (market_id=1)
+Bookmaker: resolved by name (default "Bet365")
+Markets: Player Shots (268), Match Winner (1)
 Filters:
   - Player qualifies: last 7 matches all >=1 shot (len(series)>=7)
   - Price Over 0.5 >= MIN_DEC_PRICE
-  - Team ML (Bet365) for player's side < TEAM_WIN_MAX
+  - Team ML (chosen bookmaker) for player's side < TEAM_WIN_MAX
 Output: data/value_bets/shots_certs.txt + console
-
-ENV:
-  SPORTMONKS_TOKEN (required)
-  MIN_DEC_PRICE (default=1.30)
-  TEAM_WIN_MAX  (default=3.50)
-
-Notes:
-  - Fixtures fetched for the next 7 days across configured leagues.
-  - Odds fetched per fixture (with retries & tolerant parsing).
-  - Player/label matching is tolerant to small naming diffs.
 """
 
 import os, re, json, math, time, random, unicodedata, datetime as dt
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import requests
-from itertools import islice
+from collections import Counter
 
 # ========= CONFIG =========
-BOOKMAKER_ID = 2  # Bet365
+BOOKMAKER_NAME = os.getenv("BOOKMAKER_NAME", "Bet365").strip().lower()  # resolved dynamically
 MARKET_PLAYER_SHOTS = 268  # PLAYER_TOTAL_SHOTS
 MARKET_MATCH_WINNER  = 1   # FULLTIME_RESULT
 
@@ -39,22 +29,21 @@ TEAM_ML_MAX = float(os.getenv("TEAM_WIN_MAX", "3.50"))
 
 # Limit to the leagues you care about (Sportmonks league IDs)
 LEAGUE_IDS = [
-    8,   # England - Premier League
-    9,   # England - Championship
-    82,  # Germany - Bundesliga
-    301, # France - Ligue 1
-    384, # Italy - Serie A
-    387, # Italy - Serie B
-    564, # Spain - LaLiga
-    567, # Spain - LaLiga 2
-    72,  # Netherlands - Eredivisie
-    600, # Türkiye - Süper Lig
+    8,   # Premier League
+    9,   # Championship
+    82,  # Bundesliga
+    301, # Ligue 1
+    384, # Serie A
+    387, # Serie B
+    564, # LaLiga
+    567, # LaLiga 2
+    72,  # Eredivisie
+    600, # Süper Lig
 ]
 
 BASE = "https://api.sportmonks.com/v3"
 TIMEOUT = 25
-MAX_ODDS_PAGES = 1  # not used now; we fetch odds per fixture to stay precise
-HTTP_HEADERS = {"accept": "application/json", "user-agent": "sm-odds-shots-certs/1.0"}
+HTTP_HEADERS = {"accept": "application/json", "user-agent": "sm-odds-shots-certs/1.1"}
 
 ROOT = Path(".")
 DATA_DIR   = ROOT / "data"
@@ -88,7 +77,7 @@ def extract_last_name_initial(name: str):
 
 def player_label_matches(player: str, option_text: str) -> bool:
     """
-    Match "A. Smith" against “A. Smith (Over 0.5)” or similar free text.
+    Match "A. Smith" against “A. Smith (Over 0.5)” or “Over 0.5 — A. Smith”.
     We look for last name and, if present, first initial before the last name.
     """
     if not player or not option_text: return False
@@ -135,15 +124,12 @@ def http_get_with_retries(url: str, params: dict, max_retries=6, base_sleep=1.0,
 
 # ========= SPORTMONKS: FIXTURES =========
 def get_fixtures_between(token: str, start_date: str, end_date: str, league_ids: List[int]) -> List[dict]:
-    """
-    Try the canonical 'between' endpoint first, then fall back to per-day if needed.
-    Includes participants so we can map team_id -> fixture.
-    """
+    """Try the canonical 'between' endpoint first, then fall back to per-day."""
     q = {
         "api_token": token,
         "include": "participants",
         "per_page": 50,
-        "filters": f"leagues:{','.join(map(str, league_ids))}"  # tolerated by fixtures API
+        "filters": f"leagues:{','.join(map(str, league_ids))}"
     }
     url = f"{BASE}/football/fixtures/between/{start_date}/{end_date}"
 
@@ -153,7 +139,6 @@ def get_fixtures_between(token: str, start_date: str, end_date: str, league_ids:
         try: data = r.json() or {}
         except: data = {}
 
-    # If the endpoint name differs on your plan, fall back to daily pulls (today .. end_date)
     if not data.get("data"):
         print(f"[WARN] No fixtures via 'between'; trying per-day fallback.")
         out = []
@@ -174,17 +159,6 @@ def get_fixtures_between(token: str, start_date: str, end_date: str, league_ids:
     return data.get("data") or []
 
 def parse_fixture_participants(fx: dict) -> Dict[str, Any]:
-    """
-    Return {
-      'fixture_id': int,
-      'home_id': int | None,
-      'away_id': int | None,
-      'home_name': str | None,
-      'away_name': str | None,
-      'kickoff': str (UTC ISO) | ""
-    }
-    Tolerant to shape differences.
-    """
     fid = fx.get("id")
     kickoff = fx.get("starting_at") or fx.get("starting_at_date") or fx.get("date") or ""
     home_id = away_id = None
@@ -192,7 +166,6 @@ def parse_fixture_participants(fx: dict) -> Dict[str, Any]:
 
     parts = fx.get("participants") or []
     if isinstance(parts, list) and parts:
-        # Common v3 shape: each has id/name/meta.location ('home'/'away')
         for p in parts:
             pid = p.get("id") or p.get("participant_id")
             nm  = p.get("name") or p.get("short_code")
@@ -202,7 +175,6 @@ def parse_fixture_participants(fx: dict) -> Dict[str, Any]:
             elif loc in ("away", False, "visitorteam"):
                 away_id, away_name = pid, nm
 
-    # Fallback: some feeds still expose local/visitor ids on fixture
     home_id = home_id or fx.get("localteam_id") or fx.get("home_team_id")
     away_id = away_id or fx.get("visitorteam_id") or fx.get("away_team_id")
 
@@ -219,18 +191,18 @@ def fetch_odds_for_fixture(token: str, fixture_id: int) -> List[dict]:
     Try plural and singular fixture paths to be safe:
       /football/odds/pre-match/fixtures/{id}
       /football/odds/pre-match/fixture/{id}
-    Filter later in code by bookmaker & market ids.
+    Request with includes so we can resolve bookmaker names & market names.
     """
+    params = {"api_token": token, "per_page": 50, "include": "bookmaker;market"}
     for path in (f"{BASE}/football/odds/pre-match/fixtures/{fixture_id}",
                  f"{BASE}/football/odds/pre-match/fixture/{fixture_id}"):
-        r = http_get_with_retries(path, {"api_token": token, "per_page": 50})
+        r = http_get_with_retries(path, params)
         if r and r.status_code == 200:
             try:
                 j = r.json() or {}
                 return j.get("data") or []
             except:
                 return []
-        # continue loop on 404/other
     return []
 
 # ========= CANDIDATES FROM combined.json =========
@@ -245,7 +217,6 @@ def load_candidates() -> List[dict]:
     players = blob.get("players") or []
     out = []
     for rec in players:
-        # Expect latest_first order
         series = rec.get("shots_last_n") or rec.get("series") or []
         if not isinstance(series, list): continue
         if not last7_all_one_plus(series): continue
@@ -268,22 +239,40 @@ def load_candidates() -> List[dict]:
 def is_over_label(odd: dict) -> bool:
     s1 = (odd.get("label") or "").strip().lower()
     s2 = (odd.get("name")  or "").strip().lower()
-    return "over" in s1 or "over" in s2
+    s3 = (odd.get("original_label") or "").strip().lower()
+    return ("over" in s1) or ("over" in s2) or ("over" in s3)
 
-def total_is_half(odd: dict) -> bool:
-    tot = odd.get("total")
-    if tot is None: return False
-    try: return math.isclose(float(tot), 0.5, abs_tol=1e-9)
-    except: return False
+def line_is_half(odd: dict) -> bool:
+    # Some feeds put 0.5 in 'total', others in 'handicap'
+    for k in ("total", "handicap"):
+        v = odd.get(k)
+        if v is None: continue
+        try:
+            if math.isclose(float(v), 0.5, abs_tol=1e-9):
+                return True
+        except:
+            pass
+    return False
 
 def decimals(odd: dict) -> Optional[float]:
-    # prefer dp3 if present, else value
     for k in ("dp3", "value"):
         v = odd.get(k)
         if v is None: continue
         try: return float(v)
         except: pass
     return None
+
+def player_text_from_odd(odd: dict) -> str:
+    # Prefer dedicated participant text if present
+    who = odd.get("participants")
+    if isinstance(who, str) and who.strip():
+        return who
+    # Some feeds use 'original_label' like "Over 0.5 — J. Smith"
+    for k in ("original_label", "label", "name"):
+        t = odd.get(k)
+        if isinstance(t, str) and t.strip():
+            return t
+    return ""
 
 # ========= WORKFLOW =========
 def main():
@@ -310,7 +299,6 @@ def main():
         OUT_FILE.write_text("No fixtures found for next 7 days.\n", encoding="utf-8")
         return
 
-    # Map team_id -> list of fixture info
     team_to_fixtures: Dict[int, List[dict]] = {}
     fixture_info_by_id: Dict[int, dict] = {}
     for fx in fixtures:
@@ -324,24 +312,69 @@ def main():
 
     print(f"[FIXTURES] Retrieved {len(fixtures)} fixtures across {len(set([c['league_id'] for c in candidates]))} leagues (next 7 days).")
 
-    # 3) Fetch odds per fixture where we have candidates’ teams
-    # Build set of relevant fixture_ids
+    # 3) Fetch odds per relevant fixture
     relevant_fixture_ids = set()
     for c in candidates:
         for meta in team_to_fixtures.get(c["team_id"], []):
             relevant_fixture_ids.add(meta["fixture_id"])
-
     if not relevant_fixture_ids:
         print("[ODDS] No relevant fixtures for candidate teams.")
         OUT_FILE.write_text("No relevant fixtures for candidate teams.\n", encoding="utf-8")
         return
 
-    # Fetch odds per fixture and cache
     odds_by_fixture: Dict[int, List[dict]] = {}
     for i, fid in enumerate(sorted(relevant_fixture_ids), start=1):
         odds = fetch_odds_for_fixture(token, fid)
         odds_by_fixture[fid] = odds or []
-        time.sleep(0.25)  # be nice
+        time.sleep(0.20)  # be nice
+
+    fixtures_with_odds = sum(1 for fid in relevant_fixture_ids if odds_by_fixture.get(fid))
+    print(f"[ODDS] Fixtures with odds payloads: {fixtures_with_odds} / {len(relevant_fixture_ids)}")
+
+    # 3a) DEBUG: Inspect bookmakers / markets
+    bm_counter = Counter()
+    bm_name_by_id: Dict[int, str] = {}
+    mkt_counter = Counter()
+    for fid in relevant_fixture_ids:
+        for odd in odds_by_fixture.get(fid, []):
+            bid = odd.get("bookmaker_id")
+            if isinstance(bid, int):
+                bm_counter[bid] += 1
+            bobj = odd.get("bookmaker")
+            if isinstance(bobj, dict):
+                name = (bobj.get("name") or "").strip()
+                if name:
+                    bm_name_by_id[bid] = name
+            mid = odd.get("market_id")
+            if isinstance(mid, int):
+                mkt_counter[mid] += 1
+    if bm_counter:
+        top_bm = ", ".join(f"{bm_name_by_id.get(bid, str(bid))}({cnt})" for bid, cnt in bm_counter.most_common(6))
+        print(f"[DEBUG] Bookmakers seen (top): {top_bm}")
+    if mkt_counter:
+        # map a few known ids to names if available in any record
+        mkt_name_by_id: Dict[int, str] = {}
+        for fid in relevant_fixture_ids:
+            for odd in odds_by_fixture.get(fid, []):
+                mid = odd.get("market_id")
+                m = odd.get("market")
+                if isinstance(mid, int) and isinstance(m, dict) and (m.get("name") or m.get("developer_name")):
+                    mkt_name_by_id[mid] = m.get("name") or m.get("developer_name")
+        top_mkts = ", ".join(f"{mkt_name_by_id.get(mid, mid)}({cnt})" for mid, cnt in mkt_counter.most_common(12))
+        print(f"[DEBUG] Top markets returned: {top_mkts}")
+
+    # Resolve bookmaker_id by name (default "Bet365")
+    resolved_bm_id: Optional[int] = None
+    for bid, cnt in bm_counter.items():
+        name = (bm_name_by_id.get(bid, "") or "").lower()
+        if name and BOOKMAKER_NAME in name:
+            resolved_bm_id = bid
+            break
+    if not resolved_bm_id and bm_counter:
+        # Fallback: pick most common bookmaker but warn
+        resolved_bm_id = bm_counter.most_common(1)[0][0]
+        fallback_name = bm_name_by_id.get(resolved_bm_id, str(resolved_bm_id))
+        print(f"[WARN] Could not find bookmaker '{BOOKMAKER_NAME}'. Using most common: {fallback_name} (id {resolved_bm_id}).")
 
     # 4) Scan odds for Player Shots Over 0.5 and apply ML filter
     flagged: List[dict] = []
@@ -351,25 +384,36 @@ def main():
         if team_id == meta.get("away_id"): return "away"
         return None
 
+    def is_home_label(label: str) -> bool:
+        s = (label or "").strip().lower()
+        return ("home" in s) or (s == "1")
+
+    def is_away_label(label: str) -> bool:
+        s = (label or "").strip().lower()
+        return ("away" in s) or (s == "2")
+
     for c in candidates:
         metas = team_to_fixtures.get(c["team_id"], []) or []
         for meta in metas:
             fid = meta["fixture_id"]
             ev_odds = odds_by_fixture.get(fid, [])
-            if not ev_odds: continue
+            if not ev_odds: 
+                continue
 
-            # Team ML (Match Winner) — find best price for side
+            # Team ML (Match Winner)
             best_home_ml = best_away_ml = None
             for odd in ev_odds:
-                if odd.get("bookmaker_id") != BOOKMAKER_ID: continue
-                if odd.get("market_id") != MARKET_MATCH_WINNER: continue
-                # Labels are usually "Home"/"Away" (and possibly "Draw")
-                label = (odd.get("label") or odd.get("name") or "").strip().lower()
+                if resolved_bm_id is not None and odd.get("bookmaker_id") != resolved_bm_id: 
+                    continue
+                if odd.get("market_id") != MARKET_MATCH_WINNER: 
+                    continue
+                label = (odd.get("label") or odd.get("name") or "").strip()
                 price = decimals(odd)
-                if price is None: continue
-                if "home" in label:
+                if price is None: 
+                    continue
+                if is_home_label(label):
                     best_home_ml = price if (best_home_ml is None or price < best_home_ml) else best_home_ml
-                elif "away" in label:
+                elif is_away_label(label):
                     best_away_ml = price if (best_away_ml is None or price < best_away_ml) else best_away_ml
 
             side = team_side_for_fixture(c["team_id"], meta)
@@ -383,22 +427,23 @@ def main():
             best_price = None
             market_seen = None
             for odd in ev_odds:
-                if odd.get("bookmaker_id") != BOOKMAKER_ID: continue
-                if odd.get("market_id") != MARKET_PLAYER_SHOTS: continue
-                # Player name often lives in 'participants'; fallback to 'label' if provider folds it in.
-                who = odd.get("participants") or odd.get("original_label") or odd.get("label") or odd.get("name") or ""
+                if resolved_bm_id is not None and odd.get("bookmaker_id") != resolved_bm_id: 
+                    continue
+                if odd.get("market_id") != MARKET_PLAYER_SHOTS: 
+                    continue
+                who = player_text_from_odd(odd)
                 if not player_label_matches(c["player"], who): 
                     continue
                 if not is_over_label(odd): 
                     continue
-                if not total_is_half(odd): 
+                if not line_is_half(odd): 
                     continue
                 price = decimals(odd)
                 if price is None: 
                     continue
                 if price >= MIN_PRICE and (best_price is None or price > best_price + 1e-9):
                     best_price = price
-                    market_seen = "Player Shots"
+                    market_seen = (odd.get("market") or {}).get("name") or "Player Shots"
 
             if best_price is not None:
                 home = meta.get("home_name") or "Home"
@@ -408,18 +453,26 @@ def main():
                     "fixture": f"{home} vs {away}",
                     "kickoff": meta.get("kickoff") or "",
                     "price": best_price, "team_ml": team_ml,
-                    "series": c["series"], "league_id": c["league_id"], "market": market_seen or "Player Shots",
+                    "series": c["series"], "league_id": c["league_id"], "market": market_seen,
                 })
 
     # 5) Render
     flagged.sort(key=lambda x: (-x["price"], x["player"]))
     lines = []
     lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
-    lines.append("Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: Bet365 Player Shots Over 0.5")
+    lines.append(f"Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: {BOOKMAKER_NAME} Player Shots Over 0.5")
     lines.append("")
 
     if not flagged:
         lines.append("No matches found.")
+        # A couple of hints to diagnose quickly in the artifacts/log:
+        if bm_counter:
+            lines.append("")
+            lines.append("[Notes]")
+            lines.append(f"- Bookmakers seen: {', '.join(sorted(set(v for v in bm_name_by_id.values() if v)))}")
+            # Was Player Shots present at all?
+            ps_present = mkt_counter.get(MARKET_PLAYER_SHOTS, 0)
+            lines.append(f"- Player Shots market rows present in payload: {ps_present}")
     else:
         lines.append("===== CERTS — Player Shots 1+ =====")
         for x in flagged:
