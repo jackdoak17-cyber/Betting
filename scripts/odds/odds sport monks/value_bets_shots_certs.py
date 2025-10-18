@@ -1,618 +1,489 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-value_bets_shots_certs.py
+Sportmonks — Value Bets (Player Shots "Certs") v1.1
+---------------------------------------------------
+- Reads predicted XI to discover target players for upcoming fixtures.
+- Pulls Sportmonks pre-match odds per fixture.
+- Extracts Over 0.5 (1+) lines for:
+    • Player Total Shots
+    • Player Shots on Target
+- Filters by bookmaker(s) (default: Kambi).
+- Writes:
+    reports/props_latest.csv
+    reports/props_latest.json
+    reports/digest_latest.md
 
-End-to-end, no-surprises runner for "shots certs" (player prop) value scanning.
+ENV
+---
+SPORTMONKS_TOKEN             (required)
+SM_BOOKMAKERS                (default: "Kambi")  e.g. "Kambi,Bet365"
+SM_MIN_DECIMAL               (default: "1.20")   minimum decimal price to keep
+SM_MAX_FIXTURES              (default: "500")    safety cap
+SM_INCLUDE_SOT               (default: "1")      include SOT market
+SM_INCLUDE_SHOTS             (default: "1")      include Total Shots market
 
-- Source of truth for fixtures: data/fixtures/latest.json
-- Odds source: local stubs (if present) in data/odds/by_fixture/{fixture_id}.json
-  *This script does NOT call external APIs.* It is safe to run offline.
-- Candidate list (optional):
-    - data/candidates/shots_series7_all1.csv
-    - or data/candidates/shots_series7_all1.json
-  If missing, the pipeline still runs and emits an empty shortlist.
+INPUTS (from your pipeline)
+---------------------------
+data/predicted_xi/by_league/{league_id}.json
+  Structure (only fields used):
+    {
+      "league_id": ...,
+      "fixtures": [
+        {
+          "fixture_id": 123,
+          "starting_at": "...",
+          "home": { "team_id": ..., "name": "...", "predicted_xi": [ {"player_id":..., "name":"..."} ] },
+          "away": { ... }
+        },
+        ...
+      ]
+    }
 
-Outputs (created if not present):
-- reports/props_latest.csv
-- reports/props_latest.json
-- reports/digest_latest.md
-
-All times are UTC. No third-party packages required (stdlib only).
+NOTE
+----
+Sportmonks odds payloads vary per bookmaker/market. This script uses tolerant parsing:
+- market name fuzzy match (e.g., "Player Shots", "Player - Total Shots", etc.)
+- outcome detection for Over 0.5 (also catches "1+" / "1 or more")
+- participant (player) name pulled from common fields; falls back to label parsing
 """
 
 from __future__ import annotations
-
-import argparse
-import csv
-import json
-import sys
-from dataclasses import dataclass
-from datetime import datetime, timezone
+import os, json, re, csv, time
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+import unicodedata
+import requests
+from datetime import datetime
 
+# ----------------- Config / IO -----------------
+ROOT = Path(".")
+PX_DIR = ROOT / "data" / "predicted_xi" / "by_league"
+REPORTS_DIR = ROOT / "reports"
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ----------------------------
-# Configuration (overridable via CLI)
-# ----------------------------
-DEFAULT_FIXTURE_FILE = Path("data/fixtures/latest.json")
-DEFAULT_CANDIDATE_CSV = Path("data/candidates/shots_series7_all1.csv")
-DEFAULT_CANDIDATE_JSON = Path("data/candidates/shots_series7_all1.json")
-DEFAULT_ODDS_DIR = Path("data/odds/by_fixture")
-REPORTS_DIR = Path("reports")
+API_BASE = "https://api.sportmonks.com/v3/football"
+TOKEN = (
+    os.getenv("SPORTMONKS_TOKEN")
+    or os.getenv("SPORTMONKS_API_TOKEN")
+    or os.getenv("SM_TOKEN")
+)
+if not TOKEN:
+    raise SystemExit("ERROR: SPORTMONKS_TOKEN / SPORTMONKS_API_TOKEN / SM_TOKEN not set.")
 
-DEFAULT_STALE_HOURS = 12  # warn if fixtures file is older than this
-NOW_UTC = datetime.now(timezone.utc)
+BOOKMAKERS_IN = os.getenv("SM_BOOKMAKERS", "Kambi")
+MIN_DEC = float(os.getenv("SM_MIN_DECIMAL", "1.20"))
+MAX_FIXTURES = int(os.getenv("SM_MAX_FIXTURES", "500"))
+INCLUDE_SOT = os.getenv("SM_INCLUDE_SOT", "1") == "1"
+INCLUDE_SHOTS = os.getenv("SM_INCLUDE_SHOTS", "1") == "1"
 
+TIMEOUT = 25
+RETRIES = 3
+BACKOFF = 1.7
+GLOBAL_MIN_DELAY = 0.18  # gentle pacing across calls
+_last_call = 0.0
 
-# ----------------------------
-# Data models
-# ----------------------------
-@dataclass
-class Fixture:
-    fixture_id: int
-    league_id: Optional[int]
-    kickoff_utc: datetime
-    home_team: str
-    away_team: str
+# Market name heuristics
+SHOTS_MARKET_HINTS = [
+    "player shots", "player - total shots", "total shots - player", "total shots player",
+    "shots - player", "shots player", "shots taken - player", "shots (player)",
+]
+SOT_MARKET_HINTS = [
+    "shots on target - player", "player shots on target", "shots on target player",
+    "sot - player", "total shots on target - player", "shots on target (player)",
+]
 
+OVER05_HINTS = ["over 0.5", "over0.5", "1+", "1 or more", "1 or-more", "1 plus"]
 
-@dataclass
-class Candidate:
-    player: str
-    market: str  # 'shots' or 'shots_on_target' (case-insensitive)
-    # If both are set, 'line' is used as the target and 'min_line' as a floor.
-    line: Optional[float] = None
-    min_line: Optional[float] = None
+# ----------------- HTTP helpers -----------------
+def _pace():
+    global _last_call
+    now = time.time()
+    if now - _last_call < GLOBAL_MIN_DELAY:
+        time.sleep(GLOBAL_MIN_DELAY - (now - _last_call))
+    _last_call = time.time()
 
-
-@dataclass
-class OddsRow:
-    fixture_id: int
-    player: str
-    market: str            # 'shots' or 'shots_on_target' (case-insensitive)
-    line: float            # numerical line, e.g., 0.5, 1.0, 1.5
-    selection: str         # 'Over' or 'Under'
-    price_decimal: float   # decimal odds, e.g., 1.85
-    bookmaker: str
-
-
-# ----------------------------
-# Utilities
-# ----------------------------
-def _safe_float(x) -> Optional[float]:
-    try:
-        if x is None:
-            return None
-        return float(x)
-    except Exception:
-        return None
-
-
-def _parse_utc_ts(s: str) -> Optional[datetime]:
-    """
-    Parse "YYYY-MM-DD HH:MM:SS" or ISO8601 with or without 'Z' as UTC.
-    """
-    if not s:
-        return None
-    try:
-        # Try "YYYY-MM-DD HH:MM:SS"
-        dt = datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
-        return dt.replace(tzinfo=timezone.utc)
-    except ValueError:
-        pass
-    try:
-        # ISO8601 (with or without Z)
-        if s.endswith("Z"):
-            s = s.replace("Z", "+00:00")
-        return datetime.fromisoformat(s).astimezone(timezone.utc)
-    except Exception:
-        return None
-
-
-def _ensure_reports_dir() -> None:
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def _read_json(path: Path) -> Optional[dict]:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-
-
-# ----------------------------
-# Fixtures
-# ----------------------------
-def load_local_fixtures(path: Path, stale_hours: int) -> Tuple[Dict[int, Fixture], Dict, List[str]]:
-    """
-    Returns:
-        fixtures_by_id: {fixture_id: Fixture}
-        meta: meta dict from file
-        warnings: list of warning strings
-    """
-    warnings: List[str] = []
-    if not path.exists():
-        raise FileNotFoundError(f"Fixtures file not found: {path.resolve()}")
-
-    raw = _read_json(path)
-    if not raw:
-        raise ValueError(f"Could not parse JSON from {path.resolve()}")
-
-    meta = raw.get("meta", {})
-    gen_at = meta.get("generated_at")
-
-    if gen_at:
+def api_get(path: str, params: Optional[dict] = None) -> dict:
+    if params is None:
+        params = {}
+    params = {**params, "api_token": TOKEN}
+    url = f"{API_BASE}/{path.lstrip('/')}"
+    last_exc = None
+    for i in range(1, RETRIES + 1):
+        _pace()
         try:
-            iso = gen_at.replace("Z", "+00:00")
-            gen_dt = datetime.fromisoformat(iso).astimezone(timezone.utc)
-            age_hours = (NOW_UTC - gen_dt).total_seconds() / 3600.0
-            if age_hours > stale_hours:
-                warnings.append(
-                    f"[WARN] Fixtures snapshot is {age_hours:.1f}h old "
-                    f"(generated_at={gen_dt.isoformat()}); consider refreshing."
-                )
-        except Exception:
-            warnings.append("[WARN] Could not parse meta.generated_at; skipping staleness check.")
-
-    fixtures_by_id: Dict[int, Fixture] = {}
-    for f in raw.get("fixtures", []):
-        fixture_id = f.get("id")
-        league_id = f.get("league_id")
-        kickoff = _parse_utc_ts(f.get("starting_at"))
-        # fallback to timestamp if needed
-        if not kickoff:
-            ts = f.get("starting_at_timestamp")
-            try:
-                kickoff = datetime.fromtimestamp(int(ts), tz=timezone.utc) if ts else None
-            except Exception:
-                kickoff = None
-
-        # Parse participants (home/away)
-        home_team, away_team = "HOME", "AWAY"
-        for p in f.get("participants", []):
-            loc = (p.get("meta") or {}).get("location", "").lower().strip()
-            name = p.get("name") or p.get("short_code") or "UNKNOWN"
-            if loc == "home":
-                home_team = name
-            elif loc == "away":
-                away_team = name
-
-        if fixture_id is None or kickoff is None:
-            # Skip malformed entries quietly
-            continue
-
-        fixtures_by_id[int(fixture_id)] = Fixture(
-            fixture_id=int(fixture_id),
-            league_id=int(league_id) if league_id is not None else None,
-            kickoff_utc=kickoff,
-            home_team=str(home_team),
-            away_team=str(away_team),
-        )
-
-    return fixtures_by_id, meta, warnings
-
-
-# ----------------------------
-# Candidates
-# ----------------------------
-def load_candidates(csv_path: Path, json_path: Path) -> List[Candidate]:
-    """
-    Flexible loader. Accepts either CSV or JSON; if both exist, CSV wins.
-    Expected fields (case-insensitive):
-      - player (str) [required]
-      - market (str) 'shots' | 'shots_on_target' [required]
-      - line (float) [optional]
-      - min_line (float) [optional]
-    """
-    if csv_path.exists():
-        rows: List[Candidate] = []
-        try:
-            with csv_path.open("r", encoding="utf-8", newline="") as f:
-                reader = csv.DictReader(f)
-                for r in reader:
-                    player = (r.get("player") or "").strip()
-                    market = (r.get("market") or "").strip().lower()
-                    if not player or not market:
-                        continue
-                    line = _safe_float(r.get("line"))
-                    min_line = _safe_float(r.get("min_line"))
-                    rows.append(Candidate(player=player, market=market, line=line, min_line=min_line))
-            return rows
-        except Exception:
-            # Fall through to try JSON
-            pass
-
-    if json_path.exists():
-        try:
-            data = _read_json(json_path)
-            out: List[Candidate] = []
-            for r in (data or []):
-                player = (r.get("player") or "").strip()
-                market = (r.get("market") or "").strip().lower()
-                if not player or not market:
-                    continue
-                line = _safe_float(r.get("line"))
-                min_line = _safe_float(r.get("min_line"))
-                out.append(Candidate(player=player, market=market, line=line, min_line=min_line))
-            return out
-        except Exception:
-            return []
-
-    # No candidates file found → empty list is fine
-    return []
-
-
-# ----------------------------
-# Odds (local stub reader)
-# ----------------------------
-def _parse_normalized_odds_rows(raw: Iterable[dict], fallback_fixture_id: int) -> List[OddsRow]:
-    """
-    Accepts an iterable of dicts that (ideally) match our OddsRow schema.
-    Missing/extra fields are tolerated; non-parsable rows are skipped.
-    """
-    out: List[OddsRow] = []
-    for r in raw:
-        try:
-            fixture_id = int(r.get("fixture_id", fallback_fixture_id))
-            player = str(r.get("player") or "").strip()
-            market = str(r.get("market") or "").strip().lower()
-            line = _safe_float(r.get("line"))
-            selection = str(r.get("selection") or "").strip().title()  # normalize to 'Over'/'Under'
-            price = _safe_float(r.get("price_decimal"))
-            bookmaker = str(r.get("bookmaker") or "").strip() or "BOOK"
-
-            if not player or not market or line is None or price is None:
+            r = requests.get(url, params=params, timeout=TIMEOUT)
+            if r.status_code == 429:
+                sleep = min(60, (BACKOFF ** i) * 2)
+                print(f"[429] {path} — sleeping {sleep:.1f}s")
+                time.sleep(sleep)
                 continue
-            if selection not in {"Over", "Under"}:
-                # default to Over if unspecified
-                selection = "Over"
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            last_exc = e
+            if i < RETRIES:
+                sleep = BACKOFF ** i
+                print(f"[RETRY] {path} (attempt {i}) sleeping {sleep:.1f}s")
+                time.sleep(sleep)
+            else:
+                raise
+    raise last_exc
 
-            out.append(
-                OddsRow(
-                    fixture_id=fixture_id,
-                    player=player,
-                    market=market,
-                    line=float(line),
-                    selection=selection,
-                    price_decimal=float(price),
-                    bookmaker=bookmaker,
-                )
-            )
+# ----------------- Text / matching helpers -----------------
+def norm(s: Optional[str]) -> str:
+    if not s: return ""
+    s = unicodedata.normalize("NFKD", s)
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    s = s.lower().strip()
+    s = re.sub(r"[^a-z0-9+ ]+", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def looks_like_market(name: str, hints: List[str]) -> bool:
+    n = norm(name)
+    return any(h in n for h in hints)
+
+def outcome_is_over05(name: str, line: Optional[float] = None, side: Optional[str] = None) -> bool:
+    n = norm(name)
+    if any(h in n for h in OVER05_HINTS):
+        return True
+    if line is not None:
+        # Some payloads have explicit line/handicap + side
+        if abs(line - 0.5) < 1e-9 and (side or "").lower() in {"over", "o", "ov"}:
+            return True
+    return False
+
+def pick_decimal(out: dict) -> Optional[float]:
+    # Common decimal price fields across feeds
+    for k in ("decimal", "price", "odd", "odds", "value"):
+        v = out.get(k)
+        try:
+            if v is None: continue
+            return float(v)
         except Exception:
-            # Skip bad rows safely
             continue
-    return out
+    # Some use nested objects { "decimal": 1.83 } or {"american":...,"decimal":...}
+    v = out.get("prices") or out.get("bookmaker_price") or {}
+    if isinstance(v, dict):
+        for k in ("decimal", "dec", "d"):
+            if k in v:
+                try: return float(v[k])
+                except Exception: pass
+    return None
 
+def extract_player_name(outcome: dict) -> str:
+    # Try a variety of fields commonly seen
+    for k in ("participant", "player", "competitor", "runner_name", "selection", "label", "name", "outcome"):
+        v = outcome.get(k)
+        if isinstance(v, dict):
+            for kk in ("name", "player_name", "participant_name"):
+                if v.get(kk):
+                    return str(v[kk])
+        elif isinstance(v, str) and v.strip():
+            # Beware strings like "Over 0.5 - Bukayo Saka" — strip "Over 0.5 - "
+            s = v.strip()
+            # heuristics to peel line prefix/suffix
+            s = re.sub(r"^(over|under)\s*[\d.]+\s*[-:–]\s*", "", s, flags=re.I)
+            s = re.sub(r"\b(over|under)\s*[\d.]+\b", "", s, flags=re.I).strip(" -:–")
+            if len(s.split()) >= 2:  # don't return just "Over 0.5"
+                return s
+    # Some markets attach participant in 'description' / 'meta'
+    meta = outcome.get("meta") or outcome.get("extra") or {}
+    if isinstance(meta, dict):
+        for kk in ("participant_name", "player_name", "name"):
+            if meta.get(kk):
+                return str(meta[kk])
+    return ""
 
-def load_local_odds_for_fixture(odds_dir: Path, fixture_id: int) -> List[OddsRow]:
-    """
-    Attempts to read odds from data/odds/by_fixture/{fixture_id}.json.
-    Two accepted shapes:
-      1) Direct list[dict] matching normalized OddsRow keys.
-      2) Object containing a 'rows' list with normalized dicts.
-    Any other shapes will be ignored gracefully.
-    """
-    file_path = odds_dir / f"{fixture_id}.json"
-    if not file_path.exists():
-        return []
+def extract_line_info(outcome: dict) -> Tuple[Optional[float], Optional[str]]:
+    # (line/handicap, side)
+    line = None; side = None
+    for k in ("line", "handicap", "goal", "total", "threshold"):
+        v = outcome.get(k)
+        try:
+            if v is not None:
+                line = float(v)
+                break
+        except Exception:
+            continue
+    # side:
+    side = (outcome.get("side") or outcome.get("direction") or outcome.get("bet_type") or "").lower() or None
+    return (line, side)
 
-    raw = _read_json(file_path)
-    if raw is None:
-        return []
-
-    if isinstance(raw, list):
-        return _parse_normalized_odds_rows(raw, fixture_id)
-    if isinstance(raw, dict):
-        rows = raw.get("rows")
-        if isinstance(rows, list):
-            return _parse_normalized_odds_rows(rows, fixture_id)
-
-    # Unknown structure → skip
-    return []
-
-
-def load_odds_for_fixtures(odds_dir: Path, fixture_ids: Iterable[int]) -> List[OddsRow]:
-    all_rows: List[OddsRow] = []
-    for fid in fixture_ids:
-        all_rows.extend(load_local_odds_for_fixture(odds_dir, fid))
-    return all_rows
-
-
-# ----------------------------
-# Shortlisting / matching
-# ----------------------------
-def build_candidate_index(cands: List[Candidate]) -> Dict[Tuple[str, str], Candidate]:
-    """
-    Canonical key: (player_lower, market_lower)
-    If duplicates exist, prefer the one with a concrete 'line' over only 'min_line'.
-    """
-    idx: Dict[Tuple[str, str], Candidate] = {}
-    for c in cands:
-        key = (c.player.strip().lower(), c.market.strip().lower())
-        prev = idx.get(key)
-        if prev is None:
-            idx[key] = c
-        else:
-            # Prefer more specific
-            prev_has_line = prev.line is not None
-            cur_has_line = c.line is not None
-            if cur_has_line and not prev_has_line:
-                idx[key] = c
+# ----------------- Bookmakers -----------------
+def fetch_bookmaker_index() -> Dict[int, str]:
+    idx: Dict[int, str] = {}
+    try:
+        j = api_get("bookmakers")
+        for row in j.get("data", []):
+            bid = int(row.get("id") or 0)
+            nm = row.get("name") or ""
+            if bid:
+                idx[bid] = nm
+    except Exception as e:
+        print(f"[warn] bookmakers fetch failed: {e}")
     return idx
 
+def resolve_bookmaker_ids(want_names: List[str], idx: Dict[int, str]) -> List[int]:
+    want_norm = [norm(x) for x in want_names if x.strip()]
+    out: List[int] = []
+    for bid, nm in idx.items():
+        n = norm(nm)
+        if any(w in n for w in want_norm):
+            out.append(bid)
+    # Special case: user historically just uses "kambi"
+    # If no match but "kambi" was requested, include any bookmaker containing "kambi".
+    if not out and any("kambi" == w for w in want_norm):
+        for bid, nm in idx.items():
+            if "kambi" in norm(nm):
+                out.append(bid)
+    return sorted(set(out))
 
-def shortlist_rows(odds_rows: List[OddsRow], cand_index: Dict[Tuple[str, str], Candidate]) -> List[OddsRow]:
+# ----------------- Inputs: predicted XI -----------------
+def load_targets_from_predicted_xi() -> Dict[int, Dict[str, dict]]:
     """
-    Keep rows that:
-      - have selection == 'Over'
-      - match a candidate by (player, market)
-      - meet the candidate's required line constraint (>= min_line and/or == line if specified)
+    Returns:
+      targets_by_fixture[fixture_id][norm_player_name] = {
+        "player_id": int|None,
+        "display_name": str,
+        "team_name": str,
+        "league_id": int|None,
+        "starting_at": str|None
+      }
     """
-    if not cand_index:
-        # No candidates → empty shortlist (by design)
-        return []
-
-    out: List[OddsRow] = []
-    for r in odds_rows:
-        key = (r.player.strip().lower(), r.market.strip().lower())
-        c = cand_index.get(key)
-        if not c:
+    out: Dict[int, Dict[str, dict]] = {}
+    if not PX_DIR.exists():
+        return out
+    for f in PX_DIR.glob("*.json"):
+        try:
+            blob = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
             continue
-        if r.selection != "Over":
-            continue
-
-        ok = True
-        if c.min_line is not None:
-            ok = ok and (r.line >= float(c.min_line))
-        if c.line is not None:
-            # When a precise line is requested, require exact match within small epsilon
-            ok = ok and (abs(r.line - float(c.line)) <= 1e-9)
-
-        if ok:
-            out.append(r)
+        lid = int(blob.get("league_id") or 0)
+        for fx in (blob.get("fixtures") or []):
+            fid = int(fx.get("fixture_id") or fx.get("id") or 0)
+            if not fid:
+                continue
+            start = (fx.get("time") or {}).get("starting_at") or fx.get("starting_at")
+            bucket = out.setdefault(fid, {})
+            for side_key in ("home", "away"):
+                side = fx.get(side_key) or {}
+                tname = side.get("name") or ""
+                for p in side.get("predicted_xi") or []:
+                    nm = p.get("name") or ""
+                    pid = p.get("player_id")
+                    if not nm: 
+                        continue
+                    bucket[norm(nm)] = {
+                        "player_id": int(pid) if pid else None,
+                        "display_name": nm,
+                        "team_name": tname,
+                        "league_id": lid or None,
+                        "starting_at": start,
+                    }
     return out
 
+# ----------------- Sportmonks odds per fixture -----------------
+def fetch_fixture_odds(fid: int) -> dict:
+    # Keep includes minimal; many markets already in base payload.
+    path = f"odds/pre-match/fixtures/{fid}"
+    return api_get(path, params={})
 
-# ----------------------------
-# Reporting
-# ----------------------------
-def write_csv(rows: List[OddsRow], fixtures: Dict[int, Fixture], path: Path) -> None:
-    _ensure_reports_dir()
-    with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(
-            [
-                "fixture_id",
-                "kickoff_utc",
-                "league_id",
-                "home_team",
-                "away_team",
-                "player",
-                "market",
-                "line",
-                "selection",
-                "price_decimal",
-                "bookmaker",
-            ]
-        )
-        for r in rows:
-            fx = fixtures.get(r.fixture_id)
-            kickoff = fx.kickoff_utc.isoformat() if fx else ""
-            league_id = fx.league_id if fx else ""
-            home = fx.home_team if fx else ""
-            away = fx.away_team if fx else ""
-            writer.writerow(
-                [
-                    r.fixture_id,
-                    kickoff,
-                    league_id,
-                    home,
-                    away,
-                    r.player,
-                    r.market,
-                    f"{r.line:g}",
-                    r.selection,
-                    f"{r.price_decimal:.3f}",
-                    r.bookmaker,
-                ]
-            )
-
-
-def write_json(rows: List[OddsRow], fixtures: Dict[int, Fixture], path: Path) -> None:
-    _ensure_reports_dir()
+def iter_player_over05_prices(odds_payload: dict,
+                              keep_bookmaker_ids: List[int]) -> List[dict]:
+    """
+    Returns list of dicts:
+      {
+        "fixture_id", "bookmaker_id", "bookmaker_name",
+        "market_name", "market_kind"("shots"|"sot"),
+        "player_name", "outcome_name", "decimal"
+      }
+    """
     out: List[dict] = []
-    for r in rows:
-        fx = fixtures.get(r.fixture_id)
-        out.append(
-            {
-                "fixture_id": r.fixture_id,
-                "kickoff_utc": fx.kickoff_utc.isoformat() if fx else None,
-                "league_id": fx.league_id if fx else None,
-                "home_team": fx.home_team if fx else None,
-                "away_team": fx.away_team if fx else None,
-                "player": r.player,
-                "market": r.market,
-                "line": r.line,
-                "selection": r.selection,
-                "price_decimal": r.price_decimal,
-                "bookmaker": r.bookmaker,
-            }
-        )
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    data = odds_payload.get("data") or []
+    # Payload can be either a list (bookmakers) or list of 'odds' items with nested bookmaker
+    for row in data:
+        # bookmaker
+        bm = row.get("bookmaker") or {}
+        bookmaker_id = int(bm.get("id") or row.get("bookmaker_id") or 0)
+        bookmaker_name = bm.get("name") or row.get("bookmaker_name") or ""
+        if keep_bookmaker_ids and bookmaker_id not in keep_bookmaker_ids:
+            continue
 
-
-def render_digest(
-    fixtures: Dict[int, Fixture],
-    considered_fixture_ids: List[int],
-    odds_rows: List[OddsRow],
-    shortlisted: List[OddsRow],
-    warnings: List[str],
-) -> str:
-    # Coverage stats
-    total_fixtures = len(considered_fixture_ids)
-    fixtures_with_any_odds = {r.fixture_id for r in odds_rows}
-    fixtures_with_shortlist = {r.fixture_id for r in shortlisted}
-    fixtures_no_odds = [fid for fid in considered_fixture_ids if fid not in fixtures_with_any_odds]
-
-    lines: List[str] = []
-    lines.append("# Shots Certs — Digest (UTC)")
-    lines.append("")
-    lines.append(f"- Generated at: {NOW_UTC.isoformat()}")
-    lines.append(f"- Fixtures considered (not started yet): {total_fixtures}")
-    lines.append(f"- Fixtures with any player prop odds: {len(fixtures_with_any_odds)}")
-    lines.append(f"- Shortlisted selections: {len(shortlisted)}")
-    if warnings:
-        lines.append("")
-        lines.append("## Warnings")
-        for w in warnings:
-            lines.append(f"- {w}")
-
-    # Notable gaps
-    if fixtures_no_odds:
-        lines.append("")
-        lines.append("## Fixtures with no odds found")
-        for fid in fixtures_no_odds[:50]:  # cap listing to avoid huge walls
-            fx = fixtures.get(fid)
-            if fx:
-                lines.append(
-                    f"- {fid} — {fx.home_team} vs {fx.away_team} "
-                    f"({fx.kickoff_utc.isoformat()}, league={fx.league_id})"
-                )
+        # markets may be under 'markets', or the row itself is a market
+        markets = row.get("markets") or row.get("odds") or row.get("children") or []
+        if isinstance(markets, dict):
+            markets = list(markets.values())
+        for m in markets:
+            mname = m.get("name") or m.get("market") or m.get("key") or ""
+            n = norm(mname)
+            market_kind = None
+            if INCLUDE_SHOTS and looks_like_market(n, SHOTS_MARKET_HINTS):
+                market_kind = "shots"
+            elif INCLUDE_SOT and looks_like_market(n, SOT_MARKET_HINTS):
+                market_kind = "sot"
             else:
-                lines.append(f"- {fid}")
+                continue
 
-    # Shortlist preview
-    if shortlisted:
-        lines.append("")
-        lines.append("## Shortlist (sample of up to 50)")
-        for r in shortlisted[:50]:
-            fx = fixtures.get(r.fixture_id)
-            kickoff = fx.kickoff_utc.isoformat() if fx else "?"
-            lines.append(
-                f"- {r.player} — {r.market} o{r.line:g} @ {r.price_decimal:.2f} "
-                f"({r.bookmaker}) | {fx.home_team if fx else '?'} vs {fx.away_team if fx else '?'} | {kickoff}"
-            )
+            # outcomes
+            outs = m.get("outcomes") or m.get("selections") or m.get("runners") or []
+            if isinstance(outs, dict):
+                outs = list(outs.values())
+            for o in outs:
+                dec = pick_decimal(o)
+                if dec is None or dec < MIN_DEC:
+                    continue
+                line, side = extract_line_info(o)
+                oname = o.get("name") or o.get("label") or o.get("bet") or ""
+                if not outcome_is_over05(oname, line, side):
+                    # Also check if the outcome group has "Over 0.5" in parent label
+                    parent_label = m.get("label") or m.get("name") or ""
+                    if not outcome_is_over05(parent_label, line, side):
+                        continue
+                pname = extract_player_name(o)
+                if not pname:
+                    # sometimes the player is tucked inside selection name like "Over 0.5 - Bukayo Saka"
+                    # already trimmed in extract_player_name(), but one more fallback:
+                    s = (o.get("name") or o.get("label") or "")
+                    m2 = re.search(r"[-:–]\s*([A-Za-z ].+)$", s)
+                    if m2:
+                        pname = m2.group(1).strip()
+                if not pname:
+                    continue
 
-    return "\n".join(lines)
+                out.append({
+                    "bookmaker_id": bookmaker_id,
+                    "bookmaker_name": bookmaker_name,
+                    "market_name": mname,
+                    "market_kind": market_kind,
+                    "player_name": pname,
+                    "outcome_name": oname,
+                    "decimal": float(dec),
+                })
+    return out
 
+# ----------------- Main -----------------
+def main():
+    generated_at = datetime.utcnow().isoformat()
 
-def write_digest(text: str, path: Path) -> None:
-    _ensure_reports_dir()
-    path.write_text(text, encoding="utf-8")
+    # 1) predicted XI targets
+    targets_by_fixture = load_targets_from_predicted_xi()
+    all_fixture_ids = list(targets_by_fixture.keys())
+    if not all_fixture_ids:
+        print("[warn] No predicted XI targets found in data/predicted_xi/by_league/*.json")
+    if len(all_fixture_ids) > MAX_FIXTURES:
+        all_fixture_ids = all_fixture_ids[:MAX_FIXTURES]
 
+    # 2) bookmakers
+    bm_index = fetch_bookmaker_index()
+    bm_ids = resolve_bookmaker_ids([x.strip() for x in BOOKMAKERS_IN.split(",")], bm_index)
+    bm_names = [bm_index.get(bid, f"Bookmaker {bid}") for bid in bm_ids]
+    print(f"Bookmakers filter: {', '.join(bm_names) if bm_ids else '(none — keeping all)'}")
 
-# ----------------------------
-# Main
-# ----------------------------
-def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Scan shots/shots-on-target player props for precomputed 'certs' candidates."
-    )
-    parser.add_argument(
-        "--fixtures",
-        type=Path,
-        default=DEFAULT_FIXTURE_FILE,
-        help=f"Path to fixtures JSON (default: {DEFAULT_FIXTURE_FILE})",
-    )
-    parser.add_argument(
-        "--odds-dir",
-        type=Path,
-        default=DEFAULT_ODDS_DIR,
-        help=f"Directory with per-fixture odds stubs (default: {DEFAULT_ODDS_DIR})",
-    )
-    parser.add_argument(
-        "--candidates-csv",
-        type=Path,
-        default=DEFAULT_CANDIDATE_CSV,
-        help=f"Optional candidates CSV (default: {DEFAULT_CANDIDATE_CSV})",
-    )
-    parser.add_argument(
-        "--candidates-json",
-        type=Path,
-        default=DEFAULT_CANDIDATE_JSON,
-        help=f"Optional candidates JSON (default: {DEFAULT_CANDIDATE_JSON})",
-    )
-    parser.add_argument(
-        "--stale-hours",
-        type=int,
-        default=DEFAULT_STALE_HOURS,
-        help=f"Warn if fixtures file older than this many hours (default: {DEFAULT_STALE_HOURS})",
-    )
-    parser.add_argument(
-        "--csv-out",
-        type=Path,
-        default=REPORTS_DIR / "props_latest.csv",
-        help="Output CSV path (default: reports/props_latest.csv)",
-    )
-    parser.add_argument(
-        "--json-out",
-        type=Path,
-        default=REPORTS_DIR / "props_latest.json",
-        help="Output JSON path (default: reports/props_latest.json)",
-    )
-    parser.add_argument(
-        "--digest-out",
-        type=Path,
-        default=REPORTS_DIR / "digest_latest.md",
-        help="Output digest markdown path (default: reports/digest_latest.md)",
-    )
+    # 3) Walk fixtures & pull odds
+    rows: List[dict] = []
+    for i, fid in enumerate(all_fixture_ids, 1):
+        print(f"[{i}/{len(all_fixture_ids)}] Fixture {fid}")
+        try:
+            j = fetch_fixture_odds(fid)
+        except Exception as e:
+            print(f"  [error] fixture {fid}: {e}")
+            continue
 
-    args = parser.parse_args(argv)
+        lines = iter_player_over05_prices(j, bm_ids)
+        if not lines:
+            continue
 
-    # Load fixtures
-    fixtures_by_id, meta, warnings = load_local_fixtures(args.fixtures, args.stale_hours)
+        # 4) tie to predicted XI player list (name-normalized)
+        tgt_index = targets_by_fixture.get(fid, {})
+        for ln in lines:
+            pname_n = norm(ln["player_name"])
+            tgt = tgt_index.get(pname_n)
+            if not tgt:
+                # allow relaxed match: drop middle names if needed
+                # match on last name if unique
+                tokens = [t for t in pname_n.split() if len(t) >= 3]
+                matched = None
+                for k, v in tgt_index.items():
+                    if any(tok in k for tok in tokens[-1:]):  # prefer last token
+                        matched = v
+                        break
+                tgt = matched
 
-    # Only consider fixtures that have NOT started yet
-    upcoming_ids = [
-        fid
-        for fid, fx in fixtures_by_id.items()
-        if fx.kickoff_utc > NOW_UTC
-    ]
-    upcoming_ids.sort()
+            row = {
+                "fixture_id": fid,
+                "starting_at": (tgt or {}).get("starting_at"),
+                "league_id": (tgt or {}).get("league_id"),
+                "team_name": (tgt or {}).get("team_name"),
+                "player_name": ln["player_name"],
+                "player_id": (tgt or {}).get("player_id"),
+                "market": ln["market_kind"],  # "shots" or "sot"
+                "market_name_raw": ln["market_name"],
+                "bookmaker": ln["bookmaker_name"],
+                "decimal": ln["decimal"],
+                "outcome_raw": ln["outcome_name"],
+                "matched_predicted_xi": bool(tgt),
+            }
+            rows.append(row)
 
-    # Load odds from local stubs (if present)
-    odds_rows = load_odds_for_fixtures(args.odds_dir, upcoming_ids)
+    # 5) outputs
+    rows.sort(key=lambda r: (r["starting_at"] or "", r["league_id"] or 0, r["team_name"] or "", r["player_name"], r["market"], -r["decimal"]))
 
-    # Load candidates (optional)
-    candidates = load_candidates(args.candidates_csv, args.candidates_json)
-    cand_index = build_candidate_index(candidates)
+    out_json = {
+        "generated_at": generated_at,
+        "min_decimal": MIN_DEC,
+        "bookmakers_requested": BOOKMAKERS_IN,
+        "count": len(rows),
+        "rows": rows,
+    }
+    (REPORTS_DIR / "props_latest.json").write_text(json.dumps(out_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Shortlist
-    shortlisted = shortlist_rows(odds_rows, cand_index)
+    # CSV
+    csv_path = REPORTS_DIR / "props_latest.csv"
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow([
+            "starting_at","fixture_id","league_id","team_name","player_name","player_id",
+            "market","bookmaker","decimal","market_name_raw","outcome_raw","matched_predicted_xi"
+        ])
+        for r in rows:
+            w.writerow([
+                r.get("starting_at"), r.get("fixture_id"), r.get("league_id"), r.get("team_name"),
+                r.get("player_name"), r.get("player_id"),
+                r.get("market"), r.get("bookmaker"), r.get("decimal"),
+                r.get("market_name_raw"), r.get("outcome_raw"), "Y" if r.get("matched_predicted_xi") else "N"
+            ])
 
-    # Persist outputs
-    write_csv(shortlisted, fixtures_by_id, args.csv_out)
-    write_json(shortlisted, fixtures_by_id, args.json_out)
+    # Digest
+    md_lines = []
+    md_lines.append(f"Generated at (UTC): {generated_at}")
+    md_lines.append(f"Min price: {MIN_DEC:.2f}  |  Bookmakers: {BOOKMAKERS_IN}  |  Fixtures: {len(all_fixture_ids)}")
+    md_lines.append("")
+    if rows:
+        # Group by market then bookmaker
+        def keygrp(r): return (r["market"], r["bookmaker"])
+        from itertools import groupby
+        for (mk, bm), grp in groupby(rows, key=keygrp):
+            md_lines.append(f"===== {('SOT' if mk=='sot' else 'Total Shots')} — {bm} =====")
+            for r in grp:
+                team = r.get("team_name") or ""
+                kickoff = r.get("starting_at") or ""
+                line = f" • {r['player_name']} — {team} | {kickoff} | 1+ @{r['decimal']:.3f}"
+                if not r.get("matched_predicted_xi"):
+                    line += "  (note: not matched to predicted XI)"
+                md_lines.append(line)
+            md_lines.append("")
+    else:
+        md_lines.append("No matches found (no prices ≥ threshold for your targets).")
 
-    digest_text = render_digest(
-        fixtures=fixtures_by_id,
-        considered_fixture_ids=upcoming_ids,
-        odds_rows=odds_rows,
-        shortlisted=shortlisted,
-        warnings=warnings,
-    )
-    write_digest(digest_text, args.digest_out)
+    (REPORTS_DIR / "digest_latest.md").write_text("\n".join(md_lines).rstrip() + "\n", encoding="utf-8")
 
-    # Console summary
-    print("=== Shots Certs Run Complete ===")
-    print(f"Fixtures considered: {len(upcoming_ids)}")
-    print(f"Odds rows loaded:   {len(odds_rows)}")
-    print(f"Shortlisted rows:   {len(shortlisted)}")
-    if warnings:
-        for w in warnings:
-            print(w)
-    print(f"CSV:    {args.csv_out}")
-    print(f"JSON:   {args.json_out}")
-    print(f"Digest: {args.digest_out}")
-
-    # Exit code 0 even if no data — the run is still "successful".
-    return 0
-
+    # Console echo
+    print("\n".join(md_lines))
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        main()
     except KeyboardInterrupt:
-        print("\nInterrupted by user.", file=sys.stderr)
-        sys.exit(130)
+        pass
