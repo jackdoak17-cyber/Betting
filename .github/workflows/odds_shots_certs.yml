@@ -34,7 +34,7 @@ jobs:
       - name: Verify inputs
         run: |
           test -n "${{ secrets.SPORTMONKS_TOKEN }}" || (echo "SPORTMONKS_TOKEN missing" >&2; exit 1)
-          test -f "scripts/odds sport monks/value_bets_shots_certs.py" || (echo "script missing" >&2; exit 1)
+          test -f "scripts/odds/odds sport monks/value_bets_shots_certs.py" || (echo "script missing" >&2; exit 1)
           test -d "data/player_shots/by_league" || (echo "shots dir missing" >&2; exit 1)
           test -d "data/predicted_xi/by_league" || (echo "predicted XI dir missing" >&2; exit 1)
 
@@ -57,7 +57,7 @@ jobs:
           # BET365_BOOKMAKER_ID: "2"
         run: |
           mkdir -p "${RESULTS_DIR}"
-          python "scripts/odds sport monks/value_bets_shots_certs.py" | tee "${RESULTS_DIR}/${RESULTS_FILE}"
+          python "scripts/odds/odds sport monks/value_bets_shots_certs.py" | tee "${RESULTS_DIR}/${RESULTS_FILE}"
           echo "" >> "${RESULTS_DIR}/${RESULTS_FILE}"
           echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")" >> "${RESULTS_DIR}/${RESULTS_FILE}"
 
