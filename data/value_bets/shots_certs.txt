@@ -1,6 +1,14 @@
 [CANDIDATES] 64 players qualify (series>=7 all >=1).
-[HTTP 404] https://api.sportmonks.com/v3/football/fixtures/date-range/2025-10-18/2025-10-25 ::        {"message":"The requested endpoint does not exist"}
-[FIXTURES] Retrieved 0 fixtures across 7 leagues (next 7 days).
-No fixtures found for next 7 days.
+[FIXTURES] Retrieved 50 fixtures across 7 leagues (next 7 days).
+[ODDS] Unique fixtures with odds (bet365): 50
+[DEBUG] Top markets returned: Player Shots(12129), Goalscorers(7975), Player Shots On Target(6131), Team Goalscorer(5452), Multi Scorers(5258), Player Cards(5246), Correct Score(1884), Alternative Corners(1857), Alternative Goal Line(1449), Alternative Asian Handicap(1432), Half Time Correct Score(1015), Team Total Goals(1004), Time of 1st Team Goal(890), Alternative 1st Half Asian Handicap(808), Alternative 1st Half Goal Line(778), Alternative Total Goals(674), Alternative Handicap Result(666), Corners Race(600), Alternative 1st Half Handicap Result(513), Specials(500)
+Generated at (UTC): 2025-10-18T14:40:59.464575  |  Min price: 1.30  |  Team ML < 3.50
+Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: bet365 Player Shots Over 0.5
 
-Run timestamp (UTC): 2025-10-18 14:13:13
+No matches found.
+
+Notes:
+ - If '[DEBUG] Top markets returned' does not include a Player Shots market, it is not present in your current feed/bookmaker.
+ - Standard pre-match odds exist at /football/odds/pre-match; Player Shots coverage may require different bookmakers or the Premium feed. 
+
+Run timestamp (UTC): 2025-10-18 14:40:59
