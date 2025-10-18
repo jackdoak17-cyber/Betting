@@ -1,4 +1,4 @@
-name: Value Bets — Sportmonks (Shots Certs)
+name: Value Bets — Sportmonks (Bet365 ALL odds)
 
 on:
   workflow_dispatch:
@@ -24,28 +24,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Environment sanity
+      - name: List predicted XI inputs
         run: |
-          echo "Listing predicted XI inputs..."
           ls -R data/predicted_xi || true
 
-      - name: Run Sportmonks Shots Certs
+      - name: Dump Bet365 ALL odds (TXT)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          SM_BOOKMAKERS: "Kambi"
-          SM_MIN_DECIMAL: "1.20"
-          SM_INCLUDE_SHOTS: "1"
-          SM_INCLUDE_SOT: "1"
+          SM_MAX_FIXTURES: "500"
         run: |
           python "scripts/odds/odds sport monks/value_bets_shots_certs.py"
 
-      - name: Upload reports as artifacts
+      - name: Upload TXT artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sportmonks-shots-certs
+          name: bet365-all-odds
           path: |
-            reports/props_latest.csv
-            reports/props_latest.json
-            reports/digest_latest.md
-            data/value_bets/sportmonks_shots_certs.txt
+            data/value_bets/bet365_all_odds.txt
