@@ -2,27 +2,34 @@
 # -*- coding: utf-8 -*-
 """
 Value bets — SHOTS certs (1+ in 100% of last 7, min games=7)
-Source data: data/player_shots/by_league/{league_id}.json (+ predicted XI for team names)
-Bookmaker: Bet365 only (resolved via Sportmonks Bookmakers search unless BET365_BOOKMAKER_ID is set)
+Replaces external odds API with Sportmonks-only calls.
+
+Source data (unchanged):
+  data/player_shots/by_league/{league_id}.json
+  data/predicted_xi/by_league/{league_id}.json   (for nicer team names)
+
+Bookmaker: Bet365 only (resolved via Sportmonks odds/bookmakers search unless BET365_BOOKMAKER_ID is set)
 Markets: Player Shots (NOT SOT, NOT 'outside the box', NOT halves, etc.)
 Filters:
-  - Player qualifies: last 7 matches all >=1 shot (len(series)>=7)
-  - Price Over 0.5 >= MIN_DEC_PRICE
+  - Player qualifies: last 7 matches all >= 1 shot (len(series) >= 7)
+  - Price (Over 0.5) >= MIN_DEC_PRICE
   - Team ML (Bet365) for player's side < TEAM_WIN_MAX
-Output: data/value_bets/shots_certs.txt + console
+
+Output:
+  data/value_bets/shots_certs.txt + console
 
 ENV (required):
-  SPORTMONKS_TOKEN     (use header auth; token string only)
+  SPORTMONKS_TOKEN     # per docs, header Authorization: <token>
 
 ENV (optional):
-  MIN_DEC_PRICE  (default 1.30)
-  TEAM_WIN_MAX   (default 3.50)
-  BET365_BOOKMAKER_ID  (override if you know it; otherwise auto-search)
+  MIN_DEC_PRICE        # default 1.30
+  TEAM_WIN_MAX         # default 3.50
+  BET365_BOOKMAKER_ID  # override if you know it; otherwise auto-search
 
-Notes:
-  - Fixtures fetched by date-range and filtered by your leagues (discovered from local shots files).
-  - Odds fetched per-fixture for Bet365 only.
-  - Team/event and player/label matching is tolerant to small naming diffs.
+NOTE: This version fixes the 404s by using the correct endpoints:
+  - Bookmaker search:   /v3/odds/bookmakers/search/{query}
+  - Fixtures (range):   /v3/football/fixtures/between/{start}/{end}
+  - Pre-match odds:     /v3/football/odds/pre-match/fixtures/{fixture_id}/bookmakers/{bookmaker_id}
 """
 
 import os, re, json, math, time, random, unicodedata, datetime as dt
@@ -33,9 +40,12 @@ from itertools import islice
 
 # ========= CONFIG =========
 SM_BASE = "https://api.sportmonks.com/v3"
-SM_FXT_RANGE = f"{SM_BASE}/football/fixtures/date-range"
-SM_ODDS_PRE = f"{SM_BASE}/football/odds/pre-match"
-SM_BOOKMAKERS = f"{SM_BASE}/football/bookmakers"
+
+# ✅ Correct endpoints (previous 404s were due to wrong paths)
+SM_FXT_RANGE = f"{SM_BASE}/football/fixtures/between"   # /between/{start}/{end}
+SM_ODDS_PRE  = f"{SM_BASE}/football/odds/pre-match"
+SM_BOOKMAKERS = f"{SM_BASE}/odds/bookmakers"            # /odds/bookmakers/search/{name}
+
 TIMEOUT = 25
 
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.30"))
@@ -43,16 +53,17 @@ TEAM_ML_MAX = float(os.getenv("TEAM_WIN_MAX", "3.50"))
 
 HTTP_HEADERS = {
     "accept": "application/json",
-    "user-agent": "sm-odds-shots-certs/1.0",
-    "Authorization": os.getenv("SPORTMONKS_TOKEN", "").strip(),  # header auth per docs
+    "user-agent": "sm-odds-shots-certs/1.1",
+    # Per docs: header Authorization just the token (no "Bearer")
+    "Authorization": os.getenv("SPORTMONKS_TOKEN", "").strip(),
 }
 
 if not HTTP_HEADERS["Authorization"]:
     raise SystemExit("ERROR: SPORTMONKS_TOKEN not set.")
 
 ROOT = Path(".")
-PX_DIR    = ROOT / "data" / "predicted_xi" / "by_league"   # team_id -> name map
-SHOTS_DIR = ROOT / "data" / "player_shots" / "by_league"   # per-league player shots histories
+PX_DIR    = ROOT / "data" / "predicted_xi" / "by_league"
+SHOTS_DIR = ROOT / "data" / "player_shots" / "by_league"
 OUT_DIR   = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE  = OUT_DIR / "shots_certs.txt"
 
@@ -212,19 +223,19 @@ def get_bet365_id() -> Optional[int]:
     override = os.getenv("BET365_BOOKMAKER_ID", "").strip()
     if override.isdigit():
         return int(override)
-    # Search API: /v3/football/bookmakers/search/{query}
+
+    # ✅ Correct search endpoint lives under /odds/...
     r = http_get_with_retries(f"{SM_BOOKMAKERS}/search/bet365", params={})
     if r and r.status_code == 200:
         try:
             data = r.json().get("data") or []
             for bk in data:
                 name = (bk.get("name") or "").strip().lower()
-                if "bet365" == name or "bet 365" == name.replace(" ", ""):
-                    return int(bk.get("id"))
-                if "bet365" in name:
+                if "bet365" == name or "bet 365" == name.replace(" ", "") or "bet365" in name:
                     return int(bk.get("id"))
         except Exception:
             pass
+
     print("[WARN] Could not resolve Bet365 ID via API; using 2 as a fallback.")
     return 2
 
@@ -234,13 +245,18 @@ def fixtures_for_leagues(leagues: List[int], days_ahead: int = 7) -> List[dict]:
         return []
     start = dt.datetime.utcnow().date()
     end = start + dt.timedelta(days=days_ahead)
+
     params = {
         "include": "participants",
+        # Dynamic filter (valid for fixture entity)
         "filters": f"fixtureLeagues:{','.join(map(str, leagues))}",
         "per_page": 50,
     }
+
     all_fx = []
+    # ✅ Correct path: .../fixtures/between/{start}/{end}
     url = f"{SM_FXT_RANGE}/{start:%Y-%m-%d}/{end:%Y-%m-%d}"
+
     while True:
         r = http_get_with_retries(url, params=params)
         if not (r and r.status_code == 200):
@@ -252,6 +268,7 @@ def fixtures_for_leagues(leagues: List[int], days_ahead: int = 7) -> List[dict]:
         if not meta.get("has_more"):
             break
         params = dict(params, page=int(meta.get("current_page", 1)) + 1)
+
     return all_fx
 
 def fixture_teams(fx: dict) -> Tuple[str, str]:
@@ -303,6 +320,9 @@ def min_win_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tup
     return best_home, best_away
 
 def parse_player_over_point5_price(odds_rows: List[dict], player: str) -> Optional[Tuple[float, str]]:
+    """
+    Return (best_price, market_seen) for Over 0.5 player SHOTS (not SOT).
+    """
     best = None; market_seen = None
     for row in odds_rows:
         desc = row.get("market_description") or ""
@@ -311,6 +331,7 @@ def parse_player_over_point5_price(odds_rows: List[dict], player: str) -> Option
         label = row.get("label") or ""
         if not player_label_matches(player, label):
             continue
+        # Accept total/handicap == 0.5 OR "(0.5)" in label
         total = row.get("total")
         hcap = row.get("handicap")
         label_line = None
@@ -320,9 +341,11 @@ def parse_player_over_point5_price(odds_rows: List[dict], player: str) -> Option
             except: label_line = None
         line = None
         for x in (total, hcap, label_line):
-            if isinstance(x, (int,float)): line = float(x); break
+            if isinstance(x, (int,float)):
+                line = float(x); break
         if line is None or not math.isclose(line, 0.5, abs_tol=1e-9):
             continue
+        # Must be OVER
         name = (row.get("name") or "").strip().lower()
         if name not in {"over", "o"}:
             continue
@@ -346,14 +369,18 @@ def main():
     if not isinstance(bet365_id, int):
         raise SystemExit("ERROR: Could not resolve Bet365 bookmaker id.")
 
-    # 1) Candidates from your local stats
+    # 1) Candidates from local stats
     candidates = collect_candidates()
     if not candidates:
         print("[RESULT] No player candidates with 1+ in each of last 7.")
-        OUT_FILE.write_text("No matches found.\n", encoding="utf-8")
+        OUT_FILE.write_text(
+            f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}\n"
+            "Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: Bet365 Player Shots Over 0.5\n\n"
+            "No matches found.\n", encoding="utf-8"
+        )
         return
 
-    # 2) Fixtures (next 7 days) for leagues present in your local files
+    # 2) Fixtures (next 7 days) filtered to the leagues present in your local files
     lids_used = sorted({c["league_id"] for c in candidates})
     fixtures = fixtures_for_leagues(lids_used, days_ahead=7)
     print(f"[FIXTURES] Retrieved {len(fixtures)} fixtures across {len(lids_used)} leagues (next 7 days).")
@@ -376,6 +403,16 @@ def main():
     fixture_ids = sorted({fid for c in candidates for fid in (c.get("fixture_ids") or [])})
     print(f"[ODDS] Unique fixtures to query (Bet365): {len(fixture_ids)}")
 
+    if not fixture_ids:
+        lines = []
+        lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
+        lines.append("Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: Bet365 Player Shots Over 0.5")
+        lines.append("")
+        lines.append("No matches found.")
+        OUT_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print("\n".join(lines))
+        return
+
     # 3) Fetch odds for each fixture from Bet365
     odds_by_fixture: Dict[int, List[dict]] = {}
     for fid in fixture_ids:
@@ -384,8 +421,12 @@ def main():
     # Build fixture info for printing
     fx_info = {}
     for fx in fixtures:
+        try:
+            fid = int(fx["id"])
+        except Exception:
+            continue
         h, a = fixture_teams(fx)
-        fx_info[fx["id"]] = {
+        fx_info[fid] = {
             "kickoff": (fx.get("starting_at") or "").replace("T"," ").replace("Z",""),
             "home": h,
             "away": a,
