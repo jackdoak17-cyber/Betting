@@ -1,0 +1,40 @@
+name: Odds — Market Audit (Sportmonks)
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "7 6 * * *"   # 06:07 UTC daily
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify token & script
+        run: |
+          test -n "${{ secrets.SPORTMONKS_TOKEN }}" || (echo "SPORTMONKS_TOKEN missing" >&2; exit 1)
+          test -f "scripts/odds/odds sport monks/dump_markets.py" || (echo "script missing" >&2; exit 1)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: python -m pip install --upgrade pip requests
+
+      - name: Dump markets
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: python "scripts/odds/odds sport monks/dump_markets.py"
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/odds/markets/*.json data/odds/markets/*.csv || true
+          git diff --cached --quiet || git commit -m "chore(odds): refresh market catalog [skip ci]"
+          git push || true
