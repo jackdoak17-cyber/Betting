@@ -1,18 +1,18 @@
-name: Fetch odds (Sportmonks pre-match)
+name: Fetch Bet365 odds (Sportmonks pre-match)
 
 on:
   schedule:
-    # Every 6 hours at :05 (UTC): 00:05, 06:05, 12:05, 18:05
-    - cron: "5 */6 * * *"
+    # Every 6 hours at :07 (UTC) to avoid colliding with your fixtures job at :05
+    - cron: "7 */6 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
-  fetch_odds:
+  fetch_odds_bet365:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -27,25 +27,25 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Ensure requests is present (light dep, safe to install unconditionally)
           pip install requests
 
-      - name: Run odds gatherer
+      - name: Run Bet365 odds gatherer
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          # Optional filters (uncomment and set as needed):
-          # SM_ODDS_MARKETS: "1,2,12"
-          # SM_ODDS_BOOKMAKERS: "2,14"
+          # Optional overrides:
           # LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
-          # SM_ODDS_SLEEP_MS: "200"
-          # SM_ODDS_PER_PAGE: "50"
-          # SM_ODDS_RETRIES: "2"
-        run: python scripts/odds_gather.py
+          SM_BOOKMAKER_ID: "2"   # Bet365
+          # SM_MARKETS: "1,2,12"  # (optional) restrict to certain market IDs
+          SM_MAX_WORKERS: "6"    # tune if you hit 429s
+          SM_PER_PAGE: "50"
+          SM_TIMEOUT: "20"
+          SM_RETRIES: "2"
+        run: python scripts/odds_bet365_gather.py
 
       - name: Commit & push odds files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/odds
-          git commit -m "chore(odds): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git add data/odds/b365
+          git commit -m "chore(odds-b365): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
           git push
