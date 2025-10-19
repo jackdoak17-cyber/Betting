@@ -1,0 +1,81 @@
+name: Value bets — SOT certs (Sportmonks)
+
+on:
+  schedule:
+    - cron: "13 */6 * * *"   # every 6 hours at :13 UTC
+  workflow_dispatch:
+    inputs:
+      min_decimal_price:
+        description: "Minimum decimal price (>=)"
+        default: "1.30"
+      team_win_max:
+        description: "Max Team ML allowed"
+        default: "3.50"
+      window_days:
+        description: "Fixture window in days (0 = no limit)"
+        default: "7"
+      league_ids:
+        description: "CSV league IDs (blank = auto from fixtures)"
+        default: ""
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  RESULTS_DIR: "data/value_bets"
+  RESULTS_FILE: "sot_certs.txt"
+  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
+  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+  WINDOW_DAYS:   "${{ github.event.inputs.window_days || '7' }}"
+  LEAGUE_IDS:    "${{ github.event.inputs.league_ids || '' }}"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify inputs & files
+        run: |
+          test -f "scripts/value_bets/sot_certs.py" || (echo "scripts/value_bets/sot_certs.py not found" >&2; exit 1)
+          test -d "data/fixtures" || (echo "data/fixtures missing" >&2; exit 1)
+          test -d "data/player_shots_on_target/by_league" || (echo "SOT histories missing" >&2; exit 1)
+          test -d "data/odds/b365" || (echo "Bet365 odds missing" >&2; exit 1)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run — SOT certs
+        env:
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+          WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
+          LEAGUE_IDS:    ${{ env.LEAGUE_IDS }}
+        run: |
+          mkdir -p "${RESULTS_DIR}"
+          python scripts/value_bets/sot_certs.py | tee "${RESULTS_DIR}/${RESULTS_FILE}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sot-certs-${{ github.run_number }}
+          path: ${{ env.RESULTS_DIR }}/${{ env.RESULTS_FILE }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${RESULTS_DIR}/${RESULTS_FILE}"
+          git diff --cached --quiet || git commit -m "feat(value-bets): update SOT certs [skip ci]"
+          git push || true
