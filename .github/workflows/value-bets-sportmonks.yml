@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 7 * * *"
 
+permissions:
+  contents: write   # needed to push the generated TXT back to the repo
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -13,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,21 +29,33 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: List predicted XI inputs
+      - name: Verify fixtures input
         run: |
-          ls -R data/predicted_xi || true
+          echo "Listing data/fixtures/..."
+          ls -R data/fixtures || true
 
-      - name: Dump Bet365 ALL odds (TXT)
+      - name: Dump ALL Bet365 odds to TXT
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          SM_MAX_FIXTURES: "500"
+          SM_MAX_FIXTURES: "800"
         run: |
           python "scripts/odds/odds sport monks/value_bets_shots_certs.py"
 
-      - name: Upload TXT artifact
+      - name: Commit TXT to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A data/value_bets/bet365_all_odds.txt
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: add/update Bet365 ALL odds dump [skip ci]"
+            git push
+          fi
+
+      - name: Upload TXT artifact (also handy)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bet365-all-odds
-          path: |
-            data/value_bets/bet365_all_odds.txt
+          path: data/value_bets/bet365_all_odds.txt
