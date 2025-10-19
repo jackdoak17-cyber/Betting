@@ -2,15 +2,20 @@
 # -*- coding: utf-8 -*-
 
 """
-Bet365 pre-match odds gatherer — EPL only (by default)
-- Reads fixture IDs from data/fixtures/8.json (Premier League)
-- Requests ONE fixture at a time with: filter=bookmakers:{BET365_ID}
-- Minimal params, sequential, mirrors your working example.
+Bet365 pre-match odds gatherer — 9 leagues (default)
+- Reads fixture IDs from data/fixtures/{league_id}.json for:
+  301 (Ligue 1), 384 (Serie A), 387 (Serie B), 564 (La Liga),
+  567 (La Liga 2), 600 (Super Lig), 8 (Premier League),
+  82 (Bundesliga), 9 (Championship)
+- For each fixture: EXACT call
+    GET /v3/football/odds/pre-match/fixtures/{fixture_id}
+    params = { api_token, filter=f"bookmakers:{BET365_ID}" }
+- Sequential + minimal, mirrors your working example.
 
-Writes:
+Writes (same filenames, per league):
   data/odds/b365/fixtures/{fixture_id}.json
-  data/odds/b365/8.json
-  data/odds/b365/by_league/8.json
+  data/odds/b365/{league_id}.json
+  data/odds/b365/by_league/{league_id}.json
   data/odds/b365/latest.json
   data/odds/b365/odds.txt
 """
@@ -30,8 +35,8 @@ API_TOKEN = (
 )
 BET365_ID = int(os.getenv("SM_BOOKMAKER_ID", "2"))  # Bet365
 
-# Default to EPL only; can be overridden with LEAGUE_IDS env later if you want.
-DEFAULT_LEAGUES = [8]
+# Default to all 9 leagues; override with LEAGUE_IDS="8,301,..." if needed
+DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
     int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()
 ]
@@ -67,12 +72,6 @@ def load_fixtures_for_league(league_id: int) -> Dict:
         return json.load(f)
 
 def get_bet365_odds_for_fixture(fixture_id: int) -> Tuple[List[dict], Optional[str], int]:
-    """
-    EXACT call you provided:
-      GET /v3/football/odds/pre-match/fixtures/{fixture_id}
-      params = { api_token, filter=f"bookmakers:{BET365_ID}" }
-    Returns (rows, error_message, status_code)
-    """
     url = f"{API_BASE}/{SPORT}/odds/pre-match/fixtures/{fixture_id}"
     params = {
         "api_token": API_TOKEN,
@@ -123,7 +122,7 @@ def main():
 
             rows, err, status = get_bet365_odds_for_fixture(fid)
 
-            # Save per-fixture (handy for spot checks)
+            # Per-fixture save for inspection
             write_json(PER_FIXTURE_DIR / f"{fid}.json", {
                 "fixture_id": fid,
                 "bookmaker_id": BET365_ID,
@@ -145,7 +144,6 @@ def main():
             total_fixtures += 1
             total_rows += len(rows)
 
-            # Log like your manual test
             print(f"Fixture {fid} ({name}): {len(rows)} odds rows"
                   + (f"  [status {status}]" if status != 200 else "")
                   + (f"  [err: {err}]" if err else ""))
