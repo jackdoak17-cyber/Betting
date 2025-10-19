@@ -4,34 +4,33 @@
 """
 Team Line Beat Rates — Conservative (Sportmonks / Bet365)
 
-What it does
-------------
-- Scans team lines (shots, SOT, corners, tackles) from data/team_lines/by_league/*.json
-- Finds the corresponding upcoming fixtures in data/odds/b365/{league_id}.json
-- Reads Bet365 prices from Sportmonks odds payload (per-fixture odds array)
-- Computes team 'over' and 'under' hit rates from your series:
-    • team offense vs line
-    • opponent allowed vs line
-  -> uses combo% = min(team_rate, opp_allowed_rate)
-- Filters by price and moneyline as before:
-    • Over (shots/SOT/corners): team ML ≤ TEAM_WIN_MAX
-    • Under (shots/SOT/corners): team ML  > UNDERDOG_MIN
-    • Tackles: no ML filter
-    • Keep only odds ≥ MIN_DEC_PRICE
-- Drops fixtures outside the next WINDOW_DAYS (0 disables date filter)
-
-Writes
+Inputs
 ------
-data/value_bets/team_line_beat_conservative.txt
+• Team series: data/team_lines/by_league/{league_id}.json
+• Odds (Bet365 via Sportmonks): data/odds/b365/{league_id}.json
+
+Logic
+-----
+• Finds team markets (shots, shots on target, corners, tackles) for each upcoming fixture.
+• Rate calc uses offense_lastN and opp_allowed_lastN:
+    - Over-rate:   >= ceil(line)
+    - Under-rate:  <= floor(line)
+    - combo% = min(available rates). If only one series available, combo% = that one.
+• Filters:
+    - price >= MIN_DEC_PRICE  (default 1.20)
+    - Over (shots/SOT/corners): team ML <= TEAM_WIN_MAX (default 3.50)
+    - Under (shots/SOT/corners): team ML > UNDERDOG_MIN (default 3.50)
+    - Tackles: no ML filter
+    - Window: upcoming within WINDOW_DAYS (default 7)
 
 Env
 ---
-MIN_DEC_PRICE  (default "1.20")
-TEAM_WIN_MAX   (default "3.50")
-UNDERDOG_MIN   (default "3.50")
-COMBO_MIN      (default "0.50")
-WINDOW_DAYS    (default "7")
-LEAGUE_IDS     (optional, comma-separated; default autodetect from data/team_lines/by_league)
+MIN_DEC_PRICE (default "1.20")
+TEAM_WIN_MAX  (default "3.50")
+UNDERDOG_MIN  (default "3.50")
+COMBO_MIN     (default "0.50")
+WINDOW_DAYS   (default "7")
+LEAGUE_IDS    (optional CSV; default autodetect from team_lines)
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -54,12 +53,23 @@ OUT_FILE     = OUT_DIR / "team_line_beat_conservative.txt"
 MARKET_MATCH_WINNER = 1  # 1X2 / ML
 
 # ====== Market normalisation (Sportmonks) ======
-TEAM_MARKET_KEYS = {
-    "team shots": "shots",
-    "team shots on target": "shots_on_target",
-    "team sot": "shots_on_target",
-    "team corners": "corners",
-    "team tackles": "tackles",
+# Robust synonyms for team markets
+TEAM_MARKET_PATTERNS = {
+    "shots": [
+        "team shots", "shots team", "team total shots", "shots - team",
+        "team - shots", "team shots over/under", "total team shots",
+    ],
+    "shots_on_target": [
+        "team shots on target", "team sot", "shots on target team",
+        "team total shots on target", "sot - team", "team - shots on target",
+    ],
+    "corners": [
+        "team corners", "team total corners", "corners team",
+        "corners - team", "team - corners",
+    ],
+    "tackles": [
+        "team tackles", "team total tackles", "tackles team", "tackles - team",
+    ],
 }
 
 def strip_accents(s: str) -> str:
@@ -99,10 +109,9 @@ def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
 def within_window(starting_at: str, days: int) -> bool:
     if not days: return True
     try:
-        # Sportmonks format: "YYYY-MM-DD HH:MM:SS" (UTC)
         dt_utc = dt.datetime.strptime(starting_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc)
     except Exception:
-        return True  # be permissive if missing / unparsable
+        return True
     now = dt.datetime.now(dt.timezone.utc)
     return now <= dt_utc <= (now + dt.timedelta(days=days))
 
@@ -152,7 +161,6 @@ def as_float(x) -> Optional[float]:
         return None
 
 def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
-    """Return (home_ml, away_ml) from market_id=1-ish rows."""
     home_price = None; away_price = None
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_MATCH_WINNER:
@@ -174,24 +182,29 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
 
 def detect_team_market(row: dict) -> Optional[str]:
     """
-    Map Sportmonks row -> 'shots'|'shots_on_target'|'corners'|'tackles' if it is a team market.
-    Uses market_description primarily.
+    Determine 'shots'|'shots_on_target'|'corners'|'tackles' if this is a team market.
+    Looks at market_description + name; avoids 'player' markets.
     """
-    desc = norm(row.get("market_description") or "")
-    if not desc:  # fall back to any hint on name
-        desc = norm(row.get("name") or "")
-    for key, canon in TEAM_MARKET_KEYS.items():
-        if key in desc:
-            return canon
+    blob = " ".join([
+        norm(row.get("market_description") or ""),
+        norm(row.get("name") or ""),
+    ])
+    if "player" in blob:
+        return None
+    for canon, pats in TEAM_MARKET_PATTERNS.items():
+        for p in pats:
+            if p in blob:
+                return canon
     return None
 
 def row_side_for_team(row: dict, home_name: str, away_name: str) -> Optional[str]:
     """Infer whether the row applies to the home or away team."""
-    # team name is often in 'name' or 'total' (Sportmonks variants)
-    cand = row.get("name") or row.get("total") or row.get("original_label") or ""
-    if team_names_match(cand, home_name): return "home"
-    if team_names_match(cand, away_name): return "away"
-    # some books put 'Home/Away' in label
+    # try raw fields that may hold the team
+    for f in ("name", "total", "original_label"):
+        cand = row.get(f) or ""
+        if team_names_match(cand, home_name): return "home"
+        if team_names_match(cand, away_name): return "away"
+    # fallback: tokens in label
     lab = norm(row.get("label") or "")
     if "home" in lab and "away" not in lab: return "home"
     if "away" in lab and "home" not in lab: return "away"
@@ -206,34 +219,39 @@ def row_pick_over_under(row: dict) -> Optional[str]:
     return None
 
 def row_line(row: dict) -> Optional[float]:
-    # try explicit number in label/handicap
+    # 1) explicit handicap
     h = row.get("handicap")
-    if h is not None:
-        v = as_float(h)
-        if v is not None: return v
-    # label can be "Over 8.5" or just "8.5" or "(8.5)"
+    v = as_float(h) if h is not None else None
+    if v is not None:
+        return v
+    # 2) any number in label (handles "Over 8.5", "8.5", "(8.5)")
     lab = (row.get("label") or "").strip()
     m = re.search(r"([-+]?\d+(?:\.\d+)?)", lab)
     if m:
         try: return float(m.group(1))
         except: pass
-    # sometimes 'total' can be the line, but we already used for team name; be conservative
     return None
 
 # ====== rates ======
-def over_hits(seq: List[int], line: float) -> float:
-    if not seq: return 0.0
+def _over_rate(seq: List[int], line: float) -> Optional[float]:
+    if not seq: return None
     thr = math.ceil(float(line))
     return sum(1 for x in seq if x >= thr) / len(seq)
 
-def under_hits(seq: List[int], line: float) -> float:
-    if not seq: return 0.0
+def _under_rate(seq: List[int], line: float) -> Optional[float]:
+    if not seq: return None
     thr = math.floor(float(line))
     return sum(1 for x in seq if x <= thr) / len(seq)
 
+def combine_rates(rt: Optional[float], ra: Optional[float]) -> Optional[float]:
+    vals = [x for x in (rt, ra) if isinstance(x, float)]
+    if not vals:
+        return None
+    return min(vals)
+
 # ====== Main ======
 def main():
-    # Discover leagues to scan
+    # Discover leagues
     env_leagues = os.getenv("LEAGUE_IDS")
     if env_leagues:
         league_ids = [int(x) for x in env_leagues.split(",") if x.strip()]
@@ -248,7 +266,7 @@ def main():
                 pass
         league_ids = sorted(set(league_ids))
 
-    # Load team_lines contexts
+    # Load contexts
     contexts: List[dict] = []
     for lid in league_ids:
         p = LINES_DIR / f"{lid}.json"
@@ -263,10 +281,12 @@ def main():
         print("No team_lines contexts found.")
         return
 
-    # Load odds per league (Sportmonks Bet365)
-    odds_by_league: Dict[int, dict] = {lid: (json.loads((ODDS_DIR / f"{lid}.json").read_text(encoding="utf-8"))
-                                            if (ODDS_DIR / f"{lid}.json").exists() else {})
-                                       for lid in league_ids}
+    # Load odds per league
+    odds_by_league: Dict[int, dict] = {
+        lid: (json.loads((ODDS_DIR / f"{lid}.json").read_text(encoding="utf-8"))
+              if (ODDS_DIR / f"{lid}.json").exists() else {})
+        for lid in league_ids
+    }
 
     rows_over: List[dict] = []
     rows_under: List[dict] = []
@@ -275,9 +295,10 @@ def main():
         lid = r["league_id"]
         blob = odds_by_league.get(lid) or {}
         fixtures = blob.get("fixtures") or []
-        if not fixtures: continue
+        if not fixtures: 
+            continue
 
-        # Find matching fixture by team vs opp
+        # Find matching fixture by team vs opp within window
         match = None
         ev_side = r["side"]
         for fx in fixtures:
@@ -296,8 +317,8 @@ def main():
             continue
 
         odds_rows = match.get("odds") or []
-        home_ml, away_ml = extract_team_ml_prices(odds_rows, match.get("name","").split(" vs ")[0] if match.get("name") else r["home_name"], 
-                                                             match.get("name","").split(" vs ")[-1] if match.get("name") else r["away_name"])
+        home_name = r["home_name"]; away_name = r["away_name"]
+        home_ml, away_ml = extract_team_ml_prices(odds_rows, home_name, away_name)
         team_ml = home_ml if ev_side == "home" else away_ml
 
         # Walk odds rows and collect Over/Under for the right team/stat
@@ -305,32 +326,36 @@ def main():
             stat_canon = detect_team_market(row)
             if stat_canon != r["stat"]:
                 continue
-            side = row_side_for_team(row, r["home_name"], r["away_name"])
-            if side and side != ev_side:
+
+            side = row_side_for_team(row, home_name, away_name) or ev_side
+            if side != ev_side:
+                # row belongs to the other team
                 continue
+
             pick = row_pick_over_under(row)
             line = row_line(row)
             price = as_float(row.get("value"))
-            if (pick not in {"Over","Under"}) or (line is None) or (price is None): 
+            if (pick not in {"Over","Under"}) or (line is None) or (price is None):
                 continue
             if price < MIN_DEC_PRICE:
                 continue
 
-            # Compute rates
+            # Compute rates (allow one series missing)
             if pick == "Over":
-                rate_t = over_hits(r["offense_lastN"], line)
-                rate_a = over_hits(r["opp_allowed_lastN"], line)
+                rate_t = _over_rate(r["offense_lastN"], line)
+                rate_a = _over_rate(r["opp_allowed_lastN"], line)
             else:
-                rate_t = under_hits(r["offense_lastN"], line)
-                rate_a = under_hits(r["opp_allowed_lastN"], line)
-            combo = min(rate_t, rate_a)
-            if combo < COMBO_MIN:
+                rate_t = _under_rate(r["offense_lastN"], line)
+                rate_a = _under_rate(r["opp_allowed_lastN"], line)
+
+            combo = combine_rates(rate_t, rate_a)
+            if combo is None or combo < COMBO_MIN:
                 continue
 
-            # ML filters for shots/SOT/corners (tackles exempt)
+            # ML filters (shots/SOT/corners only). Tackles exempt.
             if r["stat"] in ("shots","shots_on_target","corners"):
                 if team_ml is None:
-                    continue  # conservative drop if ML missing
+                    continue  # conservative: require ML present
                 if pick == "Over" and not (team_ml <= TEAM_WIN_MAX):
                     continue
                 if pick == "Under" and not (team_ml > UNDERDOG_MIN):
@@ -346,11 +371,11 @@ def main():
                 "hdp": float(line),
                 "price": float(price),
                 "pick": pick,
-                "team_rate": rate_t,
-                "opp_allowed_rate": rate_a,
+                "team_rate": (rate_t if isinstance(rate_t, float) else None),
+                "opp_allowed_rate": (rate_a if isinstance(rate_a, float) else None),
                 "combo_rate": combo,
                 "team_ml": float(team_ml) if isinstance(team_ml, float) else None,
-                "market": row.get("market_description") or "",
+                "market": row.get("market_description") or row.get("name") or "",
             }
             if pick == "Over":
                 rows_over.append(row_out)
@@ -363,8 +388,8 @@ def main():
 
     def lab_stat(k: str) -> str:
         return {"shots":"Shots","shots_on_target":"SOT","corners":"Corners","tackles":"Tackles"}.get(k,k)
-    def pct(x: float) -> str:
-        return f"{x*100:5.1f}%"
+    def pct(x: Optional[float]) -> str:
+        return f"{x*100:5.1f}%" if isinstance(x, float) else "  n/a"
 
     lines = []
     lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}")
