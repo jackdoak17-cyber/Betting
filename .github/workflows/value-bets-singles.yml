@@ -1,0 +1,56 @@
+name: Value Bets — Singles (Shots Over 0.5)
+
+on:
+  # Run a little after your other value-bet jobs (odds job is :07; others :12, :18)
+  schedule:
+    - cron: "24 */6 * * *"
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: ["Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: value-bets-singles
+  cancel-in-progress: true
+
+jobs:
+  value_singles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No third-party deps required
+
+      - name: Run value singles (shots over 0.5)
+        env:
+          MIN_DEC_PRICE: "1.72"   # keep >= 1.72
+          FAVORITES_ONLY: "true"  # remove underdogs (team ML must be <= opp ML)
+          # Optionally restrict leagues:
+          # LEAGUE_IDS: "8,9"
+        run: |
+          python scripts/value_bets/value_singles_shots_sportmonks.py
+          echo "----- OUTPUT (preview) -----"
+          if [ -f data/value_bets/value_singles.txt ]; then
+            tail -n 200 data/value_bets/value_singles.txt || true
+          else
+            echo "data/value_bets/value_singles.txt not found."
+          fi
+
+      - name: Commit & push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/value_bets/value_singles.txt
+          git commit -m "chore(value-bets): singles update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git push
