@@ -1,0 +1,57 @@
+name: Value Bets — Shots Certs (Sportmonks/Bet365)
+
+on:
+  # Run 5 minutes after your odds job (which is at :07) — i.e. :12 UTC
+  schedule:
+    - cron: "12 */6 * * *"
+  # Also allow manual runs
+  workflow_dispatch: {}
+  # And auto-run whenever the odds workflow completes
+  workflow_run:
+    workflows: ["Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: value-bets-shots-certs
+  cancel-in-progress: true
+
+jobs:
+  shots_certs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No external deps needed (script uses stdlib only)
+
+      - name: Run value-bets (shots certs)
+        env:
+          # Tunables for your filters (optional)
+          MIN_DEC_PRICE: "1.30"
+          TEAM_WIN_MAX: "3.50"
+        run: |
+          python scripts/value_bets/value_bets_shots_certs_sportmonks.py
+          echo "----- OUTPUT (preview) -----"
+          if [ -f data/value_bets/shots_certs.txt ]; then
+            tail -n 200 data/value_bets/shots_certs.txt || true
+          else
+            echo "data/value_bets/shots_certs.txt not found."
+          fi
+
+      - name: Commit & push results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/value_bets/shots_certs.txt
+          git commit -m "chore(value-bets): shots_certs update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git push
