@@ -12,12 +12,18 @@ Reads (local files only):
 
 Markets considered (team totals): Team Shots, Team Shots on Target, Team Corners, Team Tackles.
 
+Filters:
+- Drop if decimal price < MIN_DEC_PRICE (default 1.20)
+- For Shots/SOT/Corners: require team ML (Match Winner) <= TEAM_WIN_MAX (default 3.50). Tackles: no ML filter.
+- Optional WINDOW_DAYS to limit fixtures by kickoff.
+
 Output:
 - data/value_bets/team_lines_over_ranked.txt
 
 Env (optional):
 - LEAGUE_IDS     CSV of league IDs to scan (default: auto from fixtures dir)
 - MIN_DEC_PRICE  minimum decimal price (default 1.20)
+- TEAM_WIN_MAX   max ML to keep for Shots/SOT/Corners (default 3.50)
 - WINDOW_DAYS    restrict fixtures to next N days (default 7, 0 = no limit)
 """
 
@@ -34,7 +40,8 @@ OUT_DIR   = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=T
 OUT_FILE  = OUT_DIR / "team_lines_over_ranked.txt"
 
 MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.20"))
-WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS", "7"))
+TEAM_WIN_MAX  = float(os.getenv("TEAM_WIN_MAX",  "3.50"))
+WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS",     "7"))
 
 # ---------- String utils ----------
 def strip_accents(s: str) -> str:
@@ -133,16 +140,13 @@ def label_to_side(label: Optional[str]) -> Optional[str]:
     return None
 
 def row_pick_over(row: dict) -> bool:
-    # "total": "Over 4.5" or "Under 8.5"
     t = norm(row.get("total") or "")
     return ("over" in t) and ("under" not in t)
 
 def row_line(row: dict) -> Optional[float]:
-    # 1) handicap if present
     h = row.get("handicap")
     v = as_float(h) if h is not None else None
     if v is not None: return v
-    # 2) parse number from total or label
     for field in ("total", "label"):
         s = (row.get(field) or "").strip()
         m = re.search(r"([-+]?\d+(?:\.\d+)?)", s)
@@ -150,6 +154,32 @@ def row_line(row: dict) -> Optional[float]:
             try: return float(m.group(1))
             except: pass
     return None
+
+# ---------- Match Winner (ML) parsing from Sportmonks rows ----------
+MATCH_WINNER_ALIASES = {
+    "match winner", "match result", "full time result", "fulltime result",
+    "1x2", "result", "win/draw/win", "90 minutes", "3-way", "3 way", "regular time result"
+}
+
+def is_match_winner_row(row: dict) -> bool:
+    md = norm(row.get("market_description") or "")
+    return md in MATCH_WINNER_ALIASES
+
+def extract_ml(rows: List[dict]) -> Tuple[Optional[float], Optional[float]]:
+    """Return (home_ml, away_ml) from Bet365 rows for this fixture."""
+    home_ml = None; away_ml = None
+    for r in rows:
+        if not is_match_winner_row(r): 
+            continue
+        side = label_to_side(r.get("label"))
+        price = as_float(r.get("value"))
+        if price is None or side not in {"home","away"}:
+            continue
+        if side == "home":
+            home_ml = price if (home_ml is None or price < home_ml) else home_ml
+        else:
+            away_ml = price if (away_ml is None or price < away_ml) else away_ml
+    return home_ml, away_ml
 
 # ---------- Rates ----------
 def over_rate(seq: List[int], line: float) -> Optional[Tuple[int,int,float]]:
@@ -178,7 +208,7 @@ def main():
     else:
         league_ids = discover_league_ids()
 
-    rows: List[dict] = []
+    rows_out: List[dict] = []
 
     for lid in league_ids:
         fx_path   = FIX_DIR / f"{lid}.json"
@@ -214,13 +244,15 @@ def main():
             if not isinstance(rows_odds, list): 
                 continue
 
+            # --- compute ML once per fixture
+            home_ml, away_ml = extract_ml(rows_odds)
+
             for row in rows_odds:
                 stat = detect_team_market(row)
                 if stat is None:
                     continue
                 side = label_to_side(row.get("label"))
                 if side not in {"home","away"}:
-                    # fallback: try text (rare)
                     txt = " ".join([str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
                     if "home" in txt and "away" not in txt: side = "home"
                     elif "away" in txt and "home" not in txt: side = "away"
@@ -237,6 +269,12 @@ def main():
                 team_nm = home if side=="home" else away
                 opp_nm  = away if side=="home" else home
 
+                # ---- ML filter for Shots/SOT/Corners (drop big underdogs)
+                team_ml = home_ml if side == "home" else away_ml
+                if stat in {"shots_total","shots_on_target","corners"}:
+                    if (team_ml is None) or (team_ml > TEAM_WIN_MAX):
+                        continue  # drop big underdogs
+
                 # Pull series
                 t_rec = ts_idx.get(norm(team_nm))
                 a_rec = opp_idx.get(norm(opp_nm))
@@ -249,18 +287,22 @@ def main():
                     off  = series_for(t_rec,  "shots_total_last_n")
                     oppA = series_for(a_rec, "opp_shots_total_last_n")
                     stat_label = "Team Shots"
+                    tag = "Shots"
                 elif stat == "shots_on_target":
                     off  = series_for(t_rec,  "shots_on_target_last_n")
                     oppA = series_for(a_rec, "opp_shots_on_target_last_n")
                     stat_label = "Team Shots on Target"
+                    tag = "SOT"
                 elif stat == "corners":
                     off  = series_for(t_rec,  "corners_last_n")
                     oppA = series_for(a_rec, "opp_corners_last_n")
                     stat_label = "Team Corners"
+                    tag = "Corners"
                 elif stat == "tackles":
                     off  = series_for(t_rec,  "tackles_last_n")
                     oppA = series_for(a_rec, "opp_tackles_last_n")
                     stat_label = "Team Tackles"
+                    tag = "Tackles"
                 else:
                     continue
 
@@ -271,7 +313,7 @@ def main():
                     continue
 
                 combo_pct, t_pair, a_pair = combo
-                rows.append({
+                rows_out.append({
                     "fixture": name,
                     "kickoff": starting_at,
                     "team": team_nm,
@@ -284,30 +326,32 @@ def main():
                     "team_hits": t_pair[0], "team_n": t_pair[1],
                     "opp_hits": a_pair[0],  "opp_n": a_pair[1],
                     "combo": combo_pct,
+                    "team_ml": float(team_ml) if team_ml is not None else None,
+                    "tag": tag,
                 })
 
     # Rank by combo desc, then price desc
-    rows.sort(key=lambda r: (-r["combo"], -r["price"], r["fixture"], r["team"], r["stat_key"], r["line"]))
+    rows_out.sort(key=lambda r: (-r["combo"], -r["price"], r["fixture"], r["team"], r["stat_key"], r["line"]))
 
     # Render
     lines = []
     lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}")
-    lines.append(f"Window={WINDOW_DAYS} days | Min price={MIN_DEC_PRICE:.2f}")
+    lines.append(f"Window={WINDOW_DAYS} days | Min price={MIN_DEC_PRICE:.2f} | ML filter (Shots/SOT/Corners): ≤ {TEAM_WIN_MAX:.2f}")
     lines.append("")
     lines.append("===== TEAM LINES — OVER (ranked by combo % then price) =====")
 
-    if not rows:
+    if not rows_out:
         lines.append("  No qualifying team OVER lines found.\n")
     else:
-        for r in rows:
+        for r in rows_out:
             t_pct = (r["team_hits"]/r["team_n"]*100.0) if r["team_n"] else None
             a_pct = (r["opp_hits"]/r["opp_n"]*100.0) if r["opp_n"] else None
             t_str = f"{r['team_hits']}/{r['team_n']} ({t_pct:5.1f}%)" if r["team_n"] else "n/a"
             a_str = f"{r['opp_hits']}/{r['opp_n']} ({a_pct:5.1f}%)"  if r["opp_n"] else "n/a"
-            tag = "SOT" if r["stat_key"]=="shots_on_target" else ("Shots" if r["stat_key"]=="shots_total" else r["stat_key"].capitalize())
+            ml_str = f" | ML={r['team_ml']:.3f}" if isinstance(r.get("team_ml"), float) else ""
             lines.append(
-                f" • {r['team']} — {tag} Over {r['line']:.1f} @ {r['price']:.3f} | {r['fixture']} | side={r['side']} | "
-                f"team {t_str}, oppA {a_str} | combo={r['combo']*100:5.1f}% | {r['market']}"
+                f" • {r['team']} — {r['tag']} Over {r['line']:.1f} @ {r['price']:.3f} | {r['fixture']} | side={r['side']} | "
+                f"team {t_str}, oppA {a_str} | combo={r['combo']*100:5.1f}%{ml_str} | {r['market']}"
             )
 
     OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
