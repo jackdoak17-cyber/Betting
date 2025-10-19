@@ -1,8 +1,8 @@
-name: Fetch Bet365 odds (Sportmonks pre-match, EPL only)
+name: Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)
 
 on:
   schedule:
-    # Every 6 hours at :07 UTC (staggered from your fixtures job at :05)
+    # Every 6 hours at :07 UTC (staggered from fixtures job at :05)
     - cron: "7 */6 * * *"
   workflow_dispatch: {}
 
@@ -12,7 +12,7 @@ permissions:
 jobs:
   fetch_odds_bet365:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -29,12 +29,12 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install requests
 
-      - name: Run Bet365 odds gatherer (EPL only)
+      - name: Run Bet365 odds gatherer (all 9 leagues)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          LEAGUE_IDS: "8"          # <-- EPL only
-          SM_BOOKMAKER_ID: "2"     # Bet365
-          SM_SLEEP: "0.05"         # gentle pacing; you can bump to 0.1 if needed
+          LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
+          SM_BOOKMAKER_ID: "2"  # Bet365
+          SM_SLEEP: "0.05"
           SM_TIMEOUT: "20"
         run: python scripts/odds_bet365_gather.py
 
@@ -43,5 +43,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/odds/b365
-          git commit -m "chore(odds-b365-epl): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git commit -m "chore(odds-b365): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
           git push
