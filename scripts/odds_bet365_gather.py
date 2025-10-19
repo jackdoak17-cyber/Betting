@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Bet365 pre-match odds gatherer — minimal & literal
-- Reads fixture IDs from data/fixtures/{league_id}.json (your 9 leagues)
+Bet365 pre-match odds gatherer — EPL only (by default)
+- Reads fixture IDs from data/fixtures/8.json (Premier League)
 - Requests ONE fixture at a time with: filter=bookmakers:{BET365_ID}
-- No pagination params, no concurrency, no extra knobs.
+- Minimal params, sequential, mirrors your working example.
 
 Writes:
   data/odds/b365/fixtures/{fixture_id}.json
-  data/odds/b365/{league_id}.json
-  data/odds/b365/by_league/{league_id}.json
+  data/odds/b365/8.json
+  data/odds/b365/by_league/8.json
   data/odds/b365/latest.json
   data/odds/b365/odds.txt
 """
@@ -28,16 +28,15 @@ API_TOKEN = (
     or os.getenv("SPORTMONKS_API_TOKEN")
     or os.getenv("SM_TOKEN")
 )
-BET365_ID = int(os.getenv("SM_BOOKMAKER_ID", "2"))  # Bet365 default
+BET365_ID = int(os.getenv("SM_BOOKMAKER_ID", "2"))  # Bet365
 
-# Use exactly your 9 leagues unless overridden
-DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
+# Default to EPL only; can be overridden with LEAGUE_IDS env later if you want.
+DEFAULT_LEAGUES = [8]
 LEAGUE_IDS = [
     int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()
 ]
 
-# Gentle pace between requests (seconds)
-SLEEP = float(os.getenv("SM_SLEEP", "0.05"))
+SLEEP = float(os.getenv("SM_SLEEP", "0.05"))  # gentle pacing between calls (seconds)
 TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
 
 ROOT = Path(".")
@@ -69,7 +68,7 @@ def load_fixtures_for_league(league_id: int) -> Dict:
 
 def get_bet365_odds_for_fixture(fixture_id: int) -> Tuple[List[dict], Optional[str], int]:
     """
-    EXACTLY your call:
+    EXACT call you provided:
       GET /v3/football/odds/pre-match/fixtures/{fixture_id}
       params = { api_token, filter=f"bookmakers:{BET365_ID}" }
     Returns (rows, error_message, status_code)
@@ -89,18 +88,15 @@ def get_bet365_odds_for_fixture(fixture_id: int) -> Tuple[List[dict], Optional[s
         try:
             j = r.json()
         except ValueError:
-            return [], f"Non-JSON body: {r.text[:120]}", status
+            return [], f"Non-JSON body: {r.text[:150]}", status
         data = j.get("data", [])
         if not isinstance(data, list):
-            # unexpected shape — store a tiny debug
             return [], f"Unexpected JSON shape: {str(j)[:160]}", status
         return data, None, status
 
-    if status == 204:
-        # No content (no odds available yet)
+    if status == 204:  # no content yet
         return [], None, status
 
-    # Other error
     return [], f"HTTP {status}: {r.text[:160]}", status
 
 def main():
@@ -126,7 +122,8 @@ def main():
             starting_at = fx.get("starting_at")
 
             rows, err, status = get_bet365_odds_for_fixture(fid)
-            # Save per-fixture file (handy for spot checks)
+
+            # Save per-fixture (handy for spot checks)
             write_json(PER_FIXTURE_DIR / f"{fid}.json", {
                 "fixture_id": fid,
                 "bookmaker_id": BET365_ID,
@@ -135,6 +132,7 @@ def main():
                 "odds": rows,
                 "error": err,
             })
+
             league_rows.append({
                 "fixture_id": fid,
                 "league_id": lid,
@@ -147,8 +145,10 @@ def main():
             total_fixtures += 1
             total_rows += len(rows)
 
-            # Log exactly as you’d do when hand-testing
-            print(f"Fixture {fid} ({name}): {len(rows)} odds rows" + (f"  [status {status}]" if status != 200 else ""))
+            # Log like your manual test
+            print(f"Fixture {fid} ({name}): {len(rows)} odds rows"
+                  + (f"  [status {status}]" if status != 200 else "")
+                  + (f"  [err: {err}]" if err else ""))
 
             time.sleep(SLEEP)
 
