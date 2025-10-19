@@ -1,25 +1,5 @@
-[STATS] total_players=1980  bucketA(7/7)=3  bucketB(6/7)=14
-[EVENTS] england-premier-league: 8 (next 7d)
-[EVENTS] england-championship: 24 (next 7d)
-[EVENTS] france-ligue-1: 9 (next 7d)
-[EVENTS] italy-serie-b: 11 (next 7d)
-[EVENTS] spain-laliga: 10 (next 7d)
-[EVENTS] spain-laliga-2: 14 (next 7d)
-[EVENTS] turkiye-super-lig: 10 (next 7d)
-[MAP] candidates_mapped=14/17
-[ODDS] Unique events to query: 17
-[ODDS] batch 1 — 10 ids
-[ODDS] batch 2 — 7 ids
-Generated at (UTC): 2025-10-19T06:48:31.469438 | Min price: 1.30 | Capture≥1.10 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
-Market: Bet365 — Player Shots On Target (Over 0.5) STRICT. Excludes headed/outside/halves. Most recent windows strictly used.
-[PIPE] mapped=14/17  ml_pass=12  had_sot_market=7
-[PRICE] captured_players(>= 1.1)=6  eligible(>= 1.3)=5
+Generated at (UTC): 2025-10-19T20:15:17.835078
+Criteria: 1+ SOT in last 7 (100% | n>=7) | Over 0.5 SOT >= 1.30 | Team ML < 3.50 | Window=7 days
+Candidates scanned: 1
 
-===== CERTS — 1+ SOT (6/7) =====
- • Adrián Embarba [MID] — Almería | Cordoba CF vs UD Almeria | 1+ SOT @ 1.615 | Team Win (ML) 2.550 | 6/7 (last7: 6/7; series7: 4,0,1,1,1,1,3)
- • Jarrod Bowen [MID] — West Ham United | West Ham United vs Brentford FC | 1+ SOT @ 1.444 | Team Win (ML) 2.500 | 6/7 (last7: 6/7; series7: 0,1,1,2,1,1,1)
- • Nico Melamed [MID] — Almería | Cordoba CF vs UD Almeria | 1+ SOT @ 1.444 | Team Win (ML) 2.550 | 6/7 (last7: 6/7; series7: 2,2,0,2,1,1,1)
- • Miguel de la Fuente [FWD] — Leganés | CD Leganes vs Malaga CF | 1+ SOT @ 1.400 | Team Win (ML) 1.800 | 6/7 (last7: 6/7; series7: 1,0,2,1,3,2,1)
- • Álex Calatrava [MID] — Castellón | CD Castellon vs Albacete Balompie | 1+ SOT @ 1.363 | Team Win (ML) 1.610 | 6/7 (last7: 6/7; series7: 1,1,0,2,2,1,1)
-
-Run timestamp (UTC): 2025-10-19 06:48:31
+No SOT certs found.
