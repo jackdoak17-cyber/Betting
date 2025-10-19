@@ -2,21 +2,18 @@
 # -*- coding: utf-8 -*-
 
 """
-Value bets — SHOTS certs (1+ in 100% of last 7, min games=7)
-Reads your local Sportmonks Bet365 odds and player shots form.
+Value bets — SHOTS (buckets: 10/10, 9/10, 8/10, 7/7)
+- Uses local Sportmonks Bet365 odds and player shots form.
 
-Source data:
-  - Player form: data/player_shots/by_league/{league_id}.json (+ predicted XI team names)
-  - Odds (Bet365 only): data/odds/b365/{league_id}.json (written by your Bet365 gatherer)
-
-Markets used:
-  - Player Shots (market_id = 268)  -> Over 0.5 for the named player
-  - Match Winner (market_id = 1)    -> Team ML filter for player's side
+Buckets:
+  - 10/10: last 10 matches all had >=1 shot
+  - 9/10 : last 10 matches had >=1 shot in exactly 9 of 10
+  - 8/10 : last 10 matches had >=1 shot in exactly 8 of 10
+  - 7/7  : last 7  matches all had >=1 shot (only used if <10 matches available)
 
 Filters:
-  - Player qualifies: last 7 matches all >= 1 shot (len(series) >= 7)
   - Price Over 0.5 >= MIN_DEC_PRICE (default 1.30)
-  - Team ML (Bet365) for player's side < TEAM_WIN_MAX (default 3.50)
+  - Team ML (Bet365, market_id=1) for player's side < TEAM_WIN_MAX (default 3.50)
 
 Output:
   data/value_bets/shots_certs.txt + console
@@ -118,11 +115,35 @@ def _team_name_map(league_id: int) -> Dict[int, str]:
                 m.setdefault(tid, nm)
     return m
 
-def last7_all_one_plus(series: List[int]) -> bool:
-    seq = [x for x in series if isinstance(x, int)]
-    if len(seq) < 7: return False
-    sub = seq[:7]  # assume series is newest -> older
-    return all(x >= 1 for x in sub)
+def series_counts(series_raw: List[int]) -> Tuple[int, Optional[int], Optional[int]]:
+    """
+    Returns (shots7, shots10, n_games_available)
+    Assumes series is newest -> older and contains ints.
+    """
+    seq = [x for x in series_raw if isinstance(x, int)]
+    n = len(seq)
+    last7  = seq[:7]  if n >= 7  else []
+    last10 = seq[:10] if n >= 10 else []
+    shots7  = sum(1 for x in last7  if x >= 1) if last7  else 0
+    shots10 = sum(1 for x in last10 if x >= 1) if last10 else None
+    return shots7, shots10, n
+
+def bucket_for_series(series_raw: List[int]) -> Optional[str]:
+    """
+    Decide which bucket a player belongs to.
+    - Prefer 10-game buckets if we have 10+ games: 10/10 > 9/10 > 8/10.
+    - Else if we have 7-9 games: use 7/7 when perfect.
+    - Otherwise: no bucket.
+    """
+    shots7, shots10, n = series_counts(series_raw)
+    if shots10 is not None:
+        if shots10 == 10: return "10/10"
+        if shots10 == 9:  return "9/10"
+        if shots10 == 8:  return "8/10"
+        return None
+    if n >= 7 and shots7 == 7:
+        return "7/7"
+    return None
 
 def collect_candidates() -> List[dict]:
     """
@@ -137,7 +158,8 @@ def collect_candidates() -> List[dict]:
         for rec in players:
             series = rec.get("series") or rec.get("shots_last_n") or rec.get("shots") or []
             if not isinstance(series, list): continue
-            if not last7_all_one_plus(series): continue
+            bucket = bucket_for_series(series)
+            if not bucket: continue
             player = rec.get("name") or rec.get("player_name") or rec.get("player")
             if not player: continue
             tid = rec.get("team_id")
@@ -146,7 +168,7 @@ def collect_candidates() -> List[dict]:
             pos = rec.get("position") or rec.get("pos")
             out.append({
                 "league_id": lid, "player": player, "team": team,
-                "position": pos or "", "series": series[:10]
+                "position": pos or "", "series": series[:12], "bucket": bucket
             })
     return out
 
@@ -155,16 +177,10 @@ MARKET_MATCH_WINNER = 1      # "Match Winner" / "Full Time Result"
 MARKET_PLAYER_SHOTS = 268    # "Player Shots" (we’ll use line 0.5)
 
 def load_odds_for_league(league_id: int) -> dict:
-    """Load per-league Bet365 odds payload written by your gatherer."""
     p = ODDS_DIR / f"{league_id}.json"
-    blob = _load_json(p) or {}
-    return blob
+    return _load_json(p) or {}
 
 def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
-    """
-    Parse 'Home vs Away' from fixture.name written by your fixtures job.
-    If not present, return ("","").
-    """
     if not fixture_name: return "",""
     for sep in [" vs ", " v ", " VS ", " Vs "]:
         if sep in fixture_name:
@@ -189,20 +205,14 @@ def as_float(x) -> Optional[float]:
         return None
 
 def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
-    """
-    From market_id == 1 rows, extract Home/Away decimal prices.
-    Labels encountered may be 'Home'/'Away'/'Draw', '1'/'2'/'X', or team names.
-    """
-    home_price = None
-    away_price = None
+    home_price = None; away_price = None
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_MATCH_WINNER:
             continue
         label = (row.get("label") or "").strip().lower()
         name  = (row.get("name")  or "").strip().lower()
         val   = as_float(row.get("value"))
-        if val is None:
-            continue
+        if val is None: continue
         if label in {"1", "home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
             home_price = val if (home_price is None or val < home_price) else home_price
         elif label in {"2", "away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
@@ -214,10 +224,6 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
     return home_price, away_price
 
 def best_over05_player_shots(odds_rows: List[dict], player: str) -> Optional[float]:
-    """
-    From market_id == 268 rows, find player's Over 0.5 price.
-    Interprets 'label' as the shots line (e.g., '0.5', '1.5', ...).
-    """
     best = None
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
@@ -237,48 +243,41 @@ def best_over05_player_shots(odds_rows: List[dict], player: str) -> Optional[flo
 
 # ========= MAIN =========
 def main():
-    # 1) Build candidate list from your player_shots data
+    # 1) Candidates by bucket based on form
     candidates = collect_candidates()
     if not candidates:
-        text = "[RESULT] No player candidates with 1+ in each of last 7."
+        text = "[RESULT] No player candidates met the 10/10, 9/10, 8/10, or 7/7 buckets."
         OUT_FILE.write_text(text + "\n", encoding="utf-8")
-        print(text)
-        return
+        print(text); return
 
-    # 2) Load per-league Bet365 odds once
+    # 2) Load odds once per league
     odds_by_league: Dict[int, dict] = {lid: load_odds_for_league(lid) for lid in LEAGUE_IDS}
 
-    # 3) For each candidate, find their fixture in the same league and evaluate
-    flagged: List[dict] = []
+    # 3) Evaluate odds filters and build results by bucket
+    buckets = {"10/10": [], "9/10": [], "8/10": [], "7/7": []}
+
     for c in candidates:
-        lid   = c["league_id"]
-        team  = c["team"]
-        plyr  = c["player"]
-        odds_blob = odds_by_league.get(lid) or {}
-        fixtures = odds_blob.get("fixtures") or []
-
+        lid, team, plyr, bucket = c["league_id"], c["team"], c["player"], c["bucket"]
+        blob = odds_by_league.get(lid) or {}
+        fixtures = blob.get("fixtures") or []
         for fx in fixtures:
-            fname = fx.get("name") or ""  # "Home vs Away"
+            fname = fx.get("name") or ""
             home, away = parse_fixture_teams(fname)
-            if not home or not away:
-                continue
+            if not home or not away: continue
             side = side_for_team(team, home, away)
-            if not side:
-                continue
+            if not side: continue
 
-            # Team ML check (market 1)
             odds_rows = fx.get("odds") or []
             home_ml, away_ml = extract_team_ml_prices(odds_rows, home, away)
             team_ml = home_ml if side == "home" else away_ml
             if team_ml is None or team_ml >= TEAM_ML_MAX:
                 continue
 
-            # Player Shots Over 0.5 (market 268)
             price = best_over05_player_shots(odds_rows, plyr)
             if price is None or price < MIN_PRICE:
                 continue
 
-            flagged.append({
+            buckets[bucket].append({
                 "player": plyr,
                 "position": c.get("position") or "",
                 "team": team,
@@ -288,27 +287,34 @@ def main():
                 "team_ml": team_ml,
                 "series": c["series"],
                 "league_id": lid,
-                "market": "Player Shots Over 0.5",
             })
 
-    # 4) Render output
-    flagged.sort(key=lambda x: (-x["price"], x["player"]))
+    # 4) Render output grouped by bucket
+    ts = dt.datetime.utcnow().isoformat()
     lines = []
-    lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}  |  Min price: {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
-    lines.append("Criteria: 1+ shot in 100% of last 7 (n>=7)  |  Market: Bet365 Player Shots Over 0.5 (market_id=268)")
+    lines.append(f"Generated at (UTC): {ts}  |  Min price >= {MIN_PRICE:.2f}  |  Team ML < {TEAM_ML_MAX:.2f}")
+    lines.append("Buckets: 10/10, 9/10, 8/10 (last-10); 7/7 (last-7 when <10 games available)")
+    lines.append("Market: Bet365 Player Shots Over 0.5 (market_id=268)")
     lines.append("")
 
-    if not flagged:
-        lines.append("No matches found.")
-    else:
-        lines.append("===== CERTS — Player Shots 1+ =====")
-        for x in flagged:
-            ser = ",".join(map(str, x["series"][:7]))
+    def render_bucket(tag: str, rows: List[dict]):
+        rows.sort(key=lambda x: (-x["price"], x["player"]))
+        lines.append(f"===== {tag} =====  (count: {len(rows)})")
+        if not rows:
+            lines.append("  — none —")
+            lines.append("")
+            return
+        for x in rows:
+            ser = ",".join(map(str, x["series"][:10]))
             pos = f"[{x['position']}]" if x.get("position") else ""
             lines.append(
                 f" • {x['player']} {pos} — {x['team']} | {x['fixture']} @ {x['kickoff']} | "
-                f"Over 0.5 @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | series7: {ser}"
+                f"Over 0.5 @ {x['price']:.3f} | Team ML {x['team_ml']:.3f} | series: {ser}"
             )
+        lines.append("")
+
+    for tag in ("10/10", "9/10", "8/10", "7/7"):
+        render_bucket(tag, buckets[tag])
 
     OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print("\n".join(lines))
