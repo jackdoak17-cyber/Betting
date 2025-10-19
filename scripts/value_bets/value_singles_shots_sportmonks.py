@@ -18,11 +18,12 @@ Inputs (local):
 
 Output:
   • data/value_bets/value_singles.txt
+  • NOW includes player's position tag in output, e.g. [FWD], [MID]
 
 ENV (optional):
   • MIN_DEC_PRICE        (default "1.72")
   • FAVORITES_ONLY       (default "true")
-  • FAVORITE_CAP_4OF5    (default "2.50")  # max team ML allowed for 4/5 path
+  • FAVORITE_CAP_4OF5    (default "2.50")
   • LEAGUE_IDS           (default "301,384,387,564,567,600,8,82,9")
 """
 
@@ -223,10 +224,12 @@ def collect_candidates() -> List[dict]:
             team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
             if not team:
                 continue
+            pos_tag = (rec.get("position_tag") or rec.get("position") or rec.get("pos") or "").upper()
             out.append({
                 "league_id": lid,
                 "player": player,
                 "team": team,
+                "position_tag": pos_tag,
                 "series": (series or [])[:12],
                 "tag": tag,  # "5/5", "7/10", or "4/5"
             })
@@ -286,6 +289,7 @@ def main():
                 "league_id": lid,
                 "player": player,
                 "team": team,
+                "position_tag": c.get("position_tag") or "",
                 "fixture": fname,
                 "kickoff": fx.get("starting_at") or "",
                 "price": price,
@@ -321,8 +325,9 @@ def main():
         for x in rows:
             ser = ",".join(map(str, x["series"][:10]))
             cap_note = f" | cap≤{FAVORITE_CAP_4OF5:.2f}" if tag == "4/5" else ""
+            pos = f"[{x['position_tag']}]" if x.get("position_tag") else ""
             lines.append(
-                f" • {x['player']} — {x['team']} | {x['fixture']} @ {x['kickoff']} | "
+                f" • {x['player']} {pos} — {x['team']} | {x['fixture']} @ {x['kickoff']} | "
                 f"O0.5 @ {x['price']:.2f} | ML {x['team_ml']:.2f} vs {x['opp_ml']:.2f}{cap_note} | series: {ser}"
             )
         lines.append("")
