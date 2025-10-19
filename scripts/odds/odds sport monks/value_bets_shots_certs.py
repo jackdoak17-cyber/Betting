@@ -1,44 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Sportmonks — Bet365 ALL odds dump (TXT) v1.0
+Sportmonks — Bet365 ALL odds dump (TXT) v1.2
 --------------------------------------------
-- Uses predicted_xi fixtures list to know which fixture_ids to query.
-- Fetches *all* pre-match odds for **Bet365** for each fixture.
-- No filtering by market or price. Everything that Bet365 provides gets printed.
-- Writes a single human-readable TXT to: data/value_bets/bet365_all_odds.txt
+• Reads fixtures from data/fixtures/*.json and data/fixtures/by_league/*.json
+• Fetches ALL pre-match odds from Bet365 for each fixture (no filtering)
+• Writes a single human-readable TXT: data/value_bets/bet365_all_odds.txt
 
 ENV
----
-SPORTMONKS_TOKEN   (required)
-SM_MAX_FIXTURES    (default: "500") — safety cap
-
-Inputs
-------
-data/predicted_xi/by_league/*.json   (your existing pipeline output)
+  SPORTMONKS_TOKEN (required)
+  SM_MAX_FIXTURES (default "800") safety cap
 
 Endpoints
----------
-- Bookmakers list:     https://api.sportmonks.com/v3/odds/bookmakers
-- Fixture pre-match:   https://api.sportmonks.com/v3/football/odds/pre-match/fixtures/{fixture_id}/bookmakers/{bookmaker_id}
-  (fallback to /fixtures/{fixture_id} and filter to Bet365 if needed)
+  - GET /v3/odds/bookmakers
+  - GET /v3/football/odds/pre-match/fixtures/{fixture_id}/bookmakers/{bookmaker_id}
+    (falls back to /fixtures/{fixture_id} and filters Bet365 rows client-side)
 """
 from __future__ import annotations
 import os, json, time, re, unicodedata
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 import requests
 
-# ---------- Config / IO ----------
+# ---- IO ----
 ROOT = Path(".")
-PX_DIR = ROOT / "data" / "predicted_xi" / "by_league"
-OUT_DIR = ROOT / "data" / "value_bets"
+FIX_DIR      = ROOT / "data" / "fixtures"
+FIX_BY_L_DIR = FIX_DIR / "by_league"
+OUT_DIR      = ROOT / "data" / "value_bets"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-OUT_TXT = OUT_DIR / "bet365_all_odds.txt"
+OUT_TXT      = OUT_DIR / "bet365_all_odds.txt"
 
+# ---- API bases ----
 API_BASE_FOOTBALL = "https://api.sportmonks.com/v3/football"
-API_BASE_ODDS = "https://api.sportmonks.com/v3/odds"
+API_BASE_ODDS     = "https://api.sportmonks.com/v3/odds"
 
 TOKEN = (
     os.getenv("SPORTMONKS_TOKEN")
@@ -48,7 +43,7 @@ TOKEN = (
 if not TOKEN:
     raise SystemExit("ERROR: SPORTMONKS_TOKEN / SPORTMONKS_API_TOKEN / SM_TOKEN not set.")
 
-MAX_FIXTURES = int(os.getenv("SM_MAX_FIXTURES", "500"))
+MAX_FIXTURES = int(os.getenv("SM_MAX_FIXTURES", "800"))
 
 TIMEOUT = 25
 RETRIES = 3
@@ -56,8 +51,7 @@ BACKOFF = 1.7
 GLOBAL_MIN_DELAY = 0.18
 _last_call = 0.0
 
-
-# ---------- HTTP ----------
+# ---- HTTP helpers ----
 def _pace():
     global _last_call
     now = time.time()
@@ -92,8 +86,7 @@ def api_get(base: str, path: str, params: Optional[dict] = None) -> dict:
                 raise
     raise last_e
 
-
-# ---------- helpers ----------
+# ---- utils ----
 def norm(s: Optional[str]) -> str:
     if not s: return ""
     s = unicodedata.normalize("NFKD", s)
@@ -103,30 +96,80 @@ def norm(s: Optional[str]) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-def load_fixture_ids_from_predicted_xi() -> List[int]:
-    fids: List[int] = []
-    if not PX_DIR.exists():
-        return fids
-    for f in PX_DIR.glob("*.json"):
-        try:
-            blob = json.loads(f.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        for fx in (blob.get("fixtures") or []):
-            fid = int(fx.get("fixture_id") or fx.get("id") or 0)
-            if fid:
-                fids.append(fid)
-    # unique + stable order
-    seen = set()
-    out = []
-    for fid in fids:
-        if fid not in seen:
-            seen.add(fid); out.append(fid)
-    return out
+def coerce_list(x: Any) -> List[Any]:
+    if isinstance(x, list): return x
+    if isinstance(x, dict): return list(x.values())
+    return []
 
+# ---- fixtures: read from data/fixtures/* ----
+def read_fixtures() -> Tuple[List[int], Dict[int, dict]]:
+    """
+    Returns (fixture_ids, info_by_fid)
+    info_by_fid[fid] = {league_id, starting_at, home, away}
+    """
+    fixture_ids: List[int] = []
+    info: Dict[int, dict] = {}
+
+    def add_from_blob(blob: dict):
+        for fx in blob.get("fixtures") or []:
+            fid = int(fx.get("id") or fx.get("fixture_id") or 0)
+            if not fid: continue
+            if fid in info:  # don't overwrite
+                continue
+            league_id = fx.get("league_id")
+            starting_at = fx.get("starting_at") or (fx.get("time") or {}).get("starting_at")
+            home, away = None, None
+            parts = fx.get("participants") or []
+            if parts:
+                for p in parts:
+                    loc = (p.get("meta") or {}).get("location")
+                    if loc == "home": home = p.get("name")
+                    elif loc == "away": away = p.get("name")
+            # some payloads may have names stored already
+            home = home or fx.get("home_name")
+            away = away or fx.get("away_name")
+            info[fid] = {
+                "league_id": league_id,
+                "starting_at": starting_at,
+                "home": home or "Home",
+                "away": away or "Away",
+            }
+            fixture_ids.append(fid)
+
+    # top-level files like data/fixtures/301.json
+    if FIX_DIR.exists():
+        for f in FIX_DIR.glob("*.json"):
+            if f.name == "latest.json":  # skip the aggregate meta file
+                continue
+            try:
+                blob = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            add_from_blob(blob)
+
+    # by_league mirror
+    if FIX_BY_L_DIR.exists():
+        for f in FIX_BY_L_DIR.glob("*.json"):
+            try:
+                blob = json.loads(f.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            add_from_blob(blob)
+
+    # de-dup while keeping order
+    seen = set()
+    unique_ids: List[int] = []
+    for fid in fixture_ids:
+        if fid not in seen:
+            seen.add(fid)
+            unique_ids.append(fid)
+
+    return unique_ids, info
+
+# ---- bookmaker (Bet365) ----
 def fetch_bet365_id() -> int:
     """
-    Resolve Bet365 bookmaker id. Fallback to 2 (commonly Bet365) if not found.
+    Resolve Bet365 bookmaker id. Fallback to 2 if lookup fails.
     """
     try:
         j = api_get(API_BASE_ODDS, "bookmakers")
@@ -136,7 +179,7 @@ def fetch_bet365_id() -> int:
                 return int(row.get("id") or 0) or 2
     except Exception as e:
         print(f"[warn] bookmakers fetch failed: {e}")
-    return 2  # pragmatic fallback
+    return 2
 
 def fetch_fixture_odds_bet365(fid: int, bet365_id: int) -> dict:
     """
@@ -147,32 +190,27 @@ def fetch_fixture_odds_bet365(fid: int, bet365_id: int) -> dict:
     except Exception as e:
         print(f"  [fallback] fixture {fid} bookmaker-scoped failed: {e}")
         j = api_get(API_BASE_FOOTBALL, f"odds/pre-match/fixtures/{fid}")
-        # filter to Bet365 rows only
-        data = []
+        # filter to Bet365 only
+        kept = []
         for row in j.get("data", []) or []:
             bm = row.get("bookmaker") or {}
             bid = int(bm.get("id") or row.get("bookmaker_id") or 0)
-            bname = (bm.get("name") or row.get("bookmaker_name") or "").strip()
+            bname = (bm.get("name") or row.get("bookmaker_name") or "")
             if bid == bet365_id or "bet365" in norm(bname):
-                data.append(row)
-        return {"data": data}
+                kept.append(row)
+        return {"data": kept}
 
-def coerce_list(x: Any) -> List[Any]:
-    if isinstance(x, list):
-        return x
-    if isinstance(x, dict):
-        return list(x.values())
-    return []
-
-def fmt_price(outcome: dict) -> str:
-    # print any decimal we can find; if none, try any number-like field
+# ---- pretty printers ----
+def outcome_price(o: dict) -> str:
+    # show any decimal-like value we can find; else raw value; else "?"
     for k in ("decimal", "price", "odd", "odds", "value"):
-        v = outcome.get(k)
+        v = o.get(k)
         try:
-            return f"{float(v):.3f}"
+            if v is not None:
+                return f"{float(v):.3f}"
         except Exception:
             pass
-    p = outcome.get("prices") or outcome.get("bookmaker_price") or {}
+    p = o.get("prices") or o.get("bookmaker_price") or {}
     if isinstance(p, dict):
         for k in ("decimal", "dec", "d"):
             if k in p:
@@ -180,19 +218,10 @@ def fmt_price(outcome: dict) -> str:
                     return f"{float(p[k]):.3f}"
                 except Exception:
                     pass
-    # last resort: show raw if exists
-    v = outcome.get("price") or outcome.get("odds") or outcome.get("value")
+    v = o.get("price") or o.get("odds") or o.get("value")
     return str(v) if v is not None else "?"
 
-def extract_outcome_name(o: dict) -> str:
-    return (o.get("name")
-            or o.get("label")
-            or o.get("selection")
-            or o.get("runner_name")
-            or o.get("outcome")
-            or "Outcome")
-
-def extract_line_side(o: dict) -> str:
+def line_side_suffix(o: dict) -> str:
     parts = []
     for k in ("line", "handicap", "goal", "total", "threshold"):
         if o.get(k) is not None:
@@ -200,25 +229,42 @@ def extract_line_side(o: dict) -> str:
                 parts.append(f"{k}={float(o[k])}")
             except Exception:
                 parts.append(f"{k}={o[k]}")
-    side = o.get("side") or o.get("direction") or o.get("bet_type")
-    if side:
-        parts.append(f"side={side}")
+    s = o.get("side") or o.get("direction") or o.get("bet_type")
+    if s:
+        parts.append(f"side={s}")
     return (" [" + ", ".join(parts) + "]") if parts else ""
 
-def dump_fixture_block(fid: int, payload: dict) -> List[str]:
+def extract_participant(o: dict) -> str:
+    pv = o.get("participant") or o.get("player") or o.get("competitor")
+    if isinstance(pv, dict):
+        for kk in ("name", "player_name", "participant_name"):
+            if pv.get(kk):
+                return str(pv[kk])
+    return ""
+
+def market_id_of(m: dict) -> Optional[int]:
+    for k in ("id", "market_id"):
+        if m.get(k) is not None:
+            try:
+                return int(m[k])
+            except Exception:
+                pass
+    return None
+
+def dump_fixture(fid: int, head: dict, payload: dict) -> List[str]:
     lines: List[str] = []
+    hn, an = head.get("home") or "Home", head.get("away") or "Away"
+    ko = head.get("starting_at") or ""
+    lid = head.get("league_id") or ""
+    lines.append(f"{hn} vs {an}  |  Fixture {fid}  |  League {lid}  |  {ko}")
+
     rows = payload.get("data") or []
+    if isinstance(rows, dict):
+        rows = [rows]
     if not rows:
-        lines.append(f"Fixture {fid}")
         lines.append("  (no Bet365 markets returned)")
         return lines
 
-    # Some bookmaker-scoped responses return a single object; normalize to list
-    if isinstance(rows, dict):
-        rows = [rows]
-
-    # There may still be multiple rows (e.g., same bookmaker split by category)
-    lines.append(f"Fixture {fid}")
     for row in rows:
         bm = row.get("bookmaker") or {}
         bname = bm.get("name") or row.get("bookmaker_name") or "Bet365"
@@ -230,9 +276,16 @@ def dump_fixture_block(fid: int, payload: dict) -> List[str]:
             continue
 
         for m in markets:
+            mid = market_id_of(m)
             mname = m.get("name") or m.get("market") or m.get("key") or "Market"
             mlabel = m.get("label") or ""
-            lines.append(f"  - Market: {mname}{(' — ' + mlabel) if mlabel else ''}")
+            if mid is not None:
+                head_line = f"  - Market [{mid}]: {mname}"
+            else:
+                head_line = f"  - Market: {mname}"
+            if mlabel:
+                head_line += f" — {mlabel}"
+            lines.append(head_line)
 
             outs = coerce_list(m.get("outcomes") or m.get("selections") or m.get("runners") or [])
             if not outs:
@@ -240,55 +293,52 @@ def dump_fixture_block(fid: int, payload: dict) -> List[str]:
                 continue
 
             for o in outs:
-                oname = extract_outcome_name(o)
-                price = fmt_price(o)
-                extra = extract_line_side(o)
-                # If a player/participant field exists, append it
-                participant = ""
-                pv = o.get("participant") or o.get("player") or o.get("competitor")
-                if isinstance(pv, dict):
-                    pname = pv.get("name") or pv.get("player_name") or pv.get("participant_name")
-                    if pname:
-                        participant = f" — {pname}"
-                lines.append(f"      * {oname}{participant} @ {price}{extra}")
+                oname = (o.get("name") or o.get("label") or o.get("selection")
+                         or o.get("runner_name") or o.get("outcome") or "Outcome")
+                price = outcome_price(o)
+                extra = line_side_suffix(o)
+                part = extract_participant(o)
+                pid = o.get("id") or o.get("outcome_id")
+                pid_str = f"#{pid} " if pid is not None else ""
+                pstr = f" — {part}" if part else ""
+                lines.append(f"      * {pid_str}{oname}{pstr} @ {price}{extra}")
     return lines
 
-
-# ---------- main ----------
+# ---- main ----
 def main():
     generated_at = datetime.utcnow().isoformat()
 
-    fixture_ids = load_fixture_ids_from_predicted_xi()
-    if not fixture_ids:
-        print("[warn] No fixtures found in data/predicted_xi/by_league/*.json")
-        # still proceed (nothing to fetch)
-    if len(fixture_ids) > MAX_FIXTURES:
-        fixture_ids = fixture_ids[:MAX_FIXTURES]
+    fids, info = read_fixtures()
+    if len(fids) > MAX_FIXTURES:
+        fids = fids[:MAX_FIXTURES]
 
     bet365_id = fetch_bet365_id()
-    hdr = [
+    header = [
         f"Generated at (UTC): {generated_at}",
         f"Source: Sportmonks pre-match odds",
         f"Bookmaker: Bet365 (id={bet365_id})",
-        f"Fixtures: {len(fixture_ids)}",
-        ""
+        f"Fixtures: {len(fids)}",
+        "",
     ]
 
     out_lines: List[str] = []
-    out_lines.extend(hdr)
+    out_lines.extend(header)
 
-    for i, fid in enumerate(fixture_ids, 1):
-        print(f"[{i}/{len(fixture_ids)}] Fixture {fid}")
+    if not fids:
+        out_lines.append("(no fixtures found under data/fixtures — did fetch_fixtures.py run?)")
+
+    for i, fid in enumerate(fids, 1):
+        print(f"[{i}/{len(fids)}] Fixture {fid}")
         try:
             payload = fetch_fixture_odds_bet365(fid, bet365_id)
         except Exception as e:
             out_lines.append(f"Fixture {fid}")
             out_lines.append(f"  [error] {e}")
+            out_lines.append("")
             continue
-        out_lines.extend(dump_fixture_block(fid, payload))
-        out_lines.append("")  # blank line between fixtures
+        out_lines.extend(dump_fixture(fid, info.get(fid, {}), payload))
+        out_lines.append("")
 
-    # Write TXT
     OUT_TXT.write_text("\n".join(out_lines).rstrip() + "\n", encoding="utf-8")
     print(f"[OK] wrote {OUT_TXT}")
 
