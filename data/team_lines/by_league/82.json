@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-10-16T08:07:56.121661",
+  "generated_at": "2025-10-20T07:52:33.602388",
   "league_id": 82,
   "use_last_n": 10,
   "fixtures": [
@@ -22,6 +22,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  16,
                   10,
                   11,
                   11,
@@ -30,6 +31,7 @@
                   8
                 ],
                 "opponent_allowed_lastN": [
+                  16,
                   12,
                   21,
                   13,
@@ -59,6 +61,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   3,
                   2,
                   5,
@@ -67,6 +70,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   1,
                   7,
                   9,
@@ -96,6 +100,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  21,
                   13,
                   18,
                   11,
@@ -104,6 +109,7 @@
                   21
                 ],
                 "opponent_allowed_lastN": [
+                  21,
                   7,
                   8,
                   12,
@@ -133,6 +139,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  14,
                   15,
                   12,
                   17,
@@ -141,6 +148,7 @@
                   16
                 ],
                 "opponent_allowed_lastN": [
+                  14,
                   17,
                   14,
                   14,
@@ -170,6 +178,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   3,
                   2,
                   2,
@@ -178,6 +187,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   1,
                   2,
                   5,
@@ -208,6 +218,7 @@
               "series_used": {
                 "offense_lastN": [
                   1,
+                  1,
                   6,
                   7,
                   4,
@@ -215,6 +226,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   5,
                   4,
                   6,
@@ -224,26 +236,27 @@
                 ]
               },
               "p80": {
-                "off": 3,
-                "opp": 4,
-                "min": 3,
-                "min_src": "Team-Offense",
-                "max": 4,
-                "max_src": "Opp-Allowed"
-              },
-              "p100": {
                 "off": 1,
                 "opp": 2,
                 "min": 1,
                 "min_src": "Team-Offense",
                 "max": 2,
                 "max_src": "Opp-Allowed"
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   11,
                   6,
                   15,
@@ -254,6 +267,7 @@
                 "opponent_allowed_lastN": [
                   5,
                   5,
+                  5,
                   6,
                   13,
                   7,
@@ -261,12 +275,12 @@
                 ]
               },
               "p80": {
-                "off": 6,
+                "off": 5,
                 "opp": 5,
                 "min": 5,
-                "min_src": "Opp-Allowed",
-                "max": 6,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
@@ -281,6 +295,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   4,
                   5,
                   1,
@@ -289,6 +304,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   1,
                   6,
                   3,
@@ -324,6 +340,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   9,
                   11,
                   13,
@@ -332,6 +349,7 @@
                   17
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   20,
                   16,
                   19,
@@ -341,19 +359,19 @@
                 ]
               },
               "p80": {
-                "off": 11,
-                "opp": 11,
-                "min": 11,
-                "min_src": "both",
-                "max": 11,
-                "max_src": "both"
-              },
-              "p100": {
                 "off": 9,
                 "opp": 9,
                 "min": 9,
                 "min_src": "both",
                 "max": 9,
+                "max_src": "both"
+              },
+              "p100": {
+                "off": 8,
+                "opp": 8,
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
                 "max_src": "both"
               }
             },
@@ -361,6 +379,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   5,
                   8,
                   7,
@@ -369,6 +388,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   3,
                   6,
                   10,
@@ -378,19 +398,19 @@
                 ]
               },
               "p80": {
-                "off": 4,
-                "opp": 6,
-                "min": 4,
-                "min_src": "Team-Offense",
-                "max": 6,
-                "max_src": "Opp-Allowed"
-              },
-              "p100": {
                 "off": 3,
                 "opp": 3,
                 "min": 3,
                 "min_src": "both",
                 "max": 3,
+                "max_src": "both"
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
                 "max_src": "both"
               }
             },
@@ -399,6 +419,7 @@
               "series_used": {
                 "offense_lastN": [
                   15,
+                  15,
                   14,
                   15,
                   12,
@@ -406,6 +427,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  15,
                   11,
                   17,
                   10,
@@ -436,6 +458,7 @@
               "series_used": {
                 "offense_lastN": [
                   21,
+                  21,
                   14,
                   24,
                   20,
@@ -443,6 +466,7 @@
                   15
                 ],
                 "opponent_allowed_lastN": [
+                  21,
                   13,
                   14,
                   12,
@@ -473,6 +497,7 @@
               "series_used": {
                 "offense_lastN": [
                   3,
+                  3,
                   1,
                   5,
                   1,
@@ -480,6 +505,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   3,
                   3,
@@ -509,6 +535,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   1,
                   1,
                   7,
@@ -517,6 +544,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   3,
                   2,
                   1,
@@ -546,6 +574,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   12,
                   7,
                   4,
@@ -554,6 +583,7 @@
                   6
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   7,
                   8,
                   7,
@@ -583,6 +613,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   4,
                   4,
                   4,
@@ -591,6 +622,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   4,
                   3,
                   5,
@@ -639,6 +671,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  31,
                   5,
                   11,
                   20,
@@ -647,6 +680,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  31,
                   13,
                   26,
                   10,
@@ -676,6 +710,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   1,
                   5,
                   8,
@@ -684,6 +719,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   3,
                   13,
                   5,
@@ -713,6 +749,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   12,
                   16,
                   10,
@@ -723,6 +760,7 @@
                 "opponent_allowed_lastN": [
                   9,
                   9,
+                  9,
                   7,
                   12,
                   10,
@@ -730,12 +768,12 @@
                 ]
               },
               "p80": {
-                "off": 10,
+                "off": 9,
                 "opp": 9,
                 "min": 9,
-                "min_src": "Opp-Allowed",
-                "max": 10,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 9,
+                "max_src": "both"
               },
               "p100": {
                 "off": 5,
@@ -750,6 +788,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   9,
                   21,
                   14,
@@ -758,6 +797,7 @@
                   12
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   16,
                   13,
                   17,
@@ -768,10 +808,10 @@
               },
               "p80": {
                 "off": 11,
-                "opp": 13,
+                "opp": 12,
                 "min": 11,
                 "min_src": "Team-Offense",
-                "max": 13,
+                "max": 12,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
@@ -790,11 +830,13 @@
                   1,
                   1,
                   1,
+                  1,
                   3,
                   5,
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   1,
                   2,
                   2,
@@ -824,6 +866,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   5,
                   1,
                   7,
@@ -832,6 +875,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   4,
                   3,
                   5,
@@ -842,11 +886,11 @@
               },
               "p80": {
                 "off": 2,
-                "opp": 3,
+                "opp": 2,
                 "min": 2,
-                "min_src": "Team-Offense",
-                "max": 3,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
@@ -861,6 +905,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   16,
                   6,
                   8,
@@ -869,6 +914,7 @@
                   11
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   3,
                   7,
                   10,
@@ -878,12 +924,12 @@
                 ]
               },
               "p80": {
-                "off": 8,
-                "opp": 7,
-                "min": 7,
-                "min_src": "Opp-Allowed",
-                "max": 8,
-                "max_src": "Team-Offense"
+                "off": 6,
+                "opp": 6,
+                "min": 6,
+                "min_src": "both",
+                "max": 6,
+                "max_src": "both"
               },
               "p100": {
                 "off": 6,
@@ -898,6 +944,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   1,
                   3,
                   12,
@@ -906,6 +953,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   0,
                   7,
                   0,
@@ -941,6 +989,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   15,
                   9,
                   12,
@@ -949,6 +998,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   18,
                   8,
                   22,
@@ -959,10 +1009,10 @@
               },
               "p80": {
                 "off": 10,
-                "opp": 15,
+                "opp": 11,
                 "min": 10,
                 "min_src": "Team-Offense",
-                "max": 15,
+                "max": 11,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
@@ -978,6 +1028,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   5,
                   3,
                   5,
@@ -986,6 +1037,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   6,
                   2,
                   9,
@@ -995,11 +1047,11 @@
                 ]
               },
               "p80": {
-                "off": 5,
-                "opp": 5,
-                "min": 5,
+                "off": 4,
+                "opp": 4,
+                "min": 4,
                 "min_src": "both",
-                "max": 5,
+                "max": 4,
                 "max_src": "both"
               },
               "p100": {
@@ -1015,6 +1067,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   8,
                   4,
                   13,
@@ -1023,6 +1076,7 @@
                   9
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   11,
                   20,
                   15,
@@ -1052,6 +1106,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  13,
                   22,
                   16,
                   14,
@@ -1060,6 +1115,7 @@
                   16
                 ],
                 "opponent_allowed_lastN": [
+                  13,
                   15,
                   12,
                   9,
@@ -1069,19 +1125,19 @@
                 ]
               },
               "p80": {
-                "off": 16,
-                "opp": 9,
-                "min": 9,
-                "min_src": "Opp-Allowed",
-                "max": 16,
-                "max_src": "Team-Offense"
-              },
-              "p100": {
                 "off": 14,
                 "opp": 9,
                 "min": 9,
                 "min_src": "Opp-Allowed",
                 "max": 14,
+                "max_src": "Team-Offense"
+              },
+              "p100": {
+                "off": 13,
+                "opp": 9,
+                "min": 9,
+                "min_src": "Opp-Allowed",
+                "max": 13,
                 "max_src": "Team-Offense"
               }
             },
@@ -1090,6 +1146,7 @@
               "series_used": {
                 "offense_lastN": [
                   3,
+                  3,
                   0,
                   5,
                   0,
@@ -1097,6 +1154,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   6,
                   5,
@@ -1126,6 +1184,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   3,
                   8,
                   3,
@@ -1134,6 +1193,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   1,
                   3,
                   6,
@@ -1163,6 +1223,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   12,
                   12,
                   7,
@@ -1171,6 +1232,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   6,
                   10,
                   9,
@@ -1200,6 +1262,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   4,
                   6,
                   2,
@@ -1208,6 +1271,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   1,
                   2,
                   1,
@@ -1256,6 +1320,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   10,
                   15,
                   13,
@@ -1264,6 +1329,7 @@
                   12
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   14,
                   11,
                   12,
@@ -1273,26 +1339,27 @@
                 ]
               },
               "p80": {
-                "off": 12,
-                "opp": 12,
-                "min": 12,
-                "min_src": "both",
-                "max": 12,
-                "max_src": "both"
-              },
-              "p100": {
                 "off": 10,
                 "opp": 11,
                 "min": 10,
                 "min_src": "Team-Offense",
                 "max": 11,
                 "max_src": "Opp-Allowed"
+              },
+              "p100": {
+                "off": 9,
+                "opp": 9,
+                "min": 9,
+                "min_src": "both",
+                "max": 9,
+                "max_src": "both"
               }
             },
             "shots_on_target": {
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   4,
                   7,
                   2,
@@ -1301,6 +1368,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   4,
                   5,
                   4,
@@ -1319,17 +1387,18 @@
               },
               "p100": {
                 "off": 2,
-                "opp": 4,
+                "opp": 2,
                 "min": 2,
-                "min_src": "Team-Offense",
-                "max": 4,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             },
             "fouls": {
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   6,
                   12,
                   8,
@@ -1338,6 +1407,7 @@
                   9
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   7,
                   16,
                   10,
@@ -1348,10 +1418,10 @@
               },
               "p80": {
                 "off": 8,
-                "opp": 10,
+                "opp": 9,
                 "min": 8,
                 "min_src": "Team-Offense",
-                "max": 10,
+                "max": 9,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
@@ -1367,6 +1437,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  17,
                   13,
                   9,
                   12,
@@ -1375,6 +1446,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  17,
                   24,
                   21,
                   12,
@@ -1404,6 +1476,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   1,
                   2,
                   1,
@@ -1412,6 +1485,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   1,
                   1,
                   3,
@@ -1441,6 +1515,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   4,
                   3,
                   5,
@@ -1449,6 +1524,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   2,
                   1,
                   4,
@@ -1478,6 +1554,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   14,
                   11,
                   7,
@@ -1486,6 +1563,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   7,
                   6,
                   7,
@@ -1495,19 +1573,19 @@
                 ]
               },
               "p80": {
-                "off": 9,
-                "opp": 5,
-                "min": 5,
+                "off": 7,
+                "opp": 4,
+                "min": 4,
                 "min_src": "Opp-Allowed",
-                "max": 9,
+                "max": 7,
                 "max_src": "Team-Offense"
               },
               "p100": {
-                "off": 7,
+                "off": 4,
                 "opp": 3,
                 "min": 3,
                 "min_src": "Opp-Allowed",
-                "max": 7,
+                "max": 4,
                 "max_src": "Team-Offense"
               }
             },
@@ -1515,6 +1593,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   6,
                   8,
                   5,
@@ -1523,6 +1602,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   5,
                   3,
                   6,
@@ -1559,6 +1639,7 @@
               "series_used": {
                 "offense_lastN": [
                   10,
+                  10,
                   8,
                   18,
                   10,
@@ -1566,6 +1647,7 @@
                   14
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   15,
                   15,
                   18,
@@ -1576,18 +1658,18 @@
               },
               "p80": {
                 "off": 10,
-                "opp": 14,
+                "opp": 12,
                 "min": 10,
                 "min_src": "Team-Offense",
-                "max": 14,
+                "max": 12,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 8,
-                "opp": 12,
+                "opp": 10,
                 "min": 8,
                 "min_src": "Team-Offense",
-                "max": 12,
+                "max": 10,
                 "max_src": "Opp-Allowed"
               }
             },
@@ -1595,6 +1677,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   5,
                   2,
                   5,
@@ -1603,6 +1686,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   4,
                   5,
                   8,
@@ -1632,6 +1716,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  17,
                   9,
                   20,
                   13,
@@ -1640,6 +1725,7 @@
                   18
                 ],
                 "opponent_allowed_lastN": [
+                  17,
                   15,
                   12,
                   10,
@@ -1669,6 +1755,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  15,
                   10,
                   12,
                   15,
@@ -1677,6 +1764,7 @@
                   15
                 ],
                 "opponent_allowed_lastN": [
+                  15,
                   16,
                   14,
                   12,
@@ -1707,6 +1795,7 @@
               "series_used": {
                 "offense_lastN": [
                   2,
+                  2,
                   6,
                   1,
                   4,
@@ -1714,6 +1803,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   3,
                   2,
                   1,
@@ -1743,6 +1833,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   3,
                   3,
                   0,
@@ -1751,6 +1842,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   3,
                   5,
                   0,
@@ -1760,12 +1852,12 @@
                 ]
               },
               "p80": {
-                "off": 3,
+                "off": 1,
                 "opp": 1,
                 "min": 1,
-                "min_src": "Opp-Allowed",
-                "max": 3,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
@@ -1780,6 +1872,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   13,
                   10,
                   6,
@@ -1788,6 +1881,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   8,
                   4,
                   5,
@@ -1817,6 +1911,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   10,
                   2,
                   6,
@@ -1825,6 +1920,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   11,
                   8,
                   9,
@@ -1835,18 +1931,18 @@
               },
               "p80": {
                 "off": 2,
-                "opp": 7,
+                "opp": 5,
                 "min": 2,
                 "min_src": "Team-Offense",
-                "max": 7,
+                "max": 5,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 1,
-                "opp": 5,
+                "opp": 2,
                 "min": 1,
                 "min_src": "Team-Offense",
-                "max": 5,
+                "max": 2,
                 "max_src": "Opp-Allowed"
               }
             }
@@ -1873,6 +1969,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   11,
                   8,
                   12,
@@ -1881,6 +1978,7 @@
                   19
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   10,
                   13,
                   13,
@@ -1911,6 +2009,7 @@
               "series_used": {
                 "offense_lastN": [
                   4,
+                  4,
                   2,
                   4,
                   2,
@@ -1918,6 +2017,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   3,
                   6,
                   7,
@@ -1947,6 +2047,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  19,
                   13,
                   12,
                   10,
@@ -1955,6 +2056,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  19,
                   13,
                   13,
                   15,
@@ -1985,6 +2087,7 @@
               "series_used": {
                 "offense_lastN": [
                   10,
+                  10,
                   17,
                   12,
                   14,
@@ -1992,6 +2095,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   15,
                   13,
                   24,
@@ -2010,17 +2114,18 @@
               },
               "p100": {
                 "off": 10,
-                "opp": 13,
+                "opp": 10,
                 "min": 10,
-                "min_src": "Team-Offense",
-                "max": 13,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               }
             },
             "cards_total": {
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   3,
                   3,
                   3,
@@ -2029,6 +2134,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   3,
                   3,
                   5,
@@ -2058,6 +2164,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   5,
                   2,
                   4,
@@ -2066,6 +2173,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   2,
                   7,
@@ -2095,6 +2203,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   6,
                   8,
                   7,
@@ -2103,6 +2212,7 @@
                   9
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   11,
                   2,
                   4,
@@ -2132,6 +2242,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   4,
                   7,
                   6,
@@ -2140,6 +2251,7 @@
                   8
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   4,
                   13,
                   4,
@@ -2149,19 +2261,19 @@
                 ]
               },
               "p80": {
-                "off": 4,
-                "opp": 4,
-                "min": 4,
-                "min_src": "both",
-                "max": 4,
-                "max_src": "both"
-              },
-              "p100": {
                 "off": 3,
                 "opp": 3,
                 "min": 3,
                 "min_src": "both",
                 "max": 3,
+                "max_src": "both"
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
                 "max_src": "both"
               }
             }
@@ -2176,6 +2288,7 @@
               "series_used": {
                 "offense_lastN": [
                   20,
+                  20,
                   5,
                   13,
                   18,
@@ -2183,6 +2296,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  20,
                   15,
                   10,
                   18,
@@ -2212,6 +2326,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   3,
                   4,
                   9,
@@ -2220,6 +2335,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   9,
                   4,
                   5,
@@ -2251,12 +2367,14 @@
                 "offense_lastN": [
                   11,
                   11,
+                  11,
                   12,
                   10,
                   10,
                   9
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   14,
                   14,
                   13,
@@ -2286,6 +2404,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  16,
                   13,
                   14,
                   14,
@@ -2294,6 +2413,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  16,
                   20,
                   8,
                   15,
@@ -2323,6 +2443,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   1,
                   5,
                   5,
@@ -2331,6 +2452,7 @@
                   0
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   2,
                   1,
                   1,
@@ -2360,6 +2482,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   3,
                   4,
                   6,
@@ -2368,6 +2491,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   4,
                   2,
                   0,
@@ -2377,11 +2501,11 @@
                 ]
               },
               "p80": {
-                "off": 2,
-                "opp": 2,
-                "min": 2,
+                "off": 1,
+                "opp": 1,
+                "min": 1,
                 "min_src": "both",
-                "max": 2,
+                "max": 1,
                 "max_src": "both"
               },
               "p100": {
@@ -2397,6 +2521,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   7,
                   9,
                   6,
@@ -2405,6 +2530,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   5,
                   6,
                   6,
@@ -2434,6 +2560,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   4,
                   1,
                   3,
@@ -2442,6 +2569,7 @@
                   6
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   5,
                   6,
@@ -2490,6 +2618,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   13,
                   20,
                   18,
@@ -2498,6 +2627,7 @@
                   12
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   11,
                   11,
                   20,
@@ -2507,26 +2637,27 @@
                 ]
               },
               "p80": {
-                "off": 13,
-                "opp": 11,
-                "min": 11,
-                "min_src": "Opp-Allowed",
-                "max": 13,
-                "max_src": "Team-Offense"
-              },
-              "p100": {
                 "off": 12,
                 "opp": 11,
                 "min": 11,
                 "min_src": "Opp-Allowed",
                 "max": 12,
                 "max_src": "Team-Offense"
+              },
+              "p100": {
+                "off": 10,
+                "opp": 10,
+                "min": 10,
+                "min_src": "both",
+                "max": 10,
+                "max_src": "both"
               }
             },
             "shots_on_target": {
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   3,
                   6,
                   8,
@@ -2535,6 +2666,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   4,
                   2,
                   8,
@@ -2564,6 +2696,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  13,
                   14,
                   9,
                   10,
@@ -2572,6 +2705,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  13,
                   13,
                   18,
                   10,
@@ -2601,6 +2735,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   29,
                   16,
                   12,
@@ -2609,6 +2744,7 @@
                   18
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   10,
                   12,
                   14,
@@ -2639,6 +2775,7 @@
               "series_used": {
                 "offense_lastN": [
                   3,
+                  3,
                   2,
                   1,
                   0,
@@ -2646,6 +2783,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   2,
                   1,
@@ -2676,6 +2814,7 @@
               "series_used": {
                 "offense_lastN": [
                   2,
+                  2,
                   4,
                   0,
                   2,
@@ -2683,6 +2822,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   5,
                   6,
                   7,
@@ -2712,6 +2852,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   9,
                   14,
                   5,
@@ -2720,6 +2861,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   6,
                   6,
                   8,
@@ -2749,6 +2891,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   7,
                   11,
                   9,
@@ -2757,6 +2900,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   4,
                   5,
                   12,
@@ -2766,19 +2910,19 @@
                 ]
               },
               "p80": {
-                "off": 5,
-                "opp": 5,
-                "min": 5,
-                "min_src": "both",
-                "max": 5,
-                "max_src": "both"
-              },
-              "p100": {
                 "off": 4,
                 "opp": 4,
                 "min": 4,
                 "min_src": "both",
                 "max": 4,
+                "max_src": "both"
+              },
+              "p100": {
+                "off": 3,
+                "opp": 3,
+                "min": 3,
+                "min_src": "both",
+                "max": 3,
                 "max_src": "both"
               }
             }
@@ -2793,6 +2937,7 @@
               "series_used": {
                 "offense_lastN": [
                   15,
+                  15,
                   16,
                   22,
                   9,
@@ -2800,6 +2945,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  15,
                   15,
                   22,
                   13,
@@ -2829,6 +2975,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   9,
                   6,
                   9,
@@ -2837,6 +2984,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   4,
                   2,
@@ -2866,6 +3014,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   14,
                   17,
                   15,
@@ -2874,6 +3023,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   13,
                   7,
                   8,
@@ -2883,11 +3033,11 @@
                 ]
               },
               "p80": {
-                "off": 13,
+                "off": 12,
                 "opp": 8,
                 "min": 8,
                 "min_src": "Opp-Allowed",
-                "max": 13,
+                "max": 12,
                 "max_src": "Team-Offense"
               },
               "p100": {
@@ -2903,6 +3053,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  18,
                   20,
                   14,
                   9,
@@ -2911,6 +3062,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  18,
                   15,
                   17,
                   12,
@@ -2940,6 +3092,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   2,
                   3,
                   5,
@@ -2949,6 +3102,7 @@
                 ],
                 "opponent_allowed_lastN": [
                   1,
+                  1,
                   2,
                   1,
                   1,
@@ -2957,12 +3111,12 @@
                 ]
               },
               "p80": {
-                "off": 2,
+                "off": 1,
                 "opp": 1,
                 "min": 1,
-                "min_src": "Opp-Allowed",
-                "max": 2,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
@@ -2977,6 +3131,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   4,
                   2,
                   6,
@@ -2986,6 +3141,7 @@
                 ],
                 "opponent_allowed_lastN": [
                   2,
+                  2,
                   5,
                   5,
                   2,
@@ -2994,12 +3150,12 @@
                 ]
               },
               "p80": {
-                "off": 4,
+                "off": 2,
                 "opp": 2,
                 "min": 2,
-                "min_src": "Opp-Allowed",
-                "max": 4,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
@@ -3014,6 +3170,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   5,
                   8,
                   9,
@@ -3022,6 +3179,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   6,
                   9,
                   7,
@@ -3051,6 +3209,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   1,
                   3,
                   1,
@@ -3059,6 +3218,7 @@
                   6
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   7,
                   6,
                   5,
@@ -3107,6 +3267,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   14,
                   22,
                   9,
@@ -3115,6 +3276,7 @@
                   15
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   5,
                   15,
                   9,
@@ -3144,6 +3306,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   4,
                   4,
                   0,
@@ -3152,6 +3315,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   7,
                   2,
@@ -3181,6 +3345,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   7,
                   7,
                   9,
@@ -3189,6 +3354,7 @@
                   12
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   12,
                   12,
                   15,
@@ -3218,6 +3384,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  13,
                   24,
                   17,
                   20,
@@ -3226,6 +3393,7 @@
                   11
                 ],
                 "opponent_allowed_lastN": [
+                  13,
                   9,
                   9,
                   15,
@@ -3256,6 +3424,7 @@
               "series_used": {
                 "offense_lastN": [
                   1,
+                  1,
                   2,
                   0,
                   2,
@@ -3263,6 +3432,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   1,
                   2,
                   2,
@@ -3292,6 +3462,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   2,
                   5,
                   3,
@@ -3300,6 +3471,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   5,
                   3,
                   6,
@@ -3329,6 +3501,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   7,
                   9,
                   11,
@@ -3337,6 +3510,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   16,
                   11,
                   5,
@@ -3366,6 +3540,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   5,
                   6,
                   3,
@@ -3374,6 +3549,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   8,
                   4,
@@ -3384,11 +3560,11 @@
               },
               "p80": {
                 "off": 3,
-                "opp": 4,
+                "opp": 3,
                 "min": 3,
-                "min_src": "Team-Offense",
-                "max": 4,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 3,
+                "max_src": "both"
               },
               "p100": {
                 "off": 3,
@@ -3409,6 +3585,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  15,
                   18,
                   15,
                   17,
@@ -3417,6 +3594,7 @@
                   21
                 ],
                 "opponent_allowed_lastN": [
+                  15,
                   10,
                   20,
                   12,
@@ -3446,6 +3624,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   6,
                   5,
                   8,
@@ -3454,6 +3633,7 @@
                   6
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   5,
                   6,
                   4,
@@ -3483,6 +3663,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   11,
                   12,
                   13,
@@ -3491,6 +3672,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   9,
                   9,
                   10,
@@ -3500,19 +3682,19 @@
                 ]
               },
               "p80": {
-                "off": 11,
+                "off": 8,
                 "opp": 9,
-                "min": 9,
-                "min_src": "Opp-Allowed",
-                "max": 11,
-                "max_src": "Team-Offense"
+                "min": 8,
+                "min_src": "Team-Offense",
+                "max": 9,
+                "max_src": "Opp-Allowed"
               },
               "p100": {
                 "off": 5,
-                "opp": 9,
+                "opp": 8,
                 "min": 5,
                 "min_src": "Team-Offense",
-                "max": 9,
+                "max": 8,
                 "max_src": "Opp-Allowed"
               }
             },
@@ -3520,6 +3702,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  16,
                   15,
                   14,
                   14,
@@ -3528,6 +3711,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  16,
                   10,
                   16,
                   9,
@@ -3558,6 +3742,7 @@
               "series_used": {
                 "offense_lastN": [
                   1,
+                  1,
                   2,
                   0,
                   1,
@@ -3565,6 +3750,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   2,
                   2,
                   1,
@@ -3575,11 +3761,11 @@
               },
               "p80": {
                 "off": 1,
-                "opp": 2,
+                "opp": 1,
                 "min": 1,
-                "min_src": "Team-Offense",
-                "max": 2,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 0,
@@ -3594,6 +3780,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   1,
                   5,
                   3,
@@ -3602,6 +3789,7 @@
                   0
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   4,
                   0,
@@ -3631,6 +3819,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   6,
                   4,
                   3,
@@ -3639,6 +3828,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   13,
                   14,
                   6,
@@ -3668,6 +3858,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   1,
                   8,
                   8,
@@ -3676,6 +3867,7 @@
                   11
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   10,
                   11,
                   9,
@@ -3724,6 +3916,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  15,
                   12,
                   26,
                   18,
@@ -3732,6 +3925,7 @@
                   19
                 ],
                 "opponent_allowed_lastN": [
+                  15,
                   13,
                   8,
                   9,
@@ -3741,11 +3935,11 @@
                 ]
               },
               "p80": {
-                "off": 18,
+                "off": 15,
                 "opp": 8,
                 "min": 8,
                 "min_src": "Opp-Allowed",
-                "max": 18,
+                "max": 15,
                 "max_src": "Team-Offense"
               },
               "p100": {
@@ -3761,6 +3955,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   3,
                   13,
                   10,
@@ -3769,6 +3964,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   3,
                   2,
                   0,
@@ -3778,11 +3974,11 @@
                 ]
               },
               "p80": {
-                "off": 10,
+                "off": 7,
                 "opp": 1,
                 "min": 1,
                 "min_src": "Opp-Allowed",
-                "max": 10,
+                "max": 7,
                 "max_src": "Team-Offense"
               },
               "p100": {
@@ -3798,6 +3994,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  12,
                   11,
                   9,
                   9,
@@ -3806,6 +4003,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   14,
                   12,
                   9,
@@ -3835,6 +4033,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  11,
                   10,
                   13,
                   17,
@@ -3843,6 +4042,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  11,
                   29,
                   17,
                   20,
@@ -3853,10 +4053,10 @@
               },
               "p80": {
                 "off": 10,
-                "opp": 12,
+                "opp": 11,
                 "min": 10,
                 "min_src": "Team-Offense",
-                "max": 12,
+                "max": 11,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
@@ -3872,6 +4072,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   2,
                   2,
                   2,
@@ -3880,6 +4081,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   3,
                   3,
                   0,
@@ -3897,11 +4099,11 @@
                 "max_src": "Team-Offense"
               },
               "p100": {
-                "off": 2,
+                "off": 1,
                 "opp": 0,
                 "min": 0,
                 "min_src": "Opp-Allowed",
-                "max": 2,
+                "max": 1,
                 "max_src": "Team-Offense"
               }
             },
@@ -3909,6 +4111,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  0,
                   1,
                   3,
                   3,
@@ -3917,6 +4120,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  0,
                   2,
                   2,
                   3,
@@ -3934,18 +4138,19 @@
                 "max_src": "Opp-Allowed"
               },
               "p100": {
-                "off": 1,
-                "opp": 2,
-                "min": 1,
-                "min_src": "Team-Offense",
-                "max": 2,
-                "max_src": "Opp-Allowed"
+                "off": 0,
+                "opp": 0,
+                "min": 0,
+                "min_src": "both",
+                "max": 0,
+                "max_src": "both"
               }
             },
             "goal_kicks": {
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   7,
                   7,
                   5,
@@ -3954,6 +4159,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   9,
                   8,
                   11,
@@ -3964,11 +4170,11 @@
               },
               "p80": {
                 "off": 5,
-                "opp": 8,
+                "opp": 5,
                 "min": 5,
-                "min_src": "Team-Offense",
-                "max": 8,
-                "max_src": "Opp-Allowed"
+                "min_src": "both",
+                "max": 5,
+                "max_src": "both"
               },
               "p100": {
                 "off": 5,
@@ -3983,6 +4189,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  4,
                   3,
                   7,
                   5,
@@ -3991,6 +4198,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  4,
                   7,
                   7,
                   3,
@@ -4000,11 +4208,11 @@
                 ]
               },
               "p80": {
-                "off": 5,
-                "opp": 5,
-                "min": 5,
+                "off": 4,
+                "opp": 4,
+                "min": 4,
                 "min_src": "both",
-                "max": 5,
+                "max": 4,
                 "max_src": "both"
               },
               "p100": {
@@ -4026,6 +4234,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   15,
                   10,
                   12,
@@ -4034,6 +4243,7 @@
                   8
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   6,
                   9,
                   13,
@@ -4043,12 +4253,12 @@
                 ]
               },
               "p80": {
-                "off": 10,
-                "opp": 9,
-                "min": 9,
-                "min_src": "Opp-Allowed",
-                "max": 10,
-                "max_src": "Team-Offense"
+                "off": 8,
+                "opp": 8,
+                "min": 8,
+                "min_src": "both",
+                "max": 8,
+                "max_src": "both"
               },
               "p100": {
                 "off": 8,
@@ -4063,6 +4273,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   3,
                   4,
                   4,
@@ -4072,6 +4283,7 @@
                 ],
                 "opponent_allowed_lastN": [
                   1,
+                  1,
                   3,
                   4,
                   2,
@@ -4080,26 +4292,27 @@
                 ]
               },
               "p80": {
-                "off": 4,
-                "opp": 1,
-                "min": 1,
-                "min_src": "Opp-Allowed",
-                "max": 4,
-                "max_src": "Team-Offense"
-              },
-              "p100": {
                 "off": 3,
                 "opp": 1,
                 "min": 1,
                 "min_src": "Opp-Allowed",
                 "max": 3,
                 "max_src": "Team-Offense"
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             },
             "fouls": {
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  17,
                   13,
                   14,
                   10,
@@ -4108,6 +4321,7 @@
                   12
                 ],
                 "opponent_allowed_lastN": [
+                  17,
                   11,
                   4,
                   17,
@@ -4137,6 +4351,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  18,
                   15,
                   8,
                   9,
@@ -4145,6 +4360,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  18,
                   21,
                   16,
                   26,
@@ -4174,6 +4390,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   1,
                   1,
                   1,
@@ -4182,6 +4399,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   0,
                   1,
@@ -4211,6 +4429,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   2,
                   2,
                   0,
@@ -4219,6 +4438,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   0,
                   8,
                   6,
@@ -4248,6 +4468,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   6,
                   6,
                   6,
@@ -4256,6 +4477,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   6,
                   12,
                   5,
@@ -4285,6 +4507,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   7,
                   5,
                   9,
@@ -4293,6 +4516,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   4,
                   6,
                   5,
@@ -4302,11 +4526,11 @@
                 ]
               },
               "p80": {
-                "off": 4,
-                "opp": 4,
-                "min": 4,
+                "off": 3,
+                "opp": 3,
+                "min": 3,
                 "min_src": "both",
-                "max": 4,
+                "max": 3,
                 "max_src": "both"
               },
               "p100": {
@@ -4342,6 +4566,7 @@
               "series_used": {
                 "offense_lastN": [
                   12,
+                  12,
                   6,
                   10,
                   14,
@@ -4349,6 +4574,7 @@
                   16
                 ],
                 "opponent_allowed_lastN": [
+                  12,
                   12,
                   11,
                   11,
@@ -4378,6 +4604,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   1,
                   1,
                   5,
@@ -4386,6 +4613,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   3,
                   8,
                   5,
@@ -4415,6 +4643,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   7,
                   9,
                   7,
@@ -4423,6 +4652,7 @@
                   14
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   11,
                   14,
                   11,
@@ -4433,25 +4663,26 @@
               },
               "p80": {
                 "off": 7,
-                "opp": 10,
-                "min": 7,
-                "min_src": "Team-Offense",
-                "max": 10,
-                "max_src": "Opp-Allowed"
-              },
-              "p100": {
-                "off": 7,
                 "opp": 9,
                 "min": 7,
                 "min_src": "Team-Offense",
                 "max": 9,
                 "max_src": "Opp-Allowed"
+              },
+              "p100": {
+                "off": 6,
+                "opp": 6,
+                "min": 6,
+                "min_src": "both",
+                "max": 6,
+                "max_src": "both"
               }
             },
             "tackles": {
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  16,
                   17,
                   13,
                   17,
@@ -4460,6 +4691,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  16,
                   10,
                   14,
                   17,
@@ -4489,6 +4721,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   1,
                   2,
                   2,
@@ -4497,6 +4730,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   2,
                   1,
                   2,
@@ -4526,6 +4760,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   5,
                   3,
                   5,
@@ -4536,6 +4771,7 @@
                 "opponent_allowed_lastN": [
                   1,
                   1,
+                  1,
                   7,
                   1,
                   3,
@@ -4543,12 +4779,12 @@
                 ]
               },
               "p80": {
-                "off": 2,
+                "off": 1,
                 "opp": 1,
                 "min": 1,
-                "min_src": "Opp-Allowed",
-                "max": 2,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               },
               "p100": {
                 "off": 1,
@@ -4563,6 +4799,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   5,
                   5,
                   10,
@@ -4571,6 +4808,7 @@
                   3
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   7,
                   7,
                   15,
@@ -4580,26 +4818,27 @@
                 ]
               },
               "p80": {
-                "off": 5,
-                "opp": 7,
-                "min": 5,
-                "min_src": "Team-Offense",
-                "max": 7,
-                "max_src": "Opp-Allowed"
-              },
-              "p100": {
                 "off": 3,
                 "opp": 6,
                 "min": 3,
                 "min_src": "Team-Offense",
                 "max": 6,
                 "max_src": "Opp-Allowed"
+              },
+              "p100": {
+                "off": 2,
+                "opp": 2,
+                "min": 2,
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               }
             },
             "corners": {
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   1,
                   6,
                   0,
@@ -4608,6 +4847,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   4,
                   1,
@@ -4643,6 +4883,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   6,
                   21,
                   19,
@@ -4651,6 +4892,7 @@
                   18
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   9,
                   15,
                   12,
@@ -4660,11 +4902,11 @@
                 ]
               },
               "p80": {
-                "off": 9,
-                "opp": 9,
-                "min": 9,
+                "off": 8,
+                "opp": 8,
+                "min": 8,
                 "min_src": "both",
-                "max": 9,
+                "max": 8,
                 "max_src": "both"
               },
               "p100": {
@@ -4680,6 +4922,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   1,
                   7,
                   10,
@@ -4688,6 +4931,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   5,
                   4,
                   5,
@@ -4698,10 +4942,10 @@
               },
               "p80": {
                 "off": 2,
-                "opp": 4,
+                "opp": 3,
                 "min": 2,
                 "min_src": "Team-Offense",
-                "max": 4,
+                "max": 3,
                 "max_src": "Opp-Allowed"
               },
               "p100": {
@@ -4717,6 +4961,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  13,
                   11,
                   8,
                   10,
@@ -4725,6 +4970,7 @@
                   9
                 ],
                 "opponent_allowed_lastN": [
+                  13,
                   15,
                   15,
                   13,
@@ -4754,6 +5000,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  25,
                   21,
                   14,
                   12,
@@ -4762,6 +5009,7 @@
                   21
                 ],
                 "opponent_allowed_lastN": [
+                  25,
                   21,
                   11,
                   14,
@@ -4791,6 +5039,7 @@
               "label": "Cards",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   1,
                   2,
                   3,
@@ -4799,6 +5048,7 @@
                   1
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   1,
                   5,
@@ -4828,6 +5078,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   0,
                   4,
                   1,
@@ -4836,6 +5087,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   1,
                   0,
                   3,
@@ -4865,6 +5117,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   6,
                   5,
                   7,
@@ -4873,6 +5126,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   12,
                   7,
                   7,
@@ -4902,6 +5156,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  1,
                   4,
                   6,
                   5,
@@ -4910,6 +5165,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   4,
                   8,
                   2,
@@ -4919,20 +5175,20 @@
                 ]
               },
               "p80": {
-                "off": 5,
-                "opp": 2,
-                "min": 2,
-                "min_src": "Opp-Allowed",
-                "max": 5,
-                "max_src": "Team-Offense"
-              },
-              "p100": {
                 "off": 4,
                 "opp": 1,
                 "min": 1,
                 "min_src": "Opp-Allowed",
                 "max": 4,
                 "max_src": "Team-Offense"
+              },
+              "p100": {
+                "off": 1,
+                "opp": 1,
+                "min": 1,
+                "min_src": "both",
+                "max": 1,
+                "max_src": "both"
               }
             }
           }
@@ -4958,6 +5214,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   13,
                   13,
                   9,
@@ -4967,6 +5224,7 @@
                 ],
                 "opponent_allowed_lastN": [
                   10,
+                  10,
                   6,
                   18,
                   20,
@@ -4975,11 +5233,11 @@
                 ]
               },
               "p80": {
-                "off": 11,
+                "off": 10,
                 "opp": 7,
                 "min": 7,
                 "min_src": "Opp-Allowed",
-                "max": 11,
+                "max": 10,
                 "max_src": "Team-Offense"
               },
               "p100": {
@@ -4995,6 +5253,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   3,
                   6,
                   2,
@@ -5003,6 +5262,7 @@
                   7
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   4,
                   1,
                   10,
@@ -5012,12 +5272,12 @@
                 ]
               },
               "p80": {
-                "off": 3,
+                "off": 2,
                 "opp": 2,
                 "min": 2,
-                "min_src": "Opp-Allowed",
-                "max": 3,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 2,
+                "max_src": "both"
               },
               "p100": {
                 "off": 2,
@@ -5032,6 +5292,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  10,
                   9,
                   13,
                   15,
@@ -5040,6 +5301,7 @@
                   13
                 ],
                 "opponent_allowed_lastN": [
+                  10,
                   6,
                   9,
                   9,
@@ -5069,6 +5331,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  20,
                   16,
                   13,
                   15,
@@ -5077,6 +5340,7 @@
                   20
                 ],
                 "opponent_allowed_lastN": [
+                  20,
                   13,
                   13,
                   17,
@@ -5107,6 +5371,7 @@
               "series_used": {
                 "offense_lastN": [
                   1,
+                  1,
                   3,
                   2,
                   1,
@@ -5114,6 +5379,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  1,
                   1,
                   2,
                   2,
@@ -5143,6 +5409,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  3,
                   4,
                   2,
                   6,
@@ -5151,6 +5418,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   4,
                   3,
                   3,
@@ -5180,6 +5448,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  8,
                   3,
                   2,
                   5,
@@ -5188,6 +5457,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  8,
                   14,
                   5,
                   5,
@@ -5217,6 +5487,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  9,
                   0,
                   13,
                   4,
@@ -5225,6 +5496,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  9,
                   6,
                   6,
                   5,
@@ -5260,6 +5532,7 @@
               "label": "Shots",
               "series_used": {
                 "offense_lastN": [
+                  14,
                   15,
                   15,
                   13,
@@ -5268,6 +5541,7 @@
                   10
                 ],
                 "opponent_allowed_lastN": [
+                  14,
                   15,
                   5,
                   17,
@@ -5297,6 +5571,7 @@
               "label": "SOT",
               "series_used": {
                 "offense_lastN": [
+                  5,
                   4,
                   4,
                   4,
@@ -5305,6 +5580,7 @@
                   5
                 ],
                 "opponent_allowed_lastN": [
+                  5,
                   5,
                   4,
                   8,
@@ -5334,6 +5610,7 @@
               "label": "Fouls",
               "series_used": {
                 "offense_lastN": [
+                  17,
                   15,
                   15,
                   17,
@@ -5342,6 +5619,7 @@
                   17
                 ],
                 "opponent_allowed_lastN": [
+                  17,
                   8,
                   11,
                   13,
@@ -5371,6 +5649,7 @@
               "label": "Tackles",
               "series_used": {
                 "offense_lastN": [
+                  14,
                   16,
                   11,
                   26,
@@ -5379,6 +5658,7 @@
                   15
                 ],
                 "opponent_allowed_lastN": [
+                  14,
                   22,
                   14,
                   14,
@@ -5388,12 +5668,12 @@
                 ]
               },
               "p80": {
-                "off": 15,
+                "off": 14,
                 "opp": 14,
                 "min": 14,
-                "min_src": "Opp-Allowed",
-                "max": 15,
-                "max_src": "Team-Offense"
+                "min_src": "both",
+                "max": 14,
+                "max_src": "both"
               },
               "p100": {
                 "off": 11,
@@ -5409,6 +5689,7 @@
               "series_used": {
                 "offense_lastN": [
                   3,
+                  3,
                   1,
                   1,
                   1,
@@ -5416,6 +5697,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  3,
                   3,
                   5,
                   0,
@@ -5445,6 +5727,7 @@
               "label": "Saves",
               "series_used": {
                 "offense_lastN": [
+                  2,
                   3,
                   0,
                   6,
@@ -5453,6 +5736,7 @@
                   2
                 ],
                 "opponent_allowed_lastN": [
+                  2,
                   3,
                   4,
                   3,
@@ -5471,10 +5755,10 @@
               },
               "p100": {
                 "off": 0,
-                "opp": 3,
+                "opp": 2,
                 "min": 0,
                 "min_src": "Team-Offense",
-                "max": 3,
+                "max": 2,
                 "max_src": "Opp-Allowed"
               }
             },
@@ -5482,6 +5766,7 @@
               "label": "GoalKicks",
               "series_used": {
                 "offense_lastN": [
+                  6,
                   8,
                   7,
                   5,
@@ -5490,6 +5775,7 @@
                   6
                 ],
                 "opponent_allowed_lastN": [
+                  6,
                   12,
                   9,
                   3,
@@ -5519,6 +5805,7 @@
               "label": "Corners",
               "series_used": {
                 "offense_lastN": [
+                  7,
                   11,
                   8,
                   5,
@@ -5527,6 +5814,7 @@
                   4
                 ],
                 "opponent_allowed_lastN": [
+                  7,
                   4,
                   1,
                   8,
