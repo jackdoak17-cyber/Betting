@@ -6,20 +6,18 @@ Predict lineups for ALL leagues/fixtures previously fetched, then write:
   - data/predicted_xi/by_league/{league_id}.json
   - data/predicted_xi/combined.json
   - data/predicted_xi/summary.txt
-  - data/predicted_xi/summary_verbose.txt  (human-check: now prints LB/RB/CB etc.)
+  - data/predicted_xi/summary_verbose.txt  (human-check: prints LB/RB/CB etc.)
 
-Key change:
-- We now request **lineups.detailedPosition** from Sportmonks and map it to
-  role codes (LB, RB, CB, LWB, RWB, DM, CM, AM, LW, RW, ST, GK).
-- If detailed position isn’t available for a player, we fall back to GK/DEF/MID/FWD.
+Key improvements in this version:
+- Safe handling for odd lineup rows (missing player_id / player_name).
+- More explicit HTTP diagnostics and gentler pacing/retries for Sportmonks calls.
+- Keeps the detailed role mapping (LB/RB/CB/DM/CM/AM/LW/RW/ST/GK) using
+  lineups.detailedPosition / lineups.position, with sensible fallbacks.
 
-Assumptions:
-- No official matchday XI; copy starters from each team’s previous **league** match
-  with a recorded XI (bounded 45 days back). Players flagged sidelined remain in
-  the XI but are annotated OUT.
-
-Env:
-  SPORTMONKS_TOKEN
+Environment:
+  SPORTMONKS_TOKEN           (required)
+  LINEUP_TYPE_STARTER        (optional; default 11)
+  MAX_FALLBACK_DAYS          (optional; default 45)
 """
 
 import os
@@ -36,17 +34,17 @@ API_TOKEN = os.getenv("SPORTMONKS_TOKEN")
 if not API_TOKEN:
     raise SystemExit("ERROR: SPORTMONKS_TOKEN is not set.")
 
-# Light throttling / retries
+# Light throttling / retries (slightly gentler + clearer logs)
 TIMEOUT = 25
-RETRIES = 3
-BACKOFF = 1.6
-GLOBAL_MIN_DELAY = 0.18      # min spacing between GETs
-BATCH_SIZE = 3               # fixtures per tiny batch (smooth usage)
-SLEEP_BETWEEN_BATCHES = 1.2  # pause between batches
+RETRIES = 5
+BACKOFF = 1.8
+GLOBAL_MIN_DELAY = 0.30    # min spacing between GETs (seconds)
+BATCH_SIZE = 3             # fixtures per tiny batch (smooth usage)
+SLEEP_BETWEEN_BATCHES = 1.2
 
-# Limits
-LINEUP_TYPE_STARTER = 11
-MAX_FALLBACK_DAYS = 45
+# Limits (overridable via env)
+LINEUP_TYPE_STARTER = int(os.getenv("LINEUP_TYPE_STARTER", "11"))
+MAX_FALLBACK_DAYS = int(os.getenv("MAX_FALLBACK_DAYS", "45"))
 
 # For logs only
 LEAGUE_NAMES = {
@@ -90,10 +88,13 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
         try:
             r = requests.get(url, params=params, timeout=TIMEOUT)
             if r.status_code == 429:
-                sleep = min(60, (BACKOFF ** i) * 2.0)
+                sleep = min(90, (BACKOFF ** i) * 2.5)
                 print(f"[429] {path} — sleeping {sleep:.1f}s")
                 time.sleep(sleep)
                 continue
+            if not r.ok:
+                body = (r.text or "")[:300].replace("\n", " ")
+                print(f"[HTTP {r.status_code}] GET {path} :: {body}")
             r.raise_for_status()
             j = r.json()
             _MEMO[k] = j
@@ -102,9 +103,10 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
             last_exc = e
             if i < RETRIES:
                 sleep = BACKOFF ** i
-                print(f"[RETRY] {path} (attempt {i}) sleeping {sleep:.1f}s")
+                print(f"[RETRY] {path} (attempt {i}) sleeping {sleep:.1f}s :: {e}")
                 time.sleep(sleep)
             else:
+                print(f"[FATAL] {path} failed after {RETRIES} tries :: {e}")
                 raise
     raise last_exc  # pragma: no cover
 
@@ -125,6 +127,12 @@ def pick_home_away(participants: List[dict]):
 
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
+def safe_int(x):
+    try:
+        return int(str(x))
+    except (TypeError, ValueError):
+        return None
 
 # ---------------- Load fixtures from repo ----------------
 def _load_json(path: str) -> Optional[dict]:
@@ -168,7 +176,7 @@ def load_all_fixtures() -> List[dict]:
 
 # ---------------- Sportmonks helpers ----------------
 def fixtures_on_date(date_s: str, leagues: Optional[set] = None) -> List[dict]:
-    # NOW includes detailedPosition and position so we can read roles
+    # Include detailedPosition and position so we can read roles
     j = api_get(f"fixtures/date/{date_s}", {
         "include": "participants;lineups;lineups.player;lineups.position;lineups.detailedPosition;league;state"
     })
@@ -182,6 +190,7 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
     Fast path via team.latest (with lineups + detailedPosition).
     Bounded fallback: scan last MAX_FALLBACK_DAYS for a same-league fixture with starters.
     """
+    # Try team.latest first
     try:
         j = api_get(f"teams/{team_id}", {
             "include": "latest.league;latest.lineups;latest.lineups.player;latest.lineups.position;latest.lineups.detailedPosition"
@@ -192,12 +201,16 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
         lst.sort(key=lambda x: x.get("starting_at") or "", reverse=True)
         for fx in lst:
             li = fx.get("lineups") or []
-            starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+            # Prefer explicit starters; if none, fall back to rows with a formation_position
+            starters = [l for l in li if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
+            if not starters:
+                starters = [l for l in li if l.get("team_id") == team_id and str(l.get("formation_position") or "").strip()]
             if starters:
                 return fx
     except Exception:
         pass
 
+    # Fallback: walk back dates
     start = today_utc()
     for back in range(1, MAX_FALLBACK_DAYS + 1):
         day = dstr(start - dt.timedelta(days=back))
@@ -206,40 +219,24 @@ def last_league_fixture_with_starters(team_id: int, league_id: int) -> Optional[
         except Exception:
             continue
         for fx in day_fixtures:
-            if any(p.get("id") == team_id for p in (fx.get("participants") or [])):
+            if any(safe_int(p.get("id")) == team_id for p in (fx.get("participants") or [])):
                 li = fx.get("lineups") or []
-                starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+                starters = [l for l in li if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
+                if not starters:
+                    starters = [l for l in li if l.get("team_id") == team_id and str(l.get("formation_position") or "").strip()]
                 if starters:
                     return fx
     return None
 
 def extract_starters(fx: dict, team_id: int) -> List[dict]:
     li = fx.get("lineups") or []
-    starters = [l for l in li if l.get("type_id") == LINEUP_TYPE_STARTER and l.get("team_id") == team_id]
+    # Prefer explicit starters by type id
+    starters = [l for l in li if l.get("team_id") == team_id and l.get("type_id") == LINEUP_TYPE_STARTER]
+    # Fallback: rows with defined formation positions (often 11)
+    if not starters:
+        starters = [l for l in li if l.get("team_id") == team_id and str(l.get("formation_position") or "").strip()]
     starters.sort(key=lambda x: x.get("formation_position") or 9999)
     return starters[:11]
-
-def sidelined_map(team_id: int) -> Dict[int, str]:
-    """
-    player_id -> reason string; best-effort (returns {} on any issue).
-    """
-    try:
-        j = api_get(f"teams/{team_id}", {"include": "sidelined.player;sidelined.type"})
-        data = j.get("data", {}) or {}
-        rows = data.get("sidelined") or []
-        out: Dict[int, str] = {}
-        for r in rows:
-            pid = r.get("player_id") or (r.get("player") or {}).get("id")
-            if not pid:
-                continue
-            t = (r.get("type") or {}).get("name") or (r.get("type") or {}).get("code") or "sidelined"
-            try:
-                out[int(pid)] = str(t)
-            except Exception:
-                continue
-        return out
-    except Exception:
-        return {}
 
 # ---- role mapping (LB/RB/CB/etc.) ----
 def _abbr_from_name_or_code(name: Optional[str], code: Optional[str]) -> Optional[str]:
@@ -251,7 +248,7 @@ def _abbr_from_name_or_code(name: Optional[str], code: Optional[str]) -> Optiona
     if "left back" in s or "lb" in s: return "LB"
     if "right back" in s or "rb" in s: return "RB"
     if "center back" in s or "centre back" in s or "cb" in s: return "CB"
-    if "full back" in s:  # generic
+    if "full back" in s:
         if "left" in s: return "LB"
         if "right" in s: return "RB"
         return "FB"
@@ -349,17 +346,23 @@ def main():
         if aid not in sidelined_cache:
             sidelined_cache[aid] = sidelined_map(aid)
 
-        def pack(lp: dict, sidemap: Dict[int, str]) -> dict:
-            pid = int(lp.get("player_id"))
+        def pack(lp: dict, sidemap: Dict[int, str]) -> Optional[dict]:
+            pid = safe_int(lp.get("player_id")) or safe_int((lp.get("player") or {}).get("id"))
+            if pid is None:
+                return None  # skip malformed row silently
+
             status = "OK"
             if pid in sidemap:
                 status = f"OUT: {sidemap[pid]}"
 
             role_abbrev, role_name = role_from_lineup(lp)
+            name = (lp.get("player_name") or (lp.get("player") or {}).get("name") or "").strip()
+            if not name:
+                name = f"Player {pid}"
 
             return {
                 "player_id": pid,
-                "name": (lp.get("player_name") or "").strip(),
+                "name": name,
                 "jersey": lp.get("jersey_number"),
                 "position_id": lp.get("position_id"),
                 "position_label": pos_id_to_label(lp.get("position_id")),
@@ -370,8 +373,8 @@ def main():
                 "status": status,
             }
 
-        home_xi = [pack(p, sidelined_cache[hid]) for p in xi_cache[key_h]]
-        away_xi = [pack(p, sidelined_cache[aid]) for p in xi_cache[key_a]]
+        home_xi = [row for row in (pack(p, sidelined_cache[hid]) for p in xi_cache[key_h]) if row]
+        away_xi = [row for row in (pack(p, sidelined_cache[aid]) for p in xi_cache[key_a]) if row]
 
         item = {
             "fixture_id": fid,
@@ -424,7 +427,7 @@ def main():
         for lid in sorted(by_league_counts):
             f.write(f"  - {lid} ({LEAGUE_NAMES.get(lid, lid)}): {by_league_counts[lid]}\n")
 
-    # verbose (now prints role if available)
+    # verbose (prints role if available)
     lines: List[str] = []
     lines.append(f"Time (UTC): {now_iso}")
     lines.append(f"Fixtures   : {processed}")
@@ -463,6 +466,26 @@ def main():
     print("  • data/predicted_xi/combined.json")
     print("  • data/predicted_xi/summary.txt")
     print("  • data/predicted_xi/summary_verbose.txt")
+
+# ---------------- Sidelined map (kept last for clarity) ----------------
+def sidelined_map(team_id: int) -> Dict[int, str]:
+    """
+    player_id -> reason string; best-effort (returns {} on any issue).
+    """
+    try:
+        j = api_get(f"teams/{team_id}", {"include": "sidelined.player;sidelined.type"})
+        data = j.get("data", {}) or {}
+        rows = data.get("sidelined") or []
+        out: Dict[int, str] = {}
+        for r in rows:
+            pid = safe_int(r.get("player_id")) or safe_int((r.get("player") or {}).get("id"))
+            if not pid:
+                continue
+            t = (r.get("type") or {}).get("name") or (r.get("type") or {}).get("code") or "sidelined"
+            out[pid] = str(t)
+        return out
+    except Exception:
+        return {}
 
 if __name__ == "__main__":
     try:
