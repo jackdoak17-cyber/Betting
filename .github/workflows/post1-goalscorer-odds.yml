@@ -2,7 +2,7 @@ name: Post 1 - Goal scorer odds
 
 on:
   schedule:
-    - cron: "15 9 * * 5"  # Fridays 09:15 UTC (tweak if you want another cadence)
+    - cron: "15 9 * * 5"  # Fridays at 09:15 UTC
   workflow_dispatch: {}
 
 permissions:
@@ -17,16 +17,18 @@ jobs:
       cancel-in-progress: false
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      # Configure leagues & options here:
-      LEAGUE_IDS: "8"        # e.g. 8=Premier League; add more like "8,82,384"
+      # Big 5 league IDs (adjust if your IDs differ)
+      LEAGUE_IDS: "8,564,384,82,301"   # EPL, LaLiga, Serie A, Bundesliga, Ligue 1
       TOP_N: "10"
-      BOOKMAKER_IDS: ""      # e.g. "2" for Bet365; leave blank to use all
-      MARKET_IDS: ""         # set Anytime market id(s) if known; else leave blank
-      ODDS_FALLBACK_ALL: "1" # scan market names for “Anytime” if MARKET_IDS unset
+      BOOKMAKER_IDS: ""                # e.g. "2" for Bet365; leave blank to scan all
+      MARKET_IDS: ""                   # set Anytime market id(s) if known; else leave blank
+      ODDS_FALLBACK_ALL: "1"           # scan market names if MARKET_IDS unset
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,7 +40,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Build "Boot & Book" post
+      - name: Build post (Top scorers × Anytime odds)
         run: |
           python scripts/posts/top_scorers_anytime.py
 
@@ -46,10 +48,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/social/top_scorers_anytime_*.md
-          if git diff --cached --quiet; then
-            echo "No new post to commit."
+          if ls reports/social/top_scorers_anytime_*.md 1> /dev/null 2>&1; then
+            git add reports/social/top_scorers_anytime_*.md
+            if git diff --cached --quiet; then
+              echo "No new post to commit."
+            else
+              git commit -m "feat(social): Post 1 - Goal scorer odds $(date -u +'%Y-%m-%d')"
+              git push
+            fi
           else
-            git commit -m "feat(social): Post 1 - Goal scorer odds $(date -u +'%Y-%m-%d')"
-            git push
+            echo "No post file generated; skipping commit."
           fi
