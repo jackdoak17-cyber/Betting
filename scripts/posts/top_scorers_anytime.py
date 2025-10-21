@@ -14,8 +14,9 @@ For each league (defaults to the Big 5: EPL, LaLiga, Serie A, Bundesliga, Ligue 
 3) Finds each player’s NEXT fixture from the fixtures file.
 4) Pulls odds for that fixture with include=odds and extracts an "Anytime Goalscorer" price
    for the player (by market name matching, unless you set MARKET_IDS).
-5) Writes a markdown table per league to:
-     reports/social/top_scorers_anytime_YYYYMMDD.md
+5) Writes:
+   - Markdown table per league to: reports/social/top_scorers_anytime_YYYYMMDD.md
+   - Plain text post to:          data/social_media_posts/top_scorers_anytime_YYYYMMDD.txt
 
 Env vars (optional)
 -------------------
@@ -25,12 +26,6 @@ TOP_N              : number of scorers to list (default "10")
 BOOKMAKER_IDS      : e.g. "2" for Bet365; comma-separated (optional)
 MARKET_IDS         : Anytime market id(s), comma-separated (optional)
 ODDS_FALLBACK_ALL  : "1" to scan market names for Anytime when MARKET_IDS unset (default "1")
-
-Notes
------
-- Uses only local fixtures to determine season and next fixtures; no dependency on predicted_xi.
-- Robust to 404 on season topscorers by falling back to stage topscorers.
-- Odds extraction is lenient on market naming if MARKET_IDS is not provided.
 """
 
 import os
@@ -123,8 +118,10 @@ def api_get_or_404(path: str, params: Optional[dict] = None) -> dict:
 
 # ---------- IO ----------
 FIX_DIR = Path("data/fixtures/by_league")
-OUT_DIR = Path("reports/social")
-OUT_DIR.mkdir(parents=True, exist_ok=True)
+OUT_MD_DIR = Path("reports/social")
+OUT_TXT_DIR = Path("data/social_media_posts")
+OUT_MD_DIR.mkdir(parents=True, exist_ok=True)
+OUT_TXT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Optional nice names (used when fixtures blob lacks league_name)
 BIG5_LABELS = {
@@ -139,7 +136,7 @@ BIG5_LABELS = {
 def _parse_ko(s: Any) -> Optional[dt.datetime]:
     if s is None:
         return None
-    if isinstance(s, (int, float)):  # starting_at_timestamp
+    if isinstance(s, (int, float)):  # starting_at_timestamp (if present)
         try:
             return dt.datetime.utcfromtimestamp(int(s))
         except Exception:
@@ -244,7 +241,6 @@ def _parse_topscorer_rows(payload: dict) -> List[dict]:
       [{player_id, player_name, team_id, team_name, goals, type_id}]
     """
     data = payload.get("data") or {}
-    # Some responses put rows under data.topscorers / goalscorers; others under data[]
     rows = data.get("topscorers") or data.get("goalscorers") or data.get("data") or []
     out: List[dict] = []
     for t in rows:
@@ -264,14 +260,17 @@ def _parse_topscorer_rows(payload: dict) -> List[dict]:
     return out
 
 def fetch_topscorers_goal_topN(season_id: int, fixtures_blob: dict, top_n: int) -> List[dict]:
-    """Return Top N goal scorers (type_id == 208). Tries Season endpoint, falls back to Stage."""
-    # Season endpoint first
+    """Return Top N goal scorers (type_id == 208). Tries Season (with filter) then Stage."""
     try:
         j = api_get_or_404(
             f"topscorers/seasons/{season_id}",
-            params={"include": "player;team;type", "per_page": max(25, top_n)}
+            params={
+                "include": "player;team;type",
+                "per_page": max(25, top_n),
+                "filters": "seasonTopscorerTypes:208",  # explicit Goals filter
+            },
         )
-        rows = [r for r in _parse_topscorer_rows(j) if r.get("type_id") == 208]
+        rows = _parse_topscorer_rows(j)
         if rows:
             return rows[:top_n]
     except NotFound:
@@ -285,9 +284,13 @@ def fetch_topscorers_goal_topN(season_id: int, fixtures_blob: dict, top_n: int) 
         try:
             j = api_get_or_404(
                 f"topscorers/stages/{stage_id}",
-                params={"include": "player;team;type", "per_page": max(25, top_n)}
+                params={
+                    "include": "player;team;type",
+                    "per_page": max(25, top_n),
+                    "filters": "stageTopscorerTypes:208",  # goals on stage
+                },
             )
-            rows = [r for r in _parse_topscorer_rows(j) if r.get("type_id") == 208]
+            rows = _parse_topscorer_rows(j)
             if rows:
                 return rows[:top_n]
         except Exception as e:
@@ -387,61 +390,89 @@ def league_label(league_id: int, fixtures_blob: dict) -> str:
         return nm.strip()
     return BIG5_LABELS.get(league_id, f"League {league_id}")
 
+def render_markdown(leagues_blocks: List[str]) -> str:
+    return "\n".join(["## Boot & Book — Top Scorers × Anytime Odds", ""] + leagues_blocks) + "\n"
+
+def render_text(leagues_blocks: List[str]) -> str:
+    # Convert the markdown-style tables into a clean text post
+    lines = ["Boot & Book — Top Scorers × Anytime Odds", ""]
+    for block in leagues_blocks:
+        # keep headings, transform table lines
+        for ln in block.splitlines():
+            if ln.startswith("|---"):
+                continue
+            if ln.startswith("|"):
+                cols = [c.strip() for c in ln.strip("|").split("|")]
+                if len(cols) >= 7:
+                    lines.append(f"{cols[0]}. {cols[1]} — {cols[2]} — Goals: {cols[3]} — Anytime: {cols[4]} — {cols[5]} — KO {cols[6]}")
+            else:
+                lines.append(ln)
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
 def main():
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
-    lines: List[str] = []
-    lines.append("## Boot & Book — Top Scorers × Anytime Odds")
-    lines.append("")
+    leagues_blocks_md: List[str] = []
 
     for league_id in LEAGUE_IDS:
         blob = load_fixtures_blob(league_id)
         label = league_label(league_id, blob) if blob else BIG5_LABELS.get(league_id, f"League {league_id}")
 
         if not blob or not (blob.get("fixtures")):
-            lines += [f"### {label} (LID {league_id})", "_No fixtures file found or empty_; skipped.", ""]
+            block = "\n".join([
+                f"### {label} (LID {league_id})", "",
+                "_No fixtures file found or empty_; skipped.", ""
+            ])
+            leagues_blocks_md.append(block)
             continue
 
         season_id = infer_season_id_from_fixtures(blob)
         if not season_id:
-            lines += [f"### {label} (LID {league_id})", "_Could not infer season_id from fixtures_; skipped.", ""]
+            block = "\n".join([
+                f"### {label} (LID {league_id})", "",
+                "_Could not infer season_id from fixtures_; skipped.", ""
+            ])
+            leagues_blocks_md.append(block)
             continue
 
         team_fx = team_next_fixture_map(blob)
         top_rows = fetch_topscorers_goal_topN(season_id, blob, TOP_N)
 
-        lines.append(f"### {label} (LID {league_id})")
-        lines.append("")
-        lines.append("| # | Player | Team | Goals | Anytime | Fixture | KO (UTC) |")
-        lines.append("|---:|:------|:-----|------:|:-------:|:-------|:---------|")
-
+        lines = [f"### {label} (LID {league_id})", "", "| # | Player | Team | Goals | Anytime | Fixture | KO (UTC) |", "|---:|:------|:-----|------:|:-------:|:-------|:---------|"]
         if not top_rows:
             lines.append("| — | — | — | — | — | — | — |")
-            lines.append("")
-            continue
-
-        for rank, r in enumerate(top_rows, start=1):
-            team_id = r["team_id"]
-            fx = team_fx.get(team_id)
-            price_txt = "—"
-            fixture_txt = "—"
-            ko_txt = "—"
-
-            if fx:
-                fixture_txt = f"{fx['home']} vs {fx['away']}"
-                ko_txt = fx["kickoff"].strftime("%Y-%m-%d %H:%M")
-                res = odds_for_fixture_anytime(fx["fixture_id"], r["player_name"])
-                if res:
-                    bm, price = res
-                    price_txt = f"{price:.2f} ({bm})"
-
-            lines.append(
-                f"| {rank} | {r['player_name']} | {r['team_name']} | {r['goals']} | {price_txt} | {fixture_txt} | {ko_txt} |"
-            )
+        else:
+            for rank, r in enumerate(top_rows, start=1):
+                team_id = r["team_id"]
+                fx = team_fx.get(team_id)
+                price_txt = "—"
+                fixture_txt = "—"
+                ko_txt = "—"
+                if fx:
+                    fixture_txt = f"{fx['home']} vs {fx['away']}"
+                    ko_txt = fx["kickoff"].strftime("%Y-%m-%d %H:%M")
+                    res = odds_for_fixture_anytime(fx["fixture_id"], r["player_name"])
+                    if res:
+                        bm, price = res
+                        price_txt = f"{price:.2f} ({bm})"
+                lines.append(f"| {rank} | {r['player_name']} | {r['team_name']} | {r['goals']} | {price_txt} | {fixture_txt} | {ko_txt} |")
         lines.append("")
+        leagues_blocks_md.append("\n".join(lines))
 
-    out = OUT_DIR / f"top_scorers_anytime_{today}.md"
-    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"[OK] wrote {out}")
+        # Helpful log
+        print(f"[INFO] {label}: top_rows={len(top_rows)}")
+
+    # Write Markdown
+    md = render_markdown(leagues_blocks_md)
+    out_md = OUT_MD_DIR / f"top_scorers_anytime_{today}.md"
+    out_md.write_text(md, encoding="utf-8")
+    print(f"[OK] wrote {out_md}")
+
+    # Write plain TXT for your /data/ folder
+    txt = render_text(leagues_blocks_md)
+    out_txt = OUT_TXT_DIR / f"top_scorers_anytime_{today}.txt"
+    out_txt.write_text(txt, encoding="utf-8")
+    print(f"[OK] wrote {out_txt}")
 
 if __name__ == "__main__":
     main()
