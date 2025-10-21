@@ -4,12 +4,17 @@
 """
 Value Singles — Shots 2+ (Over 1.5) — Sportmonks/Bet365
 
+Changes in this version:
+  • Removed "favorites only" filter.
+  • Single gating: keep the pick if Team Match Winner (Bet365) < UNDERDOG_MAX (default 3.50).
+    (i.e., exclude only big underdogs; applies to ALL form paths 5/5, 7/10, 4/5.)
+
 Criteria:
   • Form path A: 5/5  (all of last 5 with ≥2 shots)
   • Form path B: 7/10 (≥7 of last 10 with ≥2 shots)
-  • Form path C: 4/5  (≥4 of last 5) AND team ML ≤ FAVORITE_CAP_4OF5 (default 2.50)
+  • Form path C: 4/5  (≥4 of last 5)
   • Odds filter: Bet365 Over 1.5 shots (market_id=268, line=1.5) with price > MIN_DEC_PRICE (default 1.72)
-  • Favorites only: remove underdogs (team ML ≤ opponent ML)
+  • Not a big underdog: Team ML < UNDERDOG_MAX (default 3.50)
 
 Inputs (local):
   • data/player_shots/by_league/{league_id}.json
@@ -20,10 +25,9 @@ Output:
   • data/value_bets/value_singles_2plus.txt
 
 ENV (optional):
-  • MIN_DEC_PRICE        (default "1.72")   # price must be strictly greater than this
-  • FAVORITES_ONLY       (default "true")   # remove underdogs by 1X2
-  • FAVORITE_CAP_4OF5    (default "2.50")   # extra cap for the 4/5 path
-  • LEAGUE_IDS           (default "301,384,387,564,567,600,8,82,9")
+  • MIN_DEC_PRICE   (default "1.72")   # price must be strictly greater than this
+  • UNDERDOG_MAX    (default "3.50")   # keep only if team ML < this
+  • LEAGUE_IDS      (default "301,384,387,564,567,600,8,82,9")
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -31,9 +35,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
 # -------- Config --------
-MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.72"))  # price must be strictly greater than this
-FAVORITES_ONLY = (os.getenv("FAVORITES_ONLY", "true").strip().lower() in {"1","true","yes","y"})
-FAVORITE_CAP_4OF5 = float(os.getenv("FAVORITE_CAP_4OF5", "2.50"))
+MIN_PRICE     = float(os.getenv("MIN_DEC_PRICE", "1.72"))  # price must be strictly greater than this
+UNDERDOG_MAX  = float(os.getenv("UNDERDOG_MAX", "3.50"))   # keep only if team ML < this
 
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()]
@@ -148,7 +151,7 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
         label = (row.get("label") or "").strip().lower()
         name  = (row.get("name")  or "").strip().lower()
         val   = as_float(row.get("value"))
-        if val is None: 
+        if val is None:
             continue
         if label in {"1","home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
             home_price = val if (home_price is None or val < home_price) else home_price
@@ -217,7 +220,7 @@ def collect_candidates() -> List[dict]:
             if not tag:
                 continue
             player = rec.get("name") or rec.get("player_name") or rec.get("player")
-            if not player: 
+            if not player:
                 continue
             tid = rec.get("team_id")
             team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
@@ -238,7 +241,8 @@ def collect_candidates() -> List[dict]:
 def main():
     candidates = collect_candidates()
     if not candidates:
-        msg = "[RESULT] No value singles 2+ candidates (5/5, 7/10, or 4/5)."
+        ts = dt.datetime.utcnow().isoformat()
+        msg = f"Generated at (UTC): {ts}\n[RESULT] No value singles 2+ candidates (5/5, 7/10, or 4/5)."
         OUT_FILE.write_text(msg + "\n", encoding="utf-8")
         print(msg)
         return
@@ -273,15 +277,11 @@ def main():
             team_ml = home_ml if side == "home" else away_ml
             opp_ml  = away_ml if side == "home" else home_ml
 
-            # Remove underdogs
-            if FAVORITES_ONLY and not (team_ml <= opp_ml):
+            # Not a big underdog: require team ML < UNDERDOG_MAX
+            if not (isinstance(team_ml, float) and team_ml < UNDERDOG_MAX):
                 continue
 
-            # Extra cap for 4/5 path
-            if tag == "4/5" and not (team_ml <= FAVORITE_CAP_4OF5):
-                continue
-
-            # Price must be > MIN_PRICE (strictly greater, per your spec)
+            # Price must be > MIN_PRICE (strictly greater)
             price = best_over15_player_shots(odds_rows, player)
             if price is None or not (price > MIN_PRICE):
                 continue
@@ -306,7 +306,7 @@ def main():
     ts = dt.datetime.utcnow().isoformat()
     lines = [
         f"Generated at (UTC): {ts}",
-        f"Criteria (2+ shots): 5/5 OR 7/10 OR 4/5(+ team ML ≤ {FAVORITE_CAP_4OF5:.2f}) | O1.5 price > {MIN_PRICE:.2f} | {'Favorites only' if FAVORITES_ONLY else 'Favorites filter OFF'}",
+        f"Criteria (2+ shots): 5/5 OR 7/10 OR 4/5 | O1.5 price > {MIN_PRICE:.2f} | Team ML < {UNDERDOG_MAX:.2f} (exclude big underdogs)",
         "Market: Bet365 Player Shots Over 1.5 (market_id=268, line=1.5)",
         "",
     ]
@@ -325,13 +325,15 @@ def main():
             continue
         for x in rows:
             ser = ",".join(map(str, x["series"][:10]))
-            cap_note = f" | cap≤{FAVORITE_CAP_4OF5:.2f}" if tag == "4/5" else ""
             pos = f"[{x['position_tag']}]" if x.get("position_tag") else ""
             lines.append(
                 f" • {x['player']} {pos} — {x['team']} | {x['fixture']} @ {x['kickoff']} | "
-                f"O1.5 @ {x['price']:.2f} | ML {x['team_ml']:.2f} vs {x['opp_ml']:.2f}{cap_note} | series: {ser}"
+                f"O1.5 @ {x['price']:.2f} | ML {x['team_ml']:.2f} vs {x['opp_ml']:.2f} | series: {ser}"
             )
         lines.append("")
+
+    if not any(groups.values()):
+        lines.append("No value singles (2+) found after filters.")
 
     OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print("\n".join(lines))
