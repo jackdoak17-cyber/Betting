@@ -2,21 +2,27 @@ name: Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)
 
 on:
   schedule:
-    # Every 6 hours at :07 UTC (staggered from fixtures job at :05)
-    - cron: "7 */6 * * *"
+    - cron: "7 */6 * * *"   # every 6 hours at :07 UTC
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
+# Avoid two runs writing at once
+concurrency:
+  group: odds-b365
+  cancel-in-progress: false
+
 jobs:
   fetch_odds_bet365:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history so we can pull/rebase)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,19 +35,47 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install requests
 
-      - name: Run Bet365 odds gatherer (all 9 leagues)
+      - name: Run Bet365 odds gatherer (9 leagues)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
-          SM_BOOKMAKER_ID: "2"  # Bet365
+          SM_BOOKMAKER_ID: "2"   # Bet365
           SM_SLEEP: "0.05"
           SM_TIMEOUT: "20"
         run: python scripts/odds_bet365_gather.py
 
-      - name: Commit & push odds files
+      - name: Commit & push odds files (safe fast-forward)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          set -e
+
+          # Make sure we're up to date with remote main while keeping our changes staged
+          git fetch origin main
+          git checkout main
+          git reset --soft origin/main
+
           git add data/odds/b365
-          git commit -m "chore(odds-b365): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
+          git commit -m "chore(odds-b365): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes to commit"
+
+          # Try push; if remote moved again between fetch and push, rebase and retry
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt). Rebasing onto origin/main and retrying..."
+            git fetch origin main
+            git rebase origin/main || true
+          done
+
+          echo "Final attempt after one more rebase..."
+          git fetch origin main
+          git rebase origin/main || true
           git push
+
+          # If you *really* want a last-ditch push that won't overwrite others, uncomment below:
+          # git push --force-with-lease
