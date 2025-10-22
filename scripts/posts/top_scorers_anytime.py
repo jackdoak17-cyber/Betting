@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """
-Print Premier League top scorers (Sportmonks Football API v3).
+Print top scorers for one or more Sportmonks Football seasons.
 
-Usage:
+Usage examples:
   export SPORTMONKS_TOKEN=your_api_token
-  python top_scorers_pl.py --limit 10
 
-Notes:
-- Uses the 'season' topscorers endpoint with the correct *singular* 'filter'
-  parameter: filter=seasonTopscorerTypes:208
+  # Premier League 2025/26 only
+  python top_scorers_multi.py --season-ids 25583
+
+  # The seasons you tried earlier (PL + others)
+  python top_scorers_multi.py --season-ids 25583 25659 25533 25646 25651 --limit 10
 """
 
 import os
 import sys
 import argparse
 import requests
+from typing import List, Optional
 
 API_URL = "https://api.sportmonks.com/v3/football/topscorers/seasons/{season_id}"
-DEFAULT_SEASON_ID = 25583  # Premier League 2025/26
 
 def get_token() -> str:
     token = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN")
@@ -25,32 +26,35 @@ def get_token() -> str:
         sys.exit("Error: set SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN) in your environment.")
     return token
 
-def fetch_top_scorers(season_id: int, token: str, per_page: int = 50):
+def fetch_top_scorers(season_id: int, token: str, per_page: int = 100) -> Optional[list]:
+    """
+    Returns a list of topscorer rows or None if 404 (season not in plan / invalid).
+    """
     url = API_URL.format(season_id=season_id)
     params = {
         "api_token": token,
         "include": "player.nationality;player.position;participant;type;season.league",
-        "filter": "seasonTopscorerTypes:208",  # <-- correct key & camelCase
-        "per_page": per_page,
+        "filter": "seasonTopscorerTypes:208",  # CORRECT: singular 'filter', proper casing
+        "per_page": per_page,                  # 100 is plenty for topscorer lists
     }
 
     resp = requests.get(url, params=params, timeout=20)
     if resp.status_code == 404:
-        sys.exit(f"404 from {url}. Check your season_id ({season_id}) or plan access.")
+        print(f"[INFO] season {season_id}: 404 — skipping (invalid/unavailable or not in plan).")
+        return None
+
     try:
         resp.raise_for_status()
     except requests.HTTPError as e:
-        # Show API error body to make debugging easier
-        body = ""
         try:
             body = resp.json()
         except Exception:
             body = resp.text
-        sys.exit(f"HTTP error: {e}\nResponse body: {body}")
+        print(f"[ERROR] season {season_id}: HTTP error: {e}\nResponse body: {body}")
+        return None
 
     data = resp.json()
-    # Sportmonks usually returns {"data": [...]}; handle raw-list just in case
-    return data["data"] if isinstance(data, dict) and "data" in data else data
+    return data.get("data", data)
 
 def best_name(player: dict) -> str:
     return (
@@ -60,23 +64,20 @@ def best_name(player: dict) -> str:
         or f"Player {player.get('id')}"
     )
 
-def print_table(rows, limit: int | None):
+def print_table(rows: list, limit: Optional[int]) -> None:
     if not rows:
-        print("No topscorers found.")
+        print("No topscorers found.\n")
         return
 
-    # Sort by API-provided position if present; fallback to goals desc
     rows_sorted = sorted(rows, key=lambda r: (r.get("position", 10**9), -r.get("total", 0)))
-    if limit:
+    if isinstance(limit, int) and limit > 0:
         rows_sorted = rows_sorted[:limit]
 
-    # Header
-    # Try to read league name if present; otherwise default label
-    league_name = "Premier League 2025/26"
-    if rows_sorted and rows_sorted[0].get("season", {}).get("league", {}).get("name"):
-        league_name = rows_sorted[0]["season"]["league"]["name"] + " 2025/26"
-
-    print(f"{league_name} — Top Scorers")
+    # Header tries to show league + season name when present
+    league = rows_sorted[0].get("season", {}).get("league", {}).get("name", "")
+    season_label = rows_sorted[0].get("season", {}).get("name", "")
+    header = (league or "League") + (f" {season_label}" if season_label else "")
+    print(f"{header} — Top Scorers")
     for r in rows_sorted:
         pos = r.get("position")
         goals = r.get("total", 0)
@@ -85,16 +86,29 @@ def print_table(rows, limit: int | None):
         name = best_name(player)
         prefix = f"{pos}." if pos is not None else "-"
         print(f"{prefix} {name} ({team}) — {goals}")
+    print()  # blank line between seasons
 
 def main():
-    parser = argparse.ArgumentParser(description="Print Premier League top scorers (Sportmonks).")
-    parser.add_argument("--season-id", type=int, default=DEFAULT_SEASON_ID, help="Sportmonks season_id (default: 25583)")
-    parser.add_argument("--limit", type=int, default=10, help="Max rows to print (default: 10; use 0 for all)")
+    parser = argparse.ArgumentParser(description="Print Sportmonks top scorers for multiple seasons.")
+    parser.add_argument(
+        "--season-ids",
+        type=int,
+        nargs="+",
+        default=[25583],  # Premier League 2025/26
+        help="One or more Sportmonks season IDs (space-separated).",
+    )
+    parser.add_argument("--limit", type=int, default=10, help="Max rows per season (0 = all).")
+    parser.add_argument("--per-page", type=int, default=100, help="Items per page (safety margin).")
     args = parser.parse_args()
 
     token = get_token()
-    rows = fetch_top_scorers(args.season_id, token)
-    print_table(rows, None if args.limit == 0 else args.limit)
+    limit = None if args.limit == 0 else args.limit
+
+    for sid in args.season_ids:
+        rows = fetch_top_scorers(sid, token, per_page=args.per_page)
+        if rows is None:
+            continue
+        print_table(rows, limit)
 
 if __name__ == "__main__":
     main()
