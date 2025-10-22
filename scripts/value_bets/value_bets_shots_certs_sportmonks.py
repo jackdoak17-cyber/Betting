@@ -3,15 +3,15 @@
 
 """
 Value bets — SHOTS certs (10/10, 9/10, 8/10, 7/7) — Sportmonks/Bet365
-Robust detection of 'Over 0.5' and '1+' variants across feed shapes.
+Robust player/price detection across varying feed shapes.
 
 Outputs:
   data/value_bets/shots_certs.txt
-  data/value_bets/_debug_shots_certs.txt  (why rows were dropped)
+  data/value_bets/_debug_shots_certs.txt  (drop reasons & sample rows)
 
 ENV (optional):
-  MIN_DEC_PRICE  default "1.30"
-  TEAM_ML_MAX    default "3.50"   (drop big underdogs)
+  MIN_DEC_PRICE   default "1.30"  (>=)
+  TEAM_ML_MAX     default "3.50"  (drop big underdogs: team ML must be < this)
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -33,8 +33,8 @@ OUT_FILE  = OUT_DIR / "shots_certs.txt"
 DBG_FILE  = OUT_DIR / "_debug_shots_certs.txt"
 
 MARKET_MATCH_WINNER     = 1
-MARKET_PLAYER_SHOTS     = 268   # O/U lines (we want OVER 0.5)
-MARKET_NUM_PLAYER_SHOTS = 160   # 1+, 2+, 3+ (we want 1+)
+MARKET_PLAYER_SHOTS     = 268   # O/U (we want Over 0.5)
+MARKET_NUM_PLAYER_SHOTS = 160   # 1+, 2+, ... (we want 1+)
 
 # -------- String helpers --------
 def strip_accents(s: str) -> str:
@@ -94,6 +94,7 @@ def _load_json(p: Path) -> Any:
         return None
 
 def _team_name_map(league_id: int) -> Dict[int, str]:
+    """Optional team_id -> team_name from predicted_xi."""
     blob = _load_json(PX_DIR / f"{league_id}.json") or {}
     m: Dict[int, str] = {}
     for fx in (blob.get("fixtures") or []):
@@ -125,7 +126,7 @@ def as_float(x) -> Optional[float]:
 def is_match_winner_row(row: dict) -> bool:
     if int(row.get("market_id", 0)) == MARKET_MATCH_WINNER:
         return True
-    md = norm(row.get("market_description") or "")
+    md = norm(row.get("market_description") or row.get("market_name") or "")
     return md in {
         "match winner","match result","full time result","fulltime result","1x2",
         "result","win/draw/win","90 minutes","3-way","3 way","regular time result"
@@ -140,6 +141,8 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
         name  = (row.get("name")  or "").strip().lower()
         val   = as_float(row.get("value"))
         if val is None:
+            val = as_float(row.get("price")) or as_float(row.get("decimal"))
+        if val is None:
             continue
         if label in {"1","home"} or team_names_match(home_name, label) or team_names_match(home_name, name) or team_names_match(home_name, row.get("name","")):
             home_price = val if (home_price is None or val < home_price) else home_price
@@ -150,21 +153,25 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
 # -------- Player Shots detection (robust) --------
 NUM_RE = re.compile(r"([-+]?\d+(?:\.\d+)?)")
 
-def combined_text(row: dict) -> str:
-    return " | ".join([
-        str(row.get("name") or ""),
-        str(row.get("original_label") or ""),
-        str(row.get("total") or ""),
-        str(row.get("label") or ""),
-        str(row.get("market_description") or "")
-    ])
+def all_strings(row: dict) -> str:
+    parts = []
+    for k, v in row.items():
+        if isinstance(v, str) and v:
+            parts.append(v)
+        elif isinstance(v, (int, float)):
+            # keep numbers in text too
+            parts.append(str(v))
+    return " | ".join(parts)
 
 def parse_line(row: dict) -> Optional[float]:
-    if "handicap" in row and row["handicap"] not in (None, ""):
-        v = as_float(row["handicap"])
-        if v is not None:
-            return v
-    for k in ("label","total","original_label"):
+    # explicit numeric fields first
+    for k in ("handicap","line","points"):
+        if k in row and row[k] not in (None, ""):
+            v = as_float(row[k])
+            if v is not None:
+                return v
+    # scrape text-ish fields
+    for k in ("label","total","original_label","name"):
         s = (row.get(k) or "")
         m = NUM_RE.search(s)
         if m:
@@ -172,29 +179,43 @@ def parse_line(row: dict) -> Optional[float]:
             except: pass
     return None
 
+def read_price(row: dict) -> Optional[float]:
+    for k in ("value","price","decimal","dec","odds","coefficient"):
+        v = row.get(k)
+        f = as_float(v)
+        if f is not None:
+            return f
+    return None
+
 def is_player_shots_market(row: dict) -> bool:
     mid = int(row.get("market_id", 0))
     if mid in (MARKET_PLAYER_SHOTS, MARKET_NUM_PLAYER_SHOTS):
         return True
-    md = norm(row.get("market_description") or "")
+    md = norm(row.get("market_description") or row.get("market_name") or "")
+    # accept “player shots” but exclude “on target”
     return ("player shots" in md) and ("on target" not in md)
 
 def is_over_selection_ou(row: dict) -> bool:
-    joined = " ".join([(row.get("label") or ""), (row.get("total") or ""), (row.get("original_label") or "")]).lower()
+    joined = " ".join([
+        str(row.get("label") or ""),
+        str(row.get("total") or ""),
+        str(row.get("original_label") or ""),
+        str(row.get("name") or ""),
+    ]).lower()
     return ("over" in joined) and ("under" not in joined)
 
 ONE_PLUS_PATTERNS = [
     r"\b1\+\b", r"\b1\+\s*shots?\b", r"\b1\s*\+\b", r"\b1\s*or\s*more\b",
-    r"\bat\s*least\s*1\b", r"\bto\s*have\s*1\+\b"
+    r"\bat\s*least\s*1\b", r"\bto\s*have\s*1\+\b", r"\b1\+\s*to\s*have\b"
 ]
 ONE_PLUS_RE = re.compile("|".join(ONE_PLUS_PATTERNS), re.IGNORECASE)
 
 def is_one_plus_selection(row: dict) -> bool:
-    txt = combined_text(row).replace(" ", "")
-    if ONE_PLUS_RE.search(combined_text(row)):
+    txt = all_strings(row)
+    if ONE_PLUS_RE.search(txt):
         return True
     line = parse_line(row)
-    # In some feeds, handicap == 1 for "1+"
+    # Some feeds put handicap == 1 for "1+"
     return (line is not None and math.isclose(line, 1.0, abs_tol=1e-6))
 
 def best_price_over05_or_1plus(odds_rows: List[dict], player: str, dbg: List[str], fx_name: str) -> Optional[float]:
@@ -203,21 +224,21 @@ def best_price_over05_or_1plus(odds_rows: List[dict], player: str, dbg: List[str
         if not is_player_shots_market(row):
             continue
 
-        # Player match
-        opt_text = combined_text(row)
-        if not player_label_matches(player, opt_text):
+        # Player name can live almost anywhere; match against all string fields
+        txt = all_strings(row)
+        if not player_label_matches(player, txt):
             continue
 
-        price = as_float(row.get("value"))
+        price = read_price(row)
         if price is None:
-            dbg.append(f"[no_price] {player} @ {fx_name} :: row={opt_text}")
+            dbg.append(f"[no_price] {player} @ {fx_name} :: row={txt[:220]}")
             continue
 
         mid = int(row.get("market_id", 0))
         if mid == MARKET_PLAYER_SHOTS:
             line = parse_line(row)
             if not is_over_selection_ou(row) or line is None or not math.isclose(line, 0.5, abs_tol=1e-6):
-                dbg.append(f"[skip_268_not_over05] {player} @ {fx_name} :: row={opt_text}")
+                dbg.append(f"[skip_268_not_over05] {player} @ {fx_name} :: row={txt[:220]}")
                 continue
             if best is None or price > best + 1e-12:
                 best = price
@@ -225,21 +246,20 @@ def best_price_over05_or_1plus(odds_rows: List[dict], player: str, dbg: List[str
 
         if mid == MARKET_NUM_PLAYER_SHOTS:
             if not is_one_plus_selection(row):
-                dbg.append(f"[skip_160_not_1plus] {player} @ {fx_name} :: row={opt_text}")
+                dbg.append(f"[skip_160_not_1plus] {player} @ {fx_name} :: row={txt[:220]}")
                 continue
             if best is None or price > best + 1e-12:
                 best = price
             continue
 
-        # In case IDs differ but description matches:
-        md = norm(row.get("market_description") or "")
+        # description fallback
+        md = norm(row.get("market_description") or row.get("market_name") or "")
         if "player shots" in md and "on target" not in md:
-            # Try both patterns:
             line = parse_line(row)
-            over05_ok = ("over" in opt_text.lower()) and line is not None and math.isclose(line, 0.5, abs_tol=1e-6)
+            over05_ok = is_over_selection_ou(row) and line is not None and math.isclose(line, 0.5, abs_tol=1e-6)
             oneplus_ok = is_one_plus_selection(row)
             if not (over05_ok or oneplus_ok):
-                dbg.append(f"[skip_desc_match_not_line] {player} @ {fx_name} :: row={opt_text}")
+                dbg.append(f"[skip_desc_match_not_line] {player} @ {fx_name} :: row={txt[:220]}")
                 continue
             if best is None or price > best + 1e-12:
                 best = price
@@ -301,14 +321,16 @@ def main():
     odds_by_league: Dict[int, dict] = {lid: (_load_json(ODDS_DIR / f"{lid}.json") or {}) for lid in LEAGUE_IDS}
 
     buckets = {"10/10": [], "9/10": [], "8/10": [], "7/7": []}
-    kept_after_ml = 0
-    kept_after_price = 0
+    kept_after_ml_candidates = 0
+    kept_after_price_candidates = 0
 
     for c in candidates:
         lid, team, plyr, bucket = c["league_id"], c["team"], c["player"], c["bucket"]
         blob = odds_by_league.get(lid) or {}
         fixtures = blob.get("fixtures") or []
         matched_fixture = False
+        passed_ml = False
+        passed_price = False
 
         for fx in fixtures:
             fname = fx.get("name") or ""
@@ -324,17 +346,20 @@ def main():
             team_ml = home_ml if side == "home" else away_ml
             if team_ml is None or team_ml >= TEAM_ML_MAX:
                 dbg_lines.append(f"[drop_ml] {plyr} ({team}) @ {fname} ML={team_ml}")
+                matched_fixture = True
                 continue
-            kept_after_ml += 1
+            passed_ml = True
 
             price = best_price_over05_or_1plus(odds_rows, plyr, dbg_lines, fname)
             if price is None:
                 dbg_lines.append(f"[drop_no_price_match] {plyr} ({team}) @ {fname}")
+                matched_fixture = True
                 continue
             if price < MIN_PRICE:
                 dbg_lines.append(f"[drop_price_lt_min] {plyr} ({team}) @ {fname} price={price:.3f} < {MIN_PRICE:.2f}")
+                matched_fixture = True
                 continue
-            kept_after_price += 1
+            passed_price = True
 
             buckets[bucket].append({
                 "player": plyr,
@@ -350,6 +375,10 @@ def main():
             matched_fixture = True
             break  # only need one matching fixture
 
+        if matched_fixture and passed_ml:
+            kept_after_ml_candidates += 1
+        if matched_fixture and passed_price:
+            kept_after_price_candidates += 1
         if not matched_fixture:
             dbg_lines.append(f"[no_fixture_match] {plyr} ({team}) — no matching fixture in odds blob for L{lid}")
 
@@ -360,7 +389,7 @@ def main():
         "Buckets: 10/10, 9/10, 8/10 (last-10); 7/7 (last-7 when <10 games available)",
         "Markets: Bet365 Player Shots Over 0.5 (id=268, Over only) + Number of Player Shots 1+ (id=160)",
         "",
-        f"Pipeline: candidates={len(candidates)} | kept_after_ML={kept_after_ml} | kept_after_price={kept_after_price}",
+        f"Pipeline: candidates={len(candidates)} | kept_after_ML={kept_after_ml_candidates} | kept_after_price={kept_after_price_candidates}",
         ""
     ]
 
@@ -386,7 +415,6 @@ def main():
 
     OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     DBG_FILE.write_text("\n".join(dbg_lines).rstrip() + "\n", encoding="utf-8")
-
     print("\n".join(lines))
 
 if __name__ == "__main__":
