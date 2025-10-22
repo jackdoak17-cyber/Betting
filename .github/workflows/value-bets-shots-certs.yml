@@ -1,12 +1,21 @@
 name: Value Bets — Shots Certs (Sportmonks/Bet365)
 
 on:
-  # Run 5 minutes after your odds job (which is at :07) — i.e. :12 UTC
+  # Run 5 minutes after your odds job (which runs at :07) — i.e. :12 UTC
   schedule:
     - cron: "12 */6 * * *"
-  # Also allow manual runs
-  workflow_dispatch: {}
-  # And auto-run whenever the odds workflow completes
+  # Manual runs with optional inputs
+  workflow_dispatch:
+    inputs:
+      min_decimal_price:
+        description: "Minimum decimal price (Over 0.5)"
+        required: false
+        default: "1.30"
+      team_win_max:
+        description: "Max Team ML (drop big underdogs)"
+        required: false
+        default: "3.50"
+  # Auto-run whenever the odds workflow completes
   workflow_run:
     workflows: ["Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)"]
     types: [completed]
@@ -18,40 +27,66 @@ concurrency:
   group: value-bets-shots-certs
   cancel-in-progress: true
 
+env:
+  PYTHON_VERSION: "3.11"
+  RESULTS_FILE: "data/value_bets/shots_certs.txt"
+  # Allow overrides from workflow_dispatch; otherwise use defaults
+  MIN_DEC_PRICE: "${{ github.event.inputs.min_decimal_price || '1.30' }}"
+  TEAM_WIN_MAX:  "${{ github.event.inputs.team_win_max || '3.50' }}"
+
 jobs:
   shots_certs:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for rebase before push
+
+      - name: Verify repo structure
+        run: |
+          test -f "scripts/value_bets/value_bets_shots_certs_sportmonks.py" || (echo "scripts/value_bets/value_bets_shots_certs_sportmonks.py not found" >&2; exit 1)
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      # No external deps needed (script uses stdlib only)
+      # No external deps (stdlib only)
 
-      - name: Run value-bets (shots certs)
+      - name: Run — Shots Certs
         env:
-          # Tunables for your filters (optional)
-          MIN_DEC_PRICE: "1.30"
-          TEAM_WIN_MAX: "3.50"
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
         run: |
+          set -e
           python scripts/value_bets/value_bets_shots_certs_sportmonks.py
           echo "----- OUTPUT (preview) -----"
-          if [ -f data/value_bets/shots_certs.txt ]; then
-            tail -n 200 data/value_bets/shots_certs.txt || true
+          if [ -f "${RESULTS_FILE}" ]; then
+            tail -n 200 "${RESULTS_FILE}" || true
           else
-            echo "data/value_bets/shots_certs.txt not found."
+            echo "${RESULTS_FILE} not found."
           fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shots-certs-${{ github.run_number }}
+          path: ${{ env.RESULTS_FILE }}
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Commit & push results
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/value_bets/shots_certs.txt
+          git add "${RESULTS_FILE}"
           git commit -m "chore(value-bets): shots_certs update $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "No changes"
-          git push
+          # Rebase onto latest main to avoid 'fetch first' conflicts
+          git fetch origin main
+          git pull --rebase origin main || true
+          # Try normal push, then fall back to lease-safe force if necessary
+          git push origin HEAD:main || git push --force-with-lease origin HEAD:main
