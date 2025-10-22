@@ -17,6 +17,10 @@ Filters:
 - For Shots/SOT/Corners: require team ML (Match Winner) <= TEAM_WIN_MAX (default 3.50). Tackles: no ML filter.
 - Optional WINDOW_DAYS to limit fixtures by kickoff.
 
+Combo%:
+- NOW computed as the AVERAGE of team_over% and opp_allowed_over% (was min before).
+  If one side is missing, use the available one; if both present, combo = (team% + oppA%) / 2.
+
 Output:
 - data/value_bets/team_lines_over_ranked.txt
 
@@ -191,13 +195,21 @@ def over_rate(seq: List[int], line: float) -> Optional[Tuple[int,int,float]]:
     n = len(xs)
     return hits, n, hits / n
 
-def best_combo(team_over, oppA_over) -> Optional[Tuple[float, Tuple[int,int], Tuple[int,int]]]:
+def combo_avg(team_over, oppA_over) -> Optional[Tuple[float, Tuple[int,int], Tuple[int,int]]]:
+    """
+    Average of team% and oppA% if both available.
+    If only one side has data, use that %. If neither, return None.
+    Returns (combo_pct, (team_hits, team_n), (opp_hits, opp_n))
+    """
     t_pct = team_over[2] if team_over else None
     a_pct = oppA_over[2] if oppA_over else None
-    if t_pct is None and a_pct is None: return None
-    if t_pct is None: return a_pct, (0,0), (oppA_over[0], oppA_over[1])
-    if a_pct is None: return t_pct, (team_over[0], team_over[1]), (0,0)
-    combo = min(t_pct, a_pct)
+    if t_pct is None and a_pct is None:
+        return None
+    if t_pct is None:
+        return a_pct, (0,0), (oppA_over[0], oppA_over[1])
+    if a_pct is None:
+        return t_pct, (team_over[0], team_over[1]), (0,0)
+    combo = (t_pct + a_pct) / 2.0
     return combo, (team_over[0], team_over[1]), (oppA_over[0], oppA_over[1])
 
 # ---------- Main ----------
@@ -308,7 +320,7 @@ def main():
 
                 t_over  = over_rate(off, line)
                 a_over  = over_rate(oppA, line)
-                combo   = best_combo(t_over, a_over)
+                combo   = combo_avg(t_over, a_over)
                 if not combo:
                     continue
 
@@ -351,7 +363,7 @@ def main():
             ml_str = f" | ML={r['team_ml']:.3f}" if isinstance(r.get("team_ml"), float) else ""
             lines.append(
                 f" • {r['team']} — {r['tag']} Over {r['line']:.1f} @ {r['price']:.3f} | {r['fixture']} | side={r['side']} | "
-                f"team {t_str}, oppA {a_str} | combo={r['combo']*100:5.1f}%{ml_str} | {r['market']}"
+                f"team {t_str}, oppA {a_str} | combo={(r['combo']*100):5.1f}%{ml_str} | {r['market']}"
             )
 
     OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
