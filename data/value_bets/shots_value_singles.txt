@@ -1,13 +1,13 @@
-[EVENTS] england-premier-league: 8 (next 7d)
-[EVENTS] england-championship: 24 (next 7d)
+[EVENTS] england-premier-league: 10 (next 7d)
+[EVENTS] england-championship: 16 (next 7d)
 [EVENTS] germany-bundesliga: 9 (next 7d)
 [EVENTS] france-ligue-1: 9 (next 7d)
-[EVENTS] italy-serie-a: 11 (next 7d)
-[EVENTS] italy-serie-b: 11 (next 7d)
+[EVENTS] italy-serie-a: 12 (next 7d)
+[EVENTS] italy-serie-b: 16 (next 7d)
 [EVENTS] spain-laliga: 10 (next 7d)
-[EVENTS] spain-laliga-2: 14 (next 7d)
-[EVENTS] turkiye-super-lig: 10 (next 7d)
-[ODDS] Unique events to query: 105
+[EVENTS] spain-laliga-2: 11 (next 7d)
+[EVENTS] turkiye-super-lig: 11 (next 7d)
+[ODDS] Unique events to query: 104
 [ODDS] batch 1 — 10 ids
 [ODDS] batch 2 — 10 ids
 [ODDS] batch 3 — 10 ids
@@ -18,22 +18,56 @@
 [ODDS] batch 8 — 10 ids
 [ODDS] batch 9 — 10 ids
 [ODDS] batch 10 — 10 ids
-[ODDS] batch 11 — 5 ids
-[CANDS] total=479  mapped_to_event=385
-[CANDS] passed_team_ml(<3.5)=351  had_player_shots_market=143
-[PRICE] captured_players(>= 1.2)=39  eligible(>= 1.72)=5
-Generated at (UTC): 2025-10-19T06:48:27.846363 | Min price: 1.72 | Capture≥1.20 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
+[ODDS] batch 11 — 4 ids
+[CANDS] total=554  mapped_to_event=527
+[CANDS] passed_team_ml(<3.5)=454  had_player_shots_market=446
+[PRICE] captured_players(>= 1.2)=145  eligible(>= 1.72)=37
+Generated at (UTC): 2025-10-22T14:51:17.762405 | Min price: 1.72 | Capture≥1.20 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
 Market: Bet365 — Player Shots Over 0.5 only (NOT SOT / outside box / halves). Most recent windows strictly used.
 
+===== VALUE — 1+ Shots (5/5) =====
+ • Manuel Akanji [CB] — Inter | SSC Napoli vs Inter Milano | Over 0.5 @ 2.375 | Team Win (ML) 2.370 | last7: 0/7 (series7: 1,1,1,1,1) | last5: 5/5 (series5: 1,1,1,1,1)
+ • Gabriele Bracaglia [LB] — Frosinone | Sampdoria Genoa vs Frosinone Calcio | Over 0.5 @ 1.833 | Team Win (ML) 3.300 | last7: 6/7 (series7: 2,1,3,1,1,1,0) | last5: 5/5 (series5: 2,1,3,1,1)
+
 ===== VALUE — 1+ Shots (5/7) =====
- • Carlo Faedo [CB] — Calcio Padova | US Catanzaro vs Calcio Padova | Over 0.5 @ 2.500 | Team Win (ML) 3.250 | last7: 5/7 (series7: 2,1,0,0,1,1,1) | last5: 3/5 (series5: 2,1,0,0,1)
- • Álex Muñoz [LB] — Almería | Cordoba CF vs UD Almeria | Over 0.5 @ 1.727 | Team Win (ML) 2.550 | last7: 5/7 (series7: 1,0,0,1,1,1,2) | last5: 3/5 (series5: 1,0,0,1,1)
+ • Enrique Clemente [LB] — Las Palmas | SD Huesca vs UD Las Palmas | Over 0.5 @ 2.750 | Team Win (ML) 2.700 | last7: 5/7 (series7: 1,1,1,1,0,0,1) | last5: 4/5 (series5: 1,1,1,1,0)
+ • Carlo Faedo [CB] — Calcio Padova | Calcio Padova vs Juve Stabia | Over 0.5 @ 2.625 | Team Win (ML) 2.700 | last7: 5/7 (series7: 1,2,1,0,0,1,1) | last5: 3/5 (series5: 1,2,1,0,0)
+ • Alex Cochrane [LB] — Birmingham City | Bristol City vs Birmingham City | Over 0.5 @ 2.375 | Team Win (ML) 3.100 | last7: 5/7 (series7: 1,0,1,2,0,1,1) | last5: 3/5 (series5: 1,0,1,2,0)
+ • Lewis Dunk [CB] — Brighton & Hove Albion | Manchester United vs Brighton & Hove Albion | Over 0.5 @ 2.375 | Team Win (ML) 3.400 | last7: 5/7 (series7: 1,1,1,1,0,2,0) | last5: 4/5 (series5: 1,1,1,1,0)
+ • Jannik Vestergaard [CB] — Leicester City | Millwall FC vs Leicester City | Over 0.5 @ 2.250 | Team Win (ML) 2.600 | last7: 5/7 (series7: 0,1,2,1,0,1,1) | last5: 3/5 (series5: 0,1,2,1,0)
+ • Martin Valjent [CB] — Mallorca | RCD Mallorca vs Levante UD | Over 0.5 @ 2.250 | Team Win (ML) 2.100 | last7: 5/7 (series7: 0,1,1,0,1,2,1) | last5: 3/5 (series5: 0,1,1,0,1)
+ • Jordan Storey [CB] — Preston North End | Preston North End vs Sheffield United | Over 0.5 @ 2.200 | Team Win (ML) 2.750 | last7: 5/7 (series7: 2,0,1,1,1,1,0) | last5: 4/5 (series5: 2,0,1,1,1)
+ • Miguel Loureiro [RB] — Deportivo La Coruña | RC Deportivo La Coruna vs Real Valladolid | Over 0.5 @ 2.000 | Team Win (ML) 2.000 | last7: 5/7 (series7: 1,2,1,0,2,1,0) | last5: 4/5 (series5: 1,2,1,0,2)
+ • Stefano Denswil [CB] — Kayserispor | Fatih Karagumruk Istanbul vs Kayserispor | Over 0.5 @ 2.000 | Team Win (ML) 3.000 | last7: 5/7 (series7: 2,2,1,1,0,0,1) | last5: 4/5 (series5: 2,2,1,1,0)
+ • Cameron Burgess [CB] — Swansea City | Swansea City vs Queens Park Rangers | Over 0.5 @ 1.909 | Team Win (ML) 2.200 | last7: 6/7 (series7: 1,2,1,1,0,1,1) | last5: 4/5 (series5: 1,2,1,1,0)
+ • José Matos [LB] — Ceuta | Cultural Leonesa vs AD Ceuta | Over 0.5 @ 1.909 | Team Win (ML) 2.900 | last7: 6/7 (series7: 1,0,1,1,1,1,1) | last5: 4/5 (series5: 1,0,1,1,1)
+ • Lorenzo Carissoni [MID] — Juve Stabia | Calcio Padova vs Juve Stabia | Over 0.5 @ 1.909 | Team Win (ML) 2.800 | last7: 5/7 (series7: 0,0,1,1,1,1,1) | last5: 3/5 (series5: 0,0,1,1,1)
+ • Liam Palmer [MID] — Sheffield Wednesday | Sheffield Wednesday vs Oxford United | Over 0.5 @ 1.833 | Team Win (ML) 2.620 | last7: 5/7 (series7: 1,1,0,2,1,0,1) | last5: 4/5 (series5: 1,1,0,2,1)
+ • Mirko Topić [MID] — Norwich City | Swansea City vs Norwich City | Over 0.5 @ 1.833 | Team Win (ML) 3.400 | last7: 6/7 (series7: 1,0,1,1,1,1,2) | last5: 4/5 (series5: 1,0,1,1,1)
+ • Pablo Vázquez [CB] — Sporting Gijón | Sporting Gijon vs Real Zaragoza | Over 0.5 @ 1.833 | Team Win (ML) 1.850 | last7: 5/7 (series7: 0,1,1,2,0,1,1) | last5: 3/5 (series5: 0,1,1,2,0)
+ • Tyler Adams [MID] — AFC Bournemouth | AFC Bournemouth vs Nottingham Forest | Over 0.5 @ 1.833 | Team Win (ML) 1.700 | last7: 6/7 (series7: 1,1,1,1,0,1,1) | last5: 4/5 (series5: 1,1,1,1,0)
+ • Unai Núñez [CB] — Hellas Verona | Hellas Verona vs Cagliari Calcio | Over 0.5 @ 1.833 | Team Win (ML) 2.300 | last7: 5/7 (series7: 1,0,1,1,1,1,0) | last5: 4/5 (series5: 1,0,1,1,1)
+ • Alejandro Catena [CB] — Osasuna | CA Osasuna vs RC Celta de Vigo | Over 0.5 @ 1.800 | Team Win (ML) 2.400 | last7: 5/7 (series7: 0,1,1,1,0,1,1) | last5: 3/5 (series5: 0,1,1,1,0)
+ • Youness Lachhab [MID] — Ceuta | Cultural Leonesa vs AD Ceuta | Over 0.5 @ 1.800 | Team Win (ML) 2.900 | last7: 5/7 (series7: 1,0,1,1,0,1,1) | last5: 3/5 (series5: 1,0,1,1,0)
+ • Andrea Tiritiello [CB] — Virtus Entella | Virtus Entella vs Delfino Pescara | Over 0.5 @ 1.727 | Team Win (ML) 1.830 | last7: 5/7 (series7: 2,4,2,0,3,0,1) | last5: 4/5 (series5: 2,4,2,0,3)
+ • Dara O'Shea [CB] — Ipswich Town | Ipswich Town vs West Bromwich Albion | Over 0.5 @ 1.727 | Team Win (ML) 1.750 | last7: 5/7 (series7: 3,0,1,1,2,1,0) | last5: 4/5 (series5: 3,0,1,1,2)
+ • Edmond Tapsoba [CB] — Bayer 04 Leverkusen | Bayer Leverkusen vs SC Freiburg | Over 0.5 @ 1.727 | Team Win (ML) 1.727 | last7: 5/7 (series7: 1,1,1,1,0,2,0) | last5: 4/5 (series5: 1,1,1,1,0)
+ • Lloyd Jones [CB] — Charlton Athletic | Hull City vs Charlton Athletic | Over 0.5 @ 1.727 | Team Win (ML) 2.900 | last7: 5/7 (series7: 1,0,3,1,1,2,0) | last5: 4/5 (series5: 1,0,3,1,1)
+ • Oliver Abildgaard [MID] — Sampdoria | Sampdoria Genoa vs Frosinone Calcio | Over 0.5 @ 1.727 | Team Win (ML) 2.300 | last7: 5/7 (series7: 1,3,3,2,0,0,2) | last5: 4/5 (series5: 1,3,3,2,0)
+ • Pedri [MID] — FC Barcelona | Real Madrid vs FC Barcelona | Over 0.5 @ 1.727 | Team Win (ML) 3.300 | last7: 5/7 (series7: 2,2,2,0,0,1,1) | last5: 3/5 (series5: 2,2,2,0,0)
+ • Rob Dickie [CB] — Bristol City | Bristol City vs Birmingham City | Over 0.5 @ 1.727 | Team Win (ML) 2.300 | last7: 5/7 (series7: 1,0,0,1,2,1,1) | last5: 3/5 (series5: 1,0,0,1,2)
 
 ===== VALUE — 1+ Shots (4/5) =====
- • Pierre Kalulu [MID] — Juventus | Como 1907 vs Juventus Turin | Over 0.5 @ 2.250 | Team Win (ML) 2.370 | last7: 0/7 (series7: 1,2,0,1,1,0) | last5: 4/5 (series5: 1,2,0,1,1)
- • Jon Aramburu [RB] — Real Sociedad | RC Celta de Vigo vs Real Sociedad San Sebastian | Over 0.5 @ 2.200 | Team Win (ML) 3.400 | last7: 0/7 (series7: 0,4,1,2,2,0) | last5: 4/5 (series5: 0,4,1,2,2)
- • Mattia Bani [CB] — Palermo | Palermo FC vs Modena FC | Over 0.5 @ 1.909 | Team Win (ML) 2.150 | last7: 0/7 (series7: 1,2,1,0,1,3) | last5: 4/5 (series5: 1,2,1,0,1)
+ • Lewis Gibson [CB] — Preston North End | Preston North End vs Sheffield United | Over 0.5 @ 2.500 | Team Win (ML) 2.750 | last7: 4/7 (series7: 1,1,1,3,0,0,0) | last5: 4/5 (series5: 1,1,1,3,0)
+ • Nicola Pietrangeli [CB] — Südtirol | FC Sudtirol Bolzano vs Cesena FC | Over 0.5 @ 2.375 | Team Win (ML) 2.800 | last7: 0/7 (series7: 0,2,1,4,1,0) | last5: 4/5 (series5: 0,2,1,4,1)
+ • Dennis Hadzikadunic [CB] — Sampdoria | Sampdoria Genoa vs Frosinone Calcio | Over 0.5 @ 2.250 | Team Win (ML) 2.300 | last7: 0/7 (series7: 0,2,1,1,1) | last5: 4/5 (series5: 0,2,1,1,1)
+ • Andrew Hughes [CB] — Preston North End | Preston North End vs Sheffield United | Over 0.5 @ 2.200 | Team Win (ML) 2.750 | last7: 4/7 (series7: 1,1,0,2,2,0,0) | last5: 4/5 (series5: 1,1,0,2,2)
+ • Rob Atkinson [CB] — Bristol City | Bristol City vs Birmingham City | Over 0.5 @ 2.000 | Team Win (ML) 2.300 | last7: 4/7 (series7: 1,1,1,1,0,0,0) | last5: 4/5 (series5: 1,1,1,1,0)
+ • Steve Cook [CB] — Queens Park Rangers | Swansea City vs Queens Park Rangers | Over 0.5 @ 2.000 | Team Win (ML) 3.200 | last7: 0/7 (series7: 3,0,2,1,1) | last5: 4/5 (series5: 3,0,2,1,1)
+ • Mattia Bani [CB] — Palermo | US Catanzaro vs Palermo FC | Over 0.5 @ 1.909 | Team Win (ML) 2.200 | last7: 0/7 (series7: 1,2,1,0,1,3) | last5: 4/5 (series5: 1,2,1,0,1)
+ • Harry Winks [MID] — Leicester City | Millwall FC vs Leicester City | Over 0.5 @ 1.833 | Team Win (ML) 2.600 | last7: 0/7 (series7: 3,0,2,2,1,0) | last5: 4/5 (series5: 3,0,2,2,1)
+ • Ibrahima Konaté [CB] — Liverpool | Brentford FC vs Liverpool FC | Over 0.5 @ 1.833 | Team Win (ML) 1.720 | last7: 4/7 (series7: 1,0,1,1,1,0,0) | last5: 4/5 (series5: 1,0,1,1,1)
 
 
-Run timestamp (UTC): 2025-10-19 06:48:27
+Run timestamp (UTC): 2025-10-22 14:51:17
 Params: MIN_DEC_PRICE=1.72 TEAM_WIN_MAX=3.50 WINDOW_DAYS=7 DNB_FB=1 MIN_CAPTURE_PRICE=1.20 SHOW_NEAR_MISSES=1
