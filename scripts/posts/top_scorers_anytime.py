@@ -4,19 +4,25 @@
 """
 Post 1 — Top scorers + Anytime odds (Big 5)
 
-Workflow
---------
-- Season ID: infer from your saved fixtures (most frequent season_id in data/fixtures/by_league/<lid>.json),
-  or use manual overrides via LEAGUE_SEASON_OVERRIDES="lid:season,..."
-- Topscorers: /v3/football/topscorers/seasons/{season_id}?filter=seasonTopscorerTypes:208&include=player;team;type
-- Rank across leagues by goals desc, take Top-N (default 10).
-- For each player, find next saved fixture and read Bet365 "Goalscorers" (market_id=90) -> label "Anytime".
-- Outputs:
-    reports/social/top_scorers_anytime_YYYYMMDD.md
-    data/social_media_posts/top_scorers_anytime_YYYYMMDD.txt
+Flow
+----
+1) Determine season_id per league from your saved fixtures (or LEAGUE_SEASON_OVERRIDES).
+2) Try:    GET /v3/football/topscorers/seasons/{season_id}?filter=seasonTopscorerTypes:208&include=player;team;type
+   Fallback:
+           GET /v3/football/seasons/{season_id}?include=stages
+           -> pick likely "Regular/League/Main" stage(s)
+           -> GET /v3/football/topscorers/stages/{stage_id}?filter=stageTopscorerTypes:208&include=player;team;type
+3) Merge all leagues, rank by goals desc, take Top-N (default 10).
+4) Join each player to their next fixture from data/fixtures/by_league/<lid>.json.
+5) Read Bet365 odds from data/odds/b365/by_league/<lid>.json:
+   - market_id=90 ("Goalscorers")
+   - label "Anytime"
+6) Outputs:
+   - reports/social/top_scorers_anytime_YYYYMMDD.md
+   - data/social_media_posts/top_scorers_anytime_YYYYMMDD.txt
 """
 
-import os, sys, time, json, re, unicodedata, datetime as dt
+import os, sys, json, time, re, unicodedata, datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 
@@ -31,7 +37,6 @@ BACKOFF = 1.6
 # Big 5 default (EPL, LaLiga, Serie A, Bundesliga, Ligue 1)
 DEFAULT_LEAGUES = [8, 564, 384, 82, 301]
 LEAGUE_IDS = [int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()]
-
 TOP_N = int(os.getenv("TOP_N", "10"))
 
 # Optional manual override: "8:25583,564:25659,384:25533,82:25646,301:25651"
@@ -60,7 +65,7 @@ POSTS_DIR.mkdir(parents=True, exist_ok=True)
 MARKET_GOALSCORERS = int(os.getenv("B365_GOALSCORERS_MARKET_ID", "90"))
 ANYTIME_LABEL = os.getenv("B365_ANYTIME_LABEL", "Anytime")
 
-# ---------- tiny utils ----------
+# ---------------- string helpers ----------------
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
@@ -116,7 +121,7 @@ def as_float(x) -> Optional[float]:
 def now_yyyymmdd() -> str:
     return dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d")
 
-# ---------- HTTP ----------
+# ---------------- HTTP ----------------
 def api_get(path: str, params: Optional[dict] = None) -> dict:
     if not API_TOKEN:
         raise RuntimeError("SPORTMONKS_TOKEN not set.")
@@ -137,9 +142,9 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
                 time.sleep(BACKOFF ** i)
             else:
                 raise
-    raise last  # pragma: no cover
+    raise last
 
-# ---------- Fixtures ----------
+# ---------------- fixtures ----------------
 def load_league_fixtures(league_id: int) -> List[dict]:
     p = FIX_DIR / f"{league_id}.json"
     if not p.is_file(): return []
@@ -181,7 +186,7 @@ def home_away_names(fx: dict) -> Tuple[str,str]:
     away = next((p for p in (fx.get("participants") or []) if (p.get("meta") or {}).get("location")=="away"), {})
     return home.get("name",""), away.get("name","")
 
-# ---------- Odds (local Bet365) ----------
+# ---------------- odds (local Bet365) ----------------
 def load_odds_by_fixture(league_id: int) -> Dict[int, List[dict]]:
     p = ODDS_DIR / f"{league_id}.json"
     if not p.is_file(): return {}
@@ -215,11 +220,18 @@ def best_anytime_price(odds_rows: List[dict], player_name: str) -> Optional[floa
     for r in odds_rows or []:
         if int(r.get("market_id", 0)) != MARKET_GOALSCORERS:
             continue
-        if (r.get("label") or "").strip().lower() != ANYTIME_LABEL.lower():
+        if (r.get("label") or "").strip().lower() != "anytime":
             continue
         name = r.get("name") or r.get("original_label") or ""
-        if not player_label_matches(player_name, name):
+        # Match "O. Watkins" / "Ollie Watkins" / "Watkins"
+        last, initial = extract_last_name_initial(player_name)
+        label = norm(name)
+        if not last or last not in label:
             continue
+        if initial:
+            fw = label.split()[0][0:1] if label.split() else None
+            if not (fw and fw == initial) and not re.search(rf"\b{initial}\w*\b.*\b{last}\b", label):
+                continue
         price = as_float(r.get("value") or r.get("dp3"))
         if price is None:
             continue
@@ -227,22 +239,12 @@ def best_anytime_price(odds_rows: List[dict], player_name: str) -> Optional[floa
             best = price
     return best
 
-# ---------- Topscorers ----------
-def fetch_topscorers_for_season(season_id: int) -> List[dict]:
+# ---------------- topscorers (season -> stage fallback) ----------------
+def parse_top_rows(payload: dict) -> List[dict]:
     """
-    Tops: /topscorers/seasons/{season_id}?filter=seasonTopscorerTypes:208&include=player;team;type
-    Returns list[{player, team, goals}]
+    Normalize to [{player, team, goals}]
     """
-    try:
-        j = api_get(
-            f"topscorers/seasons/{season_id}",
-            params={"filter": "seasonTopscorerTypes:208", "include": "player;team;type", "per_page": 50}
-        )
-    except Exception as e:
-        print(f"[WARN] season {season_id}: topscorers error {e}")
-        return []
-
-    data = j.get("data") or []
+    data = payload.get("data") or []
     out = []
     for r in data:
         pl = r.get("player") or {}
@@ -259,7 +261,78 @@ def fetch_topscorers_for_season(season_id: int) -> List[dict]:
     out.sort(key=lambda x: (-x["goals"], norm(x["player"])))
     return out
 
-# ---------- Main ----------
+def season_topscorers(season_id: int) -> List[dict]:
+    try:
+        j = api_get(
+            f"topscorers/seasons/{season_id}",
+            params={"filter": "seasonTopscorerTypes:208", "include": "player;team;type", "per_page": 50}
+        )
+        return parse_top_rows(j)
+    except requests.HTTPError as e:
+        if getattr(e, "response", None) is not None and e.response.status_code == 404:
+            print(f"[INFO] season {season_id}: topscorers 404 — will try stages")
+            return []
+        print(f"[WARN] season {season_id}: topscorers error {e}")
+        return []
+    except Exception as e:
+        print(f"[WARN] season {season_id}: topscorers error {e}")
+        return []
+
+def candidate_stage_ids(season_id: int) -> List[int]:
+    """
+    Discover stages, score likely 'Regular/League/Main' stages first.
+    """
+    try:
+        j = api_get(f"seasons/{season_id}", params={"include": "stages", "per_page": 100})
+    except Exception as e:
+        print(f"[WARN] seasons/{season_id}?include=stages error {e}")
+        return []
+    data = j.get("data") or {}
+    stages = data.get("stages") or []
+    if not stages:
+        return []
+    def score(s: dict) -> int:
+        nm = (s.get("name") or "").lower()
+        tp = (s.get("type") or "").lower()
+        sc = 0
+        if "regular" in nm or "regular" in tp: sc += 4
+        if "league" in nm or "league" in tp:   sc += 3
+        if "main" in nm:                       sc += 2
+        if s.get("has_standings"):             sc += 1
+        return sc
+    stages.sort(key=lambda s: (-score(s), s.get("id") or 0))
+    return [int(s.get("id")) for s in stages if isinstance(s.get("id"), int)]
+
+def stage_topscorers(stage_id: int) -> List[dict]:
+    try:
+        j = api_get(
+            f"topscorers/stages/{stage_id}",
+            params={"filter": "stageTopscorerTypes:208", "include": "player;team;type", "per_page": 50}
+        )
+        return parse_top_rows(j)
+    except requests.HTTPError as e:
+        if getattr(e, "response", None) is not None and e.response.status_code == 404:
+            print(f"[INFO] stage {stage_id}: 404")
+            return []
+        print(f"[WARN] stage {stage_id}: error {e}")
+        return []
+    except Exception as e:
+        print(f"[WARN] stage {stage_id}: error {e}")
+        return []
+
+def top_scorers_for_season_with_fallback(season_id: int) -> List[dict]:
+    rows = season_topscorers(season_id)
+    if rows:
+        return rows
+    # try candidate stages
+    for sid in candidate_stage_ids(season_id)[:5]:  # try a few best candidates
+        rows = stage_topscorers(sid)
+        if rows:
+            print(f"[INFO] season {season_id}: using stage {sid}")
+            return rows
+    return []
+
+# ---------------- main ----------------
 def main():
     if not API_TOKEN:
         print("ERROR: SPORTMONKS_TOKEN not set.", file=sys.stderr)
@@ -267,21 +340,17 @@ def main():
 
     all_rows: List[dict] = []
 
+    # 1) per-league topscorers
     for lid in LEAGUE_IDS:
-        # season override > infer from fixtures
         season_id = SEASON_OVERRIDES.get(lid) or infer_season_from_fixtures(lid)
         if not season_id:
             print(f"[WARN] League {lid}: could not resolve season_id from fixtures/overrides — skipping")
             continue
-
-        rows = fetch_topscorers_for_season(season_id)
-        if not rows:
-            print(f"[INFO] League {lid}: 0 topscorer rows (season {season_id})")
-            continue
-
+        rows = top_scorers_for_season_with_fallback(season_id)
+        print(f"[INFO] League {lid}: season {season_id} -> rows {len(rows)}")
         for r in rows:
             r["league_id"] = lid
-            all_rows.append(r)
+        all_rows.extend(rows)
 
     if not all_rows:
         stamp = now_yyyymmdd()
@@ -294,14 +363,19 @@ def main():
         print(f"[OK] wrote {txt_out}")
         return
 
-    # Merge & rank global top N
+    # 2) merge + rank Top N
     for r in all_rows:
         try: r["goals"] = int(r.get("goals") or 0)
         except Exception: r["goals"] = 0
     all_rows.sort(key=lambda r: (-r["goals"], norm(r["player"]), norm(r["team"])))
     top = all_rows[:TOP_N]
 
-    # Join next fixture + anytime odds
+    # 3) join next fixture + odds
+    def load_odds_idx(lid: int) -> Dict[int, List[dict]]:
+        try: return load_odds_by_fixture(lid)
+        except Exception: return {}
+
+    odds_cache: Dict[int, Dict[int, List[dict]]] = {}
     results = []
     for r in top:
         lid = r["league_id"]
@@ -314,8 +388,9 @@ def main():
             h, a = home_away_names(fx)
             kickoff = fx.get("starting_at") or ""
             fixture_text = f"{h} vs {a} @ {kickoff}".strip()
-            odds_idx = load_odds_by_fixture(lid)
-            rows = odds_idx.get(int(fid), [])
+            if lid not in odds_cache:
+                odds_cache[lid] = load_odds_idx(lid)
+            rows = odds_cache[lid].get(int(fid), [])
             price = best_anytime_price(rows, r["player"])
         results.append({
             "player": r["player"], "team": r["team"], "goals": r["goals"],
@@ -323,10 +398,10 @@ def main():
             "anytime": price
         })
 
-    # Render outputs
+    # 4) write outputs
     stamp = now_yyyymmdd()
     md_lines = [f"# Top Scorers (Big 5) + Anytime odds — {stamp}", ""]
-    md_lines.append("_Data: Sportmonks v3 topscorers (seasonTopscorerTypes:208). Odds: Bet365 Goalscorers→Anytime from local files._")
+    md_lines.append("_Data: Sportmonks v3 Topscorers (type_id=208). Odds: Bet365 Goalscorers→Anytime (local)._")
     md_lines.append("")
     for i, x in enumerate(results, 1):
         price_txt = f"{x['anytime']:.2f}" if isinstance(x["anytime"], (int,float)) else "N/A"
