@@ -1,66 +1,17 @@
-# Top Scorers (Anytime) — Updated 2025-10-23 21:04:13 UTC
+Top Scorers (Anytime) — Updated 2025-10-23 21:15:30 UTC
 
-## Premier League
-> Error fetching top scorers: All top-scorer routes failed:
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers/seasons/25583?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers/seasons/25583?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers?seasons=25583&include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers?seasons=25583&include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25583/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25583/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/8/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/8/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/8/topscorers/seasons/25583?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/8/topscorers/seasons/25583?include=player%3Bteam&api_token=***redacted***
-  422 Client Error: Unprocessable Entity for url: https://api.sportmonks.com/v3/football/statistics/seasons/25583/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/statistics/seasons/25583/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25583?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25583?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/8?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/8?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=***redacted***
 
-_No data._
+Premier League
+Error fetching scorers: All top-scorer routes failed: https://api.sportmonks.com/v3/football/players/topscorers/seasons/25583 (tried) ; https://api.sportmonks.com/v3/football/topscorers/seasons/25583 (tried) ; https://api.sportmonks.com/v3/football/topscorers (tried)
 
-## LaLiga
-> Error fetching top scorers: All top-scorer routes failed:
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers/seasons/25659?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers/seasons/25659?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers?seasons=25659&include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers?seasons=25659&include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25659/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25659/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/564/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/564/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/564/topscorers/seasons/25659?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/564/topscorers/seasons/25659?include=player%3Bteam&api_token=***redacted***
-  422 Client Error: Unprocessable Entity for url: https://api.sportmonks.com/v3/football/statistics/seasons/25659/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/statistics/seasons/25659/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25659?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25659?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/564?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/564?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=***redacted***
+LaLiga
+Error fetching scorers: All top-scorer routes failed: https://api.sportmonks.com/v3/football/players/topscorers/seasons/25659 (tried) ; https://api.sportmonks.com/v3/football/topscorers/seasons/25659 (tried) ; https://api.sportmonks.com/v3/football/topscorers (tried)
 
-_No data._
+Bundesliga
+Error fetching scorers: All top-scorer routes failed: https://api.sportmonks.com/v3/football/players/topscorers/seasons/25646 (tried) ; https://api.sportmonks.com/v3/football/topscorers/seasons/25646 (tried) ; https://api.sportmonks.com/v3/football/topscorers (tried)
 
-## Bundesliga
-> Error fetching top scorers: All top-scorer routes failed:
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers/seasons/25646?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers/seasons/25646?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers?seasons=25646&include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers?seasons=25646&include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25646/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25646/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/82/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/82/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/82/topscorers/seasons/25646?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/82/topscorers/seasons/25646?include=player%3Bteam&api_token=***redacted***
-  422 Client Error: Unprocessable Entity for url: https://api.sportmonks.com/v3/football/statistics/seasons/25646/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/statistics/seasons/25646/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25646?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25646?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/82?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/82?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=***redacted***
+Serie A
+Error fetching scorers: All top-scorer routes failed: https://api.sportmonks.com/v3/football/players/topscorers/seasons/25533 (tried) ; https://api.sportmonks.com/v3/football/topscorers/seasons/25533 (tried) ; https://api.sportmonks.com/v3/football/topscorers (tried)
 
-_No data._
-
-## Serie A
-> Error fetching top scorers: All top-scorer routes failed:
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers/seasons/25533?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers/seasons/25533?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers?seasons=25533&include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers?seasons=25533&include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25533/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25533/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/384/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/384/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/384/topscorers/seasons/25533?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/384/topscorers/seasons/25533?include=player%3Bteam&api_token=***redacted***
-  422 Client Error: Unprocessable Entity for url: https://api.sportmonks.com/v3/football/statistics/seasons/25533/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/statistics/seasons/25533/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25533?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25533?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/384?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/384?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=***redacted***
-
-_No data._
-
-## Ligue 1
-> Error fetching top scorers: All top-scorer routes failed:
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers/seasons/25651?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers/seasons/25651?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/topscorers?seasons=25651&include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/topscorers?seasons=25651&include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25651/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25651/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/301/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/301/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/301/topscorers/seasons/25651?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/301/topscorers/seasons/25651?include=player%3Bteam&api_token=***redacted***
-  422 Client Error: Unprocessable Entity for url: https://api.sportmonks.com/v3/football/statistics/seasons/25651/topscorers?include=player%3Bteam&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/statistics/seasons/25651/topscorers?include=player%3Bteam&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/seasons/25651?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/seasons/25651?include=statistics%3Btopscorers%3Bplayers%3Bteams%3Bstandings%3Bstages&api_token=***redacted***
-  404 Client Error: Not Found for url: https://api.sportmonks.com/v3/football/leagues/301?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8 :: https://api.sportmonks.com/v3/football/leagues/301?include=statistics%3BcurrentSeason%3Btopscorers%3Bseasons&api_token=***redacted***
-
-_No data._
+Ligue 1
+Error fetching scorers: All top-scorer routes failed: https://api.sportmonks.com/v3/football/players/topscorers/seasons/25651 (tried) ; https://api.sportmonks.com/v3/football/topscorers/seasons/25651 (tried) ; https://api.sportmonks.com/v3/football/topscorers (tried)

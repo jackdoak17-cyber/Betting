@@ -1,0 +1,29 @@
+{
+  "season_id": 25659,
+  "attempts": [
+    {
+      "url": "https://api.sportmonks.com/v3/football/players/topscorers/seasons/25659",
+      "params": {
+        "include": "player;team",
+        "api_token": "7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8"
+      }
+    },
+    {
+      "url": "https://api.sportmonks.com/v3/football/topscorers/seasons/25659",
+      "params": {
+        "include": "player;team",
+        "api_token": "7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8"
+      }
+    },
+    {
+      "url": "https://api.sportmonks.com/v3/football/topscorers",
+      "params": {
+        "seasons": "25659",
+        "include": "player;team",
+        "api_token": "7v9r18s1v6ucd79qlv8KIT0UWasMDLtvM7wGZqVlUmyimvQW2nLYjuXPONp8"
+      }
+    }
+  ],
+  "result_count": 0,
+  "generated_at": "2025-10-23T21:15:33.104811+00:00"
+}
