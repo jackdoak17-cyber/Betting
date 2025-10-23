@@ -1,26 +1,18 @@
-# .github/workflows/top_scorers_anytime.yml
-name: POST 1 - Build Top Scorers (Anytime)
+name: Top Scorers (Anytime)
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch: {}
-
-permissions:
-  contents: write
+    - cron: "*/30 * * * *"  # every 30 min
 
 jobs:
-  build-post:
+  build:
     runs-on: ubuntu-latest
-    env:
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -31,16 +23,22 @@ jobs:
           pip install requests
 
       - name: Generate post
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          # Optional overrides:
+          # LEAGUE_IDS: "8,564,82,384,301"
+          # LIMIT_PER_LEAGUE: "10"
+          # WINDOW_DAYS: "14"
         run: |
           python scripts/posts/top_scorers_anytime.py
 
       - name: Commit & push if changed
         run: |
-          CHANGED=$(git status --porcelain)
-          if [ -n "$CHANGED" ]; then
-            git config user.name "github-actions[bot]"
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name  "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add betting/posts/top_scorers_anytime.md
+            git add data/debug/topscorers_raw_*.json || true
             git commit -m "chore(posts): update Top Scorers (Anytime) [skip ci]"
             git push
           else
