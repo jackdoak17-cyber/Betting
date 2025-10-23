@@ -1,181 +1,108 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Format team 'FINAL' expected lines into bet-builder style text.
+import os, sys, argparse, requests
+from datetime import datetime
 
-Source: data/team_lines/by_league/*.json
-  - Each fixture has teams.home/away.stats[stat].p80.min / p100.min
+BASE = "https://api.sportmonks.com/v3/football"
 
-Output:
-  - Sections grouped by League ID, then fixtures, for 80% and/or 100%.
-  - Lines like:  Team — SOT 3+, Corners 2+, Shots 10+, Cards 1+
+def token():
+    t = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN")
+    if not t:
+        print("Error: set SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN).", file=sys.stderr)
+        sys.exit(0)  # don't fail CI
+    return t
 
-ENV:
-  STATS         (default: "shots_on_target,corners,shots,cards_total")
-  MODE          (default: "both")  # both | p80 | p100
-  INCLUDE_ZERO  (default: "0")      # "1" to allow 0+ lines; default hides 0
-  OUT_FILE      (default: "data/bet_builders/team_bet_builders.txt")
-"""
-import os, json, re, datetime as dt
-from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-
-ROOT = Path(".")
-LINES_DIR = ROOT / "data" / "team_lines" / "by_league"
-
-# ---- Config from ENV
-STATS = [s.strip().lower() for s in os.getenv(
-    "STATS", "shots_on_target,corners,shots,cards_total"
-).split(",") if s.strip()]
-MODE = os.getenv("MODE", "both").strip().lower()  # both | p80 | p100
-INCLUDE_ZERO = os.getenv("INCLUDE_ZERO", "0") == "1"
-OUT_FILE = os.getenv("OUT_FILE", "data/bet_builders/team_bet_builders.txt")
-
-# ---- Human labels & order
-LABELS = {
-    "shots": "Shots",
-    "shots_on_target": "SOT",
-    "corners": "Corners",
-    "cards_total": "Cards",
-    "fouls": "Fouls",
-    "tackles": "Tackles",
-    "saves": "Saves",
-    "goal_kicks": "Goal Kicks",
-}
-ORDER = ["shots_on_target", "corners", "shots", "cards_total", "tackles", "fouls", "saves", "goal_kicks"]
-
-def safe_int(x) -> Optional[int]:
-    try: return int(x)
-    except Exception: return None
-
-def parse_dt(s: Optional[str]) -> Optional[dt.datetime]:
-    if not s: return None
+def api_get(path, params=None, timeout=20):
+    params = dict(params or {})
+    params.setdefault("api_token", token())
+    url = f"{BASE}/{path.lstrip('/')}"
+    r = requests.get(url, params=params, timeout=timeout)
+    if r.status_code in (403,404):
+        return {"data": None, "_status": r.status_code, "_body": r.text}
     try:
-        # Accept "YYYY-MM-DD HH:MM:SS"
-        return dt.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        r.raise_for_status()
+    except requests.HTTPError:
+        return {"data": None, "_status": r.status_code, "_body": r.text}
+    try:
+        return r.json()
     except Exception:
-        return None
+        return {"data": None, "_status": "non-json", "_body": r.text[:500]}
 
-def pick_team_name(side_block: Dict[str, Any], meta: Dict[str, Any], side: str) -> str:
-    nm = side_block.get("name") or side_block.get("team_name")
-    if nm: return nm
-    return meta.get("home_name") if side == "home" else meta.get("away_name")
+def parse_date(s):
+    try:
+        return datetime.fromisoformat(s)
+    except Exception:
+        return datetime.min
 
-def collect_fixture_rows(blob: Dict[str, Any]) -> List[Dict[str, Any]]:
-    rows: List[Dict[str, Any]] = []
-    for fx in (blob.get("fixtures") or []):
-        meta = {
-            "fixture_id": fx.get("fixture_id"),
-            "league_id": fx.get("league_id") or blob.get("league_id"),
-            "season_id": fx.get("season_id") or blob.get("season_id"),
-            "starting_at": fx.get("starting_at"),
-            "home_name": fx.get("home_name"),
-            "away_name": fx.get("away_name"),
-            "use_last_n": fx.get("use_last_n") or blob.get("use_last_n"),
+def fetch_league_with_seasons(league_id: int):
+    data = api_get(f"leagues/{league_id}", params={"include": "seasons;currentSeason"})
+    if data.get("data"):
+        return data
+    seasons = api_get("seasons", params={"filter": f"league_id:{league_id}", "per_page": 200})
+    league  = api_get(f"leagues/{league_id}")
+    current = api_get(f"leagues/{league_id}", params={"include": "currentSeason"})
+    return {
+        "data": {
+            **(league.get("data") or {}),
+            "seasons": seasons.get("data") or [],
+            "currentSeason": (current.get("data") or {}).get("currentSeason")
         }
-        teams = fx.get("teams") or {}
-        for side in ("home", "away"):
-            tb = teams.get(side) or {}
-            name = pick_team_name(tb, meta, side) or (meta["home_name"] if side == "home" else meta["away_name"])
-            stats = tb.get("stats") or {}
-            rows.append({
-                "meta": meta,
-                "side": side,
-                "team": name,
-                "opp": (meta["away_name"] if side == "home" else meta["home_name"]),
-                "stats": stats
-            })
-    return rows
+    }
 
-def format_team_line(stats_block: Dict[str, Any], pct_key: str, chosen_stats: List[str], include_zero: bool) -> str:
-    parts: List[str] = []
-    for k in sorted(chosen_stats, key=lambda s: ORDER.index(s) if s in ORDER else 999):
-        sb = stats_block.get(k) or {}
-        pk = sb.get(pct_key) or {}
-        mn = safe_int(pk.get("min"))
-        if mn is None: 
-            continue
-        if not include_zero and mn <= 0:
-            continue
-        lab = LABELS.get(k, k)
-        parts.append(f"{lab} {mn}+")
-    return ", ".join(parts)
+def normalize_seasons(obj):
+    league_name, current_id = "", None
+    if not obj or not obj.get("data"): return league_name, [], current_id
+    d = obj["data"]
+    league_name = d.get("name") or f"League {d.get('id')}"
+    cur = d.get("currentSeason")
+    if isinstance(cur, dict): current_id = cur.get("id")
+    seasons = d.get("seasons") or []
+    if isinstance(seasons, dict) and "data" in seasons: seasons = seasons["data"]
+    seasons = list(seasons) if isinstance(seasons, list) else []
+    seasons.sort(key=lambda s: parse_date(s.get("starting_at","")), reverse=True)
+    return league_name, seasons, current_id
 
 def main():
-    league_files = sorted(LINES_DIR.glob("*.json"))
-    if not league_files:
-        print("No team_lines league files found.")
-        return
+    ap = argparse.ArgumentParser(description="Print season IDs for leagues (no guessing).")
+    ap.add_argument("--league-ids", type=int, nargs="+", default=[8])
+    ap.add_argument("--current-only", action="store_true")
+    ap.add_argument("--ids-only", action="store_true")
+    args = ap.parse_args()
 
-    all_rows: List[Dict[str, Any]] = []
-    for p in league_files:
-        try:
-            blob = json.loads(p.read_text(encoding="utf-8"))
-        except Exception:
+    any_output = False
+    for lid in args.league_ids:
+        data = fetch_league_with_seasons(lid)
+        league_name, seasons, current_id = normalize_seasons(data)
+
+        if args.current_only:
+            if current_id:
+                if args.ids_only:
+                    print(f"{lid}:{current_id}")
+                else:
+                    label = next((s.get("name") for s in seasons if s.get("id")==current_id), "")
+                    print(f"{league_name} (league_id={lid}) — current: {current_id}" + (f" [{label}]" if label else ""))
+                any_output = True
+            else:
+                print(f"{league_name or f'League {lid}'} (league_id={lid}) — current season not found / not in plan.")
             continue
-        all_rows.extend(collect_fixture_rows(blob))
 
-    if not all_rows:
-        print("No fixtures found in team_lines files.")
-        return
+        if not seasons:
+            print(f"{league_name or f'League {lid}'} (league_id={lid}) — no seasons found.")
+            continue
 
-    # Group by league -> fixture
-    leagues: Dict[int, Dict[Tuple[int, str, str, int], Dict[str, Any]]] = {}
-    for r in all_rows:
-        meta = r["meta"]
-        lid = int(meta.get("league_id") or -1)
-        fid = meta.get("fixture_id")
-        key = (int(fid) if isinstance(fid, int) else -1,
-               meta.get("home_name") or "",
-               meta.get("away_name") or "",
-               int(meta.get("use_last_n") or 0))
-        grp = leagues.setdefault(lid, {}).setdefault(key, {"meta": meta, "teams": []})
-        grp["teams"].append(r)
+        any_output = True
+        if args.ids_only:
+            print(f"{lid}:{','.join(str(s.get('id')) for s in seasons if s.get('id'))}")
+        else:
+            print(f"{league_name} (league_id={lid}) — seasons (newest first):")
+            for s in seasons:
+                sid = s.get("id"); name = s.get("name","")
+                sa = s.get("starting_at",""); ea = s.get("ending_at","")
+                star = " (current)" if current_id and sid == current_id else ""
+                print(f"  - {sid}: {name} [{sa} → {ea}]{star}")
+            print()
 
-    lines: List[str] = []
-    lines.append("Legend: X+ means the team’s minimum expected line at the selected certainty (80% or 100%) using the blend of Team-Offense and Opp-Allowed (we take the MIN bound).")
-    lines.append("Stats shown (in order): " + ", ".join(LABELS.get(s, s) for s in STATS))
-    lines.append("")
-
-    def dump_section(pct_key: str, title: str):
-        lines.append(f"===== {title} =====")
-        # sort leagues numerically; then fixtures by kickoff (if available), else by home/away
-        for lid in sorted(leagues.keys()):
-            lines.append(f"--- League {lid} ---")
-            fixmap = leagues[lid]
-            # sort fixtures by starting_at (asc), fallback to home/away alphabetical
-            def sort_key(item):
-                (_, home, away, _useN), grp = item
-                dt_obj = parse_dt(grp["meta"].get("starting_at"))
-                return (dt_obj or dt.datetime.max, home.lower(), away.lower())
-            for (fid, home, away, useN), grp in sorted(fixmap.items(), key=sort_key):
-                suffix = f"  (using last {useN})" if useN else ""
-                hdr = f"{home} vs {away}" + (f"  [Fixture {fid}]" if fid != -1 else "")
-                lines.append(hdr + suffix)
-                # ensure home printed first
-                team_rows = sorted(grp["teams"], key=lambda r: 0 if r["side"]=="home" else 1)
-                for tr in team_rows:
-                    items = format_team_line(tr["stats"], pct_key, STATS, INCLUDE_ZERO)
-                    if items:
-                        lines.append(f"  - {tr['team']}: {items}")
-                    else:
-                        lines.append(f"  - {tr['team']}: (no qualifying lines with current settings)")
-                lines.append("")
-            lines.append("")
-        lines.append("")
-
-    if MODE in ("both", "p80"):
-        dump_section("p80", "Bet Builder — 80%")
-    if MODE in ("both", "p100"):
-        dump_section("p100", "Bet Builder — 100%")
-
-    out = "\n".join(lines).rstrip() + "\n"
-    print(out)
-
-    # Write file (and ensure folder exists)
-    out_path = ROOT / OUT_FILE
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(out, encoding="utf-8")
+    if not any_output:
+        print("[INFO] No seasons printed (check token/plan/league IDs).")
 
 if __name__ == "__main__":
     main()
