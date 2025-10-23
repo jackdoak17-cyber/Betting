@@ -50,6 +50,7 @@ OUTFILE = Path("betting/posts/top_scorers_anytime.md")
 FIXTURES_DIR = Path("data/fixtures/by_league")
 ODDS_BY_LEAGUE_DIR = Path("data/odds/b365/by_league")
 ODDS_BY_FIXTURE_DIR = Path("data/odds/b365/fixtures")
+DEBUG_DIR = Path("data/debug"); DEBUG_DIR.mkdir(parents=True, exist_ok=True)
 
 BOOKMAKER_IDENTIFIERS = {"bet365", "b365", "bet 365", "bet-365", "bet_365"}
 
@@ -122,150 +123,141 @@ def num(v: Any) -> Optional[float]:
     except Exception:
         return None
 
+def redact(url: str) -> str:
+    return re.sub(r"(api_token=)[^&]+", r"\1***redacted***", url)
+
 # -----------------------------
-# SportMonks API helpers
+# SportMonks helpers
 # -----------------------------
-def get_current_season_id(league_id: int, token: str) -> Optional[int]:
+def req(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    r = requests.get(url, params=params, timeout=45)
+    try:
+        r.raise_for_status()
+    except Exception as e:
+        raise type(e)(f"{e} :: {redact(r.url)}")
+    return r.json()
+
+def get_current_season(league_id: int, token: str) -> Tuple[Optional[int], Optional[str]]:
     url = f"{API_BASE}/leagues/{league_id}"
     params = {"include": "currentSeason", "api_token": token}
-    r = requests.get(url, params=params, timeout=30)
-    r.raise_for_status()
-    data = r.json().get("data", {})
-    cs = data.get("currentseason") or data.get("currentSeason")
-    if isinstance(cs, dict):
-        return cs.get("id")
-    rel = data.get("relationships", {}).get("currentSeason", {})
-    if isinstance(rel, dict):
-        d = rel.get("data") or {}
-        return d.get("id")
-    return None
+    data = req(url, params).get("data", {})
+    cs = data.get("currentseason") or data.get("currentSeason") or {}
+    return cs.get("id"), cs.get("starting_at")
 
-def _items_from_generic_topscorers(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _items_from_generic(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return items or []
 
-def _items_from_players_statistics(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    # Normalize a players+statistics shape into pseudo-topscorer rows
-    out = []
-    for it in items or []:
-        row = {"player": None, "team": None, "goals": None}
-        # player name
-        p = it.get("player") or {}
-        p = p.get("data", p)
-        row["player"] = (
-            p.get("display_name")
-            or p.get("common_name")
-            or p.get("fullname")
-            or p.get("name")
-        )
-        # team
-        t = it.get("team") or {}
-        t = t.get("data", t)
-        row["team"] = t.get("name")
-
-        # find a goals-ish number anywhere in statistics
-        def find_goals_val(obj):
-            if isinstance(obj, dict):
-                for k, v in obj.items():
-                    k0 = ascii_norm(k)
-                    if k0 in {"goals", "goals_total", "total_goals", "goals_scored", "scored"}:
-                        try:
-                            return int(v)
-                        except Exception:
-                            pass
-                    found = find_goals_val(v)
-                    if found is not None:
-                        return found
-            elif isinstance(obj, list):
-                for v in obj:
-                    found = find_goals_val(v)
-                    if found is not None:
-                        return found
-            return None
-
-        stats = it.get("statistics") or it.get("stats") or {}
-        row["goals"] = find_goals_val(stats)
-        # keep original node in case we need team_id later
-        row["_raw"] = it
-        out.append(row)
-    return out
-
-def fetch_top_scorers_any_way(season_id: int, token: str) -> List[Dict[str, Any]]:
+def _items_from_discovery(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Try multiple routes. Return a list of items shaped like the "topscorers" aggregate.
+    Walk an API payload and pick any array that looks like top-scorers:
+    items containing a 'player' relation + some integer 'goals/value/scored/count'.
     """
+    best: List[Dict[str, Any]] = []
+    best_len = 0
+
+    def goals_val(x):
+        for k in ("goals", "value", "scored", "count", "total_goals"):
+            if k in x:
+                try:
+                    return int(x[k])
+                except Exception:
+                    pass
+        return None
+
+    def looks_like_item(x):
+        if not isinstance(x, dict):
+            return False
+        has_player = "player" in x or "player_id" in x or "player_name" in x
+        has_team = "team" in x or "team_id" in x or "team_name" in x
+        has_goals = goals_val(x) is not None
+        return has_player and has_goals and has_team
+
+    def walk(obj):
+        nonlocal best, best_len
+        if isinstance(obj, dict):
+            for v in obj.values():
+                walk(v)
+        elif isinstance(obj, list):
+            sample = [x for x in obj if isinstance(x, dict)]
+            if sample and all(looks_like_item(x) for x in sample[:5]):
+                if len(sample) > best_len:
+                    best = sample
+                    best_len = len(sample)
+            for v in obj:
+                walk(v)
+
+    walk(payload)
+    return best
+
+def fetch_top_scorers_any_way(league_id: int, season_id: int, token: str) -> List[Dict[str, Any]]:
     tried = []
 
-    # 1) /topscorers/seasons/{id}
+    # A) primary documented route on many plans
     try:
         url = f"{API_BASE}/topscorers/seasons/{season_id}"
         params = {"include": "player;team", "api_token": token}
-        r = requests.get(url, params=params, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
-        return _items_from_generic_topscorers(payload.get("data") or [])
+        payload = req(url, params)
+        return _items_from_generic(payload.get("data") or [])
     except Exception as e:
-        tried.append(f"{url} -> {e}")
+        tried.append(str(e))
 
-    # 2) /topscorers?seasons={id}
+    # B) query version
     try:
         url = f"{API_BASE}/topscorers"
         params = {"seasons": str(season_id), "include": "player;team", "api_token": token}
-        r = requests.get(url, params=params, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
-        return _items_from_generic_topscorers(payload.get("data") or [])
+        payload = req(url, params)
+        return _items_from_generic(payload.get("data") or [])
     except Exception as e:
-        tried.append(f"{url} -> {e}")
+        tried.append(str(e))
 
-    # 3) /players/topscorers?seasons={id}
-    try:
-        url = f"{API_BASE}/players/topscorers"
-        params = {"seasons": str(season_id), "include": "player;team", "api_token": token}
-        r = requests.get(url, params=params, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
-        return _items_from_generic_topscorers(payload.get("data") or [])
-    except Exception as e:
-        tried.append(f"{url} -> {e}")
+    # C) alt nesting many accounts expose
+    for route in (
+        f"{API_BASE}/seasons/{season_id}/topscorers",
+        f"{API_BASE}/leagues/{league_id}/topscorers",
+        f"{API_BASE}/leagues/{league_id}/topscorers/seasons/{season_id}",
+    ):
+        try:
+            payload = req(route, {"api_token": token, "include": "player;team"})
+            return _items_from_generic(payload.get("data") or [])
+        except Exception as e:
+            tried.append(str(e))
 
-    # 4) Last resort: /players/seasons/{id}?include=player;team;statistics
+    # D) discovery on season payload (never 404s; unknown includes are ignored)
     try:
-        url = f"{API_BASE}/players/seasons/{season_id}"
-        params = {"include": "player;team;statistics", "api_token": token}
-        r = requests.get(url, params=params, timeout=60)
-        r.raise_for_status()
-        payload = r.json()
-        items = _items_from_players_statistics(payload.get("data") or [])
-        # Sort by goals desc; take top 50 (we’ll show 10 later)
-        items = sorted(items, key=lambda x: (x.get("goals") or 0), reverse=True)
-        # Wrap to look like generic items for downstream extraction
-        wrapped = []
-        for it in items:
-            raw = it.get("_raw", {})
-            # graft in "player" and "team" relationships so extract_player_fields works
-            wrapped.append({
-                "goals": it.get("goals"),
-                "player": raw.get("player") or {},
-                "team": raw.get("team") or {},
-            })
-        return wrapped
+        season_url = f"{API_BASE}/seasons/{season_id}"
+        payload = req(season_url, {
+            "api_token": token,
+            # throw the kitchen sink; ignored includes don't break
+            "include": "statistics;topscorers;players;teams;standings;groups;stages"
+        })
+        found = _items_from_discovery(payload)
+        if found:
+            return found
     except Exception as e:
-        tried.append(f"{url} -> {e}")
+        tried.append(str(e))
+
+    # E) discovery on league payload
+    try:
+        league_url = f"{API_BASE}/leagues/{league_id}"
+        payload = req(league_url, {
+            "api_token": token,
+            "include": "statistics;currentSeason;topscorers;seasons"
+        })
+        found = _items_from_discovery(payload)
+        if found:
+            return found
+    except Exception as e:
+        tried.append(str(e))
 
     raise RuntimeError("All top-scorer routes failed:\n  " + "\n  ".join(tried))
 
 def extract_player_fields(item: Dict[str, Any]) -> Tuple[str, Optional[int], str, Optional[int]]:
-    """
-    Returns (player_name, team_id, team_name, goals)
-    Handles multiple possible shapes.
-    """
     goals = (item.get("goals") or item.get("value") or item.get("scored") or item.get("count"))
     try:
         goals = int(goals) if goals is not None else None
     except Exception:
         goals = None
 
-    # team
     team_id = item.get("team_id")
     team_name = item.get("team_name")
     team_rel = item.get("team") or {}
@@ -274,7 +266,6 @@ def extract_player_fields(item: Dict[str, Any]) -> Tuple[str, Optional[int], str
         team_id = team_id or team_data.get("id")
         team_name = team_name or team_data.get("name")
 
-    # player
     player_name = item.get("player_name")
     p_rel = item.get("player") or {}
     p_data = p_rel.get("data") if isinstance(p_rel, dict) else None
@@ -454,9 +445,12 @@ def find_anytime_price(league_id: int, fixture_id: int, player_name: str) -> Opt
 # -----------------------------
 # Render
 # -----------------------------
-def render_league_block(league_id: int, rows: List[Dict[str, Any]]) -> str:
+def render_league_block(league_id: int, rows: List[Dict[str, Any]], error: Optional[str]) -> str:
     lines = []
-    lines.append(LEAGUE_LABEL.get(league_id, f"League {league_id}"))
+    lines.append(f"## {LEAGUE_LABEL.get(league_id, f'League {league_id}')}")
+    if error:
+        lines.append(f"> Error fetching top scorers: {error}")
+        lines.append("")
     if not rows:
         lines.append("_No data._")
         lines.append("")
@@ -485,42 +479,44 @@ def main():
 
     OUTFILE.parent.mkdir(parents=True, exist_ok=True)
 
-    header = f"Top Scorers (Anytime) — Updated {now_utc_str()}\n"
+    header = f"# Top Scorers (Anytime) — Updated {now_utc_str()}\n"
     blocks: List[str] = [header, ""]
 
     for league_id in TOP_LEAGUES:
         title = LEAGUE_LABEL.get(league_id, f"League {league_id}")
+        rows = []
+        err_text = None
         try:
-            season_id = get_current_season_id(league_id, token)
+            season_id, _season_start = get_current_season(league_id, token)
             if not season_id:
                 raise RuntimeError(f"No current season for league {league_id}")
 
-            items = fetch_top_scorers_any_way(season_id, token)
+            items = fetch_top_scorers_any_way(league_id, season_id, token)
+            # Debug dump raw for inspection
+            try:
+                with (DEBUG_DIR / f"topscorers_{league_id}_{season_id}.json").open("w", encoding="utf-8") as f:
+                    json.dump(items, f, ensure_ascii=False, indent=2)
+            except Exception:
+                pass
 
         except Exception as e:
-            blocks.append(title)
-            blocks.append(f"Error fetching data: {e}")
-            blocks.append("")
-            continue
+            err_text = str(e)
+            items = []
 
         fixtures_doc = load_json(FIXTURES_DIR / f"{league_id}.json") or {}
-        rows = []
         for item in items[:10]:
             player, team_id, team_name, goals = extract_player_fields(item)
-            if not player or not team_id:
-                # Try to salvage team_id from alt shapes
+            if not team_id:
                 team_rel = item.get("team") or {}
                 team_data = team_rel.get("data") if isinstance(team_rel, dict) else {}
                 team_id = team_id or (team_data.get("id") if isinstance(team_data, dict) else None)
                 team_name = team_name or (team_data.get("name") if isinstance(team_data, dict) else None)
-            # next fixture
             fx = next_fixture_for_team(fixtures_doc, team_id) if team_id else None
             opponent = ha = None
             fixture_id = None
             if fx:
                 opponent, ha = opponent_and_home_away(fx, team_id)
                 fixture_id = fx.get("id")
-            # odds
             price = None
             if fixture_id:
                 try:
@@ -537,7 +533,7 @@ def main():
                 "odds": price,
             })
 
-        blocks.append(render_league_block(league_id, rows))
+        blocks.append(render_league_block(league_id, rows, err_text))
 
     content = "\n".join(blocks).rstrip() + "\n"
     OUTFILE.write_text(content, encoding="utf-8")
