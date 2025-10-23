@@ -1,9 +1,13 @@
-name: Top Scorers (Anytime)
+name: POST 1 - Top Scorers (Anytime)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"  # every 30 min
+    - cron: "*/30000 * * * *"  # every 30 min
+
+# ✅ allow push with GITHUB_TOKEN
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -11,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true  # keep token for push
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -25,7 +32,7 @@ jobs:
       - name: Generate post
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          # Optional overrides:
+          # Optional:
           # LEAGUE_IDS: "8,564,82,384,301"
           # LIMIT_PER_LEAGUE: "10"
           # WINDOW_DAYS: "14"
@@ -33,14 +40,27 @@ jobs:
           python scripts/posts/top_scorers_anytime.py
 
       - name: Commit & push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add betting/posts/top_scorers_anytime.md
-            git add data/debug/topscorers_raw_*.json || true
-            git commit -m "chore(posts): update Top Scorers (Anytime) [skip ci]"
-            git push
-          else
-            echo "No changes."
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Make sure pushes use the token
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          # Stage outputs
+          git add betting/posts/top_scorers_anytime.md
+
+          # Only add debug JSONs if they exist
+          if compgen -G "data/debug/topscorers_raw_*.json" > /dev/null; then
+            git add data/debug/topscorers_raw_*.json
           fi
+
+          # Commit only if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+
+          git commit -m "chore(posts): update Top Scorers (Anytime) [skip ci]"
+          git push
