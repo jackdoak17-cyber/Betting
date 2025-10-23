@@ -1,4 +1,4 @@
-Top Scorers (Anytime) — Updated 2025-10-23 21:15:30 UTC
+Top Scorers (Anytime) — Updated 2025-10-23 22:35:09 UTC
 
 
 Premier League
