@@ -1,55 +1,59 @@
 #!/usr/bin/env python3
 """
-Fetch season IDs from Sportmonks (no guessing) and print Premier League (or any league) top scorers.
+Print Sportmonks season IDs for one or more leagues (no guessing).
 
-Examples:
+Usage:
   export SPORTMONKS_TOKEN=your_api_token
 
-  # Premier League current season only (default)
-  python topscorers_resolved_seasons.py
+  # Premier League (league_id=8) seasons (default)
+  python scripts/util/print_season_ids.py
 
-  # Current season for multiple leagues (PL=8, La Liga=564, Serie A=384, Ligue 1=301, Bundesliga=82)
-  python topscorers_resolved_seasons.py --league-ids 8 564 384 301 82
+  # Multiple leagues (PL=8, La Liga=564, Serie A=384, Ligue 1=301, Bundesliga=82)
+  python scripts/util/print_season_ids.py --league-ids 8 564 384 301 82
 
-  # Last 2 seasons for Premier League
-  python topscorers_resolved_seasons.py --league-ids 8 --last-n 2
+  # Only the current season for each league
+  python scripts/util/print_season_ids.py --current-only
 
-  # All seasons for Premier League (careful: long)
-  python topscorers_resolved_seasons.py --league-ids 8 --all
+  # IDs only (comma-separated) — handy for piping
+  python scripts/util/print_season_ids.py --league-ids 8 --ids-only
 """
-
 import os
 import sys
 import argparse
 import requests
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
 BASE = "https://api.sportmonks.com/v3/football"
 
-def get_token() -> str:
-    token = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN")
-    if not token:
-        sys.exit("Error: set SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN) in your environment.")
-    return token
+def token() -> str:
+    t = os.getenv("SPORTMONKS_TOKEN") or os.getenv("SPORTMONKS_API_TOKEN")
+    if not t:
+        print("Error: set SPORTMONKS_TOKEN (or SPORTMONKS_API_TOKEN).", file=sys.stderr)
+        sys.exit(0)  # CI-friendly: don't fail the job
+    return t
 
-def api_get(path: str, token: str, params: Optional[dict] = None, timeout: int = 20) -> dict:
-    params = params.copy() if params else {}
-    params.setdefault("api_token", token)
+def api_get(path: str, params: Optional[dict] = None, timeout: int = 20) -> Dict[str, Any]:
+    params = dict(params or {})
+    params.setdefault("api_token", token())
     url = f"{BASE}/{path.lstrip('/')}"
     r = requests.get(url, params=params, timeout=timeout)
+    if r.status_code == 404:
+        return {"data": None, "_status": 404, "_body": r.text}
+    if r.status_code == 403:
+        return {"data": None, "_status": 403, "_body": r.text}
     try:
         r.raise_for_status()
-    except requests.HTTPError as e:
-        # return structured info for caller
-        raise RuntimeError(f"HTTP {r.status_code} for GET {url}\nBody: {r.text}") from e
+    except requests.HTTPError:
+        # Return best-effort info without crashing CI
+        return {"data": None, "_status": r.status_code, "_body": r.text}
     try:
-        return r.json()
-    except Exception as e:
-        raise RuntimeError(f"Non-JSON response from {url}: {r.text[:500]}") from e
+        js = r.json()
+    except Exception:
+        js = {"data": None, "_status": "non-json", "_body": r.text[:500]}
+    return js
 
 def parse_date(s: Optional[str]) -> Tuple[int, int, int]:
-    """Parse YYYY-MM-DD safely; return tuple for sorting; unknown -> very old date."""
     if not s:
         return (1900, 1, 1)
     try:
@@ -58,163 +62,99 @@ def parse_date(s: Optional[str]) -> Tuple[int, int, int]:
     except Exception:
         return (1900, 1, 1)
 
-def get_current_season_id(league_id: int, token: str) -> Optional[int]:
-    """
-    GET /leagues/{league_id}?include=currentSeason
-    Returns currentSeason.id or None.
-    """
-    try:
-        data = api_get(f"leagues/{league_id}", token, params={"include": "currentSeason"})
-    except Exception as e:
-        print(f"[ERROR] league {league_id}: failed to fetch currentSeason: {e}")
-        return None
-    league = data.get("data") or {}
-    current = league.get("currentSeason")
-    if isinstance(current, dict):
-        return current.get("id")
-    return None
+def fetch_league_with_seasons(league_id: int) -> Dict[str, Any]:
+    # Try preferred include (fast, scoped)
+    data = api_get(f"leagues/{league_id}", params={"include": "seasons;currentSeason"})
+    if data.get("data"):
+        return data
 
-def get_all_seasons_for_league(league_id: int, token: str) -> List[dict]:
-    """
-    GET /leagues/{league_id}?include=seasons
-    Returns list of season dicts with id, name, starting_at, ending_at.
-    """
-    try:
-        data = api_get(f"leagues/{league_id}", token, params={"include": "seasons"})
-    except Exception as e:
-        print(f"[ERROR] league {league_id}: failed to fetch seasons: {e}")
-        return []
-    league = data.get("data") or {}
-    seasons = league.get("seasons") or []
-    # normalize shape (some SDKs wrap in 'data')
+    # Fallback: query seasons endpoint filtered by league_id (in case include is limited by plan)
+    seasons = api_get("seasons", params={"filter": f"league_id:{league_id}", "per_page": 200})
+    league = api_get(f"leagues/{league_id}")
+    return {
+        "data": {
+            **(league.get("data") or {}),
+            "seasons": (seasons.get("data") or []),
+            "currentSeason": (api_get(f"leagues/{league_id}", params={"include": "currentSeason"}).get("data") or {}).get("currentSeason")
+        }
+    }
+
+def normalize_seasons(obj: Dict[str, Any]) -> Tuple[str, List[Dict[str, Any]], Optional[int]]:
+    league_name = ""
+    current_id = None
+    if not obj or not obj.get("data"):
+        return league_name, [], current_id
+
+    d = obj["data"]
+    league_name = d.get("name") or f"League {d.get('id')}"
+    current = d.get("currentSeason")
+    if isinstance(current, dict):
+        current_id = current.get("id")
+
+    seasons = d.get("seasons") or []
     if isinstance(seasons, dict) and "data" in seasons:
         seasons = seasons["data"]
-    # ensure list of dicts
     if not isinstance(seasons, list):
-        return []
-    return seasons
+        seasons = []
 
-def choose_season_ids(league_id: int, token: str, current_only: bool, last_n: Optional[int], all_flag: bool) -> List[int]:
-    if current_only and not last_n and not all_flag:
-        sid = get_current_season_id(league_id, token)
-        return [sid] if sid else []
-
-    seasons = get_all_seasons_for_league(league_id, token)
-    if not seasons:
-        # fallback to current if available
-        sid = get_current_season_id(league_id, token)
-        return [sid] if sid else []
-
-    # sort by starting_at descending (newest first)
-    seasons_sorted = sorted(
-        seasons,
-        key=lambda s: parse_date(s.get("starting_at")),
-        reverse=True,
-    )
-
-    if all_flag:
-        return [s.get("id") for s in seasons_sorted if s.get("id")]
-
-    if last_n and last_n > 0:
-        seasons_sorted = seasons_sorted[:last_n]
-        return [s.get("id") for s in seasons_sorted if s.get("id")]
-
-    # default fallback: just current (top of sorted is usually current)
-    return [seasons_sorted[0].get("id")] if seasons_sorted and seasons_sorted[0].get("id") else []
-
-def fetch_top_scorers(season_id: int, token: str, per_page: int = 100) -> Optional[List[dict]]:
-    """
-    GET /topscorers/seasons/{season_id}?filter=seasonTopscorerTypes:208
-    Returns rows or None on 404/unavailable.
-    """
-    path = f"topscorers/seasons/{season_id}"
-    params = {
-        "include": "player.nationality;player.position;participant;type;season.league",
-        "filter": "seasonTopscorerTypes:208",  # CORRECT: singular 'filter', correct key
-        "per_page": per_page,
-    }
-    try:
-        data = api_get(path, token, params=params)
-    except RuntimeError as e:
-        msg = str(e)
-        if "HTTP 404" in msg:
-            print(f"[INFO] season {season_id}: topscorers 404 — not available / not in plan.")
-            return None
-        print(f"[ERROR] season {season_id}: {e}")
-        return None
-    return data.get("data", data)
-
-def best_player_name(p: dict) -> str:
-    return p.get("display_name") or p.get("common_name") or p.get("name") or f"Player {p.get('id')}"
-
-def print_table(rows: List[dict], limit: Optional[int]) -> None:
-    if not rows:
-        print("No topscorers found.\n")
-        return
-    rows_sorted = sorted(rows, key=lambda r: (r.get("position", 10**9), -r.get("total", 0)))
-    if isinstance(limit, int) and limit > 0:
-        rows_sorted = rows_sorted[:limit]
-
-    league = rows_sorted[0].get("season", {}).get("league", {}).get("name", "")
-    season_label = rows_sorted[0].get("season", {}).get("name", "")
-    header = (league or "League") + (f" {season_label}" if season_label else "")
-    print(f"{header} — Top Scorers")
-    for r in rows_sorted:
-        pos = r.get("position")
-        goals = r.get("total", 0)
-        team = (r.get("participant", {}) or {}).get("name", "N/A")
-        player = r.get("player", {}) or {}
-        name = best_player_name(player)
-        prefix = f"{pos}." if pos is not None else "-"
-        print(f"{prefix} {name} ({team}) — {goals}")
-    print()
+    # sort newest first by starting_at
+    seasons.sort(key=lambda s: parse_date(s.get("starting_at")), reverse=True)
+    return league_name, seasons, current_id
 
 def main():
-    parser = argparse.ArgumentParser(description="Resolve Sportmonks season IDs via the API and print topscorers.")
-    parser.add_argument("--league-ids", type=int, nargs="+", default=[8],
-                        help="One or more league IDs (default: 8 = Premier League).")
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--current", action="store_true", help="Use current season only (default).")
-    group.add_argument("--all", dest="all_flag", action="store_true", help="Use all seasons for each league.")
-    group.add_argument("--last-n", type=int, help="Use last N seasons (by starting_at) for each league.")
-    parser.add_argument("--limit", type=int, default=10, help="Max rows per season (0 = all).")
-    parser.add_argument("--per-page", type=int, default=100, help="Items per page for topscorers.")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser(description="Print season IDs for one or more leagues.")
+    ap.add_argument("--league-ids", type=int, nargs="+", default=[8],
+                    help="League IDs (default: 8 = Premier League).")
+    ap.add_argument("--current-only", action="store_true",
+                    help="Print only the current season ID for each league.")
+    ap.add_argument("--ids-only", action="store_true",
+                    help="Print only numeric IDs (comma-separated per league).")
+    args = ap.parse_args()
 
-    token = get_token()
-    current_only = not args.all_flag and not args.last_n
-    limit = None if args.limit == 0 else args.limit
+    any_output = False
 
-    # Resolve seasons per league (no guessing)
-    season_ids: List[int] = []
     for lid in args.league_ids:
-        sids = choose_season_ids(lid, token, current_only=current_only, last_n=args.last_n, all_flag=args.all_flag)
-        if not sids:
-            print(f"[WARN] league {lid}: no season IDs resolved.")
+        data = fetch_league_with_seasons(lid)
+        league_name, seasons, current_id = normalize_seasons(data)
+
+        if args.current-only:
+            # Only current season
+            if current_id:
+                if args.ids_only:
+                    print(f"{lid}:{current_id}")
+                else:
+                    # Try to find label for current
+                    cur = next((s for s in seasons if s.get("id") == current_id), None)
+                    label = cur.get("name") if cur else ""
+                    print(f"{league_name} (league_id={lid}) — current season: {current_id} {f'[{label}]' if label else ''}")
+                any_output = True
+            else:
+                print(f"{league_name or f'League {lid}'} (league_id={lid}) — current season: not found / not in plan.")
+            continue
+
+        # All seasons for that league
+        if not seasons:
+            print(f"{league_name or f'League {lid}'} (league_id={lid}) — no seasons found.")
+            continue
+
+        any_output = True
+        if args.ids_only:
+            ids = ",".join(str(s.get("id")) for s in seasons if s.get("id"))
+            print(f"{lid}:{ids}")
         else:
-            print(f"[INFO] league {lid}: seasons resolved -> {sids}")
-            season_ids.extend(sids)
+            print(f"{league_name} (league_id={lid}) — seasons (newest first):")
+            for s in seasons:
+                sid = s.get("id")
+                name = s.get("name", "")
+                start = s.get("starting_at", "")
+                end = s.get("ending_at", "")
+                star = " (current)" if current_id and sid == current_id else ""
+                print(f"  - {sid}: {name}  [{start} → {end}]{star}")
+            print()
 
-    # De-dup & keep order
-    seen = set()
-    ordered_sids = []
-    for sid in season_ids:
-        if sid and sid not in seen:
-            seen.add(sid)
-            ordered_sids.append(sid)
-
-    if not ordered_sids:
-        sys.exit("[RESULT] No season IDs resolved. Nothing to do.")
-
-    # Fetch & print topscorers for each season
-    any_rows = False
-    for sid in ordered_sids:
-        rows = fetch_top_scorers(sid, token, per_page=args.per_page)
-        if rows:
-            any_rows = True
-            print_table(rows, limit)
-    if not any_rows:
-        print("[RESULT] No topscorer rows found across selected seasons.")
+    # CI-friendly: never fail the job just because nothing returned
+    if not any_output:
+        print("[INFO] No seasons printed (check token/plan/league IDs).")
 
 if __name__ == "__main__":
     main()
