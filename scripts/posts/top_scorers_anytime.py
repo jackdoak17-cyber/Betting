@@ -3,24 +3,21 @@
 
 """
 Builds 'Top Scorers (Anytime)' post with Bet365 anytime goalscorer odds,
-saving to scripts/posts/top_scorers_anytime.md
+saving to betting/posts/top_scorers_anytime.md
 
-Requirements:
-  - Env: SPORTMONKS_TOKEN
-  - Files (your repo):
-      data/fixtures/by_league/{league_id}.json
-      data/odds/b365/by_league/{league_id}.json   # preferred
-      data/odds/b365/fixtures/{fixture_id}.json   # optional fallback per fixture
+Env:
+  SPORTMONKS_TOKEN  -> your API token
 
-Test locally:
-  SPORTMONKS_TOKEN=xxxxx python3 scripts/posts/top_scorers_anytime.py
+Repo files it reads:
+  data/fixtures/by_league/{league_id}.json
+  data/odds/b365/by_league/{league_id}.json        (preferred)
+  data/odds/b365/fixtures/{fixture_id}.json        (fallback per fixture)
 """
 
 import os
 import sys
 import re
 import json
-import time
 import unicodedata
 from pathlib import Path
 from datetime import datetime
@@ -48,7 +45,7 @@ LEAGUE_LABEL = {
 TOP_LEAGUES = [8, 564, 82, 384, 301]
 
 API_BASE = "https://api.sportmonks.com/v3/football"
-OUTFILE = Path("scripts/posts/top_scorers_anytime.md")
+OUTFILE = Path("betting/posts/top_scorers_anytime.md")
 
 FIXTURES_DIR = Path("data/fixtures/by_league")
 ODDS_BY_LEAGUE_DIR = Path("data/odds/b365/by_league")
@@ -57,20 +54,19 @@ ODDS_BY_FIXTURE_DIR = Path("data/odds/b365/fixtures")
 BOOKMAKER_IDENTIFIERS = {"bet365", "b365", "bet 365", "bet-365", "bet_365"}
 
 # -----------------------------
-# Utilities
+# Utils
 # -----------------------------
 def now_utc_str() -> str:
     return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
-def parse_dt(s: str) -> Optional[datetime]:
+def parse_dt(s: Any) -> Optional[datetime]:
     if not s:
         return None
     for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S"):
         try:
-            return datetime.strptime(s, fmt)
-        except ValueError:
+            return datetime.strptime(str(s), fmt)
+        except Exception:
             pass
-    # last-resort: try timestamp int
     try:
         return datetime.utcfromtimestamp(int(s))
     except Exception:
@@ -90,7 +86,7 @@ def ascii_norm(s: str) -> str:
         return ""
     s = unicodedata.normalize("NFKD", s)
     s = s.encode("ascii", "ignore").decode("ascii")
-    s = re.sub(r"[^\w\s-]", "", s)  # remove punctuation
+    s = re.sub(r"[^\w\s-]", "", s)
     s = re.sub(r"\s+", " ", s).strip().lower()
     return s
 
@@ -119,7 +115,7 @@ def num(v: Any) -> Optional[float]:
         if isinstance(v, (int, float)):
             return float(v)
         s = str(v).strip()
-        if "/" in s:  # fractional "3/1"
+        if "/" in s:
             a, b = s.split("/", 1)
             return (float(a) / float(b)) + 1.0
         return float(s)
@@ -127,7 +123,7 @@ def num(v: Any) -> Optional[float]:
         return None
 
 # -----------------------------
-# SportMonks API
+# SportMonks API helpers
 # -----------------------------
 def get_current_season_id(league_id: int, token: str) -> Optional[int]:
     url = f"{API_BASE}/leagues/{league_id}"
@@ -138,33 +134,131 @@ def get_current_season_id(league_id: int, token: str) -> Optional[int]:
     cs = data.get("currentseason") or data.get("currentSeason")
     if isinstance(cs, dict):
         return cs.get("id")
-    # some payloads might embed under relationships
     rel = data.get("relationships", {}).get("currentSeason", {})
     if isinstance(rel, dict):
         d = rel.get("data") or {}
         return d.get("id")
     return None
 
-def fetch_top_scorers(season_id: int, token: str) -> List[Dict[str, Any]]:
-    # WORKING v3 pattern is query param seasons={id}
-    url = f"{API_BASE}/topscorers"
-    params = {
-        "seasons": str(season_id),
-        "include": "player;team",
-        "api_token": token,
-    }
-    r = requests.get(url, params=params, timeout=30)
-    r.raise_for_status()
-    payload = r.json()
-    items = payload.get("data") or []
-    return items
+def _items_from_generic_topscorers(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return items or []
+
+def _items_from_players_statistics(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    # Normalize a players+statistics shape into pseudo-topscorer rows
+    out = []
+    for it in items or []:
+        row = {"player": None, "team": None, "goals": None}
+        # player name
+        p = it.get("player") or {}
+        p = p.get("data", p)
+        row["player"] = (
+            p.get("display_name")
+            or p.get("common_name")
+            or p.get("fullname")
+            or p.get("name")
+        )
+        # team
+        t = it.get("team") or {}
+        t = t.get("data", t)
+        row["team"] = t.get("name")
+
+        # find a goals-ish number anywhere in statistics
+        def find_goals_val(obj):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    k0 = ascii_norm(k)
+                    if k0 in {"goals", "goals_total", "total_goals", "goals_scored", "scored"}:
+                        try:
+                            return int(v)
+                        except Exception:
+                            pass
+                    found = find_goals_val(v)
+                    if found is not None:
+                        return found
+            elif isinstance(obj, list):
+                for v in obj:
+                    found = find_goals_val(v)
+                    if found is not None:
+                        return found
+            return None
+
+        stats = it.get("statistics") or it.get("stats") or {}
+        row["goals"] = find_goals_val(stats)
+        # keep original node in case we need team_id later
+        row["_raw"] = it
+        out.append(row)
+    return out
+
+def fetch_top_scorers_any_way(season_id: int, token: str) -> List[Dict[str, Any]]:
+    """
+    Try multiple routes. Return a list of items shaped like the "topscorers" aggregate.
+    """
+    tried = []
+
+    # 1) /topscorers/seasons/{id}
+    try:
+        url = f"{API_BASE}/topscorers/seasons/{season_id}"
+        params = {"include": "player;team", "api_token": token}
+        r = requests.get(url, params=params, timeout=30)
+        r.raise_for_status()
+        payload = r.json()
+        return _items_from_generic_topscorers(payload.get("data") or [])
+    except Exception as e:
+        tried.append(f"{url} -> {e}")
+
+    # 2) /topscorers?seasons={id}
+    try:
+        url = f"{API_BASE}/topscorers"
+        params = {"seasons": str(season_id), "include": "player;team", "api_token": token}
+        r = requests.get(url, params=params, timeout=30)
+        r.raise_for_status()
+        payload = r.json()
+        return _items_from_generic_topscorers(payload.get("data") or [])
+    except Exception as e:
+        tried.append(f"{url} -> {e}")
+
+    # 3) /players/topscorers?seasons={id}
+    try:
+        url = f"{API_BASE}/players/topscorers"
+        params = {"seasons": str(season_id), "include": "player;team", "api_token": token}
+        r = requests.get(url, params=params, timeout=30)
+        r.raise_for_status()
+        payload = r.json()
+        return _items_from_generic_topscorers(payload.get("data") or [])
+    except Exception as e:
+        tried.append(f"{url} -> {e}")
+
+    # 4) Last resort: /players/seasons/{id}?include=player;team;statistics
+    try:
+        url = f"{API_BASE}/players/seasons/{season_id}"
+        params = {"include": "player;team;statistics", "api_token": token}
+        r = requests.get(url, params=params, timeout=60)
+        r.raise_for_status()
+        payload = r.json()
+        items = _items_from_players_statistics(payload.get("data") or [])
+        # Sort by goals desc; take top 50 (we’ll show 10 later)
+        items = sorted(items, key=lambda x: (x.get("goals") or 0), reverse=True)
+        # Wrap to look like generic items for downstream extraction
+        wrapped = []
+        for it in items:
+            raw = it.get("_raw", {})
+            # graft in "player" and "team" relationships so extract_player_fields works
+            wrapped.append({
+                "goals": it.get("goals"),
+                "player": raw.get("player") or {},
+                "team": raw.get("team") or {},
+            })
+        return wrapped
+    except Exception as e:
+        tried.append(f"{url} -> {e}")
+
+    raise RuntimeError("All top-scorer routes failed:\n  " + "\n  ".join(tried))
 
 def extract_player_fields(item: Dict[str, Any]) -> Tuple[str, Optional[int], str, Optional[int]]:
     """
     Returns (player_name, team_id, team_name, goals)
     Handles multiple possible shapes.
     """
-    # goals / value
     goals = (item.get("goals") or item.get("value") or item.get("scored") or item.get("count"))
     try:
         goals = int(goals) if goals is not None else None
@@ -174,25 +268,24 @@ def extract_player_fields(item: Dict[str, Any]) -> Tuple[str, Optional[int], str
     # team
     team_id = item.get("team_id")
     team_name = item.get("team_name")
-    if not team_id or not team_name:
-        team_rel = item.get("team") or {}
-        team_data = team_rel.get("data") if isinstance(team_rel, dict) else None
-        if isinstance(team_data, dict):
-            team_id = team_id or team_data.get("id")
-            team_name = team_name or team_data.get("name")
+    team_rel = item.get("team") or {}
+    team_data = team_rel.get("data") if isinstance(team_rel, dict) else None
+    if isinstance(team_data, dict):
+        team_id = team_id or team_data.get("id")
+        team_name = team_name or team_data.get("name")
 
     # player
     player_name = item.get("player_name")
-    if not player_name:
-        p_rel = item.get("player") or {}
-        p_data = p_rel.get("data") if isinstance(p_rel, dict) else None
-        if isinstance(p_data, dict):
-            player_name = (
-                p_data.get("display_name")
-                or p_data.get("common_name")
-                or p_data.get("fullname")
-                or p_data.get("name")
-            )
+    p_rel = item.get("player") or {}
+    p_data = p_rel.get("data") if isinstance(p_rel, dict) else None
+    if isinstance(p_data, dict):
+        player_name = (
+            player_name
+            or p_data.get("display_name")
+            or p_data.get("common_name")
+            or p_data.get("fullname")
+            or p_data.get("name")
+        )
     player_name = player_name or "Unknown"
 
     return player_name, team_id, (team_name or "Unknown"), goals
@@ -207,7 +300,7 @@ def next_fixture_for_team(fixtures_doc: Dict[str, Any], team_id: int) -> Optiona
     for fx in fixtures:
         parts = fx.get("participants") or []
         if any((p.get("id") == team_id) for p in parts):
-            dt = parse_dt(fx.get("starting_at")) or parse_dt(str(fx.get("starting_at_timestamp") or ""))
+            dt = parse_dt(fx.get("starting_at")) or parse_dt(fx.get("starting_at_timestamp"))
             if dt and dt >= now:
                 candidates.append((dt, fx))
     if not candidates:
@@ -216,9 +309,6 @@ def next_fixture_for_team(fixtures_doc: Dict[str, Any], team_id: int) -> Optiona
     return candidates[0][1]
 
 def opponent_and_home_away(fixture: Dict[str, Any], team_id: int) -> Tuple[str, str]:
-    """
-    Returns (opponent_name, 'H' or 'A' or '?')
-    """
     parts = fixture.get("participants") or []
     opp, ha = "?", "?"
     for p in parts:
@@ -231,22 +321,11 @@ def opponent_and_home_away(fixture: Dict[str, Any], team_id: int) -> Tuple[str, 
     return opp, ha
 
 def find_fixture_odds_node(league_odds_doc: Dict[str, Any], fixture_id: int) -> Optional[Dict[str, Any]]:
-    """
-    Tries to locate the odds block for the specific fixture inside a by-league dump.
-    Expected shapes:
-      - {"fixtures":[{"id":<fixture_id>, "bookmakers":[...]}]}
-      - {"data":[{"fixture_id":<fixture_id>, "bookmakers":[...]}]}
-      - {"<fixture_id>": {...}}
-    """
     if not league_odds_doc:
         return None
-
-    # direct map by fixture id
     key = str(fixture_id)
     if key in league_odds_doc and isinstance(league_odds_doc[key], dict):
         return league_odds_doc[key]
-
-    # look inside common arrays
     for top_key in ("fixtures", "data", "events", "matches"):
         arr = league_odds_doc.get(top_key)
         if isinstance(arr, list):
@@ -256,7 +335,6 @@ def find_fixture_odds_node(league_odds_doc: Dict[str, Any], fixture_id: int) -> 
                 if node.get("id") == fixture_id or node.get("fixture_id") == fixture_id:
                     return node
 
-    # last resort: deep linear scan
     def walk(obj):
         if isinstance(obj, dict):
             if (obj.get("id") == fixture_id or obj.get("fixture_id") == fixture_id) and (
@@ -277,30 +355,16 @@ def find_fixture_odds_node(league_odds_doc: Dict[str, Any], fixture_id: int) -> 
     return walk(league_odds_doc)
 
 def select_bet365_block(odds_node: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    From a fixture odds node, isolate Bet365 slice if bookmakers[] exists,
-    else return node itself.
-    """
     books = odds_node.get("bookmakers")
     if isinstance(books, list) and books:
         for b in books:
-            if not isinstance(b, dict):
-                continue
             name = ascii_norm(b.get("name") or b.get("key") or b.get("id") or "")
             if looks_like_bet365(name):
                 return b
-        # fallback: first bookmaker
         return books[0]
     return odds_node
 
 def collect_anytime_selections(book_block: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Traverse Bet365 bookmaker block and extract selections for 'Anytime' goalscorer markets.
-    Supports loose schemas:
-      - markets: [ { name/key: "Anytime Goalscorer" ... selections: [...] } ]
-      - categories/submarkets with nested selections
-    Returns entries with at least {"name":<runner_name>, "price":<decimal_odds>}
-    """
     results = []
 
     def accept_market_name(n: str) -> bool:
@@ -312,20 +376,14 @@ def collect_anytime_selections(book_block: Dict[str, Any]) -> List[Dict[str, Any
             market_name = ctx_market_name
             n = node.get("name") or node.get("key") or node.get("market") or ""
             if n:
-                # If this node is a market definition, refresh the market_name
-                if "market" in ascii_norm(n) or "goalscorer" in ascii_norm(n) or "score" in ascii_norm(n):
+                if any(k in ascii_norm(n) for k in ["goalscorer", "scorer", "score", "market"]):
                     market_name = n
-
-            # direct selections
             sels = node.get("selections") or node.get("runners") or node.get("outcomes")
             if isinstance(sels, list) and accept_market_name(market_name or n or ""):
                 for s in sels:
-                    if not isinstance(s, dict):
-                        continue
                     nm = s.get("name") or s.get("runner") or s.get("label")
                     if not nm:
                         continue
-                    # odds extraction (decimal if possible)
                     price = (
                         num(s.get("price"))
                         or num(s.get("odds_decimal"))
@@ -335,7 +393,6 @@ def collect_anytime_selections(book_block: Dict[str, Any]) -> List[Dict[str, Any
                     )
                     if price:
                         results.append({"name": nm, "price": price})
-            # recurse
             for v in node.values():
                 visit(v, market_name)
         elif isinstance(node, list):
@@ -352,6 +409,7 @@ def match_runner_price(runners: List[Dict[str, Any]], player_name: str) -> Optio
     p_last = ascii_norm(player_name).split()[-1] if player_name else ""
     best_price = None
     best_score = -1
+    pvars_norm = [ascii_norm(v) for v in pvars]
 
     for r in runners:
         nm = r.get("name") or ""
@@ -359,24 +417,19 @@ def match_runner_price(runners: List[Dict[str, Any]], player_name: str) -> Optio
         if not nm or not price:
             continue
         nm_norm = ascii_norm(nm)
-
         score = 0
-        if nm_norm in (ascii_norm(v) for v in pvars):
+        if nm_norm in pvars_norm:
             score = 100
         elif p_last and p_last in nm_norm:
             score = 70
-        # preference for fuller matches
         if ascii_norm(player_name) in nm_norm:
             score += 20
-
         if score > best_score:
             best_score = score
             best_price = price
-
     return best_price
 
 def find_anytime_price(league_id: int, fixture_id: int, player_name: str) -> Optional[float]:
-    # 1) by-league dump
     league_path = ODDS_BY_LEAGUE_DIR / f"{league_id}.json"
     league_doc = load_json(league_path)
     node = find_fixture_odds_node(league_doc or {}, fixture_id)
@@ -387,7 +440,6 @@ def find_anytime_price(league_id: int, fixture_id: int, player_name: str) -> Opt
         if price:
             return price
 
-    # 2) fallback: dedicated fixture dump
     fx_path = ODDS_BY_FIXTURE_DIR / f"{fixture_id}.json"
     fx_doc = load_json(fx_path)
     if fx_doc:
@@ -437,38 +489,38 @@ def main():
     blocks: List[str] = [header, ""]
 
     for league_id in TOP_LEAGUES:
+        title = LEAGUE_LABEL.get(league_id, f"League {league_id}")
         try:
             season_id = get_current_season_id(league_id, token)
             if not season_id:
                 raise RuntimeError(f"No current season for league {league_id}")
-            items = fetch_top_scorers(season_id, token)
+
+            items = fetch_top_scorers_any_way(season_id, token)
+
         except Exception as e:
-            # Show the error inline for traceability in the post
-            title = LEAGUE_LABEL.get(league_id, f"League {league_id}")
             blocks.append(title)
             blocks.append(f"Error fetching data: {e}")
             blocks.append("")
             continue
 
-        # Load fixtures dump for league (used to get next fixture & opponent/H/A)
         fixtures_doc = load_json(FIXTURES_DIR / f"{league_id}.json") or {}
-
         rows = []
-        count = 0
-        for item in items:
+        for item in items[:10]:
             player, team_id, team_name, goals = extract_player_fields(item)
             if not player or not team_id:
-                continue
-
-            # Next fixture for the player’s team
-            fx = next_fixture_for_team(fixtures_doc, team_id)
+                # Try to salvage team_id from alt shapes
+                team_rel = item.get("team") or {}
+                team_data = team_rel.get("data") if isinstance(team_rel, dict) else {}
+                team_id = team_id or (team_data.get("id") if isinstance(team_data, dict) else None)
+                team_name = team_name or (team_data.get("name") if isinstance(team_data, dict) else None)
+            # next fixture
+            fx = next_fixture_for_team(fixtures_doc, team_id) if team_id else None
             opponent = ha = None
             fixture_id = None
             if fx:
                 opponent, ha = opponent_and_home_away(fx, team_id)
                 fixture_id = fx.get("id")
-
-            # Odds lookup (Bet365 Anytime)
+            # odds
             price = None
             if fixture_id:
                 try:
@@ -484,10 +536,6 @@ def main():
                 "ha": ha,
                 "odds": price,
             })
-
-            count += 1
-            if count >= 10:
-                break
 
         blocks.append(render_league_block(league_id, rows))
 
