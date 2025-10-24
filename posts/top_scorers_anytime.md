@@ -1,5 +1,4 @@
-<!-- top_scorers_anytime.py v1.3.0 -->
-Top Scorers (Anytime) — Updated 2025-10-24 20:35:50 UTC
+Top Scorers (Anytime) — Updated 2025-10-24 21:09:03 UTC
 
 Premier League
 1. Erling Haaland — Manchester City — 11 — Anytime @ 1.80 (Aston Villa vs Manchester City @ 2025-10-26 14:00:00 UTC)
