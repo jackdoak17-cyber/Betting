@@ -3,13 +3,13 @@
 
 """
 Top Scorers (Anytime) — with Bet365 'Anytime goalscorer' prices.
-v1.4.0 — stronger player/label matching + broader 'Anytime' detection
+v1.4.1 — stricter 'Anytime' detection + robust player/label matching
 
 ENV:
-  SPORTMONKS_TOKEN  (required)
-  OUTPUT_PATH       (optional; default posts/top_scorers_anytime.md)
-  DEBUG             (optional; "1" to print extra logs)
-  EMIT_VERSION_COMMENT (optional; default "1")
+  SPORTMONKS_TOKEN      (required)
+  OUTPUT_PATH           (optional; default posts/top_scorers_anytime.md)
+  DEBUG                 (optional; "1" to print extra logs)
+  EMIT_VERSION_COMMENT  (optional; default "1")
 """
 
 import os, sys, json, datetime as dt, re, unicodedata
@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import requests
 
-VERSION = "top_scorers_anytime.py v1.4.0"
+VERSION = "top_scorers_anytime.py v1.4.1"
 
 BASE  = "https://api.sportmonks.com/v3/football"
 TOKEN = os.getenv("SPORTMONKS_TOKEN")
@@ -27,13 +27,22 @@ if not TOKEN:
 DEBUG = os.getenv("DEBUG") == "1"
 EMIT_VERSION_COMMENT = os.getenv("EMIT_VERSION_COMMENT", "1") == "1"
 
-LEAGUES = {8:"Premier League",564:"LaLiga",82:"Bundesliga",384:"Serie A",301:"Ligue 1"}
+# Top 5 leagues
+LEAGUES = {
+    8:   "Premier League",
+    564: "LaLiga",
+    82:  "Bundesliga",
+    384: "Serie A",
+    301: "Ligue 1",
+}
 
-ROOT = Path(".")
-FIX_DIR = ROOT / "data" / "fixtures" / "by_league"
-ODDS_DIR_MAIN = ROOT / "data" / "odds" / "b365" / "by_league"
-ODDS_DIR_ALT  = ROOT / "data" / "odds" / "b365"
+# Local cache paths
+ROOT         = Path(".")
+FIX_DIR      = ROOT / "data" / "fixtures" / "by_league"
+ODDS_DIR_MAIN= ROOT / "data" / "odds" / "b365" / "by_league"
+ODDS_DIR_ALT = ROOT / "data" / "odds" / "b365"
 
+# Bet365 identifiers
 BOOKMAKER_B365     = 2
 MARKET_GOALSCORERS = 90
 
@@ -50,6 +59,7 @@ def norm(s: str) -> str:
     return s
 
 def cleanup_label(label: str) -> str:
+    # drop parenthetical qualifiers at the end, e.g. "Smith (Penalties)"
     return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
 
 def tokenize_name(name: str) -> List[str]:
@@ -57,7 +67,6 @@ def tokenize_name(name: str) -> List[str]:
 
 def core_tokens(name: str) -> List[str]:
     toks = tokenize_name(name)
-    # drop suffixes like Jr/Junior/etc from the END only
     while toks and toks[-1] in SUFFIXES:
         toks = toks[:-1]
     return toks
@@ -69,58 +78,58 @@ def extract_first_last(name: str) -> Tuple[Optional[str], Optional[str]]:
     last  = toks[-1] if len(toks) > 1 else toks[0]
     return first, last
 
-# Known aliases / nicknames that books often use
+# Known aliases / nicknames some books use
 ALIASES: Dict[str, set] = {
     "vinicius junior": {"vini", "vinicius jr", "vini jr"},
     "cucho hernandez": {"cucho", "juan camilo hernandez", "juan hernandez", "j camilo hernandez"},
-    # Add more here if you spot others
+    # Add more if needed (e.g., "ansu fati": {"ansu"})
 }
 
 def player_label_matches(player: str, option_name_or_label: str) -> bool:
     """
     Robust matcher:
-      - surname + first initial OR surname + firstname
-      - handles suffixes (Jr/Junior/etc)
-      - accepts aliases (e.g., 'Vini', 'Cucho')
-      - hyphenated names / compound checking
-      - fallback: 2 core tokens (>=4 chars) present in label
+      - Surname + (first initial OR full first)  | handles suffixes
+      - Accepts aliases/nicknames (e.g., 'Vini', 'Cucho')
+      - Hyphenated/compound names: significant tokens
+      - Fallback: 2 core tokens (>=4 chars) present in label
     """
     if not player or not option_name_or_label:
         return False
+
     label = norm(cleanup_label(option_name_or_label))
     p_norm = norm(player)
 
     first, last = extract_first_last(player)
-    # quick surname path (>=3 chars to avoid noise)
+
+    # Preferred: last name present (>=3 chars), plus initial/full first if available
     if last and len(last) >= 3 and last in label:
         if first:
             ini = first[0:1]
-            # initial + last, or full first + last
             if re.search(rf"\b{ini}\w*\b.*\b{last}\b", label) or first in label:
                 return True
         else:
             return True
 
-    # alias path
+    # Aliases
     if p_norm in ALIASES:
         for a in ALIASES[p_norm]:
             if a in label:
                 return True
 
-    # hyphen/compound fallback — any significant part
+    # Compound/hyphenated: any significant token (>=5 chars),
+    # with either last present or at least 2 significant tokens total
     parts = tokenize_name(player)
     for p in parts:
         if len(p) >= 5 and p in label:
-            # require one of: last in label or two significant tokens total
             if (last and last in label) or sum(1 for t in parts if len(t) >= 5 and t in label) >= 2:
                 return True
 
-    # 2-token presence fallback (avoid common surnames only)
+    # 2-core-token fallback (>=4 chars)
     core = [t for t in core_tokens(player) if len(t) >= 4]
     if sum(1 for t in core if t in label) >= 2:
         return True
 
-    # long first-name fallback (rare but helps e.g. single-name listings)
+    # Long first-name fallback
     if first and len(first) >= 6 and first in label:
         return True
 
@@ -178,7 +187,7 @@ def fetch_topscorers_via_endpoint(season_id: int):
     params = {
         "api_token": TOKEN,
         "include": "player;participant;type",
-        "filters": "seasonTopscorerTypes:208",
+        "filters": "seasonTopscorerTypes:208",  # 208 = Goals (anytime)
         "per_page": 50,
         "order": "asc",
     }
@@ -199,21 +208,31 @@ def parse_topscorers(payload):
         items = payload["data"]["topscorers"] or []
     else:
         items = payload.get("data", []) or []
+
     agg = {}
     for row in items:
         player = row.get("player") or (row.get("topscorer") or {}).get("player")
         team = row.get("participant") or (row.get("topscorer") or {}).get("participant")
         total = row.get("total") or (row.get("value") or {}).get("total")
-        if not player or total is None: continue
-        pid = player["id"]; key = (pid, (team or {}).get("id"))
-        entry = agg.setdefault(key, {
-            "player": player.get("display_name") or player.get("fullname") or player.get("name"),
-            "team": (team or {}).get("name", "—"),
-            "total": 0,
-        })
-        try: entry["total"] += int(total)
-        except Exception: pass
-    return sorted(agg.values(), key=lambda x: (-x["total"], x["player"]))[:10]
+        if not player or total is None:
+            continue
+        pid = player["id"]
+        key = (pid, (team or {}).get("id"))
+        entry = agg.setdefault(
+            key,
+            {
+                "player": player.get("display_name") or player.get("fullname") or player.get("name"),
+                "team": (team or {}).get("name", "—"),
+                "total": 0,
+            },
+        )
+        try:
+            entry["total"] += int(total)
+        except Exception:
+            pass
+
+    ranked = sorted(agg.values(), key=lambda x: (-x["total"], x["player"]))[:10]
+    return ranked
 
 # ---------------- fixtures ----------------
 def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
@@ -247,18 +266,44 @@ def find_next_fixture_for_team(team_name: str, fixtures: List[dict]) -> Optional
     return best[1] if best else None
 
 # ---------------- odds ----------------
-ANYTIME_LABELS = {
-    "anytime","any time","to score","to score anytime","to score at any time",
-    "anytime goalscorer","goalscorer – anytime","goalscorer - anytime","goalscorers"
+# STRICT "Anytime" matching — accept only clear anytime labels, block others
+ANYTIME_EXACT = {
+    "anytime", "any time", "to score", "to score anytime", "to score at any time",
+    "anytime goalscorer", "to score (anytime)", "goalscorer anytime"
 }
+ANYTIME_BLOCK = {
+    # explicitly not anytime:
+    "first", "last", "2 or more", "two or more", "brace", "hat trick", "hat-trick",
+    "treble", "header", "left foot", "right foot", "penalty", "free kick",
+    "assist", "to assist", "card", "yellow", "red", "shots", "shot", "on target",
+    "sot", "score 2+", "score two+", "score two or more"
+}
+
 def is_anytime_label(label: str) -> bool:
-    if not label: return False
+    if not label:
+        return False
     l = norm(label)
-    if l in ANYTIME_LABELS: return True
-    # contains checks
-    return ("anytime" in l) or ("any time" in l) or ("to score" in l)
+    # hard block if any disallowed token appears
+    for bad in ANYTIME_BLOCK:
+        if bad in l:
+            return False
+    # exact whitelist
+    if l in ANYTIME_EXACT:
+        return True
+    # soft allow: contains "anytime"/"any time" or startswith "to score"
+    if "anytime" in l or "any time" in l:
+        return True
+    if l.startswith("to score"):
+        return True
+    return False
 
 def iter_odds_fixtures(odds_blob: dict) -> List[dict]:
+    """
+    Support common shapes:
+      { fixtures: [...] }
+      { data: { fixtures: [...] } }
+      [ {id,name,odds}, ... ]
+    """
     if isinstance(odds_blob, list):
         return odds_blob
     if isinstance(odds_blob, dict):
@@ -283,7 +328,8 @@ def find_fixture_odds_entry(odds_blob: dict, fixture_id: Optional[int], fixture_
             try:
                 if int(fx.get("id", -1)) == int(fixture_id):
                     return fx
-            except Exception: pass
+            except Exception:
+                pass
     if fixture_name:
         tgt_home, tgt_away = parse_fixture_teams(fixture_name)
         for fx in fixtures:
@@ -303,16 +349,22 @@ def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optiona
             if int(o.get("market_id", 0))    != MARKET_GOALSCORERS: continue
         except Exception:
             continue
-        if o.get("stopped"):  # closed line
+        if o.get("stopped"):
             continue
         if not is_anytime_label(o.get("label") or ""):
+            # Optional probe for debugging tricky players (uncomment to use)
+            # if DEBUG and (norm(player) in {"bradley barcola"}):
+            #     print("[DEBUG] Skipping non-anytime for", player, "| label=", o.get("label"))
             continue
+
         anytime_rows += 1
         candidate = o.get("name") or o.get("original_label") or o.get("total") or ""
         if not samples and candidate:
             samples.append(norm(candidate))
+
         if not player_label_matches(player, candidate):
             continue
+
         matched += 1
         try:
             price = float(str(o.get("value")))
@@ -320,19 +372,23 @@ def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optiona
             continue
         if best is None or price > best + 1e-12:
             best = price
+
     if DEBUG and best is None:
         print(f"[DEBUG] NO MATCH for '{player}': anytime_rows={anytime_rows}, matched={matched}, sample={samples[:3]}")
     return best
 
 def scan_team_fixtures_for_anytime(odds_blob: dict, team_name: str, player: str) -> Optional[Tuple[str, str, float]]:
+    """Fallback: scan all fixtures in odds where this team appears."""
     for fx in iter_odds_fixtures(odds_blob):
         fname = fx.get("name") or ""
         home, away = parse_fixture_teams(fname)
         if not home or not away: continue
-        if not (team_names_match(team_name, home) or team_names_match(team_name, away)): continue
+        if not (team_names_match(team_name, home) or team_names_match(team_name, away)):
+            continue
         price = best_anytime_goalscorer_price(fx.get("odds") or [], player)
         if price is not None:
-            return fname, (fx.get("starting_at") or ""), price
+            kickoff = fx.get("starting_at") or ""
+            return fname, kickoff, price
     return None
 
 # ---------------- main ----------------
@@ -368,8 +424,8 @@ def main():
                 for i, row in enumerate(leaders, 1):
                     player = row["player"]; team = row["team"]; total = row["total"]
                     fx = find_next_fixture_for_team(team, fixtures)
-                    odds_price = None; fx_name = None; kickoff = None
 
+                    odds_price = None; fx_name = None; kickoff = None
                     if fx:
                         fx_name = fx.get("name") or ""
                         kickoff = fx.get("starting_at") or ""
@@ -397,7 +453,7 @@ def main():
                 import traceback; traceback.print_exc()
             lines.append(f"Error fetching data: {type(e).__name__}: {e}")
 
-        lines.append("")
+        lines.append("")  # blank line after each league
 
     Path(out_path).write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote {out_path}")
