@@ -1,10 +1,10 @@
-name: Post 1 — Top Scorers Anytime Odds
+name: Post — Top Scorers Anytime Odds
 
 on:
   workflow_dispatch:
   schedule:
-    # Run hourly on the hour (UTC)
-    - cron: "10000 * * * *"
+    # Run daily at 07:00 UTC
+    - cron: "0 7 * * *"
 
 permissions:
   contents: write
