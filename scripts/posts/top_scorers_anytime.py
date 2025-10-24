@@ -3,12 +3,7 @@
 
 """
 Top Scorers (Anytime) — with Bet365 'Anytime goalscorer' prices.
-
-Key differences vs prior:
-- Emits a version comment at the top of the markdown (toggle with EMIT_VERSION_COMMENT=0)
-- DEBUG logs to Actions
-- Robust odds file loader (tries multiple paths + shapes)
-- Always appends an "extra" suffix per player so you can tell it's running
+v1.4.0 — stronger player/label matching + broader 'Anytime' detection
 
 ENV:
   SPORTMONKS_TOKEN  (required)
@@ -22,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import requests
 
-VERSION = "top_scorers_anytime.py v1.3.0"
+VERSION = "top_scorers_anytime.py v1.4.0"
 
 BASE  = "https://api.sportmonks.com/v3/football"
 TOKEN = os.getenv("SPORTMONKS_TOKEN")
@@ -32,27 +27,20 @@ if not TOKEN:
 DEBUG = os.getenv("DEBUG") == "1"
 EMIT_VERSION_COMMENT = os.getenv("EMIT_VERSION_COMMENT", "1") == "1"
 
-# Top 5 leagues
-LEAGUES = {
-    8:   "Premier League",
-    564: "LaLiga",
-    82:  "Bundesliga",
-    384: "Serie A",
-    301: "Ligue 1",
-}
+LEAGUES = {8:"Premier League",564:"LaLiga",82:"Bundesliga",384:"Serie A",301:"Ligue 1"}
 
 ROOT = Path(".")
 FIX_DIR = ROOT / "data" / "fixtures" / "by_league"
-# We'll try both of these (many repos differ)
 ODDS_DIR_MAIN = ROOT / "data" / "odds" / "b365" / "by_league"
 ODDS_DIR_ALT  = ROOT / "data" / "odds" / "b365"
 
 BOOKMAKER_B365     = 2
 MARKET_GOALSCORERS = 90
 
-# ---------- string helpers ----------
+# ---------------- string helpers ----------------
+SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
+
 def strip_accents(s: str) -> str:
-    import unicodedata
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
 def norm(s: str) -> str:
@@ -64,26 +52,79 @@ def norm(s: str) -> str:
 def cleanup_label(label: str) -> str:
     return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
 
-def extract_last_name_initial(name: str):
-    if not name: return None, None
-    parts = strip_accents(name).replace(".", " ").strip().split()
-    if not parts: return None, None
-    last = norm(parts[-1]); initial = None
-    for p in parts[:-1]:
-        if p: initial = p[0].lower(); break
-    return last, initial
+def tokenize_name(name: str) -> List[str]:
+    return [t for t in re.split(r"[\s\-]+", norm(name)) if t]
+
+def core_tokens(name: str) -> List[str]:
+    toks = tokenize_name(name)
+    # drop suffixes like Jr/Junior/etc from the END only
+    while toks and toks[-1] in SUFFIXES:
+        toks = toks[:-1]
+    return toks
+
+def extract_first_last(name: str) -> Tuple[Optional[str], Optional[str]]:
+    toks = core_tokens(name)
+    if not toks: return None, None
+    first = toks[0]
+    last  = toks[-1] if len(toks) > 1 else toks[0]
+    return first, last
+
+# Known aliases / nicknames that books often use
+ALIASES: Dict[str, set] = {
+    "vinicius junior": {"vini", "vinicius jr", "vini jr"},
+    "cucho hernandez": {"cucho", "juan camilo hernandez", "juan hernandez", "j camilo hernandez"},
+    # Add more here if you spot others
+}
 
 def player_label_matches(player: str, option_name_or_label: str) -> bool:
-    """Match 'O. Watkins' / 'Ollie Watkins' / 'Watkins' to Bet365 strings."""
-    if not player or not option_name_or_label: return False
-    last, initial = extract_last_name_initial(player)
+    """
+    Robust matcher:
+      - surname + first initial OR surname + firstname
+      - handles suffixes (Jr/Junior/etc)
+      - accepts aliases (e.g., 'Vini', 'Cucho')
+      - hyphenated names / compound checking
+      - fallback: 2 core tokens (>=4 chars) present in label
+    """
+    if not player or not option_name_or_label:
+        return False
     label = norm(cleanup_label(option_name_or_label))
-    if not last or last not in label: return False
-    if initial:
-        first = label.split()[0][0:1] if label.split() else None
-        if first and first == initial: return True
-        return bool(re.search(rf"\b{initial}\w*\b.*\b{last}\b", label))
-    return True
+    p_norm = norm(player)
+
+    first, last = extract_first_last(player)
+    # quick surname path (>=3 chars to avoid noise)
+    if last and len(last) >= 3 and last in label:
+        if first:
+            ini = first[0:1]
+            # initial + last, or full first + last
+            if re.search(rf"\b{ini}\w*\b.*\b{last}\b", label) or first in label:
+                return True
+        else:
+            return True
+
+    # alias path
+    if p_norm in ALIASES:
+        for a in ALIASES[p_norm]:
+            if a in label:
+                return True
+
+    # hyphen/compound fallback — any significant part
+    parts = tokenize_name(player)
+    for p in parts:
+        if len(p) >= 5 and p in label:
+            # require one of: last in label or two significant tokens total
+            if (last and last in label) or sum(1 for t in parts if len(t) >= 5 and t in label) >= 2:
+                return True
+
+    # 2-token presence fallback (avoid common surnames only)
+    core = [t for t in core_tokens(player) if len(t) >= 4]
+    if sum(1 for t in core if t in label) >= 2:
+        return True
+
+    # long first-name fallback (rare but helps e.g. single-name listings)
+    if first and len(first) >= 6 and first in label:
+        return True
+
+    return False
 
 GENERIC_TEAM_TOKENS = {
     "fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
@@ -91,16 +132,17 @@ GENERIC_TEAM_TOKENS = {
     "bk","saint-germain","saintgermain","psg"
 }
 def team_tokens(name: str):
-    toks = set(norm(name).split()); return {t for t in toks if t not in GENERIC_TEAM_TOKENS}
+    toks = set(norm(name).split())
+    return {t for t in toks if t not in GENERIC_TEAM_TOKENS}
 def team_names_match(a: str, b: str) -> bool:
     if not a or not b: return False
     ta, tb = team_tokens(a), team_tokens(b)
     if not ta or not tb: return False
     if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; union = ta | tb
-    return len(inter) / max(1, len(union)) >= 0.5 or len(inter) >= 2
+    return (len(inter) / max(1,len(union)) >= 0.5) or (len(inter) >= 2)
 
-# ---------- time/io ----------
+# ---------------- time/io ----------------
 def now_utc_str() -> str:
     return dt.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -120,7 +162,7 @@ def _read_json(p: Path) -> Any:
     except Exception:
         return None
 
-# ---------- sportmonks ----------
+# ---------------- Sportmonks (leaders) ----------------
 def get_current_season(league_id: int) -> int:
     url = f"{BASE}/leagues/{league_id}"
     r = requests.get(url, params={"api_token": TOKEN, "include": "currentSeason"}, timeout=30)
@@ -173,7 +215,7 @@ def parse_topscorers(payload):
         except Exception: pass
     return sorted(agg.values(), key=lambda x: (-x["total"], x["player"]))[:10]
 
-# ---------- fixtures ----------
+# ---------------- fixtures ----------------
 def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
     if not fixture_name: return "", ""
     for sep in [" vs ", " v ", " VS ", " Vs "]:
@@ -185,9 +227,7 @@ def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
 
 def load_fixtures_for_league(league_id: int) -> List[dict]:
     blob = _read_json(FIX_DIR / f"{league_id}.json") or {}
-    # some repos store fixtures under "data"
-    fx = blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
-    return fx
+    return blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
 
 def find_next_fixture_for_team(team_name: str, fixtures: List[dict]) -> Optional[dict]:
     now = dt.datetime.utcnow(); best = None
@@ -206,21 +246,19 @@ def find_next_fixture_for_team(team_name: str, fixtures: List[dict]) -> Optional
             if best is None or ko < best[0]: best = (ko, fx)
     return best[1] if best else None
 
-# ---------- odds ----------
-ANYTIME_LABELS = {"anytime","to score","to score at any time","any time"}
+# ---------------- odds ----------------
+ANYTIME_LABELS = {
+    "anytime","any time","to score","to score anytime","to score at any time",
+    "anytime goalscorer","goalscorer – anytime","goalscorer - anytime","goalscorers"
+}
 def is_anytime_label(label: str) -> bool:
     if not label: return False
     l = norm(label)
     if l in ANYTIME_LABELS: return True
+    # contains checks
     return ("anytime" in l) or ("any time" in l) or ("to score" in l)
 
 def iter_odds_fixtures(odds_blob: dict) -> List[dict]:
-    """
-    Support a few shapes:
-      { fixtures: [...] }
-      { data: { fixtures: [...] } }
-      [ {id,name,odds}, ... ]
-    """
     if isinstance(odds_blob, list):
         return odds_blob
     if isinstance(odds_blob, dict):
@@ -232,25 +270,20 @@ def iter_odds_fixtures(odds_blob: dict) -> List[dict]:
     return []
 
 def load_odds_for_league(league_id: int) -> dict:
-    # Try main path
     p1 = ODDS_DIR_MAIN / f"{league_id}.json"
     if p1.exists(): return _read_json(p1) or {}
-    # Try alt path (no by_league)
     p2 = ODDS_DIR_ALT / f"{league_id}.json"
     if p2.exists(): return _read_json(p2) or {}
     return {}
 
 def find_fixture_odds_entry(odds_blob: dict, fixture_id: Optional[int], fixture_name: Optional[str]) -> Optional[dict]:
     fixtures = iter_odds_fixtures(odds_blob)
-    # by id
     if fixture_id is not None:
         for fx in fixtures:
             try:
                 if int(fx.get("id", -1)) == int(fixture_id):
                     return fx
-            except Exception:
-                continue
-    # by fuzzy name
+            except Exception: pass
     if fixture_name:
         tgt_home, tgt_away = parse_fixture_teams(fixture_name)
         for fx in fixtures:
@@ -261,6 +294,9 @@ def find_fixture_odds_entry(odds_blob: dict, fixture_id: Optional[int], fixture_
 
 def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optional[float]:
     best = None
+    anytime_rows = 0
+    matched = 0
+    samples = []
     for o in odds_rows or []:
         try:
             if int(o.get("bookmaker_id", 0)) != BOOKMAKER_B365: continue
@@ -269,15 +305,23 @@ def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optiona
             continue
         if o.get("stopped"):  # closed line
             continue
-        if not is_anytime_label(o.get("label") or ""):  # we only want "Anytime"
+        if not is_anytime_label(o.get("label") or ""):
             continue
+        anytime_rows += 1
         candidate = o.get("name") or o.get("original_label") or o.get("total") or ""
+        if not samples and candidate:
+            samples.append(norm(candidate))
         if not player_label_matches(player, candidate):
             continue
-        try: price = float(str(o.get("value")))
-        except Exception: continue
+        matched += 1
+        try:
+            price = float(str(o.get("value")))
+        except Exception:
+            continue
         if best is None or price > best + 1e-12:
             best = price
+    if DEBUG and best is None:
+        print(f"[DEBUG] NO MATCH for '{player}': anytime_rows={anytime_rows}, matched={matched}, sample={samples[:3]}")
     return best
 
 def scan_team_fixtures_for_anytime(odds_blob: dict, team_name: str, player: str) -> Optional[Tuple[str, str, float]]:
@@ -291,16 +335,10 @@ def scan_team_fixtures_for_anytime(odds_blob: dict, team_name: str, player: str)
             return fname, (fx.get("starting_at") or ""), price
     return None
 
-# ---------- main ----------
+# ---------------- main ----------------
 def main():
     out_path = os.getenv("OUTPUT_PATH", "posts/top_scorers_anytime.md")
-    Path(os.path.dirname(out_path)).mkdirs(exist_ok=True) if hasattr(Path, "mkdirs") else Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
-
-    if DEBUG:
-        print(f"[DEBUG] {VERSION}")
-        print(f"[DEBUG] FIX_DIR={FIX_DIR}")
-        print(f"[DEBUG] ODDS_DIR_MAIN={ODDS_DIR_MAIN}")
-        print(f"[DEBUG] ODDS_DIR_ALT={ODDS_DIR_ALT}")
+    Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
 
     lines: List[str] = []
     if EMIT_VERSION_COMMENT:
@@ -329,8 +367,6 @@ def main():
             else:
                 for i, row in enumerate(leaders, 1):
                     player = row["player"]; team = row["team"]; total = row["total"]
-                    extra = ""
-
                     fx = find_next_fixture_for_team(team, fixtures)
                     odds_price = None; fx_name = None; kickoff = None
 
