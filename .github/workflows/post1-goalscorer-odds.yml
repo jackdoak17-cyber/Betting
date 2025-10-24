@@ -30,12 +30,22 @@ jobs:
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           OUTPUT_PATH: posts/top_scorers_anytime.md
-        run: python scripts/posts/top_scorers_anytime.py
+          DEBUG: "1"
+          EMIT_VERSION_COMMENT: "1"
+        run: |
+          echo "Running script…"
+          python scripts/posts/top_scorers_anytime.py
+
+      - name: Show first 40 lines (sanity)
+        run: |
+          echo "----- posts/top_scorers_anytime.md (head) -----"
+          head -n 40 posts/top_scorers_anytime.md || true
+          echo "----------------------------------------------"
 
       - name: Commit & push (if changed)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add posts/top_scorers_anytime.md
-          git diff --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) + Bet365 odds [skip ci]"
+          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) + Bet365 odds [skip ci]"
           git push
