@@ -1,9 +1,9 @@
-name: Post — Top Scorers Anytime Odds
+name: Post — Top Scorers Anytime Odds (Social)
 
 on:
   workflow_dispatch:
   schedule:
-    # Run daily at 07:00 UTC
+    # Daily at 07:00 UTC
     - cron: "0 7 * * *"
 
 permissions:
@@ -26,26 +26,148 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Generate post
+      - name: Generate detailed post (with odds + fixtures)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           OUTPUT_PATH: posts/top_scorers_anytime.md
-          DEBUG: "1"
-          EMIT_VERSION_COMMENT: "1"
-        run: |
-          echo "Running script…"
-          python scripts/posts/top_scorers_anytime.py
+          DEBUG: "0"
+          EMIT_VERSION_COMMENT: "0"
+        run: python scripts/posts/top_scorers_anytime.py
 
-      - name: Show first 40 lines (sanity)
+      - name: Render social-ready version
         run: |
-          echo "----- posts/top_scorers_anytime.md (head) -----"
-          head -n 40 posts/top_scorers_anytime.md || true
-          echo "----------------------------------------------"
+          python - << 'PY'
+          import re, unicodedata
+          from pathlib import Path
+
+          SRC = Path("posts/top_scorers_anytime.md")
+          DST = Path("posts/top_scorers_anytime_social.md")
+          text = SRC.read_text(encoding="utf-8")
+
+          def strip_accents(s): 
+              return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
+          def norm(s):
+              import re
+              s = strip_accents(s or "").lower()
+              s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
+              s = re.sub(r"\s+", " ", s).strip()
+              return s
+
+          GENERIC = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
+                     "the","club","de","del","la","las","los","calcio","united","city","saint","st",
+                     "bk","saint-germain","saintgermain","psg"}
+          def team_tokens(name):
+              toks = set(norm(name).split())
+              return {t for t in toks if t not in GENERIC}
+          def team_names_match(a, b):
+              if not a or not b: return False
+              ta, tb = team_tokens(a), team_tokens(b)
+              if not ta or not tb: return False
+              if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
+              inter, union = ta & tb, ta | tb
+              return (len(inter) / max(1,len(union)) >= 0.5) or (len(inter) >= 2)
+
+          def split_fixture(name):
+              for sep in [" vs ", " v ", " VS ", " Vs ", " - "]:
+                  if sep in name:
+                      a,b = name.split(sep, 1)
+                      return a.strip(), b.strip()
+              return "", ""
+
+          leagues = {"Premier League","LaLiga","Bundesliga","Serie A","Ligue 1"}
+
+          out = []
+          out.append("Top Scorers in each of the top 5 leagues with anytime goal scorer odds from Bet365\n")
+
+          cur = None
+          for raw in text.splitlines():
+              line = raw.strip()
+              if not line:
+                  continue
+              # pick up league headers
+              if line in leagues:
+                  cur = line
+                  out.append(line)
+                  continue
+
+              # match ranked rows like: "1. Player — Team — Goals …"
+              m = re.match(r"^(\d+)\.\s+(.*)$", line)
+              if not m:
+                  continue
+              rank = m.group(1)
+              body = m.group(2)
+
+              # split front part: Player — Team — Goals
+              parts = [p.strip() for p in body.split(" — ")]
+              if len(parts) < 3:
+                  # not expected; skip
+                  continue
+              player, team, goals_and_more = parts[0], parts[1], parts[2]
+
+              # goals is first token of goals_and_more
+              goals = goals_and_more.split()[0]
+              # Default outputs
+              price_txt = "no price"
+              opp_txt = ""
+
+              # Extract odds + fixture
+              # Case A: "... — Anytime @ X.XX (Fixture @ time UTC)"
+              am = re.search(r"Anytime\s*@\s*([0-9.]+)\s*\(([^@)]+)", body)
+              # Case B: "... — (Fixture @ time UTC) — no Bet365 anytime price"
+              nm = re.search(r"\(([^@)]+)@[^)]+\)\s*—\s*no Bet365 anytime price", body)
+
+              fixture = None
+              if am:
+                  price = am.group(1)
+                  fixture = am.group(2).strip()
+                  price_txt = f"Anytime @ {float(price):.2f}"
+              elif nm:
+                  fixture = nm.group(1).strip()
+                  price_txt = "no price"
+
+              if fixture:
+                  home, away = split_fixture(fixture)
+                  # decide opponent
+                  if team_names_match(team, home):
+                      opp = away
+                  elif team_names_match(team, away):
+                      opp = home
+                  else:
+                      # fallback: if team appears literally
+                      opp = away if team in home else home
+                  opp_txt = f"(vs {opp})"
+              else:
+                  opp_txt = "(vs TBC)"
+
+              out.append(f"{rank}) {player} — {goals} — {team} — {price_txt} {opp_txt}")
+
+          # blank line between leagues
+          fin = []
+          last_was_league = False
+          for line in out:
+              if line in leagues:
+                  if fin and fin[-1] != "":
+                      fin.append("")
+                  fin.append(line)
+                  last_was_league = True
+              else:
+                  fin.append(line)
+                  last_was_league = False
+
+          DST.write_text("\n".join(fin).strip() + "\n", encoding="utf-8")
+          print("Wrote", DST)
+          PY
+
+      - name: Show social output (head)
+        run: |
+          echo "----- posts/top_scorers_anytime_social.md -----"
+          head -n 30 posts/top_scorers_anytime_social.md || true
+          echo "-----------------------------------------------"
 
       - name: Commit & push (if changed)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add posts/top_scorers_anytime.md
-          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) + Bet365 odds [skip ci]"
+          git add posts/top_scorers_anytime.md posts/top_scorers_anytime_social.md
+          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) + Social format [skip ci]"
           git push
