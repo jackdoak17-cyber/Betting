@@ -16,12 +16,12 @@ Premier League
 LaLiga
 1) Kylian Mbappé — 10 — Real Madrid — Anytime @ 1.61 (vs FC Barcelona)
 2) Julián Alvarez — 6 — Atlético Madrid — Anytime @ 2.50 (vs Real Betis)
-3) Karl Etta Eyong — 5 — Levante — no price (vs Mallorca)
+3) Karl Etta Eyong — 5 — Levante — Anytime @ 3.10 (vs Mallorca)
 4) Vedat Muriqi — 5 — Mallorca — Anytime @ 2.50 (vs Levante)
-5) Vinicius Junior — 5 — Real Madrid — no price (vs FC Barcelona)
+5) Vinicius Junior — 5 — Real Madrid — Anytime @ 2.25 (vs FC Barcelona)
 6) André Silva — 4 — Elche — Anytime @ 4.33 (vs Espanyol)
 7) Borja Iglesias — 4 — Celta de Vigo — Anytime @ 3.10 (vs Osasuna)
-8) Cucho Hernández — 4 — Real Betis — no price (vs Atlético Madrid)
+8) Cucho Hernández — 4 — Real Betis — Anytime @ 3.00 (vs Atlético Madrid)
 9) Ferran Torres — 4 — FC Barcelona — Anytime @ 2.50 (vs Real Madrid)
 10) Iván Romero — 4 — Levante — Anytime @ 4.33 (vs Mallorca)
 
@@ -38,7 +38,7 @@ Bundesliga
 10) Serhou Guirassy — 4 — Borussia Dortmund — Anytime @ 1.53 (vs FC Köln)
 
 Serie A
-1) Riccardo Orsolini — 5 — Bologna — Anytime @ 3.10 (vs Fiorentina)
+1) Riccardo Orsolini — 5 — Bologna — Anytime @ 3.40 (vs Fiorentina)
 2) Christian Pulisic — 4 — Milan — Anytime @ 2.40 (vs Pisa)
 3) Nico Paz — 4 — Como — Anytime @ 3.25 (vs Parma)
 4) Ange-Yoan Bonny — 3 — Inter — Anytime @ 2.75 (vs Napoli)
@@ -46,17 +46,17 @@ Serie A
 6) Kevin De Bruyne — 3 — Napoli — Anytime @ 5.00 (vs Inter)
 7) Lautaro Martínez — 3 — Inter — Anytime @ 2.87 (vs Napoli)
 8) Marcus Thuram — 3 — Inter — Anytime @ 3.10 (vs Napoli)
-9) Matteo Cancellieri — 3 — Lazio — Anytime @ 5.00 (vs Juventus)
+9) Matteo Cancellieri — 3 — Lazio — Anytime @ 9.50 (vs Juventus)
 10) Matías Soulé — 3 — Roma — Anytime @ 3.75 (vs Sassuolo)
 
 Ligue 1
 1) Joaquín Panichelli — 7 — Strasbourg — Anytime @ 3.10 (vs Olympique Lyonnais)
 2) Mason Greenwood — 6 — Olympique Marseille — Anytime @ 2.30 (vs Lens)
 3) Ansu Fati — 5 — Monaco — Anytime @ 2.50 (vs Toulouse)
-4) Bradley Barcola — 4 — Paris Saint Germain — Anytime @ 2.40 (vs Brest)
+4) Bradley Barcola — 4 — Paris Saint Germain — Anytime @ 17.00 (vs Brest)
 5) Estéban Lepaul — 4 — Rennes — Anytime @ 2.40 (vs Nice)
 6) Frank Magri — 4 — Toulouse — Anytime @ 3.10 (vs Monaco)
 7) Ilan Kebbal — 4 — Paris — Anytime @ 3.10 (vs Nantes)
 8) Romain Del Castillo — 4 — Brest — Anytime @ 5.00 (vs Paris Saint Germain)
 9) Sofiane Diop — 4 — Nice — Anytime @ 4.00 (vs Rennes)
-10) Aiyegun Tosin — 3 — Lorient — no price (vs Angers SCO)
+10) Aiyegun Tosin — 3 — Lorient — Anytime @ 3.75 (vs Angers SCO)
