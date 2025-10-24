@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Top Scorers (Anytime) — with Bet365 'Anytime goalscorer' prices.
-v1.4.1 — stricter 'Anytime' detection + robust player/label matching
+Top Scorers (Anytime) — Bet365 odds (strict)
+v1.5.0 — strict 'Anytime' filter, robust player matching,
+         single social-ready output
 
 ENV:
   SPORTMONKS_TOKEN      (required)
-  OUTPUT_PATH           (optional; default posts/top_scorers_anytime.md)
+  OUTPUT_PATH           (default posts/top_scorers_anytime_social.md)
   DEBUG                 (optional; "1" to print extra logs)
-  EMIT_VERSION_COMMENT  (optional; default "1")
+  EMIT_VERSION_COMMENT  (optional; default "0")
 """
 
 import os, sys, json, datetime as dt, re, unicodedata
@@ -17,7 +18,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import requests
 
-VERSION = "top_scorers_anytime.py v1.4.1"
+VERSION = "top_scorers_anytime.py v1.5.0"
 
 BASE  = "https://api.sportmonks.com/v3/football"
 TOKEN = os.getenv("SPORTMONKS_TOKEN")
@@ -25,7 +26,7 @@ if not TOKEN:
     sys.exit("Missing SPORTMONKS_TOKEN")
 
 DEBUG = os.getenv("DEBUG") == "1"
-EMIT_VERSION_COMMENT = os.getenv("EMIT_VERSION_COMMENT", "1") == "1"
+EMIT_VERSION_COMMENT = os.getenv("EMIT_VERSION_COMMENT", "0") == "1"
 
 # Top 5 leagues
 LEAGUES = {
@@ -37,10 +38,10 @@ LEAGUES = {
 }
 
 # Local cache paths
-ROOT         = Path(".")
-FIX_DIR      = ROOT / "data" / "fixtures" / "by_league"
-ODDS_DIR_MAIN= ROOT / "data" / "odds" / "b365" / "by_league"
-ODDS_DIR_ALT = ROOT / "data" / "odds" / "b365"
+ROOT          = Path(".")
+FIX_DIR       = ROOT / "data" / "fixtures" / "by_league"
+ODDS_DIR_MAIN = ROOT / "data" / "odds" / "b365" / "by_league"
+ODDS_DIR_ALT  = ROOT / "data" / "odds" / "b365"
 
 # Bet365 identifiers
 BOOKMAKER_B365     = 2
@@ -52,14 +53,20 @@ SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
+def norm_spaces_lower(s: str) -> str:
+    s = strip_accents(s or "").lower()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
 def norm(s: str) -> str:
+    # For name tokens; keep dots/hyphens as separators only
     s = strip_accents(s or "").lower()
     s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-def cleanup_label(label: str) -> str:
-    # drop parenthetical qualifiers at the end, e.g. "Smith (Penalties)"
+def cleanup_label_end_parens(label: str) -> str:
+    # drop parenthetical qualifiers at the end only (not before we check 'Anytime')
     return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
 
 def tokenize_name(name: str) -> List[str]:
@@ -82,7 +89,7 @@ def extract_first_last(name: str) -> Tuple[Optional[str], Optional[str]]:
 ALIASES: Dict[str, set] = {
     "vinicius junior": {"vini", "vinicius jr", "vini jr"},
     "cucho hernandez": {"cucho", "juan camilo hernandez", "juan hernandez", "j camilo hernandez"},
-    # Add more if needed (e.g., "ansu fati": {"ansu"})
+    # add more if you notice patterns (e.g., "fede valverde": {"fede"})
 }
 
 def player_label_matches(player: str, option_name_or_label: str) -> bool:
@@ -96,7 +103,7 @@ def player_label_matches(player: str, option_name_or_label: str) -> bool:
     if not player or not option_name_or_label:
         return False
 
-    label = norm(cleanup_label(option_name_or_label))
+    label = norm(cleanup_label_end_parens(option_name_or_label))
     p_norm = norm(player)
 
     first, last = extract_first_last(player)
@@ -113,7 +120,7 @@ def player_label_matches(player: str, option_name_or_label: str) -> bool:
     # Aliases
     if p_norm in ALIASES:
         for a in ALIASES[p_norm]:
-            if a in label:
+            if norm(a) in label:
                 return True
 
     # Compound/hyphenated: any significant token (>=5 chars),
@@ -266,36 +273,34 @@ def find_next_fixture_for_team(team_name: str, fixtures: List[dict]) -> Optional
     return best[1] if best else None
 
 # ---------------- odds ----------------
-# STRICT "Anytime" matching — accept only clear anytime labels, block others
+# STRICT "Anytime" matching — exact allowlist + hard blocklist
 ANYTIME_EXACT = {
-    "anytime", "any time", "to score", "to score anytime", "to score at any time",
-    "anytime goalscorer", "to score (anytime)", "goalscorer anytime"
+    "anytime", "any time", "to score", "to score (anytime)"
 }
 ANYTIME_BLOCK = {
     # explicitly not anytime:
     "first", "last", "2 or more", "two or more", "brace", "hat trick", "hat-trick",
     "treble", "header", "left foot", "right foot", "penalty", "free kick",
     "assist", "to assist", "card", "yellow", "red", "shots", "shot", "on target",
-    "sot", "score 2+", "score two+", "score two or more"
+    "sot", "score 2+", "score two+", "score two or more", "to score 2", "to score two"
 }
 
-def is_anytime_label(label: str) -> bool:
-    if not label:
-        return False
-    l = norm(label)
-    # hard block if any disallowed token appears
+def label_is_anytime_strict(raw_label: str) -> bool:
+    if not raw_label: return False
+    l = norm_spaces_lower(raw_label)
     for bad in ANYTIME_BLOCK:
         if bad in l:
             return False
-    # exact whitelist
-    if l in ANYTIME_EXACT:
-        return True
-    # soft allow: contains "anytime"/"any time" or startswith "to score"
-    if "anytime" in l or "any time" in l:
-        return True
-    if l.startswith("to score"):
-        return True
-    return False
+    return l in ANYTIME_EXACT
+
+def label_is_anytime_lenient(raw_label: str) -> bool:
+    if not raw_label: return False
+    l = norm_spaces_lower(raw_label)
+    for bad in ANYTIME_BLOCK:
+        if bad in l:
+            return False
+    # lenient: contains keyword without blocked terms
+    return ("anytime" in l or "any time" in l or l.startswith("to score"))
 
 def iter_odds_fixtures(odds_blob: dict) -> List[dict]:
     """
@@ -321,6 +326,77 @@ def load_odds_for_league(league_id: int) -> dict:
     if p2.exists(): return _read_json(p2) or {}
     return {}
 
+def _parse_latest_ts(s: Optional[str]) -> Optional[dt.datetime]:
+    if not s: return None
+    # sportmonks style "YYYY-MM-DD HH:MM:SS"
+    try:
+        return dt.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return None
+
+def _choose_price(cands: List[Tuple[float, Optional[dt.datetime], str]]) -> Optional[float]:
+    """
+    Choose a sensible anytime price from candidates:
+      1) Prefer the most recent row (latest timestamp)
+      2) Among equals or if timestamps missing, choose the **lowest** decimal
+         (avoids accidental selection of longshot variants)
+    """
+    if not cands:
+        return None
+    # Step 1: group by max timestamp
+    latest = None
+    for _, ts, _ in cands:
+        if ts and (latest is None or ts > latest):
+            latest = ts
+    if latest:
+        cands = [c for c in cands if c[1] == latest]
+    # Step 2: pick the lowest decimal
+    return min(cands, key=lambda x: x[0])[0]
+
+def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optional[float]:
+    strict_cands: List[Tuple[float, Optional[dt.datetime], str]] = []
+    lenient_cands: List[Tuple[float, Optional[dt.datetime], str]] = []
+
+    for o in odds_rows or []:
+        try:
+            if int(o.get("bookmaker_id", 0)) != BOOKMAKER_B365: continue
+            if int(o.get("market_id", 0))    != MARKET_GOALSCORERS: continue
+        except Exception:
+            continue
+        if o.get("stopped"):
+            continue
+
+        raw_label = str(o.get("label") or "")
+        if not (label_is_anytime_strict(raw_label) or label_is_anytime_lenient(raw_label)):
+            continue
+
+        candidate = o.get("name") or o.get("original_label") or o.get("total") or ""
+        if not player_label_matches(player, candidate):
+            continue
+
+        try:
+            price = float(str(o.get("value")))
+        except Exception:
+            continue
+
+        ts = _parse_latest_ts(o.get("latest_bookmaker_update"))
+        tup = (price, ts, raw_label)
+
+        if label_is_anytime_strict(raw_label):
+            strict_cands.append(tup)
+        else:
+            lenient_cands.append(tup)
+
+    # Prefer strict candidates; else fall back to lenient
+    best = _choose_price(strict_cands) or _choose_price(lenient_cands)
+
+    if DEBUG and best is None:
+        # quick peek at available labels if nothing matched
+        seen = [norm_spaces_lower(str(x.get("label"))) for x in (odds_rows or [])]
+        print(f"[DEBUG] NO ANYTIME MATCH for '{player}'. Labels seen: {sorted(set(seen))[:8]}")
+
+    return best
+
 def find_fixture_odds_entry(odds_blob: dict, fixture_id: Optional[int], fixture_name: Optional[str]) -> Optional[dict]:
     fixtures = iter_odds_fixtures(odds_blob)
     if fixture_id is not None:
@@ -338,45 +414,6 @@ def find_fixture_odds_entry(odds_blob: dict, fixture_id: Optional[int], fixture_
                 return fx
     return None
 
-def best_anytime_goalscorer_price(odds_rows: List[dict], player: str) -> Optional[float]:
-    best = None
-    anytime_rows = 0
-    matched = 0
-    samples = []
-    for o in odds_rows or []:
-        try:
-            if int(o.get("bookmaker_id", 0)) != BOOKMAKER_B365: continue
-            if int(o.get("market_id", 0))    != MARKET_GOALSCORERS: continue
-        except Exception:
-            continue
-        if o.get("stopped"):
-            continue
-        if not is_anytime_label(o.get("label") or ""):
-            # Optional probe for debugging tricky players (uncomment to use)
-            # if DEBUG and (norm(player) in {"bradley barcola"}):
-            #     print("[DEBUG] Skipping non-anytime for", player, "| label=", o.get("label"))
-            continue
-
-        anytime_rows += 1
-        candidate = o.get("name") or o.get("original_label") or o.get("total") or ""
-        if not samples and candidate:
-            samples.append(norm(candidate))
-
-        if not player_label_matches(player, candidate):
-            continue
-
-        matched += 1
-        try:
-            price = float(str(o.get("value")))
-        except Exception:
-            continue
-        if best is None or price > best + 1e-12:
-            best = price
-
-    if DEBUG and best is None:
-        print(f"[DEBUG] NO MATCH for '{player}': anytime_rows={anytime_rows}, matched={matched}, sample={samples[:3]}")
-    return best
-
 def scan_team_fixtures_for_anytime(odds_blob: dict, team_name: str, player: str) -> Optional[Tuple[str, str, float]]:
     """Fallback: scan all fixtures in odds where this team appears."""
     for fx in iter_odds_fixtures(odds_blob):
@@ -391,18 +428,32 @@ def scan_team_fixtures_for_anytime(odds_blob: dict, team_name: str, player: str)
             return fname, kickoff, price
     return None
 
-# ---------------- main ----------------
-def main():
-    out_path = os.getenv("OUTPUT_PATH", "posts/top_scorers_anytime.md")
-    Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
-
-    lines: List[str] = []
+# ---------------- main (single social output) ----------------
+def now_social_header() -> List[str]:
+    lines = []
     if EMIT_VERSION_COMMENT:
         lines.append(f"<!-- {VERSION} -->")
-    lines.append(f"Top Scorers (Anytime) — Updated {now_utc_str()}\n")
+    lines.append("Top Scorers in each of the top 5 leagues with anytime goal scorer odds from Bet365")
+    lines.append("")  # blank line after header
+    return lines
+
+def social_line(rank: int, player: str, goals: int, team: str, price: Optional[float], opponent: Optional[str]) -> str:
+    opp_txt = f"(vs {opponent})" if opponent else "(vs TBC)"
+    if price is not None:
+        return f"{rank}) {player} — {goals} — {team} — Anytime @ {price:.2f} {opp_txt}"
+    else:
+        return f"{rank}) {player} — {goals} — {team} — no price {opp_txt}"
+
+def main():
+    out_path = os.getenv("OUTPUT_PATH", "posts/top_scorers_anytime_social.md")
+    Path(os.path.dirname(out_path)).mkdir(parents=True, exist_ok=True)
+
+    lines: List[str] = now_social_header()
 
     for league_id, league_name in LEAGUES.items():
+        lines.append("")
         lines.append(league_name)
+
         try:
             season_id = get_current_season(league_id)
             r = fetch_topscorers_via_endpoint(season_id)
@@ -413,49 +464,52 @@ def main():
 
             fixtures = load_fixtures_for_league(league_id)
             odds_blob = load_odds_for_league(league_id)
-            odds_fixtures = iter_odds_fixtures(odds_blob)
 
             if DEBUG:
-                print(f"[DEBUG] L{league_id} {league_name}: leaders={len(leaders)} fixtures={len(fixtures)} odds.fixtures={len(odds_fixtures)}")
+                print(f"[DEBUG] L{league_id} {league_name}: leaders={len(leaders)} fixtures={len(fixtures)}")
 
             if not leaders:
-                lines.append("No data yet.")
-            else:
-                for i, row in enumerate(leaders, 1):
-                    player = row["player"]; team = row["team"]; total = row["total"]
-                    fx = find_next_fixture_for_team(team, fixtures)
+                lines.append("(no data)")
+                continue
 
-                    odds_price = None; fx_name = None; kickoff = None
-                    if fx:
-                        fx_name = fx.get("name") or ""
-                        kickoff = fx.get("starting_at") or ""
-                        fx_id   = fx.get("id")
-                        fx_odds = find_fixture_odds_entry(odds_blob, fx_id, fx_name)
-                        if fx_odds:
-                            odds_price = best_anytime_goalscorer_price(fx_odds.get("odds") or [], player)
+            for i, row in enumerate(leaders, 1):
+                player = row["player"]; team = row["team"]; total = int(row["total"])
 
-                    if odds_price is None:
+                # next fixture
+                fx = find_next_fixture_for_team(team, fixtures)
+                opp = None
+                price = None
+                if fx:
+                    fx_name = fx.get("name") or ""
+                    home, away = parse_fixture_teams(fx_name)
+                    if home and away:
+                        if team_names_match(team, home):
+                            opp = away
+                        elif team_names_match(team, away):
+                            opp = home
+                        else:
+                            # fallback literal
+                            opp = away if team in home else home
+
+                    # odds for that exact fixture (preferred)
+                    fx_odds = find_fixture_odds_entry(odds_blob, fx.get("id"), fx_name)
+                    if fx_odds:
+                        price = best_anytime_goalscorer_price(fx_odds.get("odds") or [], player)
+
+                    # fallback: scan all team fixtures in odds blob
+                    if price is None:
                         alt = scan_team_fixtures_for_anytime(odds_blob, team, player)
                         if alt:
-                            fx_name, kickoff, odds_price = alt
+                            _, _, price = alt
 
-                    if odds_price is not None and fx_name:
-                        extra = f" — Anytime @ {odds_price:.2f} ({fx_name} @ {kickoff} UTC)"
-                    elif fx_name:
-                        extra = f" — ({fx_name} @ {kickoff} UTC) — no Bet365 anytime price"
-                    else:
-                        extra = " — no upcoming fixture / odds found"
-
-                    lines.append(f"{i}. {player} — {team} — {total}{extra}")
+                lines.append(social_line(i, player, total, team, price, opp))
 
         except Exception as e:
             if DEBUG:
                 import traceback; traceback.print_exc()
-            lines.append(f"Error fetching data: {type(e).__name__}: {e}")
+            lines.append(f"(Error fetching {league_name}: {type(e).__name__}: {e})")
 
-        lines.append("")  # blank line after each league
-
-    Path(out_path).write_text("\n".join(lines), encoding="utf-8")
+    Path(out_path).write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"Wrote {out_path}")
 
 if __name__ == "__main__":
