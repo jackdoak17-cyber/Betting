@@ -1,25 +1,22 @@
-name: POST 1 - Top Scorers (Anytime)
+name: Post 1 — Top Scorers Anytime Odds
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30000 * * * *"  # every 30 min
+    # Run hourly on the hour (UTC)
+    - cron: "10000 * * * *"
 
-# ✅ allow push with GITHUB_TOKEN
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-post:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: true  # keep token for push
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -32,35 +29,13 @@ jobs:
       - name: Generate post
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          # Optional:
-          # LEAGUE_IDS: "8,564,82,384,301"
-          # LIMIT_PER_LEAGUE: "10"
-          # WINDOW_DAYS: "14"
-        run: |
-          python scripts/posts/top_scorers_anytime.py
+          OUTPUT_PATH: posts/top_scorers_anytime.md
+        run: python scripts/posts/top_scorers_anytime.py
 
-      - name: Commit & push if changed
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit & push (if changed)
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Make sure pushes use the token
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
-          # Stage outputs
-          git add betting/posts/top_scorers_anytime.md
-
-          # Only add debug JSONs if they exist
-          if compgen -G "data/debug/topscorers_raw_*.json" > /dev/null; then
-            git add data/debug/topscorers_raw_*.json
-          fi
-
-          # Commit only if there are staged changes
-          if git diff --cached --quiet; then
-            echo "No changes."
-            exit 0
-          fi
-
-          git commit -m "chore(posts): update Top Scorers (Anytime) [skip ci]"
+          git add posts/top_scorers_anytime.md
+          git diff --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) + Bet365 odds [skip ci]"
           git push
