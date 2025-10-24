@@ -1,28 +1,21 @@
-name: Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)
+name: Post — Top Scorers Anytime Odds (Social Only)
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "7 */6 * * *"   # every 6 hours at :07 UTC
-  workflow_dispatch: {}
+    # Daily at 07:00 UTC
+    - cron: "0 7 * * *"
 
 permissions:
   contents: write
 
-# Ensure only the latest run writes (cancel any in-progress older one)
-concurrency:
-  group: odds-b365
-  cancel-in-progress: true
-
 jobs:
-  fetch_odds_bet365:
+  build-and-post:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,71 +24,27 @@ jobs:
 
       - name: Install deps
         run: |
-          set -e
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install requests
 
-      - name: Run Bet365 odds gatherer (9 leagues)
+      - name: Generate social post (single file)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
-          SM_BOOKMAKER_ID: "2"   # Bet365
-          SM_SLEEP: "0.05"
-          SM_TIMEOUT: "20"
-        run: python scripts/odds_bet365_gather.py
+          OUTPUT_PATH: posts/top_scorers_anytime_social.md
+          DEBUG: "0"
+          EMIT_VERSION_COMMENT: "0"
+        run: python scripts/posts/top_scorers_anytime.py
 
-      - name: Commit & push odds files (robust rebase)
-        env:
-          GIT_AUTHOR_NAME: github-actions[bot]
-          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-          GIT_COMMITTER_NAME: github-actions[bot]
-          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+      - name: Show output (first 40 lines)
         run: |
-          set -euo pipefail
+          echo "----- posts/top_scorers_anytime_social.md -----"
+          head -n 40 posts/top_scorers_anytime_social.md || true
+          echo "-----------------------------------------------"
 
-          # Configure Git identity explicitly (reliable in CI)
-          git config --global user.name  "${GIT_COMMITTER_NAME}"
-          git config --global user.email "${GIT_COMMITTER_EMAIL}"
-
-          # Ensure we're on a local main that tracks origin/main
-          git fetch origin main
-          git checkout -B main origin/main
-
-          # Stage all changes (including deletions) under data/odds/b365
-          git add -A data/odds/b365
-
-          # Short-circuit if nothing changed
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git commit -m "chore(odds-b365): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-
-          # Try up to 3 times: rebase onto latest main and push with lease
-          for attempt in 1 2 3; do
-            # Clean up any previous half-done rebase before retrying
-            git rebase --abort || true
-
-            # Rebase our new commit(s) on top of the newest main
-            git pull --rebase --autostash origin main || {
-              echo "Rebase failed on attempt $attempt"
-              continue
-            }
-
-            # Safer than plain push when history moved
-            if git push --force-with-lease origin HEAD:main; then
-              echo "Push succeeded on attempt $attempt"
-              exit 0
-            fi
-
-            echo "Push failed on attempt $attempt — retrying..."
-            sleep 2
-          done
-
-          echo "Final attempt after fresh fetch..."
-          git rebase --abort || true
-          git fetch origin main
-          git pull --rebase --autostash origin main
-          git push --force-with-lease origin HEAD:main
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/top_scorers_anytime_social.md
+          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: Top Scorers (Anytime) — Social [skip ci]"
+          git push
