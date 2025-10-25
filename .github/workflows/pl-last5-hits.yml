@@ -1,0 +1,50 @@
+name: Post — PL Last-5 SOT & Fouls
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 07:00 UTC
+    - cron: "0 7 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pl-last5-hits
+  cancel-in-progress: false
+
+jobs:
+  build-and-post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No external deps needed (stdlib only)
+
+      - name: Generate Premier League last-5 hits post
+        env:
+          OUTPUT_PATH: posts/pl_last5_hits.md
+          LEAGUE_ID: "8"          # Premier League
+          MIN_MINUTES: "45"       # optional: require 45+ mins in ≥4 of last 5
+        run: python scripts/posts/pl_last5_hits.py
+
+      - name: Show output (first 80 lines)
+        run: |
+          echo "----- posts/pl_last5_hits.md -----"
+          head -n 80 posts/pl_last5_hits.md || true
+          echo "----------------------------------"
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/pl_last5_hits.md
+          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: PL last-5 SOT & Fouls [skip ci]"
+          git push
