@@ -242,6 +242,48 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
             away_price = val if (away_price is None or val < away_price) else away_price
     return home_price, away_price
 
+# -------- Player-price lookup (MISSING BEFORE — added now) --------
+def best_over05_player_shots(odds_rows: List[dict], player_rec: dict) -> Optional[float]:
+    """
+    Find Over 0.5 price for the player in market_id=268 using robust alias matching.
+    We accept rows where:
+      - market_id == 268 (Player Shots)
+      - option label belongs to this player (via aliases)
+      - line is 0.5 (numeric), or label text contains '0.5' (fallback)
+    """
+    aliases = aliases_from_record(player_rec)
+    if not aliases:
+        return None
+
+    best = None
+    for row in odds_rows:
+        if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
+            continue
+        candidate = row.get("name") or row.get("total") or row.get("original_label") or ""
+        if not candidate:
+            continue
+        if not label_matches_aliases(candidate, aliases):
+            continue
+
+        # Confirm it's the 0.5 line (prefer numeric label)
+        line = as_float(row.get("label"))
+        if line is None:
+            # fallback textual sniffing
+            blob = f"{row.get('label','')} {row.get('name','')} {row.get('original_label','')} {row.get('total','')}".lower()
+            if "0.5" not in blob and "0,5" not in blob:
+                continue
+        else:
+            if not math.isclose(line, 0.5, abs_tol=1e-6):
+                continue
+
+        price = as_float(row.get("value"))
+        if price is None:
+            continue
+        if best is None or price > best + 1e-12:
+            best = price
+
+    return best
+
 # -------- Form filters --------
 def qualifies_5of5(series: List[int]) -> bool:
     seq = [x for x in (series or []) if isinstance(x, int)]
