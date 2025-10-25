@@ -39,11 +39,12 @@ ROOT      = Path(".")
 PX_DIR    = ROOT / "data" / "predicted_xi" / "by_league"   # team_id -> name map (optional)
 SHOTS_DIR = ROOT / "data" / "player_shots" / "by_league"   # per-league player shots histories
 ODDS_DIR  = ROOT / "data" / "odds" / "b365"                # Sportmonks Bet365 odds by league
+ODDS_FIX  = ODDS_DIR / "fixtures"                          # per-fixture freshest odds
 OUT_DIR   = ROOT / "data" / "value_bets"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE  = OUT_DIR / "shots_certs.txt"
 
-# ========= STRING + NAME MATCH HELPERS (robust, same approach as other scripts) =========
+# ========= STRING + NAME MATCH HELPERS =========
 SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
 SURNAME_PREFIXES = {"da","de","del","der","di","dos","du","la","le","van","von","bin","al"}
 GENERIC_TEAM_TOKENS = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
@@ -133,25 +134,30 @@ def aliases_from_record(rec: dict) -> List[str]:
             seen2.add(a); uniq2.append(a)
     return uniq2
 
-def label_matches_aliases(option_label: str, aliases: Iterable[str]) -> bool:
+def label_matches_aliases(option_label: str, aliases: Iterable[str]) -> Tuple[bool,int]:
+    """
+    Returns (matched, score). score=2 for exact alias eq; score=1 for loose/subset match.
+    """
     lab = norm(person_part_from_option(option_label)).replace(".", "")
     if not lab:
-        return False
+        return (False, 0)
     lab_tokens = set(lab.split())
     for alias in aliases:
         atoks = set(alias.split())
-        if alias == lab or (atoks and (atoks.issubset(lab_tokens) or lab_tokens.issubset(atoks))):
-            return True
-        # surname presence + initial check
+        if alias == lab:
+            return (True, 2)
+        if atoks and (atoks.issubset(lab_tokens) or lab_tokens.issubset(atoks)):
+            return (True, 1)
+        # surname + optional initial
         a_parts = alias.split()
         a_sur = a_parts[-2:] if len(a_parts) >= 2 and a_parts[-2] in SURNAME_PREFIXES else a_parts[-1:]
         if set(a_sur).issubset(lab_tokens):
             if len(a_parts) >= 2 and len(a_parts[0]) == 1:  # initial present in alias
                 if a_parts[0] in lab_tokens or lab.startswith(a_parts[0] + " "):
-                    return True
+                    return (True, 1)
                 continue
-            return True
-    return False
+            return (True, 1)
+    return (False, 0)
 
 # ========= TEAM / FIXTURE HELPERS =========
 def team_tokens(name: str):
@@ -233,9 +239,13 @@ def market_is_match_winner(desc: str) -> bool:
     s = (desc or "").lower()
     return any(k in s for k in MATCH_WINNER_KEYS)
 
-# ========= ODDS (Sportmonks Bet365 JSONs) =========
+# ========= ODDS LOADERS =========
 def load_odds_for_league(league_id: int) -> dict:
     p = ODDS_DIR / f"{league_id}.json"
+    return _load_json(p) or {}
+
+def load_odds_for_fixture(fid: int) -> dict:
+    p = ODDS_FIX / f"{fid}.json"
     return _load_json(p) or {}
 
 def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
@@ -243,8 +253,8 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_MATCH_WINNER:
             continue
-        # prefer Bet365 explicitly if present
-        if str(row.get("bookmaker_id")) not in ("", "None", "2") and int(row.get("bookmaker_id")) != 2:
+        # Strict Bet365
+        if str(row.get("bookmaker_id")) not in ("2", 2):
             continue
         label = (row.get("label") or "").strip().lower()
         name  = (row.get("name")  or "").strip().lower()
@@ -260,7 +270,7 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
             away_price = val if (away_price is None or val < away_price) else away_price
     return home_price, away_price
 
-# ----- Over 0.5 lookup with Over/Under disambiguation + alias matching -----
+# ----- Over 0.5 lookup with Over/Under disambiguation + alias matching (with priority) -----
 def _row_text(row: dict) -> str:
     fields = ["label","name","original_label","market_description","outcome","outcome_name","header","description"]
     return " ".join([str(row.get(f, "")) for f in fields]).lower()
@@ -285,60 +295,71 @@ def _is_over_row(row: dict) -> Optional[bool]:
         return True
     return None  # ambiguous
 
-def best_over05_player_shots(odds_rows: List[dict], player_rec_or_name: Any) -> Optional[float]:
+def best_over05_player_shots(odds_rows: List[dict], player_rec: dict) -> Optional[float]:
     """
     Find Over 0.5 price for the player in Player Shots (market_id=268).
-    - Filter to line 0.5
-    - Match player via robust aliases
-    - Prefer explicit Over; if ambiguous, pick LOWER price as Over
+    Strategy:
+      1) Filter rows to this player and line 0.5 (Bet365 only).
+      2) Score matches: exact alias (=2) > loose alias (=1).
+      3) Prefer explicit Over; if ambiguous, pick LOWER price as Over.
     """
-    # Build aliases
-    if isinstance(player_rec_or_name, dict):
-        aliases = aliases_from_record(player_rec_or_name)
-        display_name = player_rec_or_name.get("name") or ""
-    else:
-        aliases = name_variants(str(player_rec_or_name))
-        display_name = str(player_rec_or_name)
+    aliases = aliases_from_record(player_rec)
+    if not aliases:
+        return None
 
-    candidates: List[Tuple[Optional[bool], float]] = []
+    exact: List[Tuple[Optional[bool], float]] = []
+    loose: List[Tuple[Optional[bool], float]] = []
+
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
             continue
-        if str(row.get("bookmaker_id")) not in ("", "None", "2") and int(row.get("bookmaker_id")) != 2:
+        if str(row.get("bookmaker_id")) not in ("2", 2):
             continue
         if not market_is_player_shots(row.get("market_description") or row.get("market_name") or ""):
             continue
         if not _line_is_point5(row):
             continue
-        # check any of the useful fields for the name
-        cand_fields = [
+
+        # Check name in several fields
+        matched, score = False, 0
+        for cand in (
             row.get("name",""),
             row.get("original_label",""),
             row.get("label",""),
             row.get("outcome_name",""),
             row.get("header",""),
             row.get("description",""),
-        ]
-        if not any(label_matches_aliases(str(f), aliases) for f in cand_fields if f):
+        ):
+            if not cand: 
+                continue
+            ok, sc = label_matches_aliases(str(cand), aliases)
+            if ok and sc > score:
+                matched, score = True, sc
+        if not matched:
             continue
+
         price = as_float(row.get("value"))
         if price is None:
             continue
-        over_flag = _is_over_row(row)  # True/False/None
-        candidates.append((over_flag, price))
+        over_flag = _is_over_row(row)
+        (exact if score == 2 else loose).append((over_flag, price))
 
-    if not candidates:
+    def pick(candidates: List[Tuple[Optional[bool], float]]) -> Optional[float]:
+        if not candidates:
+            return None
+        explicit_over = [p for flag, p in candidates if flag is True]
+        if explicit_over:
+            return min(explicit_over)
+        ambiguous = [p for flag, p in candidates if flag is None]
+        if ambiguous:
+            return min(ambiguous)
         return None
 
-    explicit_over = [p for flag, p in candidates if flag is True]
-    if explicit_over:
-        return min(explicit_over)
-
-    ambiguous = [p for flag, p in candidates if flag is None]
-    if ambiguous:
-        return min(ambiguous)
-
-    return None
+    # Try exact matches first, then loose
+    price = pick(exact)
+    if price is not None:
+        return price
+    return pick(loose)
 
 # ========= FORM (player shots histories) =========
 def series_counts(series_raw: List[int]) -> Tuple[int, Optional[int], int]:
@@ -413,7 +434,7 @@ def main():
         OUT_FILE.write_text(text + "\n", encoding="utf-8")
         print(text); return
 
-    # 2) Load odds once per league
+    # 2) Load odds once per league (for fixture names) and use per-fixture odds where available
     odds_by_league: Dict[int, dict] = {lid: load_odds_for_league(lid) for lid in LEAGUE_IDS}
 
     # 3) Evaluate odds filters and build results by bucket
@@ -432,7 +453,17 @@ def main():
             if not side:
                 continue
 
-            odds_rows = fx.get("odds") or []
+            # Prefer fresh per-fixture odds; fallback to embedded league odds
+            fid = int(fx.get("fixture_id") or fx.get("id") or 0)
+            if fid:
+                per = load_odds_for_fixture(fid)
+                odds_rows = (per.get("odds") or []) if isinstance(per.get("odds"), list) else []
+                if not odds_rows:
+                    odds_rows = fx.get("odds") or []
+            else:
+                odds_rows = fx.get("odds") or []
+
+            # Team moneyline (Bet365 only)
             home_ml, away_ml = extract_team_ml_prices(odds_rows, home, away)
             team_ml = home_ml if side == "home" else away_ml
             if team_ml is None or team_ml >= TEAM_ML_MAX:
