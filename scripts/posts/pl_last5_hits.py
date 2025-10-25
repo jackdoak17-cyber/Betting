@@ -188,7 +188,7 @@ def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     header = [
-        "I have collated some player stats for today based on their last 5 games in the Premier League (80 & 100% hit rates)🧵",
+        "I have collated some player stats for this game week based on their last 5 games in the Premier League (80 & 100% hit rates)🧵",
         "",
         "Make sure to save for later📌",
         "",
@@ -199,7 +199,7 @@ def main():
         sections = ["(No qualifying players found based on current files.)", ""]
 
     footer = [
-        "Good luck with your bets today. Any value here? If you need any information let me know.",
+        "Good luck with your bets today. Any value here?",
     ]
 
     text = "\n".join(header + sections + [""] + footer).rstrip() + "\n"
