@@ -1,25 +1,5 @@
-[STATS] total_players=1980  bucketA(7/7)=3  bucketB(6/7)=23
-[EVENTS] england-premier-league: 10 (next 7d)
-[EVENTS] england-championship: 24 (next 7d)
-[EVENTS] germany-bundesliga: 9 (next 7d)
-[EVENTS] france-ligue-1: 9 (next 7d)
-[EVENTS] italy-serie-b: 10 (next 7d)
-[EVENTS] spain-laliga: 10 (next 7d)
-[EVENTS] spain-laliga-2: 11 (next 7d)
-[EVENTS] turkiye-super-lig: 11 (next 7d)
-[MAP] candidates_mapped=23/26
-[ODDS] Unique events to query: 24
-[ODDS] batch 1 — 10 ids
-[ODDS] batch 2 — 10 ids
-[ODDS] batch 3 — 4 ids
-Generated at (UTC): 2025-10-21T06:53:09.492530 | Min price: 1.30 | Capture≥1.10 | Team ML < 3.50 | Window: 7d | DNB fallback: 1
-Market: Bet365 — Player Shots On Target (Over 0.5) STRICT. Excludes headed/outside/halves. Most recent windows strictly used.
-[PIPE] mapped=23/26  ml_pass=22  had_sot_market=6
-[PRICE] captured_players(>= 1.1)=3  eligible(>= 1.3)=3
+Generated at (UTC): 2025-10-25T11:42:52.804229+00:00
+Criteria: SOT certs (10/10,9/10,8/10 or 7/7) | Over 0.5 SOT >= 1.30 | Team ML < 3.50 | Window=7 days
+Candidates scanned (qualified by history before odds/ML): 0
 
-===== CERTS — 1+ SOT (6/7) =====
- • Oliver McBurnie [FWD] — Hull City | Hull City vs Leicester City | 1+ SOT @ 1.533 | Team Win (ML) 3.300 | 6/7 (last7: 6/7; series7: 0,1,2,1,1,1,1)
- • George Hirst [FWD] — Ipswich Town | Ipswich Town vs Charlton Athletic | 1+ SOT @ 1.400 | Team Win (ML) 1.615 | 6/7 (last7: 6/7; series7: 1,2,1,1,1,0,1)
- • Mikel Oyarzabal [FWD] — Real Sociedad | Real Sociedad San Sebastian vs Sevilla FC | 1+ SOT @ 1.400 | Team Win (ML) 2.050 | 6/7 (last7: 6/7; series7: 1,2,1,1,0,3,2)
-
-Run timestamp (UTC): 2025-10-21 06:53:09
+No SOT certs found.
