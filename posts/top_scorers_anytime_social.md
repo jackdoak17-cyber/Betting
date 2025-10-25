@@ -1,62 +1,61 @@
-Top Scorers in each of the top 5 leagues — Anytime (Bet365)
+Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 
+*Premier League*
+1. E. Haaland — 11 — Man City — @ 1.90 (vs Brighton)
+2. A. Semenyo — 6 — Bournemouth — @ 3.10 (vs Nottm Forest)
+3. I. Thiago — 5 — Brentford — @ 2.87 (vs Liverpool)
+4. J. Mateta — 5 — Crystal Palace — @ 4.33 (vs Arsenal)
+5. D. Welbeck — 4 — Brighton — @ 2.87 (vs Man Utd)
+6. J. Anthony — 4 — Burnley — @ 5.00 (vs Wolves)
+7. N. Woltemade — 4 — Newcastle — @ 2.20 (vs Fulham)
+8. C. Gakpo — 3 — Liverpool — @ 3.20 (vs Brentford)
+9. E. Kroupi — 3 — Bournemouth — @ 2.40 (vs Nottm Forest)
+10. E. Fernández — 3 — Chelsea — @ 4.50 (vs Sunderland)
 
-Premier League
-1) Erling Haaland (11, MCI) @1.90 v BHA
-2) Antoine Semenyo (6, BOU) @3.10 v NFO
-3) Igor Thiago (5, BRE) @2.87 v LIV
-4) Jean-Philippe Mateta (5, CRY) @4.33 v ARS
-5) Danny Welbeck (4, BHA) @2.87 v MUN
-6) Jaidon Anthony (4, BUR) @5.00 v WOL
-7) Nick Woltemade (4, NEW) @2.20 v FUL
-8) C. Gakpo (3, LIV) @3.20 v BRE
-9) Eli Kroupi (3, BOU) @2.40 v NFO
-10) Enzo Fernández (3, CHE) @4.50 v SUN
+*LaLiga*
+1. K. Mbappé — 10 — Real Madrid — @ 1.66 (vs Barcelona)
+2. J. Alvarez — 6 — Atleti — @ 2.50 (vs Betis)
+3. K. Eyong — 5 — Levante — @ 3.10 (vs Mallorca)
+4. V. Muriqi — 5 — Mallorca — @ 2.50 (vs Levante)
+5. V. Vinicius — 5 — Real Madrid — @ 2.37 (vs Barcelona)
+6. A. Silva — 4 — Elche — @ 4.33 (vs Espanyol)
+7. B. Iglesias — 4 — Celta — @ 3.10 (vs Osasuna)
+8. C. Hernández — 4 — Betis — @ 3.00 (vs Atleti)
+9. F. Torres — 4 — Barcelona — @ 2.60 (vs Real Madrid)
+10. I. Romero — 4 — Levante — @ 4.33 (vs Mallorca)
 
-LaLiga
-1) Kylian Mbappé  (10, RMA) @1.66 v BAR
-2) Julián Alvarez (6, ATM) @2.50 v BET
-3) Karl Etta Eyong (5, LVT) @3.10 v MLL
-4) Vedat Muriqi (5, MLL) @2.50 v LVT
-5) Vinicius Junior (5, RMA) @2.37 v BAR
-6) André Silva (4, ELC) @4.33 v ESY
-7) Borja Iglesias (4, CEL) @3.10 v OSA
-8) Cucho Hernández (4, BET) @3.00 v ATM
-9) Ferran Torres (4, BAR) @2.60 v RMA
-10) Iván Romero (4, LVT) @4.33 v MLL
+*Bundesliga*
+1. H. Kane — 12 — Bayern — @ 1.44 (vs Gladbach)
+2. C. Uzun — 5 — Frankfurt — @ 2.50 (vs St. Pauli)
+3. L. Díaz — 5 — Bayern — @ 2.00 (vs Gladbach)
+4. A. Grimaldo — 4 — Leverkusen — @ 4.00 (vs Freiburg)
+5. C. Baumgartner — 4 — RB Leipzig — @ 2.87 (vs Augsburg)
+6. F. Asllani — 4 — Hoffenheim — @ 2.25 (vs Heidenheim)
+7. I. Ansah — 4 — Union Berlin — @ — (vs TBC)
+8. J. Burkardt — 4 — Frankfurt — @ 1.95 (vs St. Pauli)
+9. M. Olise — 4 — Bayern — @ 2.10 (vs Gladbach)
+10. S. Guirassy — 4 — Dortmund — @ 1.50 (vs Koln)
 
-Bundesliga
-1) Harry Kane  (12, FCB) @1.44 v BMG
-2) Can Uzun (5, SGE) @2.50 v PAU
-3) Luis Díaz (5, FCB) @2.00 v BMG
-4) Alejandro Grimaldo (4, B04) @4.00 v SCF
-5) Christoph Baumgartner (4, RBL) @2.87 v FCA
-6) Fisnik Asllani (4, TSG) @2.25 v HDH
-7) Ilyas Ansah (4, FCU) — v TBC
-8) Jonathan Burkardt (4, SGE) @1.95 v PAU
-9) Michael Olise (4, FCB) @2.10 v BMG
-10) Serhou Guirassy (4, BVB) @1.50 v KOE
+*Serie A*
+1. R. Orsolini — 5 — Bologna — @ 3.20 (vs Fiorentina)
+2. C. Pulisic — 4 — Milan — @ 3.40 (vs Atalanta)
+3. N. Paz — 4 — Como — @ 3.25 (vs Parma)
+4. A. Bonny — 3 — Inter — @ 2.75 (vs Napoli)
+5. G. Simeone — 3 — Torino — @ 2.75 (vs Genoa)
+6. K. Bruyne — 3 — Napoli — @ 5.00 (vs Inter)
+7. L. Martínez — 3 — Inter — @ 2.75 (vs Napoli)
+8. M. Thuram — 3 — Inter — @ 3.10 (vs Napoli)
+9. M. Cancellieri — 3 — Lazio — @ 5.00 (vs Juventus)
+10. M. Soulé — 3 — Roma — @ 3.75 (vs Sassuolo)
 
-Serie A
-1) Riccardo Orsolini (5, BOL) @3.20 v FIO
-2) Christian Pulisic (4, MIL) @3.40 v ATA
-3) Nico Paz (4, COM) @3.25 v PRM
-4) Ange-Yoan Bonny (3, INT) @2.75 v NAP
-5) Giovanni Simeone (3, TOR) @2.75 v GEN
-6) Kevin De Bruyne (3, NAP) @5.00 v INT
-7) Lautaro Martínez  (3, INT) @2.75 v NAP
-8) Marcus Thuram (3, INT) @3.10 v NAP
-9) Matteo Cancellieri (3, LAZ) @5.00 v JUV
-10) Matías Soulé (3, ROM) @3.75 v SAS
-
-Ligue 1
-1) Joaquín Panichelli (7, STR) @3.10 v LYO
-2) Mason Greenwood (6, OM) @2.40 v LEN
-3) Ansu Fati (5, ASM) @2.50 v TOU
-4) Bradley Barcola (4, PSG) @2.25 v B29
-5) Estéban Lepaul (4, REN) @2.40 v NCE
-6) Frank Magri (4, TOU) @3.10 v ASM
-7) Ilan Kebbal (4, PFC) @3.10 v B29
-8) Romain Del Castillo (4, B29) @5.00 v PSG
-9) Sofiane Diop (4, NCE) @4.00 v REN
-10) Aiyegun Tosin (3, LOR) @3.75 v ANG
+*Ligue 1*
+1. J. Panichelli — 7 — Strasbourg — @ 3.10 (vs Lyon)
+2. M. Greenwood — 6 — Marseille — @ 2.40 (vs Lens)
+3. A. Fati — 5 — Monaco — @ 2.50 (vs Toulouse)
+4. B. Barcola — 4 — PSG — @ 2.25 (vs Brest)
+5. E. Lepaul — 4 — Rennes — @ 2.40 (vs Nice)
+6. F. Magri — 4 — Toulouse — @ 3.10 (vs Monaco)
+7. I. Kebbal — 4 — Paris — @ 3.10 (vs Brest)
+8. R. Castillo — 4 — Brest — @ 5.00 (vs PSG)
+9. S. Diop — 4 — Nice — @ 4.00 (vs Rennes)
+10. A. Tosin — 3 — Lorient — @ 3.75 (vs Angers)
