@@ -10,12 +10,12 @@ Criteria:
   • Price: Bet365 Over 0.5 shots ≥ MIN_DEC_PRICE (default 1.72)
   • Exclude big underdogs: team ML ≤ TEAM_UNDERDOG_MAX (default 3.50)
 
-Inputs (local):
+Reads (local files):
   • data/player_shots/by_league/{league_id}.json
   • data/predicted_xi/by_league/{league_id}.json  (optional, for team names)
   • data/odds/b365/{league_id}.json               (market_id=1,268)
 
-Output:
+Writes:
   • data/value_bets/value_singles.txt
   • Includes player's position tag in output, e.g. [FWD]
 
@@ -35,7 +35,8 @@ TEAM_UNDERDOG_MAX = float(os.getenv("TEAM_UNDERDOG_MAX", "3.50"))
 
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
-    int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",")
+    int(x)
+    for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",")
     if x.strip()
 ]
 
@@ -65,7 +66,7 @@ def norm(s: str) -> str:
     return norm_spaces(s)
 
 def cleanup_label(label: str) -> str:
-    # Remove bracketed/parenthetical tails (bookmaker decorations)
+    # Remove bookmaker decorations like " (Player Shots)" or other parentheses
     return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
 
 def person_part_from_option(label: str) -> str:
@@ -242,46 +243,54 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
             away_price = val if (away_price is None or val < away_price) else away_price
     return home_price, away_price
 
-# -------- Player-price lookup (MISSING BEFORE — added now) --------
+# -------- Player-price lookup (Over 0.5 only) --------
 def best_over05_player_shots(odds_rows: List[dict], player_rec: dict) -> Optional[float]:
     """
-    Find Over 0.5 price for the player in market_id=268 using robust alias matching.
-    We accept rows where:
-      - market_id == 268 (Player Shots)
-      - option label belongs to this player (via aliases)
-      - line is 0.5 (numeric), or label text contains '0.5' (fallback)
+    Find Over 0.5 price for the player in Player Shots (market_id=268).
+    - Prefer numeric line from `total` (0.5)
+    - Enforce 'Over' (reject 'Under')
+    - Use robust alias matching for player names
     """
     aliases = aliases_from_record(player_rec)
     if not aliases:
         return None
+
+    def is_over_row(row: dict) -> bool:
+        txt = " ".join([
+            str(row.get("label") or ""),
+            str(row.get("name") or ""),
+            str(row.get("original_label") or ""),
+            str(row.get("market_description") or "")
+        ]).lower()
+        if "under" in txt:
+            return False
+        # heuristics for 'Over'
+        return (" over " in f" {txt} ") or txt.strip() in {"over", "o", "o/u over"} or "+0.5" in txt or "0.5+" in txt
+
+    def line_is_point5(row: dict) -> bool:
+        t = as_float(row.get("total"))
+        if t is not None:
+            return math.isclose(t, 0.5, abs_tol=1e-6)
+        l = as_float(row.get("label"))
+        if l is not None:
+            return math.isclose(l, 0.5, abs_tol=1e-6)
+        blob = f"{row.get('label','')} {row.get('name','')} {row.get('original_label','')} {row.get('total','')}".replace(",", ".").lower()
+        return "0.5" in blob
 
     best = None
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
             continue
         candidate = row.get("name") or row.get("total") or row.get("original_label") or ""
-        if not candidate:
+        if not candidate or not label_matches_aliases(candidate, aliases):
             continue
-        if not label_matches_aliases(candidate, aliases):
+        if not is_over_row(row) or not line_is_point5(row):
             continue
-
-        # Confirm it's the 0.5 line (prefer numeric label)
-        line = as_float(row.get("label"))
-        if line is None:
-            # fallback textual sniffing
-            blob = f"{row.get('label','')} {row.get('name','')} {row.get('original_label','')} {row.get('total','')}".lower()
-            if "0.5" not in blob and "0,5" not in blob:
-                continue
-        else:
-            if not math.isclose(line, 0.5, abs_tol=1e-6):
-                continue
-
         price = as_float(row.get("value"))
         if price is None:
             continue
         if best is None or price > best + 1e-12:
             best = price
-
     return best
 
 # -------- Form filters --------
