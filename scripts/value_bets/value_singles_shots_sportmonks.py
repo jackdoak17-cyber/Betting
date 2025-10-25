@@ -8,7 +8,7 @@ Criteria:
   • Form path A: 7/10 (≥7 of last 10 with ≥1 shot)
   • Form path B: 5/5 (all of last 5 with ≥1 shot)
   • Price: Bet365 Over 0.5 shots ≥ MIN_DEC_PRICE (default 1.72)
-  • Remove underdogs: team ML ≤ opponent ML
+  • Exclude big underdogs: team ML ≤ TEAM_UNDERDOG_MAX (default 3.50)
 
 Inputs (local):
   • data/player_shots/by_league/{league_id}.json
@@ -20,9 +20,9 @@ Output:
   • Includes player's position tag in output, e.g. [FWD]
 
 ENV (optional):
-  • MIN_DEC_PRICE   (default "1.72")
-  • FAVORITES_ONLY  (default "true")
-  • LEAGUE_IDS      (default "301,384,387,564,567,600,8,82,9")
+  • MIN_DEC_PRICE       (default "1.72")
+  • TEAM_UNDERDOG_MAX   (default "3.50")  # drop picks with team ML > this
+  • LEAGUE_IDS          (default "301,384,387,564,567,600,8,82,9")
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -31,7 +31,7 @@ from typing import Dict, List, Tuple, Optional, Any, Iterable
 
 # -------- Config --------
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.72"))
-FAVORITES_ONLY = (os.getenv("FAVORITES_ONLY", "true").strip().lower() in {"1","true","yes","y"})
+TEAM_UNDERDOG_MAX = float(os.getenv("TEAM_UNDERDOG_MAX", "3.50"))
 
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
@@ -57,25 +57,21 @@ def strip_accents(s: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", s or "") if unicodedata.category(c) != "Mn")
 
 def norm_spaces(s: str) -> str:
-    s = re.sub(r"\s+", " ", s or "").strip()
-    return s
+    return re.sub(r"\s+", " ", s or "").strip()
 
 def norm(s: str) -> str:
     s = strip_accents(s or "").lower()
     s = re.sub(r"[^\w\s\.-]", " ", s)
-    s = norm_spaces(s)
-    return s
+    return norm_spaces(s)
 
 def cleanup_label(label: str) -> str:
-    # Remove bracketed or parenthetical tails (bookmaker decorations)
-    s = re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
-    return s
+    # Remove bracketed/parenthetical tails (bookmaker decorations)
+    return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
 
 def person_part_from_option(label: str) -> str:
     """
-    Extract the 'person name' portion from an option label that might look like:
-      "O. Watkins Over 0.5", "Ollie Watkins - Over 0.5", "O Watkins 0.5+"
-    We crop before ' over ' / ' under ' or ' - over ' etc.
+    Extract the person-name portion from options like:
+    "O. Watkins Over 0.5", "Ollie Watkins - Over 0.5", "O Watkins 0.5+"
     """
     s = cleanup_label(label or "")
     m = re.split(r"\b(?:-?\s*over|-?\s*under|\s+o\/u|\s+o\d+|\s+u\d+)\b", s, flags=re.IGNORECASE)
@@ -88,9 +84,7 @@ def drop_suffixes(parts: List[str]) -> List[str]:
     return out
 
 def split_name_tokens(name: str) -> List[str]:
-    s = norm(name).replace("-", " ")
-    parts = [p for p in s.split() if p]
-    return parts
+    return [p for p in norm(name).replace("-", " ").split() if p]
 
 def surname_tokens(parts: List[str]) -> List[str]:
     """Return surname tokens, preserving common prefixes like 'van Dijk'."""
@@ -103,8 +97,6 @@ def surname_tokens(parts: List[str]) -> List[str]:
 
 def first_initial(parts: List[str]) -> Optional[str]:
     parts = drop_suffixes(parts)
-    if not parts:
-        return None
     for p in parts[:-1]:
         ch = p[:1]
         if ch:
@@ -115,10 +107,9 @@ def name_variants(full_name: str) -> List[str]:
     """
     Generate robust variants for matching:
       - full name (normalized)
-      - surname only
+      - surname only (w/ prefix if applicable)
       - first-initial + surname
-      - surname-with-prefix (e.g., 'van dijk')
-      - hyphen-stripped variants
+      - minimal 'surname initial' variant
     """
     if not full_name:
         return []
@@ -132,7 +123,6 @@ def name_variants(full_name: str) -> List[str]:
     if init:
         out.add(f"{init}. {sur}")
         out.add(f"{init} {sur}")
-    # also add 'last, first' minimal variant to tolerate odd book names
     out.add(f"{sur} {init or ''}".strip())
     return sorted({norm(o).replace(".", "") for o in out if o})
 
@@ -142,58 +132,47 @@ def aliases_from_record(rec: dict) -> List[str]:
         v = rec.get(k)
         if isinstance(v, str) and v.strip():
             names.append(v.strip())
-    # Deduplicate while preserving order
-    seen = set(); uniq = []
+    # dedupe
+    seen, uniq = set(), []
     for n in names:
         key = norm(n)
         if key not in seen:
             seen.add(key); uniq.append(n)
-    # Expand to variants
+    # expand to variants
     out: List[str] = []
     for n in uniq:
         out.extend(name_variants(n))
-    # unique again
-    seen2 = set(); uniq2 = []
-    for n in out:
-        if n not in seen2:
-            seen2.add(n); uniq2.append(n)
+    # dedupe again
+    seen2, uniq2 = set(), []
+    for a in out:
+        if a not in seen2:
+            seen2.add(a); uniq2.append(a)
     return uniq2
 
 def label_matches_aliases(option_label: str, aliases: Iterable[str]) -> bool:
     lab = norm(person_part_from_option(option_label)).replace(".", "")
     if not lab:
         return False
-    # Token-based containment to reduce false positives
     lab_tokens = set(lab.split())
     for alias in aliases:
-        a = alias.strip()
-        if not a:
-            continue
-        atoks = set(a.split())
-        # Direct equality or subset/superset logic
-        if a == lab:
+        atoks = set(alias.split())
+        if alias == lab or (atoks and (atoks.issubset(lab_tokens) or lab_tokens.issubset(atoks))):
             return True
-        if atoks and (atoks.issubset(lab_tokens) or lab_tokens.issubset(atoks)):
-            return True
-        # Loose: ensure surname token(s) present + (first initial present if available)
-        a_parts = a.split()
+        # ensure surname tokens present; enforce initial presence when provided
+        a_parts = alias.split()
         a_sur = a_parts[-2:] if len(a_parts) >= 2 and a_parts[-2] in SURNAME_PREFIXES else a_parts[-1:]
         if set(a_sur).issubset(lab_tokens):
-            # If alias has an initial token, require it's present or lab starts with it
-            if len(a_parts) >= 2:
-                a_first = a_parts[0]
-                if len(a_first) == 1:  # initial
-                    if a_first in lab_tokens or lab.startswith(a_first + " "):
-                        return True
-                    continue
+            if len(a_parts) >= 2 and len(a_parts[0]) == 1:  # initial
+                if a_parts[0] in lab_tokens or lab.startswith(a_parts[0] + " "):
+                    return True
+                continue
             return True
     return False
 
-# -------- Team name helpers (unchanged) --------
+# -------- Team name helpers --------
 GENERIC_TOK = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
 def team_tokens(name: str):
-    toks = set(norm(name).split())
-    return {t for t in toks if t not in GENERIC_TOK}
+    return {t for t in norm(name).split() if t not in GENERIC_TOK}
 
 def team_names_match(a: str, b: str) -> bool:
     if not a or not b: return False
@@ -201,9 +180,7 @@ def team_names_match(a: str, b: str) -> bool:
     if not ta or not tb: return False
     if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; union = ta | tb
-    if len(inter) / max(1, len(union)) >= 0.5: return True
-    if len(inter) >= 2: return True
-    return False
+    return (len(inter) / max(1, len(union)) >= 0.5) or (len(inter) >= 2)
 
 def _load_json(p: Path) -> Any:
     try:
@@ -253,13 +230,11 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
         label = (row.get("label") or "").strip()
         name  = (row.get("name")  or "").strip()
         val   = as_float(row.get("value"))
-        if val is None: 
+        if val is None:
             continue
-        labn = norm(label)
-        namen = norm(name)
-        if labn in {"1","home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
+        if norm(label) in {"1","home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
             home_price = val if (home_price is None or val < home_price) else home_price
-        elif labn in {"2","away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
+        elif norm(label) in {"2","away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
             away_price = val if (away_price is None or val < away_price) else away_price
         elif team_names_match(home_name, name):
             home_price = val if (home_price is None or val < home_price) else home_price
@@ -267,42 +242,14 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
             away_price = val if (away_price is None or val < away_price) else away_price
     return home_price, away_price
 
-def best_over05_player_shots(odds_rows: List[dict], player_rec: dict) -> Optional[float]:
-    """Find Over 0.5 price for the player in market_id=268 using robust alias matching."""
-    aliases = aliases_from_record(player_rec)
-    if not aliases:
-        return None
-    best = None
-    # Pre-filter all player-shots rows once
-    rows = [r for r in odds_rows if int(r.get("market_id", 0)) == MARKET_PLAYER_SHOTS]
-    for row in rows:
-        candidate = row.get("name") or row.get("total") or row.get("original_label") or ""
-        if not candidate:
-            continue
-        if not label_matches_aliases(candidate, aliases):
-            continue
-        line = as_float(row.get("label"))
-        if line is None or not math.isclose(line, 0.5, abs_tol=1e-6):
-            continue
-        price = as_float(row.get("value"))
-        if price is None:
-            continue
-        if best is None or price > best + 1e-12:
-            best = price
-    return best
-
 # -------- Form filters --------
 def qualifies_5of5(series: List[int]) -> bool:
     seq = [x for x in (series or []) if isinstance(x, int)]
-    if len(seq) < 5: return False
-    last5 = seq[:5]
-    return all(x >= 1 for x in last5)
+    return len(seq) >= 5 and all(x >= 1 for x in seq[:5])
 
 def qualifies_7of10(series: List[int]) -> bool:
     seq = [x for x in (series or []) if isinstance(x, int)]
-    if len(seq) < 10: return False
-    last10 = seq[:10]
-    return sum(1 for x in last10 if x >= 1) >= 7
+    return len(seq) >= 10 and sum(1 for x in seq[:10] if x >= 1) >= 7
 
 def collect_candidates() -> List[dict]:
     """Build candidate pool from player_shots files based on form only (7/10 OR 5/5)."""
@@ -379,8 +326,8 @@ def main():
             team_ml = home_ml if side == "home" else away_ml
             opp_ml  = away_ml if side == "home" else home_ml
 
-            # Remove underdogs
-            if FAVORITES_ONLY and not (team_ml <= opp_ml):
+            # Exclude big underdogs (decimal odds > TEAM_UNDERDOG_MAX)
+            if team_ml is None or team_ml > TEAM_UNDERDOG_MAX:
                 continue
 
             price = best_over05_player_shots(odds_rows, c["_rec"])
@@ -405,10 +352,9 @@ def main():
 
     # Render
     ts = dt.datetime.utcnow().isoformat()
-    fav_str = "Favorites only" if FAVORITES_ONLY else "Favorites filter OFF"
     lines = [
         f"Generated at (UTC): {ts}",
-        f"Criteria: 5/5 OR 7/10 | Over 0.5 ≥ {MIN_PRICE:.2f} | {fav_str}",
+        f"Criteria: 5/5 OR 7/10 | Over 0.5 ≥ {MIN_PRICE:.2f} | Exclude big underdogs (team ML > {TEAM_UNDERDOG_MAX:.2f})",
         "Market: Bet365 Player Shots Over 0.5 (market_id=268)",
         "",
     ]
