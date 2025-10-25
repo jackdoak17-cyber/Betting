@@ -243,55 +243,99 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
             away_price = val if (away_price is None or val < away_price) else away_price
     return home_price, away_price
 
-# -------- Player-price lookup (Over 0.5 only) --------
+# -------- Player-price lookup (Over 0.5 only, robust) --------
+def _row_text(row: dict) -> str:
+    # Concatenate many possible text fields for heuristic checks
+    fields = [
+        "label","name","original_label","market_description",
+        "outcome","outcome_name","header","description"
+    ]
+    return " ".join([str(row.get(f,"")) for f in fields]).lower()
+
+def _line_is_point5(row: dict) -> bool:
+    t = as_float(row.get("total"))
+    if t is not None:
+        return math.isclose(t, 0.5, abs_tol=1e-6)
+    l = as_float(row.get("label"))
+    if l is not None:
+        return math.isclose(l, 0.5, abs_tol=1e-6)
+    blob = _row_text(row).replace(",", ".")
+    return "0.5" in blob or "0,5" in blob
+
+def _is_over_row(row: dict) -> Optional[bool]:
+    """
+    Returns:
+      True  -> confidently 'Over'
+      False -> confidently 'Under'
+      None  -> cannot tell (ambiguous text)
+    """
+    txt = _row_text(row)
+    # strong signals first
+    if re.search(r"\bunder\b", txt):
+        return False
+    if re.search(r"\bover\b", txt):
+        return True
+    # light hints (formats like "+0.5" often used for over)
+    if "+0.5" in txt or "0.5+" in txt or "0,5+" in txt:
+        return True
+    # ambiguous
+    return None
+
+def _row_matches_player(row: dict, aliases: Iterable[str]) -> bool:
+    # Try multiple fields — some feeds put player name in different places
+    candidates = [
+        row.get("name",""),
+        row.get("original_label",""),
+        row.get("label",""),
+        row.get("outcome_name",""),
+        row.get("header",""),
+        row.get("description",""),
+    ]
+    for cand in candidates:
+        if cand and label_matches_aliases(str(cand), aliases):
+            return True
+    return False
+
 def best_over05_player_shots(odds_rows: List[dict], player_rec: dict) -> Optional[float]:
     """
     Find Over 0.5 price for the player in Player Shots (market_id=268).
-    - Prefer numeric line from `total` (0.5)
-    - Enforce 'Over' (reject 'Under')
-    - Use robust alias matching for player names
+    Strategy:
+      1) Filter rows to this player and line 0.5.
+      2) Among those, prefer rows confidently tagged 'Over'.
+      3) If ambiguous (no explicit Over/Under text), pick the LOWER price as Over (typical pricing).
     """
     aliases = aliases_from_record(player_rec)
     if not aliases:
         return None
 
-    def is_over_row(row: dict) -> bool:
-        txt = " ".join([
-            str(row.get("label") or ""),
-            str(row.get("name") or ""),
-            str(row.get("original_label") or ""),
-            str(row.get("market_description") or "")
-        ]).lower()
-        if "under" in txt:
-            return False
-        # heuristics for 'Over'
-        return (" over " in f" {txt} ") or txt.strip() in {"over", "o", "o/u over"} or "+0.5" in txt or "0.5+" in txt
-
-    def line_is_point5(row: dict) -> bool:
-        t = as_float(row.get("total"))
-        if t is not None:
-            return math.isclose(t, 0.5, abs_tol=1e-6)
-        l = as_float(row.get("label"))
-        if l is not None:
-            return math.isclose(l, 0.5, abs_tol=1e-6)
-        blob = f"{row.get('label','')} {row.get('name','')} {row.get('original_label','')} {row.get('total','')}".replace(",", ".").lower()
-        return "0.5" in blob
-
-    best = None
+    candidates: List[Tuple[Optional[bool], float]] = []
     for row in odds_rows:
         if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
             continue
-        candidate = row.get("name") or row.get("total") or row.get("original_label") or ""
-        if not candidate or not label_matches_aliases(candidate, aliases):
+        if not _line_is_point5(row):
             continue
-        if not is_over_row(row) or not line_is_point5(row):
+        if not _row_matches_player(row, aliases):
             continue
         price = as_float(row.get("value"))
         if price is None:
             continue
-        if best is None or price > best + 1e-12:
-            best = price
-    return best
+        over_flag = _is_over_row(row)  # True / False / None
+        candidates.append((over_flag, price))
+
+    if not candidates:
+        return None
+
+    # Prefer explicit Over rows, then ambiguous (choose min price), never choose explicit Under
+    explicit_over = [p for flag, p in candidates if flag is True]
+    if explicit_over:
+        return min(explicit_over)  # Over is usually the shorter price on 0.5
+
+    ambiguous = [p for flag, p in candidates if flag is None]
+    if ambiguous:
+        return min(ambiguous)
+
+    # If somehow only explicit Unders were found, we don't return a price
+    return None
 
 # -------- Form filters --------
 def qualifies_5of5(series: List[int]) -> bool:
