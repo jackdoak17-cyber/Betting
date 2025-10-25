@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Premier League — Last 5 form (SOT & Fouls)
+Finds:
+  • 1+ SOT in 5/5 and 4/5
+  • 1+ foul in 5/5 and 4/5
+Outputs a social-ready thread. Skips empty sections.
+
+ENV (optional):
+  OUTPUT_PATH    (default: posts/pl_last5_hits.md)
+  LEAGUE_ID      (default: 8  — Premier League)
+  MIN_MINUTES    (default: 0  — ignore if you want all players)
+"""
+
+import os, json, re, unicodedata, datetime as dt
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+# ----- Config -----
+ROOT        = Path(".")
+OUT_PATH    = os.getenv("OUTPUT_PATH", "posts/pl_last5_hits.md")
+LEAGUE_ID   = int(os.getenv("LEAGUE_ID", "8"))
+MIN_MINUTES = int(os.getenv("MIN_MINUTES", "0"))
+
+FOULS_FILE  = ROOT / "data" / "player_fouls" / "by_league" / f"{LEAGUE_ID}.json"
+SOT_FILE    = ROOT / "data" / "player_shots_on_target" / "by_league" / f"{LEAGUE_ID}.json"
+FIX_FILE    = ROOT / "data" / "fixtures" / "by_league" / f"{LEAGUE_ID}.json"   # for team names (optional)
+
+# ----- Helpers -----
+def _load_json(p: Path) -> Any:
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+def strip_accents(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
+
+SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
+
+def short_player(name: str) -> str:
+    """Return 'F. Last' with suffixes removed."""
+    raw = (name or "").strip()
+    if not raw:
+        return ""
+    parts = [p for p in re.split(r"\s+", raw) if p]
+    while parts and re.sub(r"[\W_]+", "", parts[-1]).lower() in SUFFIXES:
+        parts = parts[:-1]
+    last = parts[-1] if parts else raw
+    first_initial = parts[0][0:1] if parts else ""
+    return f"{first_initial}. {last}"
+
+def build_team_map_from_fixtures() -> Dict[int, str]:
+    m: Dict[int, str] = {}
+    blob = _load_json(FIX_FILE) or {}
+    fixtures = blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
+    for fx in fixtures:
+        for p in (fx.get("participants") or []):
+            tid = p.get("id")
+            nm = p.get("name")
+            if isinstance(tid, int) and isinstance(nm, str) and nm:
+                m.setdefault(tid, nm)
+    return m
+
+# Pretty team names (compact, human)
+PRETTY_MAP = {
+    # PL common
+    "Manchester City": "Man City",
+    "Manchester United": "Man Utd",
+    "Newcastle United": "Newcastle",
+    "Nottingham Forest": "Nottm Forest",
+    "Brighton & Hove Albion": "Brighton",
+    "Tottenham Hotspur": "Spurs",
+    "Wolverhampton Wanderers": "Wolves",
+    "West Ham United": "West Ham",
+    "AFC Bournemouth": "Bournemouth",
+    "Sheffield United": "Sheff Utd",
+}
+
+def pretty_team(name: Optional[str]) -> str:
+    if not name:
+        return "TBC"
+    return PRETTY_MAP.get(name, name)
+
+def take_last5(series: List[int]) -> Optional[List[int]]:
+    if not isinstance(series, list) or len(series) < 5:
+        return None
+    # Files are "latest_first"; we want the most recent 5 in given order
+    return [int(x) for x in series[:5]]
+
+def count_ge1(series5: List[int]) -> int:
+    return sum(1 for x in series5 if isinstance(x, (int, float)) and x >= 1)
+
+def minutes_ok(minutes_last_n: Optional[List[int]]) -> bool:
+    if not minutes_last_n or not isinstance(minutes_last_n, list):
+        return MIN_MINUTES <= 0
+    # require that at least 4 of last 5 meet MIN_MINUTES if MIN_MINUTES > 0
+    if MIN_MINUTES <= 0:
+        return True
+    recent5 = minutes_last_n[:5] if len(minutes_last_n) >= 5 else minutes_last_n
+    return sum(1 for m in recent5 if isinstance(m, (int, float)) and m >= MIN_MINUTES) >= 4
+
+# ----- Core -----
+def collect_category_lines() -> List[str]:
+    fouls_blob = _load_json(FOULS_FILE) or {}
+    sot_blob   = _load_json(SOT_FILE)   or {}
+
+    team_map = build_team_map_from_fixtures()
+
+    fouls_players = fouls_blob.get("players") or []
+    sot_players   = sot_blob.get("players") or []
+
+    # Build dicts by (player_id or name+team) to avoid duplicates
+    # but we only need per-stat categories so we can process independently.
+
+    sections: List[Tuple[str, List[str]]] = []
+
+    # ---- FOULS ----
+    f_5of5: List[Tuple[str, str, List[int]]] = []
+    f_4of5: List[Tuple[str, str, List[int]]] = []
+
+    for rec in fouls_players:
+        series = take_last5(rec.get("fouls_last_n") or [])
+        if not series: 
+            continue
+        if not minutes_ok(rec.get("minutes_last_n")):
+            continue
+        hits = count_ge1(series)
+        if hits == 5:
+            f_5of5.append((rec.get("name",""), team_map.get(int(rec.get("team_id", -1)), None) or "", series))
+        elif hits == 4:
+            f_4of5.append((rec.get("name",""), team_map.get(int(rec.get("team_id", -1)), None) or "", series))
+
+    # Sort by total fouls over last 5 desc, then name
+    f_5of5.sort(key=lambda t: (-sum(t[2]), t[0]))
+    f_4of5.sort(key=lambda t: (-sum(t[2]), t[0]))
+
+    if f_5of5:
+        lines = ["📊1+ Foul in 5/5 (100%)📊", ""]
+        for name, team, series in f_5of5:
+            lines.append(f"{short_player(name)} ({pretty_team(team)}) = {', '.join(str(x) for x in series)}")
+        lines.append("")  # spacer
+        sections.append(("fouls_5of5", lines))
+
+    if f_4of5:
+        lines = ["📊1+ Foul in 4/5 (80%)📊", ""]
+        for name, team, series in f_4of5:
+            lines.append(f"{short_player(name)} ({pretty_team(team)}) = {', '.join(str(x) for x in series)}")
+        lines.append("")
+        sections.append(("fouls_4of5", lines))
+
+    # ---- SHOTS ON TARGET (SOT) ----
+    s_5of5: List[Tuple[str, str, List[int]]] = []
+    s_4of5: List[Tuple[str, str, List[int]]] = []
+
+    for rec in sot_players:
+        series = take_last5(rec.get("on_target_last_n") or [])
+        if not series:
+            continue
+        if not minutes_ok(rec.get("minutes_last_n")):
+            continue
+        hits = count_ge1(series)
+        if hits == 5:
+            s_5of5.append((rec.get("name",""), team_map.get(int(rec.get("team_id", -1)), None) or "", series))
+        elif hits == 4:
+            s_4of5.append((rec.get("name",""), team_map.get(int(rec.get("team_id", -1)), None) or "", series))
+
+    # Sort by total SOT over last 5 desc, then name
+    s_5of5.sort(key=lambda t: (-sum(t[2]), t[0]))
+    s_4of5.sort(key=lambda t: (-sum(t[2]), t[0]))
+
+    if s_5of5:
+        lines = ["📊1+ SOT in 5/5 (100%)📊", ""]
+        for name, team, series in s_5of5:
+            lines.append(f"{short_player(name)} ({pretty_team(team)}) = {', '.join(str(x) for x in series)}")
+        lines.append("")
+        sections.append(("sot_5of5", lines))
+
+    if s_4of5:
+        lines = ["📊1+ SOT in 4/5 (80%)📊", ""]
+        for name, team, series in s_4of5:
+            lines.append(f"{short_player(name)} ({pretty_team(team)}) = {', '.join(str(x) for x in series)}")
+        lines.append("")
+        sections.append(("sot_4of5", lines))
+
+    # Flatten keeping order: fouls 5/5, fouls 4/5, SOT 5/5, SOT 4/5
+    out: List[str] = []
+    for _, block in sections:
+        out.extend(block)
+    return out
+
+def main():
+    Path(os.path.dirname(OUT_PATH)).mkdir(parents=True, exist_ok=True)
+
+    header = [
+        "I have collated some player stats for today based on their last 5 games in the Premier League (80 & 100% hit rates)🧵",
+        "",
+        "Make sure to save for later📌",
+        "",
+    ]
+
+    sections = collect_category_lines()
+    if not sections:
+        sections = ["(No qualifying players found based on current files.)"]
+
+    footer = [
+        "Good luck with your bets today. Any value here? If you need any information let me know.",
+    ]
+
+    lines = header + sections + [""] + footer
+    Path(OUT_PATH).write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    print(f"Wrote {OUT_PATH}")
+
+if __name__ == "__main__":
+    main()
