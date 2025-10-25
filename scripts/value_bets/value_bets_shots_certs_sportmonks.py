@@ -25,7 +25,7 @@ ENV (optional):
 
 import os, re, json, math, datetime as dt, unicodedata
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Any, Iterable
 
 # ========= CONFIG =========
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.30"))
@@ -43,17 +43,117 @@ OUT_DIR   = ROOT / "data" / "value_bets"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE  = OUT_DIR / "shots_certs.txt"
 
-# ========= STRING + MATCH HELPERS =========
+# ========= STRING + NAME MATCH HELPERS (robust, same approach as other scripts) =========
+SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
+SURNAME_PREFIXES = {"da","de","del","der","di","dos","du","la","le","van","von","bin","al"}
+GENERIC_TEAM_TOKENS = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
+
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
+def norm_spaces(s: str) -> str:
+    return re.sub(r"\s+", " ", s or "").strip()
+
 def norm(s: str) -> str:
     s = strip_accents(s or "").lower()
-    s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
-    return s
+    s = re.sub(r"[^\w\s\.-]", " ", s)
+    return norm_spaces(s)
 
-GENERIC_TEAM_TOKENS = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
+def cleanup_label(label: str) -> str:
+    return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
+
+def person_part_from_option(label: str) -> str:
+    # Extract the name portion before "Over/Under" bits
+    s = cleanup_label(label or "")
+    m = re.split(r"\b(?:-?\s*over|-?\s*under|\s+o\/u|\s+o\d+|\s+u\d+)\b", s, flags=re.IGNORECASE)
+    return m[0].strip() if m else s
+
+def drop_suffixes(parts: List[str]) -> List[str]:
+    out = list(parts)
+    while out and re.sub(r"[^\w]+", "", out[-1]).lower() in SUFFIXES:
+        out = out[:-1]
+    return out
+
+def split_name_tokens(name: str) -> List[str]:
+    return [p for p in norm(name).replace("-", " ").split() if p]
+
+def surname_tokens(parts: List[str]) -> List[str]:
+    parts = drop_suffixes(parts)
+    if not parts:
+        return []
+    if len(parts) >= 2 and parts[-2] in SURNAME_PREFIXES:
+        return parts[-2:]
+    return parts[-1:]
+
+def first_initial(parts: List[str]) -> Optional[str]:
+    parts = drop_suffixes(parts)
+    for p in parts[:-1]:
+        ch = p[:1]
+        if ch:
+            return ch
+    return None
+
+def name_variants(full_name: str) -> List[str]:
+    if not full_name:
+        return []
+    parts = split_name_tokens(full_name)
+    if not parts:
+        return []
+    sur = " ".join(surname_tokens(parts))
+    init = first_initial(parts)
+    full = " ".join(parts)
+    out = {full, sur}
+    if init:
+        out.add(f"{init}. {sur}")
+        out.add(f"{init} {sur}")
+    out.add(f"{sur} {init or ''}".strip())
+    # normalize + remove dots for matching
+    return sorted({norm(o).replace(".", "") for o in out if o})
+
+def aliases_from_record(rec: dict) -> List[str]:
+    names: List[str] = []
+    for k in ("name","player_name","player","short_name","common_name","display_name","full_name","known_as"):
+        v = rec.get(k)
+        if isinstance(v, str) and v.strip():
+            names.append(v.strip())
+    # dedupe raw names
+    seen, uniq = set(), []
+    for n in names:
+        key = norm(n)
+        if key not in seen:
+            seen.add(key); uniq.append(n)
+    # expand to variants
+    out: List[str] = []
+    for n in uniq:
+        out.extend(name_variants(n))
+    # dedupe variants
+    seen2, uniq2 = set(), []
+    for a in out:
+        if a not in seen2:
+            seen2.add(a); uniq2.append(a)
+    return uniq2
+
+def label_matches_aliases(option_label: str, aliases: Iterable[str]) -> bool:
+    lab = norm(person_part_from_option(option_label)).replace(".", "")
+    if not lab:
+        return False
+    lab_tokens = set(lab.split())
+    for alias in aliases:
+        atoks = set(alias.split())
+        if alias == lab or (atoks and (atoks.issubset(lab_tokens) or lab_tokens.issubset(atoks))):
+            return True
+        # surname presence + initial check
+        a_parts = alias.split()
+        a_sur = a_parts[-2:] if len(a_parts) >= 2 and a_parts[-2] in SURNAME_PREFIXES else a_parts[-1:]
+        if set(a_sur).issubset(lab_tokens):
+            if len(a_parts) >= 2 and len(a_parts[0]) == 1:  # initial present in alias
+                if a_parts[0] in lab_tokens or lab.startswith(a_parts[0] + " "):
+                    return True
+                continue
+            return True
+    return False
+
+# ========= TEAM / FIXTURE HELPERS =========
 def team_tokens(name: str):
     toks = set(norm(name).split())
     return {t for t in toks if t not in GENERIC_TEAM_TOKENS}
@@ -62,41 +162,12 @@ def team_names_match(a: str, b: str) -> bool:
     if not a or not b: return False
     ta, tb = team_tokens(a), team_tokens(b)
     if not ta or not tb: return False
-    if ta == tb: return True
-    if ta.issubset(tb) or tb.issubset(ta): return True
+    if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; union = ta | tb
     if len(inter) / max(1, len(union)) >= 0.5: return True
     if len(inter) >= 2: return True
     return False
 
-def cleanup_label(label: str) -> str:
-    return re.sub(r"(?:\s*\([^)]*\))+$", "", label or "").strip()
-
-def extract_last_name_initial(name: str):
-    if not name: return None, None
-    name2 = strip_accents(name).replace(".", " ").strip()
-    parts = [p for p in name2.split() if p]
-    if not parts: return None, None
-    last = norm(parts[-1]); initial = None
-    for p in parts[:-1]:
-        ch = p.strip()[0:1]
-        if ch: initial = ch.lower(); break
-    return last, initial
-
-def player_label_matches(player: str, option_name_or_label: str) -> bool:
-    """Match 'O. Watkins' / 'Ollie Watkins' / 'Watkins' to Bet365 player strings."""
-    if not player or not option_name_or_label: return False
-    last, initial = extract_last_name_initial(player)
-    label = norm(cleanup_label(option_name_or_label))
-    if not last or last not in label: return False
-    if initial:
-        first_word_initial = label.split()[0][0:1] if label.split() else None
-        if first_word_initial and first_word_initial == initial:
-            return True
-        return bool(re.search(rf"\b{initial}\w*\b.*\b{last}\b", label))
-    return True
-
-# ========= FORM (player shots histories) =========
 def _load_json(p: Path) -> Any:
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -115,7 +186,162 @@ def _team_name_map(league_id: int) -> Dict[int, str]:
                 m.setdefault(tid, nm)
     return m
 
-def series_counts(series_raw: List[int]) -> Tuple[int, Optional[int], Optional[int]]:
+def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
+    if not fixture_name: return "",""
+    for sep in [" vs ", " v ", " VS ", " Vs "]:
+        if sep in fixture_name:
+            home, away = fixture_name.split(sep, 1)
+            return home.strip(), away.strip()
+    if " - " in fixture_name:
+        home, away = fixture_name.split(" - ", 1)
+        return home.strip(), away.strip()
+    return "", ""
+
+def side_for_team(team_name: str, home_name: str, away_name: str) -> Optional[str]:
+    if team_names_match(team_name, home_name):
+        return "home"
+    if team_names_match(team_name, away_name):
+        return "away"
+    return None
+
+def as_float(x) -> Optional[float]:
+    try:
+        return float(str(x))
+    except Exception:
+        return None
+
+# ========= MARKET CLASSIFIERS =========
+MARKET_MATCH_WINNER = 1      # "Match Winner" / "Full Time Result"
+MARKET_PLAYER_SHOTS = 268    # "Player Shots" (we’ll use line 0.5)
+
+NEGATIVE_SHOTS_TERMS = {
+    "outside", "from outside", "outside the box", "first half", "second half",
+    "1st half", "2nd half", "header", "headers", "distance"
+}
+
+def market_is_player_shots(desc: str) -> bool:
+    d = (desc or "").lower()
+    if not d: return False
+    if "player" not in d: return False
+    if "shot" not in d: return False
+    if any(t in d for t in NEGATIVE_SHOTS_TERMS): return False
+    return True
+
+MATCH_WINNER_KEYS = ["match winner", "match result", "1x2", "full time result", "win/draw/win", "to win", "90 minutes", "result"]
+
+def market_is_match_winner(desc: str) -> bool:
+    s = (desc or "").lower()
+    return any(k in s for k in MATCH_WINNER_KEYS)
+
+# ========= ODDS (Sportmonks Bet365 JSONs) =========
+def load_odds_for_league(league_id: int) -> dict:
+    p = ODDS_DIR / f"{league_id}.json"
+    return _load_json(p) or {}
+
+def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
+    home_price = None; away_price = None
+    for row in odds_rows:
+        if int(row.get("market_id", 0)) != MARKET_MATCH_WINNER:
+            continue
+        # prefer Bet365 explicitly if present
+        if str(row.get("bookmaker_id")) not in ("", "None", "2") and int(row.get("bookmaker_id")) != 2:
+            continue
+        label = (row.get("label") or "").strip().lower()
+        name  = (row.get("name")  or "").strip().lower()
+        val   = as_float(row.get("value"))
+        if val is None: continue
+        if label in {"1", "home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
+            home_price = val if (home_price is None or val < home_price) else home_price
+        elif label in {"2", "away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
+            away_price = val if (away_price is None or val < away_price) else away_price
+        elif team_names_match(home_name, row.get("name","")):
+            home_price = val if (home_price is None or val < home_price) else home_price
+        elif team_names_match(away_name, row.get("name","")):
+            away_price = val if (away_price is None or val < away_price) else away_price
+    return home_price, away_price
+
+# ----- Over 0.5 lookup with Over/Under disambiguation + alias matching -----
+def _row_text(row: dict) -> str:
+    fields = ["label","name","original_label","market_description","outcome","outcome_name","header","description"]
+    return " ".join([str(row.get(f, "")) for f in fields]).lower()
+
+def _line_is_point5(row: dict) -> bool:
+    t = as_float(row.get("total"))
+    if t is not None:
+        return math.isclose(t, 0.5, abs_tol=1e-6)
+    l = as_float(row.get("label"))
+    if l is not None:
+        return math.isclose(l, 0.5, abs_tol=1e-6)
+    blob = _row_text(row).replace(",", ".")
+    return "0.5" in blob or "0,5" in blob
+
+def _is_over_row(row: dict) -> Optional[bool]:
+    txt = _row_text(row)
+    if re.search(r"\bunder\b", txt):
+        return False
+    if re.search(r"\bover\b", txt):
+        return True
+    if "+0.5" in txt or "0.5+" in txt or "0,5+" in txt:
+        return True
+    return None  # ambiguous
+
+def best_over05_player_shots(odds_rows: List[dict], player_rec_or_name: Any) -> Optional[float]:
+    """
+    Find Over 0.5 price for the player in Player Shots (market_id=268).
+    - Filter to line 0.5
+    - Match player via robust aliases
+    - Prefer explicit Over; if ambiguous, pick LOWER price as Over
+    """
+    # Build aliases
+    if isinstance(player_rec_or_name, dict):
+        aliases = aliases_from_record(player_rec_or_name)
+        display_name = player_rec_or_name.get("name") or ""
+    else:
+        aliases = name_variants(str(player_rec_or_name))
+        display_name = str(player_rec_or_name)
+
+    candidates: List[Tuple[Optional[bool], float]] = []
+    for row in odds_rows:
+        if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
+            continue
+        if str(row.get("bookmaker_id")) not in ("", "None", "2") and int(row.get("bookmaker_id")) != 2:
+            continue
+        if not market_is_player_shots(row.get("market_description") or row.get("market_name") or ""):
+            continue
+        if not _line_is_point5(row):
+            continue
+        # check any of the useful fields for the name
+        cand_fields = [
+            row.get("name",""),
+            row.get("original_label",""),
+            row.get("label",""),
+            row.get("outcome_name",""),
+            row.get("header",""),
+            row.get("description",""),
+        ]
+        if not any(label_matches_aliases(str(f), aliases) for f in cand_fields if f):
+            continue
+        price = as_float(row.get("value"))
+        if price is None:
+            continue
+        over_flag = _is_over_row(row)  # True/False/None
+        candidates.append((over_flag, price))
+
+    if not candidates:
+        return None
+
+    explicit_over = [p for flag, p in candidates if flag is True]
+    if explicit_over:
+        return min(explicit_over)
+
+    ambiguous = [p for flag, p in candidates if flag is None]
+    if ambiguous:
+        return min(ambiguous)
+
+    return None
+
+# ========= FORM (player shots histories) =========
+def series_counts(series_raw: List[int]) -> Tuple[int, Optional[int], int]:
     """
     Returns (shots7, shots10, n_games_available)
     Assumes series is newest -> older and contains ints.
@@ -157,89 +383,26 @@ def collect_candidates() -> List[dict]:
         players = shots_blob.get("players") or shots_blob.get("rows") or shots_blob.get("data") or []
         for rec in players:
             series = rec.get("series") or rec.get("shots_last_n") or rec.get("shots") or []
-            if not isinstance(series, list): continue
+            if not isinstance(series, list):
+                continue
             bucket = bucket_for_series(series)
-            if not bucket: continue
+            if not bucket:
+                continue
             player = rec.get("name") or rec.get("player_name") or rec.get("player")
-            if not player: continue
+            if not player:
+                continue
             tid = rec.get("team_id")
             team = rec.get("team") or rec.get("team_name") or (team_map.get(int(tid)) if isinstance(tid, int) else None)
-            if not team: continue
-            pos = rec.get("position") or rec.get("pos")
+            if not team:
+                continue
+            pos = rec.get("position") or rec.get("pos") or rec.get("position_tag") or ""
+            # stash a richer record for alias generation in odds matching
+            rec_out = dict(rec); rec_out.update({"name": player})
             out.append({
                 "league_id": lid, "player": player, "team": team,
-                "position": pos or "", "series": series[:12], "bucket": bucket
+                "position": pos, "series": series[:12], "bucket": bucket, "_rec": rec_out
             })
     return out
-
-# ========= ODDS (Sportmonks Bet365 JSONs) =========
-MARKET_MATCH_WINNER = 1      # "Match Winner" / "Full Time Result"
-MARKET_PLAYER_SHOTS = 268    # "Player Shots" (we’ll use line 0.5)
-
-def load_odds_for_league(league_id: int) -> dict:
-    p = ODDS_DIR / f"{league_id}.json"
-    return _load_json(p) or {}
-
-def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
-    if not fixture_name: return "",""
-    for sep in [" vs ", " v ", " VS ", " Vs "]:
-        if sep in fixture_name:
-            home, away = fixture_name.split(sep, 1)
-            return home.strip(), away.strip()
-    if " - " in fixture_name:
-        home, away = fixture_name.split(" - ", 1)
-        return home.strip(), away.strip()
-    return "", ""
-
-def side_for_team(team_name: str, home_name: str, away_name: str) -> Optional[str]:
-    if team_names_match(team_name, home_name):
-        return "home"
-    if team_names_match(team_name, away_name):
-        return "away"
-    return None
-
-def as_float(x) -> Optional[float]:
-    try:
-        return float(str(x))
-    except Exception:
-        return None
-
-def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
-    home_price = None; away_price = None
-    for row in odds_rows:
-        if int(row.get("market_id", 0)) != MARKET_MATCH_WINNER:
-            continue
-        label = (row.get("label") or "").strip().lower()
-        name  = (row.get("name")  or "").strip().lower()
-        val   = as_float(row.get("value"))
-        if val is None: continue
-        if label in {"1", "home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
-            home_price = val if (home_price is None or val < home_price) else home_price
-        elif label in {"2", "away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
-            away_price = val if (away_price is None or val < away_price) else away_price
-        elif team_names_match(home_name, row.get("name","")):
-            home_price = val if (home_price is None or val < home_price) else home_price
-        elif team_names_match(away_name, row.get("name","")):
-            away_price = val if (away_price is None or val < away_price) else away_price
-    return home_price, away_price
-
-def best_over05_player_shots(odds_rows: List[dict], player: str) -> Optional[float]:
-    best = None
-    for row in odds_rows:
-        if int(row.get("market_id", 0)) != MARKET_PLAYER_SHOTS:
-            continue
-        candidate_name = row.get("name") or row.get("total") or row.get("original_label") or ""
-        if not player_label_matches(player, candidate_name):
-            continue
-        line = as_float(row.get("label"))
-        if line is None or not math.isclose(line, 0.5, abs_tol=1e-6):
-            continue
-        price = as_float(row.get("value"))
-        if price is None:
-            continue
-        if best is None or price > best + 1e-12:
-            best = price
-    return best
 
 # ========= MAIN =========
 def main():
@@ -263,9 +426,11 @@ def main():
         for fx in fixtures:
             fname = fx.get("name") or ""
             home, away = parse_fixture_teams(fname)
-            if not home or not away: continue
+            if not home or not away:
+                continue
             side = side_for_team(team, home, away)
-            if not side: continue
+            if not side:
+                continue
 
             odds_rows = fx.get("odds") or []
             home_ml, away_ml = extract_team_ml_prices(odds_rows, home, away)
@@ -273,7 +438,7 @@ def main():
             if team_ml is None or team_ml >= TEAM_ML_MAX:
                 continue
 
-            price = best_over05_player_shots(odds_rows, plyr)
+            price = best_over05_player_shots(odds_rows, c["_rec"])
             if price is None or price < MIN_PRICE:
                 continue
 
