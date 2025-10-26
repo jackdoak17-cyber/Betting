@@ -1,0 +1,178 @@
+name: Fetch odds — Paddy Power & Unibet (then compare vs Bet365)
+
+on:
+  # Run every 2h at :12 UTC (offset from your Bet365 run and before Value Bets at :18)
+  schedule:
+    - cron: "12 */2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-pp-unibet
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  DEFAULT_BRANCH: "main"
+  # Where your comparer will write the combined file
+  RESULTS_DIR: "data/value_bets"
+  OUT_COMPARE:  "price_edges_vs_b365.txt"   # change if you prefer a different filename
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # serialize pushes to avoid concurrent git conflicts
+      max-parallel: 1
+      matrix:
+        bookie:
+          - { id: 19, dir: "paddypower", label: "Paddy Power" }
+          - { id: 23, dir: "unibet",     label: "Unibet" }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure on latest main
+        run: |
+          set -e
+          git fetch origin "${DEFAULT_BRANCH}"
+          git checkout -B "${DEFAULT_BRANCH}" "origin/${DEFAULT_BRANCH}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Fetch odds for ${{ matrix.bookie.label }}
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          SM_BOOKMAKER_ID:  ${{ matrix.bookie.id }}      # 19=PP, 23=Unibet
+          ODDS_SUBDIR:      ${{ matrix.bookie.dir }}     # output folder name
+          # optional tuning — inherit your defaults
+          LEAGUE_IDS:       ""
+          SM_SLEEP:         "0.05"
+          SM_TIMEOUT:       "20"
+        run: |
+          python scripts/fetch_odds.py
+
+      - name: Commit & push odds (data/odds/${{ matrix.bookie.dir }})
+        env:
+          GIT_AUTHOR_NAME:  github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+
+          git add -A "data/odds/${{ matrix.bookie.dir }}"
+          if git diff --cached --quiet; then
+            echo "No odds changes for ${{ matrix.bookie.label }}."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(odds:${{ matrix.bookie.dir }}): update ${ts} [skip ci]"
+
+          # rebase-safe push (avoids 'local changes would be overwritten' errors)
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+            if git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"; then
+              echo "Push OK (attempt ${attempt})"
+              exit 0
+            fi
+            echo "Push failed (attempt ${attempt}), retrying..."
+            sleep 2
+          done
+
+          # final attempt
+          git fetch origin "${DEFAULT_BRANCH}"
+          git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+          git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"
+
+  compare-vs-b365:
+    # run after both bookies are fetched
+    needs: fetch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+
+      - name: Generate comparison (Paddy & Unibet vs Bet365)
+        env:
+          # Input locations your compare script should read
+          ODDS_DIR_B365:      "data/odds/b365/fixtures"
+          ODDS_DIR_PADDY:     "data/odds/paddypower/fixtures"
+          ODDS_DIR_UNIBET:    "data/odds/unibet/fixtures"
+          OUT_FILE:           "${{ env.RESULTS_DIR }}/${{ env.OUT_COMPARE }}"
+        run: |
+          mkdir -p "${RESULTS_DIR}"
+          # Run the comparer if present; otherwise skip gracefully
+          if [ -f scripts/value_bets/compare_vs_b365.py ]; then
+            python scripts/value_bets/compare_vs_b365.py \
+              --b365  "${ODDS_DIR_B365}" \
+              --paddy "${ODDS_DIR_PADDY}" \
+              --unibet "${ODDS_DIR_UNIBET}" \
+              --out   "${OUT_FILE}"
+            echo "----- OUTPUT (tail) -----"
+            tail -n 150 "${OUT_FILE}" || true
+          else
+            echo "SKIP: scripts/value_bets/compare_vs_b365.py not found."
+            echo "Add the comparer script, then this step will produce ${OUT_FILE}."
+          fi
+
+      - name: Commit & push comparison file
+        env:
+          GIT_AUTHOR_NAME:  github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+
+          git add -A "${RESULTS_DIR}"
+          if git diff --cached --quiet; then
+            echo "No comparison changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(compare): Paddy & Unibet vs Bet365 ${ts} [skip ci]"
+
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+            if git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"; then
+              echo "Push OK (attempt ${attempt})"
+              exit 0
+            fi
+            echo "Push failed (attempt ${attempt}), retrying..."
+            sleep 2
+          done
+
+          git fetch origin "${DEFAULT_BRANCH}"
+          git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+          git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"
