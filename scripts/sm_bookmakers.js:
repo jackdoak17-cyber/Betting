@@ -1,0 +1,75 @@
+// scripts/sm_bookmakers.js
+// Usage:
+//   node scripts/sm_bookmakers.js              # list all bookmakers
+//   node scripts/sm_bookmakers.js --fixture 18535517   # bookmakers for a fixture
+//   node scripts/sm_bookmakers.js --select name        # only names
+//   node scripts/sm_bookmakers.js --out data/odds/bookmakers.json
+
+const fs = require('fs');
+const path = require('path');
+
+const TOKEN = process.env.SPORTMONKS_TOKEN;
+if (!TOKEN) {
+  console.error('Missing SPORTMONKS_TOKEN env var'); process.exit(1);
+}
+
+const args = process.argv.slice(2);
+const getArg = (k, d=null) => {
+  const i = args.indexOf(k);
+  return i >= 0 ? (args[i+1] || true) : d;
+};
+const fixture = getArg('--fixture');
+const select = getArg('--select');
+const out = getArg('--out');
+
+const base = 'https://api.sportmonks.com/v3/odds/bookmakers';
+
+async function fetchJSON(url) {
+  const res = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(()=> '');
+    throw new Error(`${res.status} ${res.statusText} – ${body}`);
+  }
+  return res.json();
+}
+
+(async () => {
+  const qs = [];
+  if (select) qs.push(`select=${encodeURIComponent(select)}`);
+  let url;
+  if (fixture) {
+    // Bookmakers for a specific fixture
+    url = `${base}/fixtures/${fixture}${qs.length ? '?' + qs.join('&') : ''}`;
+  } else {
+    // All bookmakers
+    url = `${base}${qs.length ? '?' + qs.join('&') : ''}`;
+  }
+
+  const json = await fetchJSON(url);
+  const rows = (json?.data ?? []).map(b => ({
+    id: b.id, legacy_id: b.legacy_id, name: b.name
+  }));
+
+  // Pretty print
+  console.log(`Found ${rows.length} bookmaker${rows.length === 1 ? '' : 's'}.`);
+  const pad = (s, n) => String(s ?? '').padEnd(n);
+  const width = Math.max(6, ...rows.map(r => (r.name||'').length));
+  console.log(`${pad('ID',6)}  ${pad('Legacy',6)}  Name`);
+  rows.forEach(r => console.log(`${pad(r.id,6)}  ${pad(r.legacy_id,6)}  ${r.name}`));
+
+  if (out) {
+    const dest = path.resolve(out);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, JSON.stringify(json, null, 2));
+    console.log(`\nSaved raw JSON to: ${dest}`);
+  }
+})().catch(err => {
+  console.error(err.message);
+  process.exit(1);
+});
