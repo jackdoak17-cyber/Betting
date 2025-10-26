@@ -1,0 +1,55 @@
+name: Run bookmakers script
+on:
+  workflow_dispatch:
+    inputs:
+      fixture:
+        description: "Fixture ID (optional)"
+        required: false
+        default: ""
+      select:
+        description: "Select fields (optional, e.g. name)"
+        required: false
+        default: "name"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Print to logs
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.fixture }}" ]; then
+            node scripts/sm_bookmakers.js --fixture "${{ inputs.fixture }}" --select "${{ inputs.select }}"
+          else
+            node scripts/sm_bookmakers.js --select "${{ inputs.select }}"
+          fi
+
+      # Optional: save JSON to repo
+      - name: Save JSON
+        if: always()
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          mkdir -p data/odds
+          if [ -n "${{ inputs.fixture }}" ]; then
+            node scripts/sm_bookmakers.js --fixture "${{ inputs.fixture }}" --out "data/odds/fixture-${{ inputs.fixture }}-bookmakers.json"
+          else
+            node scripts/sm_bookmakers.js --out data/odds/bookmakers.json
+          fi
+
+      - name: Commit & push (optional)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/odds/*.json || true
+          git commit -m "chore: update bookmakers" || echo "no changes"
+          git push || true
