@@ -1,65 +1,72 @@
-# .github/workflows/fetch-odds-pp-unibet.yml
-name: fetch-odds-pp-unibet
+name: Fetch odds — Paddy Power & Unibet (then compare vs Bet365)
 
 on:
-  schedule:
-    - cron: "5,35 * * * *"
   workflow_dispatch:
+  schedule:
+    - cron: "*/60 * * * *" # hourly; adjust if you want
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - { id: 19, slug: "pp",     name: "Paddy Power" }
-          - { id: 23, slug: "unibet", name: "Unibet" }
-    env:
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      # use your normal 9 leagues; override with workflow_dispatch inputs if you want
-      LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
-      SM_SLEEP: "0.05"
-      SM_TIMEOUT: "20"
+          - { id: 19, slug: "paddypower", name: "Paddy Power" }
+          - { id: 23, slug: "unibet",     name: "Unibet" }
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run fetch script for ${{ matrix.name }}
+      - name: Fetch odds for ${{ matrix.name }}
         env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           BOOKMAKER_ID:   ${{ matrix.id }}
           BOOKMAKER_SLUG: ${{ matrix.slug }}
           BOOKMAKER_NAME: ${{ matrix.name }}
+          # Optional tuning:
+          SM_SLEEP: "0.03"
+          SM_TIMEOUT: "25"
         run: |
           set -euo pipefail
           echo "== Fetching odds for ${BOOKMAKER_NAME} (id=${BOOKMAKER_ID}, slug=${BOOKMAKER_SLUG}) =="
           python scripts/fetch_odds.py
 
           echo
-          echo "== Tree of data/odds/${BOOKMAKER_SLUG} =="
-          find data/odds/${BOOKMAKER_SLUG} -maxdepth 3 -type f | sort || true
+          echo "== Show odds dir roots =="
+          find data/odds -maxdepth 2 -type d -print || true
 
           echo
-          echo "== latest.json sample =="
-          test -f data/odds/${BOOKMAKER_SLUG}/latest.json && jq -C '. | {generated_at, total_fixtures_seen, total_odds_rows}' data/odds/${BOOKMAKER_SLUG}/latest.json || echo "no latest.json"
+          echo "== Tree of data/odds/${BOOKMAKER_SLUG} =="
+          find "data/odds/${BOOKMAKER_SLUG}" -maxdepth 3 -type f | sort || true
+
+          echo
+          echo "== latest.json (mini) =="
+          if [ -f "data/odds/${BOOKMAKER_SLUG}/latest.json" ]; then
+            command -v jq >/dev/null && jq -C '{generated_at,bookmaker_id,bookmaker_slug,total_fixtures_seen,total_odds_rows}' "data/odds/${BOOKMAKER_SLUG}/latest.json" || \
+              python - <<'PY'
+import json,sys
+j=json.load(open("data/odds/${BOOKMAKER_SLUG}/latest.json"))
+print({k:j.get(k) for k in ["generated_at","bookmaker_id","bookmaker_slug","total_fixtures_seen","total_odds_rows"]})
+PY
+          else
+            echo "no latest.json"
+          fi
 
           echo
           echo "== odds.txt tail =="
-          test -f data/odds/${BOOKMAKER_SLUG}/odds.txt && tail -n 80 data/odds/${BOOKMAKER_SLUG}/odds.txt || echo "no odds.txt"
+          test -f "data/odds/${BOOKMAKER_SLUG}/odds.txt" && tail -n 80 "data/odds/${BOOKMAKER_SLUG}/odds.txt" || echo "no odds.txt"
 
       - name: Upload odds artifacts (${{ matrix.name }})
         uses: actions/upload-artifact@v4
@@ -70,9 +77,11 @@ jobs:
             data/odds/${{ matrix.slug }}/**/*.json
             data/odds/${{ matrix.slug }}/*.txt
 
-      - name: Commit odds to repo
+      - name: Auto-commit odds to repo (${{ matrix.name }})
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "odds: update ${{ matrix.slug }} (PP/Unibet) [skip ci]"
-          file_pattern: data/odds/${{ matrix.slug }}/**
-          add_options: "-A"
+          commit_message: "chore(odds): update ${{ matrix.slug }} odds"
+          file_pattern: |
+            data/odds/${{ matrix.slug }}/**/*.json
+            data/odds/${{ matrix.slug }}/*.txt
