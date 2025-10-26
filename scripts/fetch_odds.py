@@ -2,23 +2,29 @@
 # -*- coding: utf-8 -*-
 
 """
-Generic pre-match odds gatherer — Sportmonks v3
-- Works for ANY bookmaker by passing env:
-    BOOKMAKER_ID   (e.g. 2=Bet365, 19=Paddy Power, 23=Unibet)
-    BOOKMAKER_SLUG (e.g. b365, paddypower, unibet)  [optional; auto from ID]
-    BOOKMAKER_NAME (e.g. Bet365, Paddy Power, Unibet) [optional; auto from ID]
-- Reads fixture IDs from data/fixtures/{league_id}.json
+Generic pre-match odds fetcher (Sportmonks v3) — parameterized by bookmaker.
 
+Reads fixture IDs from data/fixtures/{league_id}.json (same leagues you use).
 For each fixture:
   GET /v3/football/odds/pre-match/fixtures/{fixture_id}
-    params = { api_token, filter=f"bookmakers:{BOOKMAKER_ID}" }
+    params = { api_token, [filter=f"bookmakers:{BOOKMAKER_ID}"] }
 
-Writes (per bookmaker slug):
-  data/odds/{slug}/fixtures/{fixture_id}.json
-  data/odds/{slug}/{league_id}.json
-  data/odds/{slug}/by_league/{league_id}.json
-  data/odds/{slug}/latest.json
-  data/odds/{slug}/odds.txt
+ENV:
+  SPORTMONKS_TOKEN   (required)
+  LEAGUE_IDS         e.g. "301,384,..." (defaults to the usual 9)
+  BOOKMAKER_ID       numeric id (e.g. 2=Bet365, 23=Unibet, ???=Paddy Power)
+  BOOKMAKER_NAME     optional label for logs
+  OUT_DIR            output root, e.g. data/odds/unibet
+  SM_SLEEP           seconds between calls (default 0.05)
+  SM_TIMEOUT         request timeout (default 20)
+  DEBUG_BOOKMAKERS   "1" to also fetch unfiltered rows when empty and print which bookmaker_ids ARE present.
+
+Writes:
+  {OUT_DIR}/{league_id}.json
+  {OUT_DIR}/by_league/{league_id}.json
+  {OUT_DIR}/fixtures/{fixture_id}.json
+  {OUT_DIR}/latest.json
+  {OUT_DIR}/odds.txt
 """
 
 import os, sys, json, time, datetime as dt
@@ -35,31 +41,23 @@ API_TOKEN = (
     or os.getenv("SM_TOKEN")
 )
 
-# ---- Bookmaker selection (env) ----
-def _bm_map():
-    return {
-        2:  ("b365",       "Bet365"),
-        19: ("paddypower", "Paddy Power"),
-        23: ("unibet",     "Unibet"),
-    }
-
-BOOKMAKER_ID = int(os.getenv("BOOKMAKER_ID", "2"))
-BOOKMAKER_SLUG = os.getenv("BOOKMAKER_SLUG") or _bm_map().get(BOOKMAKER_ID, (str(BOOKMAKER_ID),))[0]
-BOOKMAKER_NAME = os.getenv("BOOKMAKER_NAME") or _bm_map().get(BOOKMAKER_ID, (None, f"Bookmaker {BOOKMAKER_ID}"))[1]
-
-# ---- Leagues ----
+# Inputs
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
     int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()
 ]
 
-# ---- pacing / paths ----
-SLEEP = float(os.getenv("SM_SLEEP", "0.05"))  # seconds between calls
+BOOKMAKER_ID = os.getenv("BOOKMAKER_ID") or os.getenv("SM_BOOKMAKER_ID") or ""
+BOOKMAKER_NAME = os.getenv("BOOKMAKER_NAME") or ""
+DEBUG_BOOKMAKERS = os.getenv("DEBUG_BOOKMAKERS", "0") == "1"
+
+SLEEP = float(os.getenv("SM_SLEEP", "0.05"))
 TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
 
 ROOT = Path(".")
 FIX_DIR = ROOT / "data" / "fixtures"
-OUT_ROOT = ROOT / "data" / "odds" / BOOKMAKER_SLUG
+
+OUT_ROOT = Path(os.getenv("OUT_DIR") or "data/odds/unknown")
 BY_LEAGUE_DIR = OUT_ROOT / "by_league"
 PER_FIXTURE_DIR = OUT_ROOT / "fixtures"
 
@@ -84,44 +82,70 @@ def load_fixtures_for_league(league_id: int) -> Dict:
     with p.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-def get_odds_for_fixture(fixture_id: int) -> Tuple[List[dict], Optional[str], int]:
-    url = f"{API_BASE}/{SPORT}/odds/pre-match/fixtures/{fixture_id}"
-    params = {
-        "api_token": API_TOKEN,
-        "filter": f"bookmakers:{BOOKMAKER_ID}",
-    }
+def api_get(url: str, params: dict) -> Tuple[int, Optional[dict], Optional[str]]:
     try:
         r = requests.get(url, params=params, timeout=TIMEOUT)
     except requests.RequestException as e:
-        return [], f"RequestException: {e}", 0
+        return 0, None, f"RequestException: {e}"
+    try:
+        js = r.json() if r.status_code == 200 else None
+    except ValueError:
+        js = None
+    err = None if r.status_code == 200 else (r.text[:200] if r.text else f"HTTP {r.status_code}")
+    return r.status_code, js, err
 
-    status = r.status_code
+def get_fixture_odds_filtered(fixture_id: int, bookmaker_id: Optional[int]) -> Tuple[List[dict], Optional[str], int]:
+    url = f"{API_BASE}/{SPORT}/odds/pre-match/fixtures/{fixture_id}"
+    params = { "api_token": API_TOKEN }
+    if bookmaker_id:
+        params["filter"] = f"bookmakers:{bookmaker_id}"
+    status, js, err = api_get(url, params)
     if status == 200:
-        try:
-            j = r.json()
-        except ValueError:
-            return [], f"Non-JSON body: {r.text[:150]}", status
-        data = j.get("data", [])
+        data = js.get("data", [])
         if not isinstance(data, list):
-            return [], f"Unexpected JSON shape: {str(j)[:160]}", status
+            return [], f"Unexpected JSON shape: {str(js)[:160]}", status
         return data, None, status
-
-    if status == 204:  # no content yet
+    if status == 204:
         return [], None, status
+    return [], err or f"HTTP {status}", status
 
-    return [], f"HTTP {status}: {r.text[:160]}", status
+def extract_present_bookmakers(rows: List[dict]) -> List[Dict[str, Optional[str]]]:
+    # Try to glean bookmaker info from each row if present
+    seen = {}
+    for r in rows:
+        bid = r.get("bookmaker_id")
+        name = r.get("bookmaker_name") or r.get("bookmaker") or None
+        if bid is None:
+            continue
+        key = str(bid)
+        if key not in seen:
+            seen[key] = {"bookmaker_id": bid, "bookmaker_name": name}
+    # sorted by id for stable logs
+    return sorted(seen.values(), key=lambda x: int(x["bookmaker_id"]))
 
 def main():
     if not API_TOKEN:
         print("ERROR: SPORTMONKS_TOKEN not set.", file=sys.stderr)
         sys.exit(1)
+    if not BOOKMAKER_ID:
+        print("ERROR: BOOKMAKER_ID not set.", file=sys.stderr)
+        sys.exit(1)
+    try:
+        bid_int = int(str(BOOKMAKER_ID).strip())
+    except Exception:
+        print(f"ERROR: BOOKMAKER_ID must be numeric, got '{BOOKMAKER_ID}'", file=sys.stderr)
+        sys.exit(1)
+
+    OUT_ROOT.mkdir(parents=True, exist_ok=True)
+    PER_FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
+    BY_LEAGUE_DIR.mkdir(parents=True, exist_ok=True)
 
     generated_at = dt.datetime.now(dt.timezone.utc).isoformat()
-
-    print(f"Time (UTC): {generated_at}")
-    print(f"Bookmaker : {BOOKMAKER_ID} ({BOOKMAKER_NAME})")
-    print(f"Output dir: {OUT_ROOT}")
-    print(f"Leagues   : {','.join(map(str, LEAGUE_IDS))}")
+    label = f"{BOOKMAKER_NAME or ''}".strip()
+    if label:
+        print(f"Time (UTC): {generated_at}\nBookmaker : {bid_int} ({label})\nOutput dir: {OUT_ROOT}\nLeagues   : {','.join(map(str, LEAGUE_IDS))}")
+    else:
+        print(f"Time (UTC): {generated_at}\nBookmaker : {bid_int}\nOutput dir: {OUT_ROOT}\nLeagues   : {','.join(map(str, LEAGUE_IDS))}")
 
     leagues_summary = []
     total_fixtures = 0
@@ -134,46 +158,58 @@ def main():
 
         league_rows = []
         for fx in fixtures:
-            fid = int(fx.get("id") or fx.get("fixture_id") or 0)
+            fid = int(fx.get("id"))
             name = fx.get("name")
             starting_at = fx.get("starting_at")
 
-            rows, err, status = get_odds_for_fixture(fid)
+            rows, err, status = get_fixture_odds_filtered(fid, bid_int)
+
+            extra_debug = {}
+            if DEBUG_BOOKMAKERS and (status != 200 or not rows):
+                # fetch unfiltered to see who *is* present
+                all_rows, _, st2 = get_fixture_odds_filtered(fid, None)
+                present = extract_present_bookmakers(all_rows)
+                if present:
+                    ids = ", ".join([f"{p['bookmaker_id']}{' '+p['bookmaker_name'] if p.get('bookmaker_name') else ''}" for p in present])
+                else:
+                    ids = "—"
+                extra_debug["present_bookmakers"] = present
+                print(f"Fixture {fid} ({name}): {len(rows)} odds rows  [status {status}]  present bookmakers: {ids}")
+            else:
+                print(f"Fixture {fid} ({name}): {len(rows)} odds rows")
 
             # Per-fixture save
-            write_json(PER_FIXTURE_DIR / f"{fid}.json", {
+            out_fixture = {
                 "fixture_id": fid,
-                "bookmaker_id": BOOKMAKER_ID,
+                "bookmaker_id": bid_int,
+                "bookmaker_label": label or None,
                 "requested_at": generated_at,
                 "status": status,
                 "odds": rows,
                 "error": err,
-            })
+            }
+            if extra_debug:
+                out_fixture.update(extra_debug)
+            write_json(PER_FIXTURE_DIR / f"{fid}.json", out_fixture)
 
             league_rows.append({
                 "fixture_id": fid,
                 "league_id": lid,
                 "name": name,
                 "starting_at": starting_at,
-                "bookmaker_id": BOOKMAKER_ID,
+                "bookmaker_id": bid_int,
                 "odds": rows,
                 "error": err,
             })
             total_fixtures += 1
             total_rows += len(rows)
-
-            line = f"Fixture {fid} ({name}): {len(rows)} odds rows"
-            if status != 200: line += f"  [status {status}]"
-            if err: line += f"  [err: {err}]"
-            print(line)
-
             time.sleep(SLEEP)
 
         league_payload = {
             "league_id": lid,
             "league_name": league_name,
             "generated_at": generated_at,
-            "bookmaker_id": BOOKMAKER_ID,
+            "bookmaker_id": bid_int,
             "fixture_count": len(fixtures),
             "fixtures_with_odds": sum(1 for r in league_rows if r.get("odds")),
             "odds_row_count": sum(len(r.get("odds") or []) for r in league_rows),
@@ -192,9 +228,8 @@ def main():
 
     latest = {
         "generated_at": generated_at,
-        "bookmaker_id": BOOKMAKER_ID,
-        "bookmaker_slug": BOOKMAKER_SLUG,
-        "bookmaker_name": BOOKMAKER_NAME,
+        "bookmaker_id": bid_int,
+        "bookmaker_label": label or None,
         "league_ids": LEAGUE_IDS,
         "total_fixtures_seen": total_fixtures,
         "total_odds_rows": total_rows,
@@ -205,8 +240,8 @@ def main():
     # Human-readable summary
     lines = [
         f"Time (UTC): {generated_at}",
-        f"Bookmaker : {BOOKMAKER_ID} ({BOOKMAKER_NAME})",
-        f"Output dir: {OUT_ROOT.as_posix()}",
+        f"Bookmaker : {bid_int}{(' ('+label+')') if label else ''}",
+        f"Output dir: {OUT_ROOT}",
         f"Leagues   : {','.join(map(str, LEAGUE_IDS))}",
         f"Fixtures  : {total_fixtures}",
         f"Odds rows : {total_rows}",
@@ -222,4 +257,7 @@ def main():
     print("\n".join(lines))
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
