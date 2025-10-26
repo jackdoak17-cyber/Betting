@@ -1,0 +1,61 @@
+Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
+
+*Premier League*
+1. E. Haaland — 11 — Man City — @ 1.72 (vs Aston Villa)
+2. A. Semenyo — 6 — Bournemouth — @ 3.10 (vs Nottm Forest)
+3. I. Thiago — 6 — Brentford — @ — (vs TBC)
+4. D. Welbeck — 5 — Brighton — @ — (vs TBC)
+5. J. Mateta — 5 — Crystal Palace — @ 3.75 (vs Arsenal)
+6. B. Mbeumo — 4 — Man Utd — @ 2.75 (vs Aston Villa)
+7. J. Anthony — 4 — Burnley — @ 5.00 (vs Wolves)
+8. N. Woltemade — 4 — Newcastle — @ — (vs TBC)
+9. W. Isidor — 4 — Sunderland — @ — (vs TBC)
+10. B. Guimarães — 3 — Newcastle — @ — (vs TBC)
+
+*LaLiga*
+1. K. Mbappé — 10 — Real Madrid — @ 1.66 (vs Barcelona)
+2. J. Alvarez — 6 — Atleti — @ 2.50 (vs Betis)
+3. K. Eyong — 5 — Levante — @ 3.10 (vs Mallorca)
+4. V. Muriqi — 5 — Mallorca — @ 2.50 (vs Levante)
+5. V. Vinicius — 5 — Real Madrid — @ 2.37 (vs Barcelona)
+6. A. Silva — 4 — Elche — @ — (vs TBC)
+7. B. Iglesias — 4 — Celta — @ 3.00 (vs Osasuna)
+8. C. Hernández — 4 — Betis — @ 3.00 (vs Atleti)
+9. F. Torres — 4 — Barcelona — @ 2.60 (vs Real Madrid)
+10. I. Romero — 4 — Levante — @ 4.33 (vs Mallorca)
+
+*Bundesliga*
+1. H. Kane — 12 — Bayern — @ — (vs TBC)
+2. J. Burkardt — 6 — Frankfurt — @ — (vs TBC)
+3. C. Uzun — 5 — Frankfurt — @ — (vs TBC)
+4. C. Baumgartner — 5 — RB Leipzig — @ — (vs TBC)
+5. F. Asllani — 5 — Hoffenheim — @ — (vs TBC)
+6. L. Díaz — 5 — Bayern — @ — (vs TBC)
+7. A. Grimaldo — 4 — Leverkusen — @ 4.33 (vs Freiburg)
+8. I. Ansah — 4 — Union Berlin — @ — (vs TBC)
+9. M. Olise — 4 — Bayern — @ — (vs TBC)
+10. S. Guirassy — 4 — Dortmund — @ 1.72 (vs Augsburg)
+
+*Serie A*
+1. R. Orsolini — 5 — Bologna — @ 3.10 (vs Fiorentina)
+2. C. Pulisic — 4 — Milan — @ 3.40 (vs Atalanta)
+3. K. Bruyne — 4 — Napoli — @ 3.50 (vs Lecce)
+4. N. Paz — 4 — Como — @ 3.10 (vs Verona)
+5. A. Bonny — 3 — Inter — @ 1.90 (vs Fiorentina)
+6. F. Anguissa — 3 — Napoli — @ 4.00 (vs Lecce)
+7. G. Simeone — 3 — Torino — @ 3.00 (vs Genoa)
+8. H. Çalhanoğlu — 3 — Inter — @ 3.75 (vs Fiorentina)
+9. K. Davis — 3 — Udinese — @ 4.75 (vs Juventus)
+10. L. Martínez — 3 — Inter — @ 1.95 (vs Fiorentina)
+
+*Ligue 1*
+1. J. Panichelli — 7 — Strasbourg — @ 2.40 (vs Lyon)
+2. M. Greenwood — 7 — Marseille — @ 1.66 (vs Angers)
+3. A. Fati — 5 — Monaco — @ 2.37 (vs Nantes)
+4. B. Barcola — 4 — PSG — @ 2.37 (vs Lorient)
+5. E. Lepaul — 4 — Rennes — @ 2.40 (vs Nice)
+6. F. Magri — 4 — Toulouse — @ 2.75 (vs Rennes)
+7. I. Kebbal — 4 — Paris — @ 3.10 (vs Lorient)
+8. R. Castillo — 4 — Brest — @ 3.60 (vs Le Havre)
+9. S. Diop — 4 — Nice — @ 4.00 (vs Rennes)
+10. A. Tosin — 3 — Lorient — @ 3.75 (vs Angers)
