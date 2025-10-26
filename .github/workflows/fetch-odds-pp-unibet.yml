@@ -3,7 +3,7 @@ name: Fetch odds — Paddy Power & Unibet (then compare vs Bet365)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/60 * * * *" # hourly; adjust if you want
+    - cron: "0 * * * *" # hourly
 
 jobs:
   fetch:
@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { id: 19, slug: "paddypower", name: "Paddy Power" }
-          - { id: 23, slug: "unibet",     name: "Unibet" }
+          - { id: 19, slug: paddypower, name: "Paddy Power" }
+          - { id: 23, slug: unibet,     name: "Unibet" }
 
     steps:
       - name: Checkout
@@ -35,7 +35,6 @@ jobs:
           BOOKMAKER_ID:   ${{ matrix.id }}
           BOOKMAKER_SLUG: ${{ matrix.slug }}
           BOOKMAKER_NAME: ${{ matrix.name }}
-          # Optional tuning:
           SM_SLEEP: "0.03"
           SM_TIMEOUT: "25"
         run: |
@@ -44,29 +43,20 @@ jobs:
           python scripts/fetch_odds.py
 
           echo
-          echo "== Show odds dir roots =="
-          find data/odds -maxdepth 2 -type d -print || true
-
-          echo
           echo "== Tree of data/odds/${BOOKMAKER_SLUG} =="
-          find "data/odds/${BOOKMAKER_SLUG}" -maxdepth 3 -type f | sort || true
-
-          echo
-          echo "== latest.json (mini) =="
-          if [ -f "data/odds/${BOOKMAKER_SLUG}/latest.json" ]; then
-            command -v jq >/dev/null && jq -C '{generated_at,bookmaker_id,bookmaker_slug,total_fixtures_seen,total_odds_rows}' "data/odds/${BOOKMAKER_SLUG}/latest.json" || \
-              python - <<'PY'
-import json,sys
-j=json.load(open("data/odds/${BOOKMAKER_SLUG}/latest.json"))
-print({k:j.get(k) for k in ["generated_at","bookmaker_id","bookmaker_slug","total_fixtures_seen","total_odds_rows"]})
-PY
+          if [ -d "data/odds/${BOOKMAKER_SLUG}" ]; then
+            find "data/odds/${BOOKMAKER_SLUG}" -maxdepth 3 -type f | sort
           else
-            echo "no latest.json"
+            echo "no directory: data/odds/${BOOKMAKER_SLUG}"
           fi
 
           echo
           echo "== odds.txt tail =="
-          test -f "data/odds/${BOOKMAKER_SLUG}/odds.txt" && tail -n 80 "data/odds/${BOOKMAKER_SLUG}/odds.txt" || echo "no odds.txt"
+          if [ -f "data/odds/${BOOKMAKER_SLUG}/odds.txt" ]; then
+            tail -n 80 "data/odds/${BOOKMAKER_SLUG}/odds.txt"
+          else
+            echo "no odds.txt"
+          fi
 
       - name: Upload odds artifacts (${{ matrix.name }})
         uses: actions/upload-artifact@v4
