@@ -1,77 +1,112 @@
-name: Fetch odds — Paddy Power & Unibet (then compare vs Bet365)
+name: Fetch odds — Paddy Power & Unibet (Sportmonks pre-match — 9 leagues)
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 * * * *" # hourly
+    - cron: "12,42 * * * *"   # every 30 minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Avoid two concurrent pushes from the two matrix legs
+concurrency:
+  group: odds-pp-unibet
+  cancel-in-progress: false
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
-        include:
-          - { id: 19, slug: paddypower, name: "Paddy Power" }
-          - { id: 23, slug: unibet,     name: "Unibet" }
+        bookmaker:
+          - { id: "19", dir: "paddypower", label: "Paddy Power" }
+          - { id: "23", dir: "unibet",     label: "Unibet" }
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sanity check secret
+        run: |
+          if [ -z "${{ secrets.SPORTMONKS_TOKEN }}" ]; then
+            echo "ERROR: SPORTMONKS_TOKEN secret is missing." >&2
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install requests
 
-      - name: Fetch odds for ${{ matrix.name }}
+      - name: Fetch odds — ${{ matrix.bookmaker.label }}
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          BOOKMAKER_ID:   ${{ matrix.id }}
-          BOOKMAKER_SLUG: ${{ matrix.slug }}
-          BOOKMAKER_NAME: ${{ matrix.name }}
-          SM_SLEEP: "0.03"
-          SM_TIMEOUT: "25"
+          LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
+          # Make sure scripts/fetch_odds.py picks these up
+          SM_BOOKMAKER_ID: ${{ matrix.bookmaker.id }}
+          BOOKMAKER_ID: ${{ matrix.bookmaker.id }}
+          BOOKMAKER_DIR: data/odds/${{ matrix.bookmaker.dir }}
+          OUT_DIR: data/odds/${{ matrix.bookmaker.dir }}
+          SM_SLEEP: "0.05"
+          SM_TIMEOUT: "20"
         run: |
           set -euo pipefail
-          echo "== Fetching odds for ${BOOKMAKER_NAME} (id=${BOOKMAKER_ID}, slug=${BOOKMAKER_SLUG}) =="
+          mkdir -p "${BOOKMAKER_DIR}/by_league" "${BOOKMAKER_DIR}/fixtures"
           python scripts/fetch_odds.py
+          echo "== Wrote files under ${BOOKMAKER_DIR} =="
+          find "${BOOKMAKER_DIR}" -type f | sort
 
-          echo
-          echo "== Tree of data/odds/${BOOKMAKER_SLUG} =="
-          if [ -d "data/odds/${BOOKMAKER_SLUG}" ]; then
-            find "data/odds/${BOOKMAKER_SLUG}" -maxdepth 3 -type f | sort
-          else
-            echo "no directory: data/odds/${BOOKMAKER_SLUG}"
+      - name: Commit & push odds files (robust rebase with lease)
+        env:
+          DEFAULT_BRANCH: main
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config --global user.name  "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+
+          # Only add files for this bookmaker
+          git add -A "data/odds/${{ matrix.bookmaker.dir }}"
+
+          # Exit quietly if nothing changed
+          if git diff --cached --quiet; then
+            echo "No ${{
+              matrix.bookmaker.dir
+            }} changes to commit."
+            exit 0
           fi
 
-          echo
-          echo "== odds.txt tail =="
-          if [ -f "data/odds/${BOOKMAKER_SLUG}/odds.txt" ]; then
-            tail -n 80 "data/odds/${BOOKMAKER_SLUG}/odds.txt"
-          else
-            echo "no odds.txt"
-          fi
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(odds-${{ matrix.bookmaker.dir }}): update ${ts}"
 
-      - name: Upload odds artifacts (${{ matrix.name }})
-        uses: actions/upload-artifact@v4
-        with:
-          name: odds-${{ matrix.slug }}
-          if-no-files-found: warn
-          path: |
-            data/odds/${{ matrix.slug }}/**/*.json
-            data/odds/${{ matrix.slug }}/*.txt
+          # Rebase onto latest and push with a lease; retry a few times
+          for attempt in 1 2 3; do
+            git fetch origin "${DEFAULT_BRANCH}"
+            git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+            if git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Push failed on attempt ${attempt} — retrying..."
+            sleep 3
+          done
 
-      - name: Auto-commit odds to repo (${{ matrix.name }})
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(odds): update ${{ matrix.slug }} odds"
-          file_pattern: |
-            data/odds/${{ matrix.slug }}/**/*.json
-            data/odds/${{ matrix.slug }}/*.txt
+          echo "Final attempt after a fresh fetch..."
+          git fetch origin "${DEFAULT_BRANCH}"
+          git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+          git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"
