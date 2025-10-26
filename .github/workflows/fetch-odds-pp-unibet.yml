@@ -2,13 +2,12 @@ name: Fetch odds — Paddy Power & Unibet (Sportmonks pre-match — 9 leagues)
 
 on:
   schedule:
-    - cron: "12,42 * * * *"   # every 30 minutes
+    - cron: "12,42 * * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
-# Avoid two concurrent pushes from the two matrix legs
 concurrency:
   group: odds-pp-unibet
   cancel-in-progress: false
@@ -54,19 +53,18 @@ jobs:
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
-          # Make sure scripts/fetch_odds.py picks these up
-          SM_BOOKMAKER_ID: ${{ matrix.bookmaker.id }}
           BOOKMAKER_ID: ${{ matrix.bookmaker.id }}
-          BOOKMAKER_DIR: data/odds/${{ matrix.bookmaker.dir }}
+          BOOKMAKER_NAME: ${{ matrix.bookmaker.label }}
           OUT_DIR: data/odds/${{ matrix.bookmaker.dir }}
           SM_SLEEP: "0.05"
           SM_TIMEOUT: "20"
+          DEBUG_BOOKMAKERS: "1"
         run: |
           set -euo pipefail
-          mkdir -p "${BOOKMAKER_DIR}/by_league" "${BOOKMAKER_DIR}/fixtures"
+          mkdir -p "${OUT_DIR}/by_league" "${OUT_DIR}/fixtures"
           python scripts/fetch_odds.py
-          echo "== Wrote files under ${BOOKMAKER_DIR} =="
-          find "${BOOKMAKER_DIR}" -type f | sort
+          echo "== Wrote files under ${OUT_DIR} =="
+          find "${OUT_DIR}" -type f | sort
 
       - name: Commit & push odds files (robust rebase with lease)
         env:
@@ -79,22 +77,13 @@ jobs:
           set -euo pipefail
           git config --global user.name  "${GIT_COMMITTER_NAME}"
           git config --global user.email "${GIT_COMMITTER_EMAIL}"
-
-          # Only add files for this bookmaker
           git add -A "data/odds/${{ matrix.bookmaker.dir }}"
-
-          # Exit quietly if nothing changed
           if git diff --cached --quiet; then
-            echo "No ${{
-              matrix.bookmaker.dir
-            }} changes to commit."
+            echo "No changes to commit."
             exit 0
           fi
-
           ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git commit -m "chore(odds-${{ matrix.bookmaker.dir }}): update ${ts}"
-
-          # Rebase onto latest and push with a lease; retry a few times
           for attempt in 1 2 3; do
             git fetch origin "${DEFAULT_BRANCH}"
             git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
@@ -105,7 +94,6 @@ jobs:
             echo "Push failed on attempt ${attempt} — retrying..."
             sleep 3
           done
-
           echo "Final attempt after a fresh fetch..."
           git fetch origin "${DEFAULT_BRANCH}"
           git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
