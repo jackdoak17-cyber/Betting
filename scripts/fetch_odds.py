@@ -2,29 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-Generic pre-match odds gatherer (Sportmonks) — parameterized by bookmaker
+Generic pre-match odds gatherer — Sportmonks v3
+- Works for ANY bookmaker by passing env:
+    BOOKMAKER_ID   (e.g. 2=Bet365, 19=Paddy Power, 23=Unibet)
+    BOOKMAKER_SLUG (e.g. b365, paddypower, unibet)  [optional; auto from ID]
+    BOOKMAKER_NAME (e.g. Bet365, Paddy Power, Unibet) [optional; auto from ID]
+- Reads fixture IDs from data/fixtures/{league_id}.json
 
-What it does
-------------
-- Reads fixture IDs from: data/fixtures/{league_id}.json
-- For each fixture calls:
-    GET /v3/football/odds/pre-match/fixtures/{fixture_id}
+For each fixture:
+  GET /v3/football/odds/pre-match/fixtures/{fixture_id}
     params = { api_token, filter=f"bookmakers:{BOOKMAKER_ID}" }
-- Saves odds to a bookmaker-specific folder:
-    data/odds/{ODDS_SUBDIR}/fixtures/{fixture_id}.json
-    data/odds/{ODDS_SUBDIR}/{league_id}.json
-    data/odds/{ODDS_SUBDIR}/by_league/{league_id}.json
-    data/odds/{ODDS_SUBDIR}/latest.json
-    data/odds/{ODDS_SUBDIR}/odds.txt
 
-Env vars
---------
-SPORTMONKS_TOKEN       (required)  - API token
-SM_BOOKMAKER_ID        (default "2")     - bookmaker ID (2=Bet365, 19=Paddy Power, 23=Unibet)
-ODDS_SUBDIR            (default "b365")  - output subfolder name (e.g., b365, paddypower, unibet)
-LEAGUE_IDS             (optional)        - CSV like "8,301,..." (default = 9 standard leagues below)
-SM_SLEEP               (default "0.05")  - seconds between requests
-SM_TIMEOUT             (default "20")    - HTTP timeout seconds
+Writes (per bookmaker slug):
+  data/odds/{slug}/fixtures/{fixture_id}.json
+  data/odds/{slug}/{league_id}.json
+  data/odds/{slug}/by_league/{league_id}.json
+  data/odds/{slug}/latest.json
+  data/odds/{slug}/odds.txt
 """
 
 import os, sys, json, time, datetime as dt
@@ -41,22 +35,31 @@ API_TOKEN = (
     or os.getenv("SM_TOKEN")
 )
 
-BOOKMAKER_ID = int(os.getenv("SM_BOOKMAKER_ID", "2"))       # default Bet365
-ODDS_SUBDIR  = os.getenv("ODDS_SUBDIR", "b365").strip() or "b365"
+# ---- Bookmaker selection (env) ----
+def _bm_map():
+    return {
+        2:  ("b365",       "Bet365"),
+        19: ("paddypower", "Paddy Power"),
+        23: ("unibet",     "Unibet"),
+    }
 
-# Default to all 9 leagues; override with LEAGUE_IDS="8,301,..." if needed
+BOOKMAKER_ID = int(os.getenv("BOOKMAKER_ID", "2"))
+BOOKMAKER_SLUG = os.getenv("BOOKMAKER_SLUG") or _bm_map().get(BOOKMAKER_ID, (str(BOOKMAKER_ID),))[0]
+BOOKMAKER_NAME = os.getenv("BOOKMAKER_NAME") or _bm_map().get(BOOKMAKER_ID, (None, f"Bookmaker {BOOKMAKER_ID}"))[1]
+
+# ---- Leagues ----
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
     int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()
 ]
 
-SLEEP = float(os.getenv("SM_SLEEP", "0.05"))  # gentle pacing between calls (seconds)
+# ---- pacing / paths ----
+SLEEP = float(os.getenv("SM_SLEEP", "0.05"))  # seconds between calls
 TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
 
 ROOT = Path(".")
 FIX_DIR = ROOT / "data" / "fixtures"
-
-OUT_ROOT = ROOT / "data" / "odds" / ODDS_SUBDIR
+OUT_ROOT = ROOT / "data" / "odds" / BOOKMAKER_SLUG
 BY_LEAGUE_DIR = OUT_ROOT / "by_league"
 PER_FIXTURE_DIR = OUT_ROOT / "fixtures"
 
@@ -81,9 +84,12 @@ def load_fixtures_for_league(league_id: int) -> Dict:
     with p.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-def get_odds_for_fixture(bookmaker_id: int, fixture_id: int) -> Tuple[List[dict], Optional[str], int]:
+def get_odds_for_fixture(fixture_id: int) -> Tuple[List[dict], Optional[str], int]:
     url = f"{API_BASE}/{SPORT}/odds/pre-match/fixtures/{fixture_id}"
-    params = {"api_token": API_TOKEN, "filter": f"bookmakers:{bookmaker_id}"}
+    params = {
+        "api_token": API_TOKEN,
+        "filter": f"bookmakers:{BOOKMAKER_ID}",
+    }
     try:
         r = requests.get(url, params=params, timeout=TIMEOUT)
     except requests.RequestException as e:
@@ -111,8 +117,11 @@ def main():
         sys.exit(1)
 
     generated_at = dt.datetime.now(dt.timezone.utc).isoformat()
-    print(f"[info] bookmaker_id={BOOKMAKER_ID}  out_dir=data/odds/{ODDS_SUBDIR}")
-    print(f"[info] leagues={LEAGUE_IDS}")
+
+    print(f"Time (UTC): {generated_at}")
+    print(f"Bookmaker : {BOOKMAKER_ID} ({BOOKMAKER_NAME})")
+    print(f"Output dir: {OUT_ROOT}")
+    print(f"Leagues   : {','.join(map(str, LEAGUE_IDS))}")
 
     leagues_summary = []
     total_fixtures = 0
@@ -125,13 +134,13 @@ def main():
 
         league_rows = []
         for fx in fixtures:
-            fid = int(fx.get("id"))
+            fid = int(fx.get("id") or fx.get("fixture_id") or 0)
             name = fx.get("name")
             starting_at = fx.get("starting_at")
 
-            rows, err, status = get_odds_for_fixture(BOOKMAKER_ID, fid)
+            rows, err, status = get_odds_for_fixture(fid)
 
-            # Per-fixture save for inspection
+            # Per-fixture save
             write_json(PER_FIXTURE_DIR / f"{fid}.json", {
                 "fixture_id": fid,
                 "bookmaker_id": BOOKMAKER_ID,
@@ -153,9 +162,10 @@ def main():
             total_fixtures += 1
             total_rows += len(rows)
 
-            print(f"Fixture {fid} ({name}): {len(rows)} odds rows"
-                  + (f"  [status {status}]" if status != 200 else "")
-                  + (f"  [err: {err}]" if err else ""))
+            line = f"Fixture {fid} ({name}): {len(rows)} odds rows"
+            if status != 200: line += f"  [status {status}]"
+            if err: line += f"  [err: {err}]"
+            print(line)
 
             time.sleep(SLEEP)
 
@@ -183,6 +193,8 @@ def main():
     latest = {
         "generated_at": generated_at,
         "bookmaker_id": BOOKMAKER_ID,
+        "bookmaker_slug": BOOKMAKER_SLUG,
+        "bookmaker_name": BOOKMAKER_NAME,
         "league_ids": LEAGUE_IDS,
         "total_fixtures_seen": total_fixtures,
         "total_odds_rows": total_rows,
@@ -193,8 +205,8 @@ def main():
     # Human-readable summary
     lines = [
         f"Time (UTC): {generated_at}",
-        f"Bookmaker : {BOOKMAKER_ID}",
-        f"Output dir: data/odds/{ODDS_SUBDIR}",
+        f"Bookmaker : {BOOKMAKER_ID} ({BOOKMAKER_NAME})",
+        f"Output dir: {OUT_ROOT.as_posix()}",
         f"Leagues   : {','.join(map(str, LEAGUE_IDS))}",
         f"Fixtures  : {total_fixtures}",
         f"Odds rows : {total_rows}",
