@@ -1,0 +1,43 @@
+name: List SportMonks bookmakers
+on:
+  workflow_dispatch:
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed only if you keep the "Save JSON" + commit step
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq (pretty print)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Fetch all bookmakers (names only to logs)
+        env:
+          TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          [ -n "$TOKEN" ] || { echo "::error::Missing SPORTMONKS_TOKEN secret"; exit 1; }
+          echo "Requesting all bookmakers..."
+          curl -s "https://api.sportmonks.com/v3/odds/bookmakers?api_token=${TOKEN}&select=name" \
+            | jq -r '.data[]?.name' \
+            | nl -ba
+          echo "— above are the bookmaker names (numbered)."
+
+      - name: (Optional) Save full JSON to repo
+        env:
+          TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+        run: |
+          mkdir -p data/odds
+          curl -s "https://api.sportmonks.com/v3/odds/bookmakers?api_token=${TOKEN}" > data/odds/bookmakers.json
+          echo "Saved raw JSON to data/odds/bookmakers.json"
+
+      - name: (Optional) Commit & push JSON
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/odds/bookmakers.json || true
+          git commit -m "chore: update bookmakers list" || echo "no changes"
+          git push || true
