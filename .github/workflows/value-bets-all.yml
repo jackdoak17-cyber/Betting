@@ -1,14 +1,11 @@
 name: Value Bets — All (every 2h)
 
 on:
-  # Every 2 hours at :18 UTC (staggered after typical :07 odds runs)
   schedule:
-    - cron: "18 */2 * * *"
-  # Also run automatically when the odds workflow completes
+    - cron: "18 */2 * * *"     # every 2 hours at :18 UTC
   workflow_run:
     workflows: ["Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)"]
     types: [completed]
-  # Manual trigger with optional overrides
   workflow_dispatch:
     inputs:
       league_ids:
@@ -27,10 +24,6 @@ on:
         description: "Min price for singles (0.5/2+)"
         required: false
         default: "1.72"
-      fav_cap_4of5:
-        description: "Singles 2+ only: allow 4/5 when ML <= this"
-        required: false
-        default: "2.50"
       pos_tags_ok:
         description: "CSV roles for possible_shot_certs (e.g., MID,FWD)"
         required: false
@@ -61,7 +54,6 @@ env:
   MIN_DEC_PRICE_05:  "${{ github.event.inputs.min_dec_price_05 || '1.30' }}"
   TEAM_WIN_MAX:      "${{ github.event.inputs.team_win_max || '3.50' }}"
   MIN_DEC_PRICE_SNG: "${{ github.event.inputs.min_dec_price_singles || '1.72' }}"
-  FAV_CAP_4OF5:      "${{ github.event.inputs.fav_cap_4of5 || '2.50' }}"
   POS_TAGS_OK:       "${{ github.event.inputs.pos_tags_ok || 'MID,FWD' }}"
   WINDOW_DAYS:       "${{ github.event.inputs.window_days || '7' }}"
   TEAM_UNDERDOG_MAX: "${{ github.event.inputs.team_underdog_max || '3.50' }}"
@@ -88,6 +80,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # IMPORTANT: Be on up-to-date main BEFORE generating files
+      - name: Prepare working branch
+        run: |
+          set -e
+          git fetch origin "${DEFAULT_BRANCH}"
+          git checkout -B "${DEFAULT_BRANCH}" "origin/${DEFAULT_BRANCH}"
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -111,7 +110,6 @@ jobs:
         run: |
           if [ -f scripts/value_bets/possible_shot_certs_sportmonks.py ]; then
             python scripts/value_bets/possible_shot_certs_sportmonks.py | tee "${RESULTS_DIR}/${FILE_POSSIBLE_CERTS}"
-            echo "----- POSSIBLE_SHOT_CERTS (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_POSSIBLE_CERTS}" || true
           else
             echo "SKIP: scripts/value_bets/possible_shot_certs_sportmonks.py not found."
@@ -124,7 +122,6 @@ jobs:
         run: |
           if [ -f scripts/value_bets/value_bets_shots_certs_sportmonks.py ]; then
             python scripts/value_bets/value_bets_shots_certs_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SHOTS_CERTS}"
-            echo "----- SHOTS_CERTS (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_SHOTS_CERTS}" || true
           else
             echo "SKIP: scripts/value_bets/value_bets_shots_certs_sportmonks.py not found."
@@ -139,7 +136,6 @@ jobs:
         run: |
           if [ -f scripts/value_bets/sot_certs.py ]; then
             python scripts/value_bets/sot_certs.py | tee "${RESULTS_DIR}/${FILE_SOT_CERTS}"
-            echo "----- SOT_CERTS (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_SOT_CERTS}" || true
           else
             echo "SKIP: scripts/value_bets/sot_certs.py not found."
@@ -147,13 +143,12 @@ jobs:
 
       - name: Value Singles — Shots Over 0.5
         env:
-          MIN_DEC_PRICE:  ${{ env.MIN_DEC_PRICE_SNG }}
-          FAVORITES_ONLY: "true"
-          LEAGUE_IDS:     ${{ env.LEAGUE_IDS }}
+          MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
+          TEAM_UNDERDOG_MAX: ${{ env.TEAM_WIN_MAX }}   # keep only if team ML < this (your script uses this now)
+          LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
         run: |
           if [ -f scripts/value_bets/value_singles_shots_sportmonks.py ]; then
             python scripts/value_bets/value_singles_shots_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SINGLES_05}"
-            echo "----- VALUE_SINGLES_0_5 (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_05}" || true
           else
             echo "SKIP: scripts/value_bets/value_singles_shots_sportmonks.py not found."
@@ -161,14 +156,12 @@ jobs:
 
       - name: Value Singles — 2+ Shots (Over 1.5)
         env:
-          MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
-          FAVORITES_ONLY:    "true"
-          FAVORITE_CAP_4OF5: ${{ env.FAV_CAP_4OF5 }}
-          LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
+          MIN_DEC_PRICE:    ${{ env.MIN_DEC_PRICE_SNG }}
+          UNDERDOG_MAX:     ${{ env.TEAM_WIN_MAX }}     # script now uses UNDERDOG_MAX
+          LEAGUE_IDS:       ${{ env.LEAGUE_IDS }}
         run: |
           if [ -f scripts/value_bets/value_singles_shots2_sportmonks.py ]; then
             python scripts/value_bets/value_singles_shots2_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SINGLES_2PLUS}"
-            echo "----- VALUE_SINGLES_2PLUS (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_2PLUS}" || true
           else
             echo "SKIP: scripts/value_bets/value_singles_shots2_sportmonks.py not found."
@@ -179,7 +172,6 @@ jobs:
           LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
           MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
           TEAM_UNDERDOG_MAX: ${{ env.TEAM_UNDERDOG_MAX }}
-          FAV_MAX:           ${{ env.FAV_CAP_4OF5 }}
           WINDOW_DAYS:       ${{ env.WINDOW_DAYS }}
         run: |
           if [ -f scripts/value_bets/value_singles_sot.py ]; then
@@ -187,9 +179,8 @@ jobs:
             {
               echo ""
               echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")"
-              echo "Params: LEAGUE_IDS='${LEAGUE_IDS}' MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_UNDERDOG_MAX=${TEAM_UNDERDOG_MAX} FAV_MAX=${FAV_MAX} WINDOW_DAYS=${WINDOW_DAYS}"
+              echo "Params: LEAGUE_IDS='${LEAGUE_IDS}' MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_UNDERDOG_MAX=${TEAM_UNDERDOG_MAX} WINDOW_DAYS=${WINDOW_DAYS}"
             } >> "${RESULTS_DIR}/${FILE_SINGLES_SOT}"
-            echo "----- VALUE_SINGLES_SOT (tail) -----"
             tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_SOT}" || true
           else
             echo "SKIP: scripts/value_bets/value_singles_sot.py not found."
@@ -209,8 +200,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      # -------------------- One robust commit & push --------------------
-      - name: Commit & push value-bets results (robust rebase)
+      # -------------------- One robust commit & push (no branch switch here) --------------------
+      - name: Commit & push value-bets results (rebase + lease-safe)
         env:
           GIT_AUTHOR_NAME: github-actions[bot]
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
@@ -218,17 +209,13 @@ jobs:
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
           set -euo pipefail
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
 
-          git config --global user.name  "${GIT_COMMITTER_NAME}"
-          git config --global user.email "${GIT_COMMITTER_EMAIL}"
-
-          git fetch origin "${DEFAULT_BRANCH}"
-          git checkout -B "${DEFAULT_BRANCH}" "origin/${DEFAULT_BRANCH}"
-
-          # Stage everything produced under data/value_bets (incl. deletions)
+          # Stage all outputs from this job
           git add -A "${RESULTS_DIR}"
 
-          if git diff --staged --quiet; then
+          if git diff --cached --quiet; then
             echo "No value-bets changes to commit."
             exit 0
           fi
@@ -236,19 +223,18 @@ jobs:
           ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git commit -m "chore(value-bets): aggregated updates ${ts} [skip ci]"
 
+          # Rebase onto latest main and push safely; retry to avoid races
           for attempt in 1 2 3; do
-            git rebase --abort || true
             git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
-            if git push --force-with-lease origin "HEAD:${DEFAULT_BRANCH}"; then
+            if git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"; then
               echo "Push succeeded on attempt ${attempt}"
               exit 0
             fi
-            echo "Push failed on attempt ${attempt} — retrying..."
-            sleep 2
+            echo "Push failed (attempt ${attempt}) — retrying..."
+            sleep 3
           done
 
-          echo "Final attempt after fresh fetch..."
-          git rebase --abort || true
+          # Final attempt
           git fetch origin "${DEFAULT_BRANCH}"
-          git pull --rebase --autostash origin "${DEFAULT_BRANCH}"
-          git push --force-with-lease origin "HEAD:${DEFAULT_BRANCH}"
+          git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+          git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"
