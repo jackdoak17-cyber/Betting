@@ -8,10 +8,6 @@ on:
     workflows: ["fetch-odds-pp-unibet"]
     types: [completed]
 
-  # also run hourly
-  schedule:
-    - cron: "25 * * * *"
-
   # allow manual runs
   workflow_dispatch:
     inputs:
