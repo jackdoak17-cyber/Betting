@@ -1,8 +1,5 @@
 name: Value bets — SOT certs (Sportmonks/Bet365)
 
-on:
-  schedule:
-    - cron: "13 */6 * * *"   # every 6 hours at :13 UTC
   workflow_dispatch:
     inputs:
       min_decimal_price:
