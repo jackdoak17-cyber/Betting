@@ -23,9 +23,6 @@ on:
         description: "Only fixtures in next N days (0 = no limit)"
         required: false
         default: "7"
-  schedule:
-    # every 6 hours at :14 UTC (staggered from your other jobs)
-    - cron: "14 */6 * * *"
 
 permissions:
   contents: write
