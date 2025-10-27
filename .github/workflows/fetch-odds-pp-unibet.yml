@@ -1,8 +1,6 @@
 name: Fetch odds — Paddy Power & Unibet (Sportmonks pre-match — 9 leagues)
 
 on:
-  schedule:
-    - cron: "12,42 * * * *"
   workflow_dispatch: {}
 
 permissions:
