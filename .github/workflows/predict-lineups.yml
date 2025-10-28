@@ -19,6 +19,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0                # needed for clean rebases
+          persist-credentials: true     # use GITHUB_TOKEN for push
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,7 +32,11 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install requests; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
 
       - name: Predict lineups
         env:
@@ -36,14 +44,40 @@ jobs:
         run: |
           python scripts/predict_lineups.py
 
-      - name: Commit & push
+      - name: Commit & push results
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/predicted_xi
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+          # Make sure local main is aligned before we commit
+          git fetch origin main
+          git checkout -B main
+          git rebase origin/main
+
+          # Stage only the generated data directory
+          git add -A data/predicted_xi
+
+          # If nothing changed, exit quietly
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "chore(predicted_xi): per-league update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            exit 0
           fi
+
+          git commit -m "chore(predicted_xi): per-league update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Push with up to 3 attempts in case the remote moves between fetch and push
+          attempts=0
+          until git push origin HEAD:main; do
+            attempts=$((attempts+1))
+            if [ $attempts -ge 3 ]; then
+              echo "Push failed after $attempts attempts."
+              exit 1
+            fi
+            echo "Remote updated; rebasing onto latest origin/main and retrying (attempt $attempts)..."
+            git pull --rebase origin main
+          done
+
+          echo "Pushed successfully."
