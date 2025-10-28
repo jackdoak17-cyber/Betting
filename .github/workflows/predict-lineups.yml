@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 0                # needed for clean rebases
+          fetch-depth: 0                # full history so rebase works
           persist-credentials: true     # use GITHUB_TOKEN for push
 
       - name: Set up Python
@@ -52,12 +52,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-          # Make sure local main is aligned before we commit
-          git fetch origin main
-          git checkout -B main
-          git rebase origin/main
-
-          # Stage only the generated data directory
+          # Stage only generated data (add -A so new files are included)
           git add -A data/predicted_xi
 
           # If nothing changed, exit quietly
@@ -66,18 +61,24 @@ jobs:
             exit 0
           fi
 
+          # 1) Commit FIRST, so the worktree is clean for rebase
           git commit -m "chore(predicted_xi): per-league update $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          # Push with up to 3 attempts in case the remote moves between fetch and push
-          attempts=0
-          until git push origin HEAD:main; do
-            attempts=$((attempts+1))
-            if [ $attempts -ge 3 ]; then
-              echo "Push failed after $attempts attempts."
-              exit 1
+          # 2) Rebase our new commit(s) onto latest remote and push
+          # Try up to 3 times in case remote moves between fetch & push
+          for attempt in 1 2 3; do
+            echo "Rebasing onto origin/main (attempt ${attempt})..."
+            git pull --rebase --autostash origin main
+
+            echo "Pushing to origin/main..."
+            if git push origin HEAD:main; then
+              echo "Pushed successfully."
+              exit 0
             fi
-            echo "Remote updated; rebasing onto latest origin/main and retrying (attempt $attempts)..."
-            git pull --rebase origin main
+
+            echo "Push failed; retrying after a short backoff..."
+            sleep $((attempt*2))
           done
 
-          echo "Pushed successfully."
+          echo "Push failed after retries."
+          exit 1
