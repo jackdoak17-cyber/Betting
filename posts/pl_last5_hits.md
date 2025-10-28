@@ -6,61 +6,64 @@ Make sure to save for later📌
 
 • J. Gomes (Wolves) = 2, 2, 3, 1, 5
 • D. Burn (Newcastle) = 3, 2, 2, 3, 2
-• J. Larsen (Wolves) = 3, 2, 1, 2, 3
-• M. Munetsi (Wolves) = 1, 3, 2, 3, 2
+• M. Munetsi (Wolves) = 3, 1, 3, 2, 3
+• M. Kudus (Spurs) = 1, 2, 3, 2, 4
 • R. Sessegnon (Fulham) = 2, 4, 2, 2, 1
 • B. Guimarães (Newcastle) = 2, 2, 3, 1, 2
 • E. Ampadu (Leeds United) = 3, 1, 2, 3, 1
 • L. Paquetá (West Ham) = 2, 3, 1, 1, 3
+• F. Florentino (Burnley) = 3, 1, 2, 2, 1
+• J. Larsen (Wolves) = 1, 3, 2, 1, 2
 • C. Baleba (Brighton) = 1, 1, 1, 4, 1
-• N. Williams (Nottm Forest) = 1, 2, 2, 1, 2
 • Y. Yarmolyuk (Brentford) = 2, 1, 1, 2, 2
-• J. Timber (Arsenal) = 1, 2, 1, 1, 1
+• S. Bueno (Wolves) = 1, 1, 1, 1, 3
+• J. Timber (Arsenal) = 1, 1, 2, 1, 1
 • M. Kilman (West Ham) = 2, 1, 1, 1, 1
-• P. Porro (Spurs) = 1, 2, 1, 1, 1
+• P. Porro (Spurs) = 1, 1, 2, 1, 1
+• P. Foden (Man City) = 1, 1, 1, 1, 1
 
 📊1+ Foul in 4/5 (80%)📊
 
-• A. Semenyo (Bournemouth) = 5, 0, 5, 1, 2
-• M. Kudus (Spurs) = 2, 3, 2, 4, 0
+• A. Semenyo (Bournemouth) = 2, 5, 0, 5, 1
+• D. Kamada (Crystal Palace) = 1, 2, 2, 4, 0
 • D. Calvert-Lewin (Leeds United) = 1, 0, 3, 2, 3
 • M. Cucurella (Chelsea) = 3, 1, 0, 2, 3
 • C. Summerville (West Ham) = 2, 2, 2, 0, 2
 • E. Diouf (West Ham) = 0, 3, 3, 1, 1
-• I. Ndiaye (Everton) = 2, 1, 0, 3, 2
 • K. Schade (Brentford) = 3, 2, 2, 1, 0
 • M. Morato (Nottm Forest) = 3, 1, 0, 3, 1
-• R. Calafiori (Arsenal) = 0, 2, 1, 3, 2
 • Y. Minteh (Brighton) = 3, 2, 0, 2, 1
 • A. Stach (Leeds United) = 2, 1, 1, 0, 3
-• E. Anderson (Nottm Forest) = 1, 2, 2, 0, 2
-• K. Walker (Burnley) = 2, 2, 1, 2, 0
-• A. André (Wolves) = 0, 2, 1, 1, 2
-• B. Beto (Everton) = 1, 1, 0, 2, 2
+• K. Walker (Burnley) = 0, 2, 2, 1, 2
+• M. Tavernier (Bournemouth) = 1, 2, 2, 0, 2
+• B. Kamara (Aston Villa) = 3, 1, 1, 0, 1
+• E. Anderson (Nottm Forest) = 1, 1, 2, 2, 0
 • I. Thiago (Brentford) = 1, 1, 0, 1, 3
-• J. Anthony (Burnley) = 2, 2, 1, 0, 1
+• J. Anthony (Burnley) = 1, 2, 2, 1, 0
 • K. Trippier (Newcastle) = 1, 1, 3, 0, 1
-• M. Senesi (Bournemouth) = 2, 1, 1, 0, 2
-• M. Rogers (Aston Villa) = 0, 2, 2, 1, 1
+• M. Senesi (Bournemouth) = 2, 2, 1, 1, 0
+• N. Williams (Nottm Forest) = 0, 1, 2, 2, 1
 • R. James (Chelsea) = 1, 0, 1, 2, 2
-• Y. Pino (Crystal Palace) = 1, 0, 1, 1, 3
+• T. Adams (Bournemouth) = 3, 1, 1, 0, 1
+• A. André (Wolves) = 1, 0, 2, 1, 1
+• B. Beto (Everton) = 1, 1, 1, 0, 2
 • D. Ballard (Sunderland) = 2, 1, 1, 1, 0
 • D. Dalot (Man Utd) = 0, 2, 1, 1, 1
 • G. Rutter (Brighton) = 1, 0, 1, 2, 1
 • J. Pedro (Chelsea) = 1, 0, 1, 2, 1
 • M. Mount (Man Utd) = 1, 1, 1, 2, 0
 • M. Wieffer (Brighton) = 1, 0, 2, 1, 1
-• M. Cash (Aston Villa) = 0, 1, 1, 1, 2
 • N. Woltemade (Newcastle) = 1, 2, 1, 0, 1
 • N. O'Reilly (Man City) = 1, 0, 1, 2, 1
-• R. Dias (Man City) = 1, 1, 1, 0, 2
 • T. Chalobah (Chelsea) = 2, 0, 1, 1, 1
 • D. Szoboszlai (Liverpool) = 0, 1, 1, 1, 1
-• M. Zubimendi (Arsenal) = 1, 1, 0, 1, 1
-• M. Keane (Everton) = 1, 1, 1, 0, 1
+• J. Cullen (Burnley) = 1, 1, 1, 1, 0
+• M. Zubimendi (Arsenal) = 1, 1, 1, 0, 1
+• M. Cash (Aston Villa) = 1, 0, 1, 1, 1
+• M. Keane (Everton) = 1, 1, 1, 1, 0
 • N. González (Man City) = 1, 1, 0, 1, 1
-• P. Foden (Man City) = 1, 1, 1, 1, 0
-• T. Adams (Bournemouth) = 1, 1, 0, 1, 1
+• R. Dias (Man City) = 1, 1, 1, 1, 0
+• Y. Pino (Crystal Palace) = 1, 1, 0, 1, 1
 
 📊1+ SOT in 5/5 (100%)📊
 
