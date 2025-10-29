@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Premier League — Last 5 form (SOT & Fouls)
-Bulleted output, one player per line.
+Premier League — Last 5 form (100% hits only)
+Categories: Fouls Drawn, Fouls, Shots on Target (SOT)
 
 Finds:
-  • 1+ SOT in 5/5 and 4/5
-  • 1+ foul in 5/5 and 4/5
+  • 1+ in 5/5 only (no 4/5 sections)
 Outputs a social-ready thread. Skips empty sections.
 
 ENV (optional):
@@ -30,11 +29,12 @@ LEAGUE_ID   = int(os.getenv("LEAGUE_ID", "8"))
 MIN_MINUTES = int(os.getenv("MIN_MINUTES", "0"))
 BULLET      = os.getenv("BULLET", "• ")
 
-FOULS_FILE   = ROOT / "data" / "player_fouls" / "by_league" / f"{LEAGUE_ID}.json"
-SOT_FILE     = ROOT / "data" / "player_shots_on_target" / "by_league" / f"{LEAGUE_ID}.json"
+FOULS_FILE      = ROOT / "data" / "player_fouls" / "by_league" / f"{LEAGUE_ID}.json"
+F_DRAWN_FILE    = ROOT / "data" / "player_fouls_drawn" / "by_league" / f"{LEAGUE_ID}.json"
+SOT_FILE        = ROOT / "data" / "player_shots_on_target" / "by_league" / f"{LEAGUE_ID}.json"
 # fixtures path can be stored in either location depending on your other jobs
-FIX_FILE     = ROOT / "data" / "fixtures" / "by_league" / f"{LEAGUE_ID}.json"
-FIX_FILE_ALT = ROOT / "data" / "fixtures" / f"{LEAGUE_ID}.json"
+FIX_FILE        = ROOT / "data" / "fixtures" / "by_league" / f"{LEAGUE_ID}.json"
+FIX_FILE_ALT    = ROOT / "data" / "fixtures" / f"{LEAGUE_ID}.json"
 
 # ----- IO helpers -----
 def _load_json(p: Path) -> Any:
@@ -61,7 +61,6 @@ def short_player(name: str) -> str:
 
 # ----- Team names -----
 PRETTY_MAP = {
-    # PL common
     "Manchester City": "Man City",
     "Manchester United": "Man Utd",
     "Newcastle United": "Newcastle",
@@ -145,83 +144,42 @@ def minutes_ok(minutes_last_n: Optional[List[int]]) -> bool:
 
 # ----- Core -----
 def collect_category_lines() -> List[str]:
-    fouls_blob = _load_json(FOULS_FILE) or {}
-    sot_blob   = _load_json(SOT_FILE)   or {}
-
     team_map = build_team_map_from_fixtures()
 
-    fouls_players = fouls_blob.get("players") or []
-    sot_players   = sot_blob.get("players") or []
+    fdrawn_blob = _load_json(F_DRAWN_FILE) or {}
+    fouls_blob  = _load_json(FOULS_FILE)   or {}
+    sot_blob    = _load_json(SOT_FILE)     or {}
+
+    fdrawn_players = fdrawn_blob.get("players") or []
+    fouls_players  = fouls_blob.get("players")  or []
+    sot_players    = sot_blob.get("players")    or []
 
     sections: List[str] = []
 
-    # ---- FOULS ----
-    f_5of5: List[Tuple[str, str, List[int]]] = []
-    f_4of5: List[Tuple[str, str, List[int]]] = []
+    def build_block(players: List[dict], series_key: str, title: str) -> None:
+        rows: List[Tuple[str, str, List[int]]] = []
+        for rec in players:
+            series = take_last5(rec.get(series_key) or [])
+            if not series:
+                continue
+            if not minutes_ok(rec.get("minutes_last_n")):
+                continue
+            hits = count_ge1(series)
+            if hits == 5:
+                team_name = team_map.get(int(rec.get("team_id", -1)), "") or ""
+                rows.append((rec.get("name", ""), team_name, series))
+        rows.sort(key=lambda t: (-sum(t[2]), t[0]))
+        if rows:
+            sections.append(title)
+            sections.append("")
+            for name, team, series in rows:
+                sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
+            sections.append("")
 
-    for rec in fouls_players:
-        series = take_last5(rec.get("fouls_last_n") or [])
-        if not series:
-            continue
-        if not minutes_ok(rec.get("minutes_last_n")):
-            continue
-        hits = count_ge1(series)
-        team_name = team_map.get(int(rec.get("team_id", -1)), "") or ""
-        if hits == 5:
-            f_5of5.append((rec.get("name", ""), team_name, series))
-        elif hits == 4:
-            f_4of5.append((rec.get("name", ""), team_name, series))
-
-    f_5of5.sort(key=lambda t: (-sum(t[2]), t[0]))
-    f_4of5.sort(key=lambda t: (-sum(t[2]), t[0]))
-
-    if f_5of5:
-        sections.append("📊1+ Foul in 5/5 (100%)📊")
-        sections.append("")
-        for name, team, series in f_5of5:
-            sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
-        sections.append("")
-
-    if f_4of5:
-        sections.append("📊1+ Foul in 4/5 (80%)📊")
-        sections.append("")
-        for name, team, series in f_4of5:
-            sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
-        sections.append("")
-
-    # ---- SHOTS ON TARGET (SOT) ----
-    s_5of5: List[Tuple[str, str, List[int]]] = []
-    s_4of5: List[Tuple[str, str, List[int]]] = []
-
-    for rec in sot_players:
-        series = take_last5(rec.get("on_target_last_n") or [])
-        if not series:
-            continue
-        if not minutes_ok(rec.get("minutes_last_n")):
-            continue
-        hits = count_ge1(series)
-        team_name = team_map.get(int(rec.get("team_id", -1)), "") or ""
-        if hits == 5:
-            s_5of5.append((rec.get("name", ""), team_name, series))
-        elif hits == 4:
-            s_4of5.append((rec.get("name", ""), team_name, series))
-
-    s_5of5.sort(key=lambda t: (-sum(t[2]), t[0]))
-    s_4of5.sort(key=lambda t: (-sum(t[2]), t[0]))
-
-    if s_5of5:
-        sections.append("📊1+ SOT in 5/5 (100%)📊")
-        sections.append("")
-        for name, team, series in s_5of5:
-            sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
-        sections.append("")
-
-    if s_4of5:
-        sections.append("📊1+ SOT in 4/5 (80%)📊")
-        sections.append("")
-        for name, team, series in s_4of5:
-            sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
-        sections.append("")
+    # Order as requested: Fouls Drawn, Fouls, SOT
+    build_block(fdrawn_players, "fouls_drawn_last_n", "📊1+ Fouls Drawn in 5/5 (100%)📊")
+    build_block(fouls_players,  "fouls_last_n",       "📊1+ Foul in 5/5 (100%)📊")
+    build_block(sot_players,    "on_target_last_n",   "📊1+ SOT in 5/5 (100%)📊")
 
     return sections
 
@@ -229,9 +187,9 @@ def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     header = [
-        "I have collated some player stats for this game week based on their last 5 games in the Premier League (80 & 100% hit rates)🧵",
+        "I’ve collated **Premier League** player form based on their **last 5 games** — **100% hit rates only** (Fouls Drawn, Fouls, SOT).🧵",
         "",
-        "Make sure to save for later📌",
+        "Save for later 📌",
         "",
     ]
 
