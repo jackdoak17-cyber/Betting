@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-Premier League — Last 5 form (100% hits only)
+Premier League — Last 5 (100% hit rates only)
 Categories: Fouls Drawn, Fouls, Shots on Target (SOT)
 
 Finds:
   • 1+ in 5/5 only (no 4/5 sections)
 Outputs a social-ready thread. Skips empty sections.
+
+Requires prebuilt JSONs from your extractors:
+  - data/player_fouls_drawn/by_league/{LEAGUE_ID}.json   (writes: ... "fouls_drawn_last_n": [...])
+  - data/player_fouls/by_league/{LEAGUE_ID}.json         (writes: ... "fouls_last_n": [...])
+  - data/player_shots_on_target/by_league/{LEAGUE_ID}.json (writes: ... "on_target_last_n": [...])
 
 ENV (optional):
   OUTPUT_PATH    (default: posts/pl_last5_hits.md)
@@ -176,7 +181,7 @@ def collect_category_lines() -> List[str]:
                 sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
             sections.append("")
 
-    # Order as requested: Fouls Drawn, Fouls, SOT
+    # Order: Fouls Drawn, Fouls, SOT
     build_block(fdrawn_players, "fouls_drawn_last_n", "📊1+ Fouls Drawn in 5/5 (100%)📊")
     build_block(fouls_players,  "fouls_last_n",       "📊1+ Foul in 5/5 (100%)📊")
     build_block(sot_players,    "on_target_last_n",   "📊1+ SOT in 5/5 (100%)📊")
@@ -187,9 +192,9 @@ def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     header = [
-        "I’ve collated **Premier League** player form based on their **last 5 games** — **100% hit rates only** (Fouls Drawn, Fouls, SOT).🧵",
+        "I’ve collated Premier League player stats (100% hit rates) based on their last 5 games.",
         "",
-        "Save for later 📌",
+        "Leave a like if you find these useful.",
         "",
     ]
 
