@@ -1,0 +1,100 @@
+name: Build player fouls drawn (2x daily)
+
+on:
+  schedule:
+    # Twice daily at 07:10 and 19:10 UTC
+    - cron: "10 7,19 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-fouls-drawn
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+  SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+jobs:
+  build-fouls-drawn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          set -e
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Sanity check secret
+        run: |
+          if [ -z "${SPORTMONKS_TOKEN:-}" ]; then
+            echo "ERROR: SPORTMONKS_TOKEN secret not available to job." >&2
+            exit 1
+          fi
+
+      - name: Build player fouls drawn
+        run: python scripts/player_foulsdrawn.py
+
+      # ---------- Commit & push ----------
+      - name: Commit & push fouls-drawn data (robust rebase)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          git config --global user.name  "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+
+          git fetch origin main
+          git checkout -B main origin/main
+
+          # Stage only fouls-drawn outputs (plus any new player_* dirs you might add later)
+          git add -A data/player_fouls_drawn || true
+          git add -A data/player_* || true
+
+          if git diff --staged --quiet; then
+            echo "No fouls-drawn data changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(player-fouls-drawn): update ${ts}"
+
+          for attempt in 1 2 3; do
+            git rebase --abort || true
+            git pull --rebase --autostash origin main || true
+            if git push --force-with-lease origin HEAD:main; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed on attempt $attempt — retrying..."
+            sleep 2
+          done
+
+          echo "Final attempt after fresh fetch..."
+          git rebase --abort || true
+          git fetch origin main
+          git pull --rebase --autostash origin main
+          git push --force-with-lease origin HEAD:main
