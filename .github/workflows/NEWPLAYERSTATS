@@ -1,0 +1,144 @@
+name: Build all player stats
+
+on:
+  # Daily at 07:10 UTC (after any 06:00 UTC lineup jobs)
+  schedule:
+    - cron: "10 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Keep only the latest run writing to the repo
+concurrency:
+  group: player-stats-all
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+  SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+jobs:
+  build-all-player-stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          set -e
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Sanity check secret
+        run: |
+          if [ -z "${SPORTMONKS_TOKEN:-}" ]; then
+            echo "ERROR: SPORTMONKS_TOKEN secret not available to job." >&2
+            exit 1
+          fi
+
+      # ---------- Build ALL player datasets ----------
+      - name: Build player fouls
+        run: python scripts/player_fouls.py
+
+      - name: Fouls coverage/summaries (if present)
+        run: |
+          [ -f scripts/check_player_fouls_coverage.py ] && python scripts/check_player_fouls_coverage.py || true
+          [ -f scripts/render_player_fouls_summary.py ] && python scripts/render_player_fouls_summary.py || true
+
+      # NEW: fouls drawn
+      - name: Build player fouls drawn
+        run: python scripts/player_foulsdrawn.py
+
+      - name: Fouls drawn coverage/summaries (if present)
+        run: |
+          [ -f scripts/check_player_foulsdrawn_coverage.py ] && python scripts/check_player_foulsdrawn_coverage.py || true
+          [ -f scripts/render_player_foulsdrawn_summary.py ] && python scripts/render_player_foulsdrawn_summary.py || true
+
+      - name: Build player shots
+        run: python scripts/player_shots.py
+
+      - name: Shots coverage/summaries (if present)
+        run: |
+          [ -f scripts/render_player_shots_summary.py ] && python scripts/render_player_shots_summary.py || true
+          [ -f scripts/check_player_shots_coverage.py ] && python scripts/check_player_shots_coverage.py || true
+
+      - name: Build player tackles
+        run: python scripts/player_tackles.py
+
+      - name: Tackles coverage/summaries (if present)
+        run: |
+          [ -f scripts/check_player_tackles_coverage.py ] && python scripts/check_player_tackles_coverage.py || true
+          [ -f scripts/render_player_tackles_summary.py ] && python scripts/render_player_tackles_summary.py || true
+
+      - name: Build player shots on target (SOT)
+        run: python scripts/build_player_sot.py
+
+      - name: SOT coverage (if present)
+        run: |
+          [ -f scripts/check_player_sot_coverage.py ] && python scripts/check_player_sot_coverage.py || true
+
+      # ---------- Commit & push ----------
+      - name: Commit & push all player data (robust rebase)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          # Configure Git identity explicitly
+          git config --global user.name  "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+
+          # Base the working branch on the latest remote main
+          git fetch origin main
+          git checkout -B main origin/main
+
+          # Stage all produced directories (include deletions)
+          git add -A data/player_fouls data/player_fouls_drawn data/player_shots data/player_tackles data/player_shots_on_target || true
+          # Catch any additional player_* outputs your scripts may write
+          git add -A data/player_* || true
+
+          # Exit cleanly if nothing changed
+          if git diff --staged --quiet; then
+            echo "No player-data changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(player-stats): update ${ts}"
+
+          # Rebase onto latest main and push with lease; retry a few times if needed
+          for attempt in 1 2 3; do
+            git rebase --abort || true
+            git pull --rebase --autostash origin main || true
+            if git push --force-with-lease origin HEAD:main; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed on attempt $attempt — retrying..."
+            sleep 2
+          done
+
+          echo "Final attempt after fresh fetch..."
+          git rebase --abort || true
+          git fetch origin main
+          git pull --rebase --autostash origin main
+          git push --force-with-lease origin HEAD:main
