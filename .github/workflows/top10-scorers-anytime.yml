@@ -1,0 +1,61 @@
+name: Post — Top 10 Scorers (Anytime)
+
+on:
+  schedule:
+    # Daily at 07:05 UTC
+    - cron: "5 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: top10-anytime
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+jobs:
+  build-and-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Generate Top 10 Scorers (Anytime)
+        env:
+          OUTPUT_PATH: posts/top10_scorers_anytime.md
+        run: python scripts/posts/top10_scorers_anytime.py
+
+      - name: Show output
+        run: |
+          echo "----- posts/top10_scorers_anytime.md -----"
+          cat posts/top10_scorers_anytime.md || true
+          echo "-----------------------------------------"
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/top10_scorers_anytime.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "Update: Top 10 Scorers (Anytime) — ${ts}"
+          git push
