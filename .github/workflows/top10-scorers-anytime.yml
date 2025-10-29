@@ -16,6 +16,7 @@ concurrency:
 env:
   PYTHON_VERSION: "3.11"
   SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+  OUTPUT_STYLE: table   # set to "list" for "1) H. Kane — 12 — Bayern — @ 1.50 — v Leverkusen"
 
 jobs:
   build-and-post:
@@ -36,6 +37,34 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pillow
 
-      - name: Generate Top 10 Scorers (Anytime) — list + table
+      - name: Generate Top 10 Scorers (Anytime)
         env:
-          OUTPUT_PATH: posts/top10_scorers
+          OUTPUT_PATH: posts/top10_scorers_anytime.md
+          OUTPUT_STYLE: ${{ env.OUTPUT_STYLE }}
+        run: python scripts/posts/top10_scorers_anytime.py
+
+      - name: Install fonts for rendering
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core
+
+      - name: Render PNG from post
+        env:
+          TITLE: "Top 10 Scorers — Bet365 Anytime"
+          FOOTER: "${{ github.repository }} • $(date -u +'%d %b %Y UTC')"
+        run: |
+          python scripts/render/text_to_social_image.py posts/top10_scorers_anytime.md posts/top10_scorers_anytime.png
+          ls -lh posts/ | cat
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add posts/top10_scorers_anytime.md posts/top10_scorers_anytime.png
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "Update: Top 10 Scorers (Anytime) — ${ts}"
+          git push
