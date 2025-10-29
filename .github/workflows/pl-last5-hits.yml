@@ -1,4 +1,4 @@
-name: Post — PL Last-5 SOT & Fouls
+name: Post — PL Last-5 100% Hits (SOT, Fouls, Fouls Drawn)
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
 
       # No external deps needed (stdlib only)
 
-      - name: Generate Premier League last-5 hits post
+      - name: Generate Premier League last-5 100% hits post
         env:
           OUTPUT_PATH: posts/pl_last5_hits.md
           LEAGUE_ID: "8"          # Premier League
@@ -46,5 +46,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add posts/pl_last5_hits.md
-          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: PL last-5 SOT & Fouls [skip ci]"
+          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: PL last-5 100% Hits (SOT, Fouls, Fouls Drawn) [skip ci]"
           git push
