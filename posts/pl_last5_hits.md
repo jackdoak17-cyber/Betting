@@ -1,6 +1,6 @@
-I’ve collated **Premier League** player form based on their **last 5 games** — **100% hit rates only** (Fouls Drawn, Fouls, SOT).🧵
+I’ve collated Premier League player stats (100% hit rates) based on their last 5 games.
 
-Save for later 📌
+Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
