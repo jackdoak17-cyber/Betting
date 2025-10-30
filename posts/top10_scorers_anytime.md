@@ -5,7 +5,7 @@ Top 10 Scorers — Bet365 Anytime
 | 1 | H. Kane — Bayern (BUN) | 12 | @ 1.50 | v Leverkusen |
 | 2 | E. Haaland — Man City (PL) | 11 | @ 1.61 | v Nottm Forest |
 | 3 | K. Mbappé — Real Madrid (LAL) | 11 | @ 1.40 | v Valencia |
-| 4 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.75 | v Rennes |
+| 4 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.60 | v Rennes |
 | 5 | M. Greenwood — Marseille (L1) | 7 | @ 2.05 | v Auxerre |
 | 6 | A. Semenyo — Bournemouth (PL) | 6 | @ 4.50 | v Man City |
 | 7 | I. Thiago — Brentford (PL) | 6 | @ 3.00 | v Crystal Palace |
