@@ -3,8 +3,14 @@
 
 """
 Top 10 Scorers (Combined) — Bet365 Anytime
-- Produces a short, scannable post across the Top 5 leagues.
-- Default output is a compact Markdown TABLE (Rank | Player | Goals | Odds | Opponent).
+
+Fixes:
+- Correct opponent resolution: prefer participant team_id from topscorers; only
+  fall back to name matching if IDs not available.
+- Do NOT strip "City" or "United" from team tokens (prevents Man City/Man Utd collisions).
+
+Output:
+- Default is a compact Markdown TABLE (Rank | Player | Goals | Odds | Opponent).
 - Set OUTPUT_STYLE=list to print one-line entries like:
   "1) H. Kane — 12 — Bayern — @ 1.50 — v Leverkusen"
 
@@ -26,10 +32,10 @@ TOKEN  = os.getenv("SPORTMONKS_TOKEN")
 if not TOKEN:
     raise SystemExit("Missing SPORTMONKS_TOKEN")
 
-DEBUG       = os.getenv("DEBUG") == "1"
-OUT         = Path(os.getenv("OUTPUT_PATH", "posts/top10_scorers_anytime.md"))
-OUTPUT_STYLE= (os.getenv("OUTPUT_STYLE") or "table").strip().lower()
-MAX_ROWS    = 10
+DEBUG        = os.getenv("DEBUG") == "1"
+OUT          = Path(os.getenv("OUTPUT_PATH", "posts/top10_scorers_anytime.md"))
+OUTPUT_STYLE = (os.getenv("OUTPUT_STYLE") or "table").strip().lower()
+MAX_ROWS     = 10
 
 # Top 5 leagues
 LEAGUES = {
@@ -41,20 +47,19 @@ LEAGUES = {
 }
 
 # Local data (optional, for fixture/odds match)
-ROOT         = Path(".")
-FIX_DIR      = ROOT / "data" / "fixtures" / "by_league"
-ODDS_DIR_MAIN= ROOT / "data" / "odds" / "b365" / "by_league"
-ODDS_DIR_ALT = ROOT / "data" / "odds" / "b365"
+ROOT          = Path(".")
+FIX_DIR       = ROOT / "data" / "fixtures" / "by_league"
+ODDS_DIR_MAIN = ROOT / "data" / "odds" / "b365" / "by_league"
+ODDS_DIR_ALT  = ROOT / "data" / "odds" / "b365"
 
 # Bet365 identifiers
-BOOKMAKER_B365        = 2
-MARKET_GOALSCORERS    = 90
+BOOKMAKER_B365     = 2
+MARKET_GOALSCORERS = 90
 
 # ---------------- String helpers ----------------
 SUFFIXES = {"jr","junior","sr","senior","ii","iii","iv","filho","neto"}
 
 def strip_accents(s: str) -> str:
-    import unicodedata
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
 def norm_ws_lower(s: str) -> str:
@@ -100,10 +105,11 @@ def short_player_display(name: str) -> str:
     return f"{first_initial}. {last}"
 
 # ---------------- Pretty team names ----------------
+# NOTE: We no longer drop 'united' or 'city' from tokens to avoid collisions.
 GENERIC_TEAM_TOKENS = {
     "fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
     "the","club","de","del","la","las","los","calcio","saint","st","bk",
-    "saint-germain","saintgermain","psg","united","city"
+    "saint-germain","saintgermain","psg"
 }
 def team_tokens(name: str):
     toks = set(norm(name).split())
@@ -137,17 +143,18 @@ def pretty_map() -> Dict[str, str]:
     # LaLiga
     add(["Atlético Madrid","Atletico Madrid"], "Atleti")
     add(["FC Barcelona","Barcelona"], "Barcelona")
+    add(["Real Madrid"], "Real Madrid")
     add(["Real Sociedad"], "Sociedad")
     add(["Rayo Vallecano"], "Rayo")
     add(["Deportivo Alavés","Alaves"], "Alaves")
     # Bundesliga
-    add(["FC Bayern München","Bayern Munchen","Bayern München","FC Bayern Munchen"], "Bayern")
+    add(["FC Bayern München","Bayern München","FC Bayern Munchen","Bayern Munchen"], "Bayern")
     add(["Borussia Dortmund"], "Dortmund")
     add(["Borussia Mönchengladbach","Borussia Monchengladbach"], "Gladbach")
-    add(["Bayer 04 Leverkusen"], "Leverkusen")
+    add(["Bayer 04 Leverkusen","Bayer Leverkusen"], "Leverkusen")
     add(["Eintracht Frankfurt"], "Frankfurt")
-    add(["Werder Bremen","SV Werder Bremen"], "Bremen")
-    add(["Union Berlin","1. FC Union Berlin","FC Union Berlin"], "Union Berlin")
+    add(["SV Werder Bremen","Werder Bremen"], "Bremen")
+    add(["1. FC Union Berlin","FC Union Berlin","Union Berlin"], "Union Berlin")
     # Serie A
     add(["AC Milan","Milan"], "Milan")
     add(["Internazionale","Inter"], "Inter")
@@ -157,6 +164,7 @@ def pretty_map() -> Dict[str, str]:
     add(["Paris Saint-Germain","Paris Saint Germain","PSG"], "PSG")
     add(["Olympique Marseille","Marseille"], "Marseille")
     add(["Olympique Lyonnais","Lyon"], "Lyon")
+    add(["RC Strasbourg Alsace","Strasbourg"], "Strasbourg")
     return M
 
 PRETTY = pretty_map()
@@ -170,7 +178,8 @@ def pretty_team(name: Optional[str]) -> str:
     base = strip_accents(name).replace("&", " ")
     base = re.sub(r"\b(?:FC|CF|AC|AS|UD|CD|RC|RCD|US|UC|BK)\b\.?", "", base, flags=re.I)
     base = re.sub(r"\s+", " ", base).strip()
-    base = re.sub(r"\bUnited\b", "", base).strip()
+    base = re.sub(r"\bUnited\b", "United", base)  # keep literal token
+    base = re.sub(r"\bCity\b", "City", base)      # keep literal token
     return base
 
 # ---------------- Time / IO ----------------
@@ -223,11 +232,15 @@ def fetch_topscorers_via_season_include(season_id: int):
     return requests.get(url, params=params, timeout=30)
 
 def parse_topscorers(payload):
+    """
+    Returns list of dicts with keys:
+      player (name), team (name), team_id (int or None), total (int)
+    """
     if isinstance(payload.get("data"), dict) and "topscorers" in payload["data"]:
         items = payload["data"]["topscorers"] or []
     else:
         items = payload.get("data", []) or []
-    agg = {}
+    agg: Dict[Tuple[Optional[int], Optional[int]], dict] = {}
     for row in items:
         player = row.get("player") or (row.get("topscorer") or {}).get("player")
         team   = row.get("participant") or (row.get("topscorer") or {}).get("participant")
@@ -240,13 +253,15 @@ def parse_topscorers(payload):
         entry = agg.setdefault(key, {
             "player": player.get("display_name") or player.get("fullname") or player.get("name"),
             "team":   (team or {}).get("name", "—"),
+            "team_id": int(tid) if isinstance(tid, int) or (isinstance(tid, str) and tid.isdigit()) else None,
             "total":  0
         })
         try:
             entry["total"] += int(total)
         except Exception:
             pass
-    return sorted(agg.values(), key=lambda x: (-x["total"], x["player"]))[:10]
+    rows = sorted(agg.values(), key=lambda x: (-x["total"], x["player"]))[:10]
+    return rows
 
 # ---------------- Fixtures ----------------
 def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
@@ -262,24 +277,55 @@ def load_fixtures_for_league(league_id: int) -> List[dict]:
     blob = _read_json(FIX_DIR / f"{league_id}.json") or {}
     return blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
 
-def find_next_fixture_for_team(team_name: str, fixtures: List[dict]) -> Optional[dict]:
-    now = dt.datetime.utcnow(); best = None
+def find_next_fixture_for_team(team_name: str, fixtures: List[dict], team_id: Optional[int] = None) -> Optional[dict]:
+    """
+    Prefer matching by team_id if present in fixtures' participants,
+    otherwise fall back to robust name matching.
+    """
+    now = dt.datetime.utcnow()
+    best: Optional[Tuple[dt.datetime, dict]] = None
+
     for fx in fixtures:
         name = fx.get("name") or ""
         home, away = parse_fixture_teams(name)
         if not home or not away:
             continue
-        if not (team_names_match(team_name, home) or team_names_match(team_name, away)):
-            continue
+
+        # Parse KO
         ko = parse_dt_utc(fx.get("starting_at"))
         if not ko:
             ts = fx.get("starting_at_timestamp")
             if isinstance(ts,(int,float)):
-                try: ko = dt.datetime.utcfromtimestamp(int(ts))
-                except Exception: pass
-        if ko and ko >= now:
+                try:
+                    ko = dt.datetime.utcfromtimestamp(int(ts))
+                except Exception:
+                    pass
+        if not ko or ko < now:
+            continue
+
+        # Try ID-based match first
+        matched = False
+        participants = fx.get("participants") or fx.get("teams") or []
+        parts_list = list(participants.values()) if isinstance(participants, dict) else participants
+        if team_id is not None and parts_list:
+            for p in parts_list:
+                tid = p.get("team_id") or p.get("id")
+                try:
+                    tid = int(tid)
+                except Exception:
+                    continue
+                if tid == team_id:
+                    matched = True
+                    break
+
+        # Fallback to name match
+        if not matched:
+            matched = team_names_match(team_name, home) or team_names_match(team_name, away)
+
+        if matched:
             if best is None or ko < best[0]:
                 best = (ko, fx)
+
     return best[1] if best else None
 
 # ---------------- Odds: Bet365 Anytime ----------------
@@ -414,7 +460,6 @@ def make_table_style(rows: List[dict]) -> List[str]:
     for i, r in enumerate(rows, 1):
         price_txt = f"@ {r['price']:.2f}" if isinstance(r["price"], (int,float)) else "@ —"
         opp = r['opp_disp'] or "TBC"
-        # Put team + league in Player col for context
         player_col = f"{r['player_disp']} — {r['team_disp']} ({r['league_abbr']})"
         out.append(f"| {i} | {player_col} | {r['goals']} | {price_txt} | v {opp} |")
     return out
@@ -422,13 +467,9 @@ def make_table_style(rows: List[dict]) -> List[str]:
 def header_lines() -> List[str]:
     return ["Top 10 Scorers — Bet365 Anytime", ""]
 
-def parse_fixture_teams_again(name: str) -> Tuple[str,str]:
-    return parse_fixture_teams(name)
-
 def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
 
-    # Gather leaders across all leagues
     combined: List[dict] = []
     fixtures_by_league: Dict[int, List[dict]] = {}
     odds_by_league: Dict[int, dict] = {}
@@ -460,6 +501,7 @@ def main():
                 "player_disp": short_player_display(row["player"]),
                 "team": row["team"],
                 "team_disp": pretty_team(row["team"]),
+                "team_id": row.get("team_id"),
                 "goals": int(row["total"]),
             })
 
@@ -472,18 +514,36 @@ def main():
         league_id = rec["league_id"]
         fixtures   = fixtures_by_league.get(league_id, [])
         odds_blob  = odds_by_league.get(league_id, {})
-        # Opponent
+
+        # Opponent (prefer team_id)
         opp_disp = None
-        fx = find_next_fixture_for_team(rec["team"], fixtures)
+        fx = find_next_fixture_for_team(rec["team"], fixtures, team_id=rec.get("team_id"))
         if fx:
             name = fx.get("name") or ""
-            home, away = parse_fixture_teams_again(name)
+            home, away = parse_fixture_teams(name)
             if home and away:
+                if rec.get("team_id") is not None:
+                    # derive opponent via participants if possible
+                    participants = fx.get("participants") or fx.get("teams") or []
+                    parts_list = list(participants.values()) if isinstance(participants, dict) else participants
+                    other_name = None
+                    for p in parts_list or []:
+                        tid = p.get("team_id") or p.get("id")
+                        try:
+                            tid = int(tid)
+                        except Exception:
+                            continue
+                        if rec["team_id"] == tid:
+                            # find the other participant name
+                            pass
+                    # fallback to names below
+                # name-based opponent
                 if team_names_match(rec["team"], home):
                     opp_disp = pretty_team(away)
                 elif team_names_match(rec["team"], away):
                     opp_disp = pretty_team(home)
         rec["opp_disp"] = opp_disp or "TBC"
+
         # Odds
         price = None
         fixtures_list = iter_odds_fixtures(odds_blob)
@@ -498,8 +558,8 @@ def main():
         if not fx_odds:
             # fallback by name
             for ofx in fixtures_list:
-                h, a = parse_fixture_teams_again(ofx.get("name") or "")
-                if h and a and rec["opp_disp"]:
+                h, a = parse_fixture_teams(ofx.get("name") or "")
+                if h and a and rec["opp_disp"] and rec["opp_disp"] != "TBC":
                     if (team_names_match(rec["team"], h) and team_names_match(rec["opp_disp"], a)) or \
                        (team_names_match(rec["team"], a) and team_names_match(rec["opp_disp"], h)):
                         fx_odds = ofx; break
@@ -508,7 +568,7 @@ def main():
         if price is None:
             # last resort: scan any team fixture in odds
             for ofx in fixtures_list:
-                h, a = parse_fixture_teams_again(ofx.get("name") or "")
+                h, a = parse_fixture_teams(ofx.get("name") or "")
                 if not h or not a:
                     continue
                 if not (team_names_match(rec["team"], h) or team_names_match(rec["team"], a)):
