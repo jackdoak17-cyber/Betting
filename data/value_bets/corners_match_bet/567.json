@@ -1,0 +1,32 @@
+{
+  "generated_at": "2025-11-01T15:09:27.388581+00:00",
+  "league_id": 567,
+  "params": {
+    "WINDOW_DAYS": 7,
+    "MIN_MATCHES": 6,
+    "EDGE_MIN_WIN": 0.6,
+    "EDGE_MAX_WIN": 0.4,
+    "MIN_DEC_PRICE": 1.7,
+    "ENABLE_EV": true,
+    "EV_MIN_EDGE": 0.03
+  },
+  "count": 1,
+  "picks": [
+    {
+      "fixture_id": 19441203,
+      "fixture": "Sporting Gijón vs Las Palmas",
+      "kickoff": "2025-11-02 15:15:00",
+      "side": "away",
+      "team": "Las Palmas",
+      "opponent": "Sporting Gijón",
+      "price": 2.2,
+      "est_prob": 0.7223,
+      "implied_prob": 0.4545,
+      "edge": 0.2677,
+      "home_wr": 0.2222,
+      "home_n": 9,
+      "away_wr": 0.6667,
+      "away_n": 9
+    }
+  ]
+}

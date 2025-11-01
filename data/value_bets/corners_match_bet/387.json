@@ -1,0 +1,48 @@
+{
+  "generated_at": "2025-11-01T15:09:27.014420+00:00",
+  "league_id": 387,
+  "params": {
+    "WINDOW_DAYS": 7,
+    "MIN_MATCHES": 6,
+    "EDGE_MIN_WIN": 0.6,
+    "EDGE_MAX_WIN": 0.4,
+    "MIN_DEC_PRICE": 1.7,
+    "ENABLE_EV": true,
+    "EV_MIN_EDGE": 0.03
+  },
+  "count": 2,
+  "picks": [
+    {
+      "fixture_id": 19509167,
+      "fixture": "Bari 1908 vs Cesena",
+      "kickoff": "2025-11-02 14:00:00",
+      "side": "away",
+      "team": "Cesena",
+      "opponent": "Bari 1908",
+      "price": 1.95,
+      "est_prob": 0.7071,
+      "implied_prob": 0.5128,
+      "edge": 0.1943,
+      "home_wr": 0.2857,
+      "home_n": 7,
+      "away_wr": 0.7,
+      "away_n": 10
+    },
+    {
+      "fixture_id": 19509163,
+      "fixture": "Virtus Entella vs Empoli",
+      "kickoff": "2025-11-01 16:15:00",
+      "side": "home",
+      "team": "Virtus Entella",
+      "opponent": "Empoli",
+      "price": 1.72,
+      "est_prob": 0.6889,
+      "implied_prob": 0.5814,
+      "edge": 0.1075,
+      "home_wr": 0.6,
+      "home_n": 10,
+      "away_wr": 0.2222,
+      "away_n": 9
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2025-11-01T15:09:26.339425+00:00",
+  "league_id": 301,
+  "params": {
+    "WINDOW_DAYS": 7,
+    "MIN_MATCHES": 6,
+    "EDGE_MIN_WIN": 0.6,
+    "EDGE_MAX_WIN": 0.4,
+    "MIN_DEC_PRICE": 1.7,
+    "ENABLE_EV": true,
+    "EV_MIN_EDGE": 0.03
+  },
+  "count": 1,
+  "picks": [
+    {
+      "fixture_id": 19467792,
+      "fixture": "Brest vs Olympique Lyonnais",
+      "kickoff": "2025-11-02 19:45:00",
+      "side": "away",
+      "team": "Olympique Lyonnais",
+      "opponent": "Brest",
+      "price": 1.9,
+      "est_prob": 0.6834,
+      "implied_prob": 0.5263,
+      "edge": 0.157,
+      "home_wr": 0.3333,
+      "home_n": 9,
+      "away_wr": 0.7,
+      "away_n": 10
+    }
+  ]
+}

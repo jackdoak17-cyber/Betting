@@ -1,0 +1,48 @@
+{
+  "generated_at": "2025-11-01T15:09:27.174714+00:00",
+  "league_id": 564,
+  "params": {
+    "WINDOW_DAYS": 7,
+    "MIN_MATCHES": 6,
+    "EDGE_MIN_WIN": 0.6,
+    "EDGE_MAX_WIN": 0.4,
+    "MIN_DEC_PRICE": 1.7,
+    "ENABLE_EV": true,
+    "EV_MIN_EDGE": 0.03
+  },
+  "count": 2,
+  "picks": [
+    {
+      "fixture_id": 19439354,
+      "fixture": "Levante vs Celta de Vigo",
+      "kickoff": "2025-11-02 13:00:00",
+      "side": "away",
+      "team": "Celta de Vigo",
+      "opponent": "Levante",
+      "price": 2.0,
+      "est_prob": 0.75,
+      "implied_prob": 0.5,
+      "edge": 0.25,
+      "home_wr": 0.1,
+      "home_n": 10,
+      "away_wr": 0.6,
+      "away_n": 10
+    },
+    {
+      "fixture_id": 19439365,
+      "fixture": "Girona vs Deportivo Alavés",
+      "kickoff": "2025-11-08 13:00:00",
+      "side": "away",
+      "team": "Deportivo Alavés",
+      "opponent": "Girona",
+      "price": 2.0,
+      "est_prob": 0.6125,
+      "implied_prob": 0.5,
+      "edge": 0.1125,
+      "home_wr": 0.4,
+      "home_n": 10,
+      "away_wr": 0.625,
+      "away_n": 8
+    }
+  ]
+}
