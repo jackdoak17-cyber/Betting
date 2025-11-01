@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Most Corners — overall win rate + home/away-adjusted rates, ranked by likelihood.
+Most Corners — overall + home/away-adjusted win rates, ranked globally.
 
 Reads (local files only):
 - Fixtures:                    data/fixtures/{league_id}.json
@@ -15,16 +15,16 @@ We compute for CORNERS:
   Draws are excluded from the denominator.
 
 Selection (for fixtures within WINDOW_DAYS):
-  - Pick HOME if its home-only win_rate >= MIN_SIDE_RATE and (home - away) >= MIN_GAP
-  - Pick AWAY if its away-only win_rate >= MIN_SIDE_RATE and (away - home) >= MIN_GAP
-  - Require Bet365 "Most Corners" price for the picked side >= MIN_DEC_PRICE
+  - Choose HOME if:  home_split >= MIN_SIDE_RATE  AND (home_split - away_split) >= MIN_GAP
+  - Choose AWAY if:  away_split >= MIN_SIDE_RATE  AND (away_split - home_split) >= MIN_GAP
+  - Require chosen side's price >= MIN_DEC_PRICE
+  - NEW: Require the *other side's* overall AND split win rates < MAX_OPP_RATE (default 0.50)
 
-Ranking:
-  Sort candidates by:
-    1) chosen side split win rate (desc)
-    2) gap vs other side (desc)
-    3) price (desc)
-    4) fixture name (asc)
+Ranking (global across all leagues):
+  1) chosen split win rate (desc)
+  2) gap vs the other side (desc)
+  3) price (desc)
+  4) fixture name (asc)
 
 Output (minimal, 2 lines per pick):
   Fixture — Most Corners: {HOME|AWAY} @ {price}
@@ -36,6 +36,7 @@ Env (optional):
 - MIN_DEC_PRICE   default 1.70
 - MIN_SIDE_RATE   default 0.55
 - MIN_GAP         default 0.15
+- MAX_OPP_RATE    default 0.50   # filter out if opposing side ≥ 50% (overall or split)
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -52,6 +53,7 @@ WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS", "7"))
 MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.70"))
 MIN_SIDE_RATE = float(os.getenv("MIN_SIDE_RATE", "0.55"))
 MIN_GAP       = float(os.getenv("MIN_GAP", "0.15"))
+MAX_OPP_RATE  = float(os.getenv("MAX_OPP_RATE", "0.50"))
 
 # ---------- string helpers ----------
 def strip_accents(s: str) -> str:
@@ -210,7 +212,7 @@ def main():
     else:
         league_ids = discover_league_ids()
 
-    any_out = False
+    all_candidates = []
 
     for lid in league_ids:
         fx_path   = FIX_DIR / f"{lid}.json"
@@ -223,11 +225,8 @@ def main():
         fixtures = load_json(fx_path).get("fixtures") or []
         ts_idx   = index_team_rows(load_json(ts_path))
         opp_idx  = index_team_rows(load_json(opp_path))
-
         odds_blob = load_json(odds_path)
         odds_by_fixture = {int(f.get("fixture_id")): f for f in (odds_blob.get("fixtures") or []) if isinstance(f.get("fixture_id"), int)}
-
-        candidates = []
 
         for fx in fixtures:
             if not isinstance(fx, dict): continue
@@ -241,7 +240,7 @@ def main():
             if not home_nm or not away_nm: 
                 continue
 
-            # find rows
+            # locate team rows
             home_t = away_t = home_o = away_o = None
             for row in ts_idx.values():
                 if team_names_match(home_nm, row.get("team_name","")): home_t = row
@@ -256,11 +255,11 @@ def main():
             _,_,_,hN_all,hRate_all = overall_win_rate(home_t, home_o, "corners_last_n", "opp_corners_last_n")
             _,_,_,aN_all,aRate_all = overall_win_rate(away_t, away_o, "corners_last_n", "opp_corners_last_n")
 
-            # split rates (used for decision)
+            # split rates
             (hW,hL,hD,hN,hRate), _ = split_win_rates(home_t, home_o, "corners_last_n", "opp_corners_last_n")
             _, (aW,aL,aD,aN,aRate) = split_win_rates(away_t, away_o, "corners_last_n", "opp_corners_last_n")
 
-            # choose side by thresholds (split)
+            # choose side by thresholds
             pick_side = None
             if (aRate >= MIN_SIDE_RATE) and ((aRate - hRate) >= MIN_GAP):
                 pick_side = "away"
@@ -268,6 +267,12 @@ def main():
                 if pick_side is None or (hRate - aRate) > (aRate - hRate):
                     pick_side = "home"
             if not pick_side:
+                continue
+
+            # Filter out if the other side is too strong (overall OR split >= MAX_OPP_RATE)
+            other_overall = aRate_all if pick_side=="home" else hRate_all
+            other_split   = aRate      if pick_side=="home" else hRate
+            if (other_overall >= MAX_OPP_RATE) or (other_split >= MAX_OPP_RATE):
                 continue
 
             # odds
@@ -283,7 +288,7 @@ def main():
             other_rate  = aRate if pick_side=="home" else hRate
             gap = max(0.0, chosen_rate - other_rate)
 
-            candidates.append({
+            all_candidates.append({
                 "fixture": name,
                 "side": pick_side,
                 "price": float(price),
@@ -295,29 +300,22 @@ def main():
                 "away_rate_split": aRate,   "away_n_split": aN,
             })
 
-        # ---- sort by likelihood
-        if candidates:
-            candidates.sort(
-                key=lambda r: (-r["chosen_rate"], -r["gap"], -r["price"], r["fixture"])
-            )
+    # ---- global ranking & print
+    if not all_candidates:
+        return
 
-            any_out = True
-            print(f"League {lid}: {len(candidates)} candidates (ranked by likelihood)")
-            for r in candidates:
-                side_txt = "HOME" if r["side"]=="home" else "AWAY"
-                print(f"{r['fixture']} — Most Corners: {side_txt} @ {r['price']:.2f}")
-                print(
-                    "  Home win rate: "
-                    f"{r['home_rate_all']*100:.1f}% overall | {r['home_rate_split']*100:.1f}% home (n={r['home_n_split']})"
-                    " | Away win rate: "
-                    f"{r['away_rate_all']*100:.1f}% overall | {r['away_rate_split']*100:.1f}% away (n={r['away_n_split']})"
-                )
-            print("")
-        else:
-            print(f"League {lid}: no candidates")
+    all_candidates.sort(key=lambda r: (-r["chosen_rate"], -r["gap"], -r["price"], r["fixture"]))
 
-    if not any_out:
-        pass
+    print("Most Corners — candidates (ranked by likelihood)")
+    for r in all_candidates:
+        side_txt = "HOME" if r["side"]=="home" else "AWAY"
+        print(f"{r['fixture']} — Most Corners: {side_txt} @ {r['price']:.2f}")
+        print(
+            "  Home win rate: "
+            f"{r['home_rate_all']*100:.1f}% overall | {r['home_rate_split']*100:.1f}% home (n={r['home_n_split']})"
+            " | Away win rate: "
+            f"{r['away_rate_all']*100:.1f}% overall | {r['away_rate_split']*100:.1f}% away (n={r['away_n_split']})"
+        )
 
 if __name__ == "__main__":
     main()
