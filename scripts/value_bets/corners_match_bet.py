@@ -14,14 +14,6 @@ Inputs (local only):
     - data/odds/b365/fixtures/{fixture_id}.json
     - (fallback) data/odds/b365/{league_id}.json
 
-Logic:
-  - For each upcoming fixture within WINDOW_DAYS:
-      - Get team A/B corners win_rate (W vs L across recent matches; draws ignored).
-      - Flag A if: A_wr >= EDGE_MIN_WIN AND B_wr <= EDGE_MAX_WIN (and both n >= MIN_MATCHES)
-      - Fetch "Corner Match Bet" / "Most Corners" market from Bet365 for this fixture.
-      - Keep the selection (home/away) if price >= MIN_DEC_PRICE and, if ENABLE_EV=1,
-        est_prob > implied_prob + EV_MIN_EDGE, where est_prob = avg(A_wr, 1 - B_wr).
-
 Outputs:
   - data/value_bets/corners_match_bet/{league_id}.json
   - data/value_bets/corners_match_bet_summary.txt
@@ -35,6 +27,8 @@ ENV (optional):
   MIN_DEC_PRICE  minimum decimal price to keep (default 1.70)
   ENABLE_EV      "1" to enforce EV check, else "0" (default "1")
   EV_MIN_EDGE    est_prob - implied_prob must exceed this (default 0.03)
+
+Note: The summary text is intentionally minimal: no est/implied/edge/KO lines.
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -134,7 +128,6 @@ def read_winrates(league_id: int) -> dict:
 
 # ---------- Odds helpers ----------
 def iter_fixture_odds_from_league_blob(league_blob: dict, fid: int) -> Optional[List[dict]]:
-    # expect: {"fixtures":[{"fixture_id":..., "odds":[...]}, ...]}
     for fx in (league_blob.get("fixtures") or []):
         try:
             if int(fx.get("fixture_id") or -1) == int(fid):
@@ -144,14 +137,11 @@ def iter_fixture_odds_from_league_blob(league_blob: dict, fid: int) -> Optional[
     return None
 
 def load_odds_rows_for_fixture(league_id: int, fid: int) -> List[dict]:
-    # Try per-fixture first
     p = ODDS_FIX / f"{fid}.json"
     blob = load_json(p)
     rows = blob.get("odds") or (blob.get("data") or {}).get("odds") or None
     if isinstance(rows, list) and rows:
         return rows
-
-    # Fallback to league-level aggregated file
     lg = load_json(ODDS_LG / f"{league_id}.json")
     rows = iter_fixture_odds_from_league_blob(lg, fid)
     return rows or []
@@ -172,7 +162,6 @@ def label_side(label: str, home: str, away: str) -> Optional[str]:
     if s in {"1","home","1 (home)"}: return "home"
     if s in {"2","away","2 (away)"}: return "away"
     if s in {"x","draw","tie"}: return "draw"
-    # sometimes the label is a team name
     if team_names_match(label, home): return "home"
     if team_names_match(label, away): return "away"
     return None
@@ -187,7 +176,7 @@ def best_price_per_side(rows: List[dict], home: str, away: str) -> Dict[str, flo
             continue
         if not is_corners_match_market(r.get("market_description","")):
             continue
-        if r.get("stopped"):  # closed
+        if r.get("stopped"):
             continue
         side = label_side(str(r.get("label") or ""), home, away)
         if side not in {"home","away","draw"}:
@@ -198,7 +187,6 @@ def best_price_per_side(rows: List[dict], home: str, away: str) -> Dict[str, flo
             continue
         if best[side] is None or price > best[side]:
             best[side] = price
-    # drop Nones
     return {k: v for k,v in best.items() if v is not None}
 
 # ---------- math ----------
@@ -209,23 +197,23 @@ def implied_prob(price: float) -> float:
         return 1.0
 
 def est_prob_from_wr(fav_wr: float, opp_wr: float) -> float:
-    """
-    Simple estimator for 'fav has most corners':
-    average of fav_win_rate and (1 - opp_win_rate).
-    """
     fav_wr = max(0.0, min(1.0, fav_wr))
     opp_wr = max(0.0, min(1.0, opp_wr))
     return (fav_wr + (1.0 - opp_wr)) / 2.0
 
+def fmt_pct(x: float) -> str:
+    try:
+        return f"{100.0*float(x):.1f}%"
+    except Exception:
+        return "n/a"
+
 # ---------- main ----------
 def main():
-    # leagues
     env = os.getenv("LEAGUE_IDS", "").strip()
     league_ids = [int(x) for x in env.split(",") if x.strip()] if env else discover_league_ids()
 
     combined_lines: List[str] = []
     combined_lines.append(f"Generated at (UTC): {now_utc().isoformat()}")
-    combined_lines.append(f"Window={WINDOW_DAYS}d | MIN_MATCHES={MIN_MATCHES} | EDGE_MIN_WIN={EDGE_MIN_WIN:.2f} | EDGE_MAX_WIN={EDGE_MAX_WIN:.2f} | MIN_DEC_PRICE={MIN_DEC_PRICE:.2f} | EV check={'on' if ENABLE_EV else 'off'} (>{EV_MIN_EDGE:.02f})")
     combined_lines.append("")
 
     for lid in league_ids:
@@ -233,12 +221,9 @@ def main():
         wr_blob  = read_winrates(lid)
         teams_wr = { (t.get("team_name") or "").strip(): t for t in wr_blob.get("teams") or [] }
 
-        # helper: fetch a team's corners rates dict
         def corners_rates(team_name: str) -> Optional[dict]:
-            # exact first, then loose compare
             rec = teams_wr.get(team_name)
             if not rec:
-                # loose find
                 for k, v in teams_wr.items():
                     if team_names_match(k, team_name):
                         rec = v; break
@@ -248,14 +233,12 @@ def main():
 
         picks: List[dict] = []
 
-        # upcoming fixtures only
         for fx in fixtures:
             name = fx.get("name") or ""
             home, away = parse_fixture_teams(name)
             if not home or not away:
                 continue
 
-            # decide if it's upcoming & within window
             sat = fx.get("starting_at") or ""
             ts  = fx.get("starting_at_timestamp")
             if WINDOW_DAYS:
@@ -267,7 +250,6 @@ def main():
                     if not within_window(sat, WINDOW_DAYS):
                         continue
 
-            # win-rate lookup
             r_home = corners_rates(home)
             r_away = corners_rates(away)
             if not r_home or not r_away:
@@ -287,22 +269,18 @@ def main():
             if not best:
                 continue
 
-            # Evaluate both sides independently
             def maybe_add(side: str, fav_wr: float, opp_wr: float, price: Optional[float]):
                 if price is None: return
-                if fav_wr < EDGE_MIN_WIN or opp_wr > EDGE_MAX_WIN:
-                    return
-                if price < MIN_DEC_PRICE:
-                    return
+                if fav_wr < EDGE_MIN_WIN or opp_wr > EDGE_MAX_WIN: return
+                if price < MIN_DEC_PRICE: return
                 est = est_prob_from_wr(fav_wr, opp_wr)
                 imp = implied_prob(price)
-                if ENABLE_EV and not (est - imp > EV_MIN_EDGE):
-                    return
+                if ENABLE_EV and not (est - imp > EV_MIN_EDGE): return
                 picks.append({
                     "fixture_id": fid,
                     "fixture": name,
                     "kickoff": sat,
-                    "side": side,                          # "home" or "away"
+                    "side": side,
                     "team": home if side=="home" else away,
                     "opponent": away if side=="home" else home,
                     "price": float(price),
@@ -318,10 +296,9 @@ def main():
             maybe_add("home", float(r_home["win_rate"]), float(r_away["win_rate"]), best.get("home"))
             maybe_add("away", float(r_away["win_rate"]), float(r_home["win_rate"]), best.get("away"))
 
-        # sort: biggest edge then price
-        picks.sort(key=lambda r: (-r["edge"], -r["price"], r["kickoff"], r["fixture"], r["team"]))
+        # sort but keep summary minimal
+        picks.sort(key=lambda r: (-r["edge"], -r["price"], r["fixture"], r["team"]))
 
-        # write per-league json
         out_json = {
             "generated_at": now_utc().isoformat(),
             "league_id": lid,
@@ -339,20 +316,20 @@ def main():
         }
         (OUT_DIR / f"{lid}.json").write_text(json.dumps(out_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        # append to combined text
+        # ---- Minimal summary lines (no est/implied/edge/KO)
         if picks:
             combined_lines.append(f"League {lid}: {len(picks)} candidates")
-            for r in picks[:30]:  # cap preview lines
+            for r in picks[:80]:
                 combined_lines.append(
-                    f" • {r['team']} (vs {r['opponent']}) — Corners Match Bet {r['side'].upper()} "
-                    f"@ {r['price']:.2f} | est={r['est_prob']:.3f}, imp={r['implied_prob']:.3f}, edge={r['edge']:.3f} "
-                    f"| home_wr={r['home_wr']:.3f} (n={r['home_n']}), away_wr={r['away_wr']:.3f} (n={r['away_n']})"
+                    f"{r['fixture']} — Most Corners: {r['side'].upper()} @ {r['price']:.2f}"
+                )
+                combined_lines.append(
+                    f"  Home win rate: {100.0*r['home_wr']:.1f}% (n={r['home_n']}) | Away win rate: {100.0*r['away_wr']:.1f}% (n={r['away_n']})"
                 )
             combined_lines.append("")
         else:
             combined_lines.append(f"League {lid}: no candidates\n")
 
-    # write combined summary
     (OUT_DIR / "corners_match_bet_summary.txt").write_text("\n".join(combined_lines).rstrip() + "\n", encoding="utf-8")
     print("\n".join(combined_lines))
 
