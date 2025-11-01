@@ -2,33 +2,31 @@ name: Value — Corners Match Bet (Bet365)
 
 on:
   schedule:
-    # Daily at 07:40 UTC
-    - cron: "40 7 * * *"
+    - cron: "0 8 * * *"   # daily at 08:00 UTC
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
-concurrency:
-  group: value-corners-match-bet
-  cancel-in-progress: true
-
 env:
   PYTHON_VERSION: "3.11"
-  # Leagues to scan (same set you used for winrates)
+  # Leagues to scan (PL, LaLiga, Bundesliga, Serie A, Ligue 1, etc. + EFL)
   LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
+  LAST_N: "10"            # used by team_win_rates.py
+  # Corners finder knobs (feel free to tweak):
   WINDOW_DAYS: "7"
-  MIN_MATCHES: "6"
-  EDGE_MIN_WIN: "0.60"
-  EDGE_MAX_WIN: "0.40"
-  MIN_DEC_PRICE: "1.70"
-  ENABLE_EV: "1"
-  EV_MIN_EDGE: "0.03"
+  MIN_MATCHES: "6"        # require at least N samples in each split
+  EDGE_MIN_WIN: "0.60"    # fav split win_rate must be >= 60%
+  EDGE_MAX_WIN: "0.40"    # opp split win_rate must be <= 40%
+  MIN_DEC_PRICE: "1.70"   # keep only prices >= this
+  ENABLE_EV: "1"          # 1=enforce EV check, 0=disable
+  EV_MIN_EDGE: "0.03"     # est_prob - implied_prob must exceed this
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
 
 jobs:
-  build:
+  corners-match-bet:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
 
     steps:
       - name: Checkout (full history)
@@ -36,24 +34,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install deps (none needed)
-        run: echo "No external dependencies required."
-
-      - name: Generate corners match-bet candidates
-        run: python scripts/value_bets/corners_match_bet.py
-
-      - name: Show summary
+      - name: Install deps
         run: |
-          echo "----- data/value_bets/corners_match_bet/corners_match_bet_summary.txt -----"
-          sed -n '1,160p' data/value_bets/corners_match_bet/corners_match_bet_summary.txt || true
-          echo "--------------------------------------------------------------------------------"
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
 
-      - name: Commit & push (rebase-safe)
+      - name: Sanity check secret
+        run: |
+          if [ -z "${SPORTMONKS_TOKEN:-}" ]; then
+            echo "ERROR: SPORTMONKS_TOKEN secret not available to job." >&2
+            exit 1
+          fi
+
+      # --- Rebuild team win rates (ensures *_home / *_away are present & fresh)
+      - name: Build team win rates (overall + home/away)
+        env:
+          LEAGUE_IDS: ${{ env.LEAGUE_IDS }}
+          LAST_N: ${{ env.LAST_N }}
+        run: |
+          python scripts/team_win_rates.py
+
+      # --- Run corners Most Corners value finder (home/away aware)
+      - name: Find value — Corners Match Bet
+        env:
+          LEAGUE_IDS: ${{ env.LEAGUE_IDS }}
+          WINDOW_DAYS: ${{ env.WINDOW_DAYS }}
+          MIN_MATCHES: ${{ env.MIN_MATCHES }}
+          EDGE_MIN_WIN: ${{ env.EDGE_MIN_WIN }}
+          EDGE_MAX_WIN: ${{ env.EDGE_MAX_WIN }}
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE }}
+          ENABLE_EV: ${{ env.ENABLE_EV }}
+          EV_MIN_EDGE: ${{ env.EV_MIN_EDGE }}
+        run: |
+          python scripts/value_bets/corners_match_bet.py
+
+      - name: Show summary (first 150 lines)
+        run: |
+          echo "----- data/value_bets/corners_match_bet_summary.txt -----"
+          head -n 150 data/value_bets/corners_match_bet_summary.txt || true
+          echo "---------------------------------------------------------"
+
+      # --- Commit & push (robust rebase)
+      - name: Commit & push results
         env:
           GIT_AUTHOR_NAME: github-actions[bot]
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
@@ -68,8 +99,7 @@ jobs:
           git fetch origin main
           git checkout -B main origin/main
 
-          git add -A data/value_bets/corners_match_bet/*.json \
-                     data/value_bets/corners_match_bet/corners_match_bet_summary.txt || true
+          git add -A data/team_winrates/by_league data/value_bets/corners_match_bet || true
 
           if git diff --staged --quiet; then
             echo "No changes to commit."
@@ -77,7 +107,7 @@ jobs:
           fi
 
           ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          git commit -m "chore(value): corners match bet candidates ${ts}"
+          git commit -m "chore(value:cmb): update corners match-bet picks ${ts}"
 
           for attempt in 1 2 3; do
             git rebase --abort || true
@@ -93,5 +123,5 @@ jobs:
           echo "Final attempt after fresh fetch..."
           git rebase --abort || true
           git fetch origin main
-          git pull --rebase --autostash origin main || true
+          git pull --rebase --autostash origin main
           git push --force-with-lease origin HEAD:main
