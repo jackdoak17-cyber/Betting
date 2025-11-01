@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-01T15:27:59.034657+00:00",
+  "generated_at": "2025-11-01T15:50:26.826607+00:00",
   "league_id": 82,
   "params": {
     "WINDOW_DAYS": 7,
@@ -10,6 +10,23 @@
     "ENABLE_EV": true,
     "EV_MIN_EDGE": 0.03
   },
-  "count": 0,
-  "picks": []
+  "count": 1,
+  "picks": [
+    {
+      "fixture_id": 19433563,
+      "fixture": "TSG Hoffenheim vs RB Leipzig",
+      "kickoff": "2025-11-08 14:30:00",
+      "side": "away",
+      "team": "RB Leipzig",
+      "opponent": "TSG Hoffenheim",
+      "price": 2.1,
+      "est_prob": 0.625,
+      "implied_prob": 0.4762,
+      "edge": 0.1488,
+      "home_wr": 0.375,
+      "home_n": 8,
+      "away_wr": 0.625,
+      "away_n": 8
+    }
+  ]
 }
