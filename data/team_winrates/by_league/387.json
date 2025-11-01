@@ -1,551 +1,92 @@
 {
-  "generated_at": "2025-11-01T14:54:40.214926",
-  "league_id": 8,
+  "generated_at": "2025-11-01T14:54:40.206934",
+  "league_id": 387,
   "last_n": 10,
   "red_weight": 1.0,
   "teams": [
     {
-      "team_name": "AFC Bournemouth",
+      "team_name": "Avellino",
       "last_n": 10,
       "categories": {
         "corners": {
           "sequence": [
-            "W",
-            "L",
-            "W",
-            "L",
-            "W",
             "D",
             "W",
             "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        },
-        "shots_total": {
-          "sequence": [
+            "L",
             "W",
             "L",
             "L",
             "L",
-            "W",
-            "W",
-            "W",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 4,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.5556
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
             "L",
-            "W",
-            "L",
-            "W",
-            "W",
-            "W",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 3,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.6667
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Arsenal",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "D",
-            "W"
-          ],
-          "rates": {
-            "wins": 8,
-            "losses": 0,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 1.0
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 8,
-            "losses": 1,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.8889
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "D",
-            "W",
-            "L",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Aston Villa",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "D",
-            "W",
-            "L",
-            "L",
-            "L",
-            "W",
-            "W",
             "L"
           ],
           "rates": {
             "wins": 3,
-            "losses": 5,
+            "losses": 6,
             "draws": 1,
-            "n": 8,
-            "win_rate": 0.375
+            "n": 9,
+            "win_rate": 0.3333
           }
         },
         "shots_total": {
           "sequence": [
             "L",
             "L",
+            "L",
+            "D",
+            "L",
+            "W",
             "W",
             "L",
-            "L",
-            "L",
-            "W",
             "W",
             "L"
           ],
           "rates": {
             "wins": 3,
             "losses": 6,
-            "draws": 0,
+            "draws": 1,
             "n": 9,
             "win_rate": 0.3333
           }
         },
         "shots_on_target": {
           "sequence": [
-            "L",
-            "L",
-            "W",
-            "D",
-            "L",
-            "L",
-            "D",
-            "D",
-            "D"
-          ],
-          "rates": {
-            "wins": 1,
-            "losses": 4,
-            "draws": 4,
-            "n": 5,
-            "win_rate": 0.2
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Brentford",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "W",
-            "L",
-            "W",
-            "L",
-            "D"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
             "W",
             "L",
             "L",
             "L",
-            "L",
-            "L",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 1,
-            "losses": 8,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.1111
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "W",
-            "L",
-            "W",
-            "D",
-            "L",
-            "W",
-            "D",
-            "L"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 3,
-            "draws": 2,
-            "n": 7,
-            "win_rate": 0.5714
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Brighton & Hove Albion",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "L",
-            "D",
-            "W",
-            "D",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 1,
-            "draws": 2,
-            "n": 7,
-            "win_rate": 0.8571
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "L",
-            "W",
-            "L",
-            "W",
-            "L",
-            "D",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "W",
-            "W",
-            "D",
-            "W",
-            "L",
-            "W",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Burnley",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 1,
-            "losses": 8,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.1111
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 0,
-            "losses": 9,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.0
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "D",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 1,
-            "losses": 7,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.125
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Chelsea",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "L",
-            "W",
-            "L",
-            "D",
-            "W",
-            "W",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "D",
-            "W",
-            "L",
-            "W",
-            "W",
-            "D",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 1,
-            "draws": 2,
-            "n": 7,
-            "win_rate": 0.8571
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "D",
-            "L",
-            "W",
-            "W",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Crystal Palace",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
             "L",
             "W",
             "W",
             "L",
             "D",
-            "W",
-            "L",
-            "L",
             "L"
           ],
           "rates": {
             "wins": 3,
-            "losses": 5,
+            "losses": 6,
             "draws": 1,
-            "n": 8,
-            "win_rate": 0.375
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "W",
-            "W",
-            "L",
-            "W",
-            "W",
-            "L",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 5,
-            "draws": 0,
             "n": 9,
-            "win_rate": 0.4444
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "W",
-            "W",
-            "W",
-            "D",
-            "W",
-            "D",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 1,
-            "draws": 2,
-            "n": 7,
-            "win_rate": 0.8571
+            "win_rate": 0.3333
           }
         }
       }
     },
     {
-      "team_name": "Everton",
+      "team_name": "Bari 1908",
       "last_n": 10,
       "categories": {
         "corners": {
           "sequence": [
             "W",
             "L",
-            "L",
-            "L",
+            "D",
             "L",
             "W",
+            "L",
             "D",
-            "D",
+            "L",
             "L"
           ],
           "rates": {
@@ -558,134 +99,618 @@
         },
         "shots_total": {
           "sequence": [
-            "W",
             "L",
             "L",
             "L",
             "L",
-            "W",
             "L",
             "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 7,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.2222
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "W",
-            "D",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 6,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.25
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Fulham",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "D",
-            "L",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 6,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.25
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "L",
-            "W",
-            "W",
-            "W",
-            "L",
-            "L",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 5,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.4444
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "D",
-            "D",
-            "D",
             "L",
             "W",
             "L"
           ],
           "rates": {
             "wins": 1,
+            "losses": 8,
+            "draws": 0,
+            "n": 9,
+            "win_rate": 0.1111
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "D",
+            "D",
+            "L",
+            "L",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 2,
             "losses": 5,
-            "draws": 3,
-            "n": 6,
-            "win_rate": 0.1667
+            "draws": 2,
+            "n": 7,
+            "win_rate": 0.2857
           }
         }
       }
     },
     {
-      "team_name": "Leeds United",
+      "team_name": "Calcio Padova",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "D",
+            "L",
+            "L",
+            "D",
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 2,
+            "losses": 6,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.25
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "D",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 1,
+            "losses": 8,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.1111
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "W",
+            "L",
+            "D",
+            "W",
+            "W",
+            "L",
+            "D"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 4,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.5
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Carrarese",
       "last_n": 10,
       "categories": {
         "corners": {
           "sequence": [
             "L",
             "W",
-            "W",
+            "L",
             "W",
             "L",
-            "D",
-            "D",
-            "D",
+            "W",
+            "W",
+            "W",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.6
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "L",
+            "W",
             "W"
           ],
           "rates": {
             "wins": 4,
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "D",
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 6,
+            "losses": 3,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.6667
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Catanzaro",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "D",
+            "L",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 5,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.4444
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.6
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "D",
+            "W",
+            "D",
+            "L"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Cesena",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 7,
+            "losses": 3,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.7
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "L",
+            "D",
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 4,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.5556
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "D",
+            "L",
+            "W",
+            "D",
+            "L",
+            "D",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
             "losses": 2,
             "draws": 3,
-            "n": 6,
+            "n": 7,
+            "win_rate": 0.7143
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Empoli",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "L",
+            "L",
+            "L",
+            "W",
+            "D",
+            "L",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 2,
+            "losses": 7,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.2222
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 7,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.3
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "L",
+            "L",
+            "L",
+            "L",
+            "D"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 6,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.3333
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Frosinone",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 7,
+            "losses": 3,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.7
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "D",
+            "W",
+            "L",
+            "W",
+            "W",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 6,
+            "losses": 3,
+            "draws": 1,
+            "n": 9,
             "win_rate": 0.6667
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "W",
+            "D",
+            "D",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Juve Stabia",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "D",
+            "L",
+            "L",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 1,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "D",
+            "W",
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "D"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 2,
+            "draws": 2,
+            "n": 7,
+            "win_rate": 0.7143
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "D"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 1,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Mantova",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "L",
+            "W",
+            "L",
+            "D",
+            "W",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 6,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.3333
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W",
+            "L",
+            "D",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 6,
+            "losses": 3,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.6667
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "W",
+            "W",
+            "D",
+            "D",
+            "L",
+            "W",
+            "D"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 3,
+            "draws": 3,
+            "n": 7,
+            "win_rate": 0.5714
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Modena",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W",
+            "D",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 8,
+            "losses": 1,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.8889
           }
         },
         "shots_total": {
@@ -697,13 +722,566 @@
             "L",
             "W",
             "W",
+            "W",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 8,
+            "losses": 2,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.8
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "L",
+            "W",
+            "D",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 7,
+            "losses": 2,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.7778
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Monza",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "D",
+            "W",
+            "L",
+            "W",
+            "D",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 7,
+            "losses": 1,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.875
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "D",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 4,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.5556
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "W",
+            "W",
+            "L",
+            "L",
+            "D",
+            "L",
+            "D",
+            "L",
+            "D"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 4,
+            "draws": 3,
+            "n": 7,
+            "win_rate": 0.4286
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Palermo",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "D",
+            "W",
+            "L",
+            "D",
+            "W",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 5,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.5
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "D",
+            "W",
+            "W",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 5,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.4444
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Pescara",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 5,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.5
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "W",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "D",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "D",
+            "L",
+            "L"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 5,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.375
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Reggiana",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "D",
+            "L",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "D",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 2,
+            "losses": 6,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.25
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "W",
+            "L",
+            "W",
+            "D",
+            "W",
+            "L",
+            "D",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 4,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.5
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Sampdoria",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "L",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "rates": {
+            "wins": 7,
+            "losses": 3,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.7
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "D",
+            "W",
+            "L",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 5,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.4444
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Spezia",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "D",
+            "L",
+            "W",
+            "D",
+            "W",
+            "L",
+            "W",
+            "W",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 3,
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.625
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "W",
+            "D",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "W",
+            "L"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 4,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.5556
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "D",
+            "L"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 5,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.4444
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Südtirol",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 5,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.5
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "L",
+            "W",
+            "L",
+            "L",
+            "W",
+            "W",
+            "L",
+            "W",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 5,
+            "losses": 5,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.5
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "W",
+            "L",
+            "L",
+            "W",
+            "W",
+            "D",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 5,
+            "draws": 1,
+            "n": 9,
+            "win_rate": 0.4444
+          }
+        }
+      }
+    },
+    {
+      "team_name": "Venezia",
+      "last_n": 10,
+      "categories": {
+        "corners": {
+          "sequence": [
+            "L",
+            "L",
+            "W",
+            "L",
+            "L",
+            "W",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 3,
+            "losses": 7,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.3
+          }
+        },
+        "shots_total": {
+          "sequence": [
+            "W",
+            "W",
+            "W",
+            "D",
+            "W",
+            "W",
+            "W",
+            "L",
             "L",
             "W"
           ],
           "rates": {
             "wins": 7,
             "losses": 2,
-            "draws": 0,
+            "draws": 1,
             "n": 9,
             "win_rate": 0.7778
           }
@@ -712,84 +1290,19 @@
           "sequence": [
             "W",
             "W",
+            "L",
+            "W",
             "W",
             "W",
             "L",
             "D",
             "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Liverpool",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "W",
-            "L",
-            "W",
-            "W",
-            "W",
-            "L",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 5,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.4444
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "D",
-            "W",
-            "W",
-            "W",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "W",
-            "L",
-            "L",
-            "W",
-            "W",
-            "W",
-            "W",
             "W"
           ],
           "rates": {
             "wins": 6,
             "losses": 3,
-            "draws": 0,
+            "draws": 1,
             "n": 9,
             "win_rate": 0.6667
           }
@@ -797,529 +1310,70 @@
       }
     },
     {
-      "team_name": "Manchester City",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "W",
-            "L",
-            "W",
-            "L",
-            "L",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 4,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.5556
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "L",
-            "W",
-            "D",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "W",
-            "D",
-            "W",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 2,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.75
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Manchester United",
+      "team_name": "Virtus Entella",
       "last_n": 10,
       "categories": {
         "corners": {
           "sequence": [
             "L",
+            "W",
+            "W",
             "L",
-            "L",
-            "L",
-            "D",
+            "W",
+            "W",
             "W",
             "W",
             "L",
             "L"
           ],
           "rates": {
-            "wins": 2,
-            "losses": 6,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.25
+            "wins": 6,
+            "losses": 4,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.6
           }
         },
         "shots_total": {
           "sequence": [
             "L",
-            "L",
             "W",
-            "W",
-            "W",
-            "L",
-            "W",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 4,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.5556
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
             "W",
             "L",
             "W",
-            "L",
-            "W",
-            "L",
-            "W",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 4,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.5556
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Newcastle United",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "L",
-            "W",
-            "L",
             "L",
             "W",
             "D",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "W",
-            "L",
-            "L",
-            "W",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 6,
-            "losses": 3,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.6667
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "L",
-            "W",
-            "L",
-            "L",
-            "W",
-            "W",
             "L",
             "D"
           ],
           "rates": {
             "wins": 4,
             "losses": 4,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.5
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Nottingham Forest",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "W",
-            "L",
-            "W",
-            "W",
-            "L",
-            "W",
-            "W",
-            "D"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "W",
-            "W",
-            "L",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 5,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.4444
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "W",
-            "W",
-            "L",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 3,
-            "losses": 6,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.3333
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Sunderland",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "D",
-            "W",
-            "L",
-            "W",
-            "L",
-            "L",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 6,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.25
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "W",
-            "W",
-            "L"
-          ],
-          "rates": {
-            "wins": 3,
-            "losses": 6,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.3333
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 7,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.2222
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Tottenham Hotspur",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "L",
-            "D",
-            "L",
-            "W",
-            "W",
-            "W",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 4,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.5
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "W",
-            "L",
-            "W",
-            "L",
-            "W",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 4,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.5556
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "W",
-            "W",
-            "L",
-            "D",
-            "L",
-            "W",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 5,
-            "losses": 3,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.625
-          }
-        }
-      }
-    },
-    {
-      "team_name": "West Ham United",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "L",
-            "L",
-            "W",
-            "D",
-            "L",
-            "L",
-            "W",
-            "W"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 4,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.5
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "L",
-            "W",
-            "D",
-            "W"
-          ],
-          "rates": {
-            "wins": 3,
-            "losses": 5,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.375
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "L",
-            "L",
-            "L",
-            "L",
-            "D",
-            "L",
-            "W",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 1,
-            "losses": 7,
-            "draws": 1,
-            "n": 8,
-            "win_rate": 0.125
-          }
-        }
-      }
-    },
-    {
-      "team_name": "Wolverhampton Wanderers",
-      "last_n": 10,
-      "categories": {
-        "corners": {
-          "sequence": [
-            "W",
-            "D",
-            "L",
-            "L",
-            "W",
-            "L",
-            "D",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 5,
             "draws": 2,
+            "n": 8,
+            "win_rate": 0.5
+          }
+        },
+        "shots_on_target": {
+          "sequence": [
+            "L",
+            "D",
+            "W",
+            "L",
+            "D",
+            "L",
+            "L",
+            "W",
+            "L",
+            "D"
+          ],
+          "rates": {
+            "wins": 2,
+            "losses": 5,
+            "draws": 3,
             "n": 7,
             "win_rate": 0.2857
-          }
-        },
-        "shots_total": {
-          "sequence": [
-            "W",
-            "W",
-            "L",
-            "L",
-            "W",
-            "L",
-            "W",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 4,
-            "losses": 5,
-            "draws": 0,
-            "n": 9,
-            "win_rate": 0.4444
-          }
-        },
-        "shots_on_target": {
-          "sequence": [
-            "D",
-            "W",
-            "L",
-            "D",
-            "W",
-            "L",
-            "D",
-            "L",
-            "L"
-          ],
-          "rates": {
-            "wins": 2,
-            "losses": 4,
-            "draws": 3,
-            "n": 6,
-            "win_rate": 0.3333
           }
         }
       }
