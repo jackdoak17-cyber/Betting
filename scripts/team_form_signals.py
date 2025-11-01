@@ -2,28 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-Team Form Signals — Corners / Cards / Shots / SOT (Sportmonks v3)
+Team Form Signals — Corners / Cards / Shots / SOT (local fixtures + per-fixture stats)
 
-Pure stats builder (no odds). Produces:
-- data/team_stats/by_league/{league_id}.json        -> per-team last-N sequences + win-rates
-- data/team_stats/mismatches/{league_id}.json       -> upcoming fixtures with W/L 'mismatch' flags
-- data/team_stats/summary.txt                       -> human-readable summary
+What changed vs previous:
+- No call to fixtures/seasons/{season_id}.
+- We read your local fixtures list: data/fixtures/by_league/{league_id}.json
+- For each finished fixture we fetch ONLY that fixture's stats:
+    GET /v3/football/fixtures/{fixture_id}?include=participants;state;statistics.types
+  (with retry & local disk cache)
 
-Inputs (env):
-  SPORTMONKS_TOKEN  (required)
-  LEAGUE_IDS        default "8"            # e.g. "8,564,82,384,301"
-  LAST_N            default 10             # last-N finished league games used for form
-  MIN_MATCHES       default 6              # min (W+L) samples to evaluate a team
-  EDGE_MIN_WIN      default 0.60           # strong side threshold
-  EDGE_MAX_WIN      default 0.40           # weak side threshold
-  CARD_RED_WEIGHT   default 1              # treat 1 red = N yellows (1=just count as 1 card)
-  OUT_BASE          default "data/team_stats"   # root output folder
-
-Depends on your stored upcoming fixtures at:
-  data/fixtures/by_league/{league_id}.json
+Outputs:
+- data/team_stats/by_league/{league_id}.json
+- data/team_stats/mismatches/{league_id}.json
+- data/team_stats/summary.txt
 """
 
-import os, re, json, time, datetime as dt
+import os, json, time, datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 import requests
@@ -45,11 +39,14 @@ EDGE_MIN_WIN = float(os.getenv("EDGE_MIN_WIN", "0.60"))
 EDGE_MAX_WIN = float(os.getenv("EDGE_MAX_WIN", "0.40"))
 CARD_RED_WEIGHT = float(os.getenv("CARD_RED_WEIGHT", "1"))
 OUT_BASE = Path(os.getenv("OUT_BASE", "data/team_stats"))
+CACHE_TTL_DAYS = int(os.getenv("CACHE_TTL_DAYS", "3"))  # refresh per-fixture cache after N days
 
 FORM_DIR = OUT_BASE / "by_league"
 MM_DIR = OUT_BASE / "mismatches"
+CACHE_DIR = OUT_BASE / "cache" / "fixtures"
 FORM_DIR.mkdir(parents=True, exist_ok=True)
 MM_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 LOCAL_FIX_BY_LEAGUE = Path("data/fixtures/by_league")
 
@@ -93,39 +90,55 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
                 raise
     raise last_exc  # type: ignore
 
-def today_utc_date() -> dt.date:
-    return dt.datetime.now(dt.timezone.utc).date()
+# ---------------- IO helpers ----------------
+def read_local_fixtures(league_id: int) -> List[dict]:
+    p = LOCAL_FIX_BY_LEAGUE / f"{league_id}.json"
+    try:
+        blob = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    return blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
 
-def get_current_season(league_id: int) -> int:
-    j = api_get(f"leagues/{league_id}", params={"include": "currentSeason"})
-    data = j.get("data") or {}
-    s = data.get("currentseason") or data.get("currentSeason") or {}
-    sid = int(s.get("id") or 0)
-    if not sid:
-        raise RuntimeError(f"No currentSeason for league {league_id}")
-    return sid
+def now_utc() -> dt.datetime:
+    return dt.datetime.now(dt.timezone.utc)
 
-def get_season_bounds(season_id: int) -> Tuple[dt.date, dt.date]:
-    j = api_get(f"seasons/{season_id}")
-    d = j.get("data") or {}
-    start_s = (d.get("starting_at") or "").split("T")[0] or (d.get("starting_at") or "").split(" ")[0]
-    end_s   = (d.get("ending_at") or "").split("T")[0] or (d.get("ending_at") or "").split(" ")[0]
-    start = dt.datetime.strptime(start_s, "%Y-%m-%d").date() if start_s else today_utc_date().replace(month=8, day=1)
-    end   = min(today_utc_date(), dt.datetime.strptime(end_s, "%Y-%m-%d").date() if end_s else today_utc_date())
-    return start, end
+def is_finished_state(state_id: Optional[int]) -> bool:
+    # 5 is the common "finished" state; keep simple & explicit
+    try:
+        return int(state_id or 0) == 5
+    except Exception:
+        return False
 
-# ---------------- Season fixtures with stats ----------------
-def fetch_fixtures_for_season(season_id: int, page: int = 1) -> dict:
-    """
-    Season fixtures, include participants + state + statistics.
-    """
-    params = {
-        "include": "participants;state;statistics.types",
-        "order": "desc",
-        "per_page": 50,
-        "page": page,
-    }
-    return api_get(f"fixtures/seasons/{season_id}", params)
+def cache_path_for_fixture(fid: int) -> Path:
+    return CACHE_DIR / f"{fid}.json"
+
+def cache_is_fresh(p: Path, ttl_days: int) -> bool:
+    if not p.exists(): return False
+    try:
+        age = now_utc() - dt.datetime.fromtimestamp(p.stat().st_mtime, tz=dt.timezone.utc)
+        return age.total_seconds() <= ttl_days * 86400
+    except Exception:
+        return False
+
+def fetch_fixture_with_stats(fid: int) -> Optional[dict]:
+    """Load from disk cache if fresh; otherwise hit API once."""
+    cp = cache_path_for_fixture(fid)
+    if cache_is_fresh(cp, CACHE_TTL_DAYS):
+        try:
+            return json.loads(cp.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    try:
+        j = api_get(f"fixtures/{fid}", params={"include": "participants;state;statistics.types"})
+        data = j.get("data") or {}
+        if data:
+            tmp = cp.with_suffix(".tmp")
+            tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+            tmp.replace(cp)
+        return data or None
+    except Exception as e:
+        print(f"[WARN] fixture {fid} fetch failed: {type(e).__name__}: {e}")
+        return None
 
 # ---------------- Stat parsing ----------------
 def _lower(s: Optional[str]) -> str:
@@ -139,32 +152,27 @@ STAT_TOKENS = {
     "rc":      {"redcards", "red cards", "red card"},
 }
 
-def _extract_team_stats_from_fx(fx: dict) -> Dict[int, Dict[str, float]]:
+def extract_team_stats(fx: dict) -> Dict[int, Dict[str, float]]:
     """
-    Returns: { team_id: {"corners": x, "shots": y, "sot": z, "cards": c} }
-    cards = yc + rc * CARD_RED_WEIGHT
+    Returns { team_id: {"corners": x, "shots": y, "sot": z, "cards": c} } from a fixture blob.
     """
     out: Dict[int, Dict[str, float]] = {}
     stats = fx.get("statistics") or []
-    if isinstance(stats, dict):
-        stats = [stats]
+    if isinstance(stats, dict): stats = [stats]
 
     for block in stats:
         try:
-            tid = block.get("team_id") or block.get("participant_id") or block.get("id")
-            tid = int(tid)
+            tid = int(block.get("team_id") or block.get("participant_id") or block.get("id"))
         except Exception:
             continue
 
         entries = block.get("types") or block.get("stats") or block.get("details") or []
         tmap = {"corners": 0.0, "shots": 0.0, "sot": 0.0, "cards": 0.0}
-        have = {"corners": False, "shots": False, "sot": False, "yc": False, "rc": False}
-        tmp_yc, tmp_rc = 0.0, 0.0
+        got = {"corners": False, "shots": False, "sot": False, "yc": False, "rc": False}
+        yc, rc = 0.0, 0.0
 
         for e in entries or []:
             name = _lower(e.get("name") or e.get("type") or e.get("description"))
-
-            # normalize value
             v = e.get("value")
             if isinstance(v, dict):
                 v = v.get("value")
@@ -176,20 +184,21 @@ def _extract_team_stats_from_fx(fx: dict) -> Dict[int, Dict[str, float]]:
                 continue
 
             if any(tok in name for tok in STAT_TOKENS["corners"]):
-                tmap["corners"] = val; have["corners"] = True
+                tmap["corners"] = val; got["corners"] = True
             elif any(tok in name for tok in STAT_TOKENS["sot"]):
-                tmap["sot"] = val; have["sot"] = True
+                tmap["sot"] = val; got["sot"] = True
             elif any(tok in name for tok in STAT_TOKENS["shots"]):
-                tmap["shots"] = val; have["shots"] = True
+                tmap["shots"] = val; got["shots"] = True
             elif any(tok in name for tok in STAT_TOKENS["yc"]):
-                tmp_yc = val; have["yc"] = True
+                yc = val; got["yc"] = True
             elif any(tok in name for tok in STAT_TOKENS["rc"]):
-                tmp_rc = val; have["rc"] = True
+                rc = val; got["rc"] = True
 
-        if have["yc"] or have["rc"]:
-            tmap["cards"] = float(tmp_yc) + float(tmp_rc) * float(CARD_RED_WEIGHT)
+        if got["yc"] or got["rc"]:
+            tmap["cards"] = yc + rc * CARD_RED_WEIGHT
 
         out[tid] = tmap
+
     return out
 
 # ---------------- W/L/D helpers ----------------
@@ -203,8 +212,7 @@ def cmp_code(a: Optional[float], b: Optional[float]) -> str:
     return "D"
 
 def push_sequence(seqs: Dict[str, List[str]], key: str, code: str):
-    arr = seqs.setdefault(key, [])
-    arr.append(code)
+    seqs.setdefault(key, []).append(code)
 
 def winrate(seq: List[str]) -> Tuple[float, int, int]:
     w = sum(1 for x in seq if x == "W")
@@ -212,27 +220,20 @@ def winrate(seq: List[str]) -> Tuple[float, int, int]:
     n = w + l
     return (w / n if n > 0 else 0.0, w, n)
 
-# ---------------- Upcoming fixtures (local) ----------------
+# ---------------- Upcoming fixtures from local ----------------
 def load_upcoming_fixtures(league_id: int) -> List[dict]:
-    p = LOCAL_FIX_BY_LEAGUE / f"{league_id}.json"
-    try:
-        blob = json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-    fixtures = blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
+    fixtures = read_local_fixtures(league_id)
     out = []
-    now_ts = dt.datetime.now(dt.timezone.utc).timestamp()
+    now_ts = now_utc().timestamp()
     for fx in fixtures:
-        ko_ts = fx.get("starting_at_timestamp")
-        if isinstance(ko_ts, (int, float)) and ko_ts >= now_ts:
-            out.append(fx)
-            continue
-        # fallback parse "YYYY-MM-DD HH:MM:SS"
+        ts = fx.get("starting_at_timestamp")
+        if isinstance(ts, (int, float)) and ts >= now_ts:
+            out.append(fx); continue
         s = fx.get("starting_at")
         if isinstance(s, str) and "T" not in s:
             try:
-                ts = dt.datetime.strptime(s, "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc).timestamp()
-                if ts >= now_ts:
+                t = dt.datetime.strptime(s, "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc).timestamp()
+                if t >= now_ts:
                     out.append(fx)
             except Exception:
                 pass
@@ -240,42 +241,46 @@ def load_upcoming_fixtures(league_id: int) -> List[dict]:
 
 # ---------------- Per-league processing ----------------
 def process_league(league_id: int) -> Tuple[dict, dict]:
-    season_id = get_current_season(league_id)
+    fixtures = read_local_fixtures(league_id)
+    if not fixtures:
+        raise RuntimeError(f"No local fixtures at data/fixtures/by_league/{league_id}.json")
 
-    # Pull finished fixtures with stats
-    finished_fx: List[dict] = []
-    page = 1
-    while True:
-        j = fetch_fixtures_for_season(season_id, page=page)
-        data = j.get("data") or []
-        meta = j.get("meta") or {}
-        for fx in data:
-            st = int(fx.get("state_id") or fx.get("state", {}).get("id") or 0)
-            if st != 5:    # finished
-                continue
-            if int(fx.get("league_id") or 0) != league_id:
-                continue
-            finished_fx.append(fx)
-        if not meta.get("has_more"):
-            break
-        page += 1
+    # Only finished fixtures (latest first)
+    finished = []
+    for fx in fixtures:
+        st = fx.get("state_id")
+        if is_finished_state(st):
+            finished.append(fx)
+    # Sort desc by timestamp (fallback to starting_at string)
+    finished.sort(key=lambda x: int(x.get("starting_at_timestamp") or 0), reverse=True)
 
-    # Build sequences per team (latest->older order preserved by 'order=desc')
+    # Build sequences per team
     per_team_seq: Dict[int, Dict[str, Any]] = {}
-    for fx in finished_fx:
-        parts = fx.get("participants") or fx.get("teams") or []
+    for fx in finished:
+        try:
+            fid = int(fx.get("id"))
+        except Exception:
+            continue
+
+        # fetch stats for this specific fixture (with caching)
+        fx_full = fetch_fixture_with_stats(fid)
+        if not fx_full:
+            continue
+
+        parts = fx_full.get("participants") or fx.get("participants") or []
         if isinstance(parts, dict): parts = list(parts.values())
         if not isinstance(parts, list) or len(parts) < 2:
             continue
+
         try:
             t1 = int(parts[0].get("id") or parts[0].get("team_id")); n1 = parts[0].get("name") or ""
             t2 = int(parts[1].get("id") or parts[1].get("team_id")); n2 = parts[1].get("name") or ""
         except Exception:
             continue
 
-        stats_by_team = _extract_team_stats_from_fx(fx)
-        s1 = stats_by_team.get(t1) or {}
-        s2 = stats_by_team.get(t2) or {}
+        stats = extract_team_stats(fx_full)
+        s1 = stats.get(t1) or {}
+        s2 = stats.get(t2) or {}
 
         if t1 not in per_team_seq:
             per_team_seq[t1] = {"team_id": t1, "team_name": n1, "seq": {"corners": [], "cards": [], "shots": [], "sot": []}}
@@ -288,12 +293,14 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
             push_sequence(per_team_seq[t1]["seq"], key, c12)
             push_sequence(per_team_seq[t2]["seq"], key, c21)
 
+        # Optional micro-optimization: stop early if everyone has >= LAST_N
+        # (Premier League is small; scanning all finished fixtures is fine.)
+
     # Trim to LAST_N & compute win-rates
     team_rows: List[dict] = []
     for tid, row in per_team_seq.items():
         seqs = row["seq"]
-        out_seq = {}
-        rates = {}
+        out_seq, rates = {}, {}
         for k, arr in seqs.items():
             arr = arr[:LAST_N]
             out_seq[k] = arr
@@ -303,15 +310,14 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
             "team_id": tid,
             "team_name": row["team_name"],
             "last_n": LAST_N,
-            "sequences": out_seq,       # e.g. {"corners":["W","L",...]}
-            "win_rates": rates,         # e.g. {"corners":{"win_rate":0.6,"wins":6,"n":10}}
+            "sequences": out_seq,
+            "win_rates": rates,
         })
-
     team_rows.sort(key=lambda r: r["team_name"])
+
     team_form_payload = {
-        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "generated_at": now_utc().isoformat(),
         "league_id": league_id,
-        "season_id": season_id,
         "last_n": LAST_N,
         "min_matches": MIN_MATCHES,
         "card_red_weight": CARD_RED_WEIGHT,
@@ -319,7 +325,7 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
         "count": len(team_rows),
     }
 
-    # Mismatch flags for upcoming fixtures (from local file)
+    # Mismatch flags from local upcoming fixtures
     idx = {r["team_id"]: r for r in team_rows}
     mm_rows: List[dict] = []
     for fx in load_upcoming_fixtures(league_id):
@@ -337,8 +343,7 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
         if not r1 or not r2:
             continue
 
-        flags = {}
-        details = {}
+        flags, details = {}, {}
 
         def maybe_flag(stat_key: str):
             a = r1["win_rates"][stat_key]; b = r2["win_rates"][stat_key]
@@ -369,9 +374,8 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
             })
 
     mismatches_payload = {
-        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "generated_at": now_utc().isoformat(),
         "league_id": league_id,
-        "season_id": season_id,
         "params": {
             "last_n": LAST_N, "min_matches": MIN_MATCHES,
             "edge_min_win": EDGE_MIN_WIN, "edge_max_win": EDGE_MAX_WIN,
@@ -385,8 +389,7 @@ def process_league(league_id: int) -> Tuple[dict, dict]:
 
 # ---------------- Main ----------------
 def main():
-    OUT_BASE.mkdir(parents=True, exist_ok=True)
-    summary_lines: List[str] = [f"Generated at (UTC): {dt.datetime.now(dt.timezone.utc).isoformat()}", ""]
+    summary: List[str] = [f"Generated at (UTC): {now_utc().isoformat()}", ""]
     for lid in LEAGUE_IDS:
         try:
             form, mism = process_league(lid)
@@ -394,19 +397,18 @@ def main():
             print(f"[ERROR] League {lid}: {type(e).__name__}: {e}")
             continue
 
-        p_form = FORM_DIR / f"{lid}.json"
-        p_mism = MM_DIR / f"{lid}.json"
-        p_form.write_text(json.dumps(form, ensure_ascii=False, indent=2), encoding="utf-8")
-        p_mism.write_text(json.dumps(mism, ensure_ascii=False, indent=2), encoding="utf-8")
+        (FORM_DIR / f"{lid}.json").write_text(json.dumps(form, ensure_ascii=False, indent=2), encoding="utf-8")
+        (MM_DIR / f"{lid}.json").write_text(json.dumps(mism, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        summary_lines.append(f"League {lid}: {form['count']} teams | Mismatches: {mism['count']}")
+        summary.append(f"League {lid}: teams={form['count']} | mismatches={mism['count']}")
         for row in (mism["fixtures_flagged"][:6] if mism["fixtures_flagged"] else []):
             labs = ", ".join(sorted(row["flags"].keys()))
-            summary_lines.append(f"  • {row['name']} — {labs}")
-        summary_lines.append("")
+            summary.append(f"  • {row['name']} — {labs}")
+        summary.append("")
 
-    (OUT_BASE / "summary.txt").write_text("\n".join(summary_lines).rstrip() + "\n", encoding="utf-8")
-    print("\n".join(summary_lines))
+    OUT_BASE.mkdir(parents=True, exist_ok=True)
+    (OUT_BASE / "summary.txt").write_text("\n".join(summary).rstrip() + "\n", encoding="utf-8")
+    print("\n".join(summary))
 
 if __name__ == "__main__":
     try:
