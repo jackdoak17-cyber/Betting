@@ -2,276 +2,296 @@
 # -*- coding: utf-8 -*-
 
 """
-Team Win Rates (local only) — Corners / Shots / SOT / Cards
+Team win rates (overall + HOME/AWAY splits) for:
+  - corners
+  - shots_total
+  - shots_on_target
 
-Reads, per league:
-  - data/team_stats/by_league/{league_id}.json
-  - data/team_opponent_stats/by_league/{league_id}.json
-Builds, per team (latest -> older):
-  - W/L/D sequences where W = team stat > opponent stat in that match
-  - hit-rates: wins / (wins + losses)   (draws ignored in denominator)
+Inputs (local only):
+  - data/team_stats/by_league/{league_id}.json             (team series; latest -> older)
+  - data/team_opponent_stats/by_league/{league_id}.json    (opponent series; latest -> older)
+  - data/fixtures/by_league/{league_id}.json  (fallback: data/fixtures/{league_id}.json)
+      to map fixture_id -> (home_id, away_id)
 
-Outputs:
+Output:
   - data/team_winrates/by_league/{league_id}.json
-  - data/team_winrates/summary.txt
+    {
+      "generated_at": "...",
+      "league_id": 8,
+      "last_n": 10,
+      "red_weight": 1.0,
+      "teams": [
+        {
+          "team_name": "Arsenal",
+          "last_n": 10,
+          "categories": {
+            "corners":        { "sequence":[...], "rates":{wins,losses,draws,n,win_rate} },
+            "corners_home":   {...}, "corners_away": {...},
+            "shots_total":    {...}, "shots_total_home": {...}, "shots_total_away": {...},
+            "shots_on_target":{...}, "shots_on_target_home": {...}, "shots_on_target_away": {...}
+          }
+        }, ...
+      ]
+    }
 
 ENV (optional):
-  LEAGUE_IDS   CSV (default: auto-discover from team_stats/by_league/*.json)
-  LAST_N       clamp sequences to last N entries (default 10)
-  RED_WEIGHT   when cards are split (yellow/red), count cards = YC + RED_WEIGHT * RC  (default 1)
-  OUT_DIR      default data/team_winrates
+  LEAGUE_IDS     CSV (default: auto from team_stats dir)
+  LAST_N         default 10 (use only latest N fixtures per team when building sequences)
 """
 
-import os, json, re, datetime as dt
+import os, json, datetime as dt, re, unicodedata
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple
 
-# -------- config --------
-LAST_N     = int(os.getenv("LAST_N", "10"))
-RED_WEIGHT = float(os.getenv("RED_WEIGHT", "1"))
-OUT_DIR    = Path(os.getenv("OUT_DIR", "data/team_winrates"))
-
-TS_DIR   = Path("data/team_stats/by_league")
-OPP_DIR  = Path("data/team_opponent_stats/by_league")
+ROOT = Path(".")
+TS_DIR   = ROOT / "data" / "team_stats" / "by_league"
+OPP_DIR  = ROOT / "data" / "team_opponent_stats" / "by_league"
+FIX_DIR1 = ROOT / "data" / "fixtures" / "by_league"
+FIX_DIR2 = ROOT / "data" / "fixtures"
+OUT_DIR  = ROOT / "data" / "team_winrates" / "by_league"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-(OUT_DIR / "by_league").mkdir(parents=True, exist_ok=True)
 
-# -------- utils --------
-def _load_json(p: Path) -> dict:
+LAST_N = int(os.getenv("LAST_N", "10"))
+
+# --------- util ----------
+def load_json(p: Path) -> dict:
     try:
         return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return {}
 
-def _discover_league_ids() -> List[int]:
+def discover_league_ids() -> List[int]:
     lids = []
     for p in TS_DIR.glob("*.json"):
-        try:
-            lids.append(int(p.stem))
-        except Exception:
-            pass
+        try: lids.append(int(p.stem))
+        except: pass
     return sorted(set(lids))
 
-def _norm_nums(arr) -> List[Optional[float]]:
-    out: List[Optional[float]] = []
-    for x in (arr or []):
-        try:
-            out.append(float(x))
-        except Exception:
-            out.append(None)
-    return out
+def now_utc_iso() -> str:
+    return dt.datetime.utcnow().isoformat(timespec="seconds")
 
-def _sum_series(a: List[Optional[float]], b: List[Optional[float]]) -> List[Optional[float]]:
-    m = min(len(a), len(b))
-    out: List[Optional[float]] = []
-    for i in range(m):
-        va, vb = a[i], b[i]
-        if va is None and vb is None:
-            out.append(None)
-        elif va is None:
-            out.append(None)
-        elif vb is None:
-            out.append(None)
+def clamp_list(xs: List[int], n: int) -> List[int]:
+    return xs[:n] if isinstance(xs, list) else []
+
+# --------- team-name matching helpers (robust) ----------
+GENERIC_TEAM_TOKENS = {
+    "fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc",
+    "rc","rcd","ca","the","club","de","del","la","las","los","calcio",
+    "united","city","saint","st","bk"
+}
+def strip_accents(s: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
+def norm(s: str) -> str:
+    s = strip_accents(s or "").lower()
+    s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+def team_tokens(name: str):
+    return {t for t in norm(name).split() if t not in GENERIC_TEAM_TOKENS}
+def team_names_match(a: str, b: str) -> bool:
+    if not a or not b: return False
+    ta, tb = team_tokens(a), team_tokens(b)
+    if not ta or not tb: return False
+    if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
+    inter = ta & tb; uni = ta | tb
+    return (len(inter) / max(1, len(uni)) >= 0.5) or (len(inter) >= 2)
+
+# --------- fixture home/away map ----------
+def read_fixtures(league_id: int) -> List[dict]:
+    blob = load_json(FIX_DIR1 / f"{league_id}.json")
+    if not blob:
+        blob = load_json(FIX_DIR2 / f"{league_id}.json")
+    return blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
+
+def build_home_away_index(fixtures: List[dict]) -> Dict[int, Tuple[Optional[int], Optional[int]]]:
+    """
+    Return {fixture_id: (home_id, away_id)}
+    """
+    idx: Dict[int, Tuple[Optional[int], Optional[int]]] = {}
+    for fx in fixtures:
+        fid = fx.get("id") or fx.get("fixture_id")
+        if not isinstance(fid, int): continue
+        parts = fx.get("participants") or fx.get("teams") or []
+        home_id = away_id = None
+        if isinstance(parts, list) and len(parts) >= 2:
+            # try to detect by 'meta.location' if present
+            for p in parts:
+                try:
+                    pid = int(p.get("id") or p.get("team_id"))
+                except Exception:
+                    continue
+                loc = ((p.get("meta") or {}).get("location") or "").lower()
+                if loc == "home": home_id = pid
+                elif loc == "away": away_id = pid
+            # fallback: assume order [home, away]
+            if home_id is None or away_id is None:
+                try:
+                    home_id = home_id or int(parts[0].get("id") or parts[0].get("team_id"))
+                    away_id = away_id or int(parts[1].get("id") or parts[1].get("team_id"))
+                except Exception:
+                    pass
         else:
-            out.append(va + vb)
+            # some shapes store explicit "home"/"away"
+            for key in ("home","localteam"):
+                t = fx.get(key)
+                if isinstance(t, dict):
+                    try: home_id = int(t.get("id") or t.get("team_id"))
+                    except Exception: pass
+            for key in ("away","visitorteam"):
+                t = fx.get(key)
+                if isinstance(t, dict):
+                    try: away_id = int(t.get("id") or t.get("team_id"))
+                    except Exception: pass
+        idx[int(fid)] = (home_id, away_id)
+    return idx
+
+# --------- core win-rate calc ----------
+StatPair = Tuple[str, str]  # (team_key, opp_key)
+STAT_PAIRS: Dict[str, StatPair] = {
+    "corners": ("corners_last_n", "opp_corners_last_n"),
+    "shots_total": ("shots_total_last_n", "opp_shots_total_last_n"),
+    "shots_on_target": ("shots_on_target_last_n", "opp_shots_on_target_last_n"),
+}
+
+def build_index_by_fixture(team_entry: dict) -> Dict[int, int]:
+    """
+    Map fixture_id -> index in series for this team entry (latest -> older).
+    """
+    out: Dict[int, int] = {}
+    fids = team_entry.get("fixture_ids") or []
+    for i, fid in enumerate(fids):
+        try: out[int(fid)] = i
+        except Exception: pass
     return out
 
-def _take_last_n(arr: List[Any], n: int) -> List[Any]:
-    return (arr or [])[:n] if n > 0 else (arr or [])
-
-def _cmp_code(a: Optional[float], b: Optional[float]) -> Optional[str]:
-    if a is None or b is None:
-        return None
-    if a > b: return "W"
-    if a < b: return "L"
+def outcome(a: Optional[int], b: Optional[int]) -> Optional[str]:
+    if a is None or b is None: return None
+    if a > b:  return "W"
+    if a < b:  return "L"
     return "D"
 
-def _rate(seq: List[str]) -> Dict[str, Any]:
+def sequences_for(team_entry: dict,
+                  opp_entry: dict,
+                  fixtures_idx: Dict[int, Tuple[Optional[int], Optional[int]]],
+                  last_n: int) -> Dict[str, Dict[str, List[str]]]:
+    """
+    Return sequences per stat:
+      {"corners": {"all":[...], "home":[...], "away":[...]}, ...}
+    (latest -> older, capped to last_n)
+    """
+    seqs: Dict[str, Dict[str, List[str]]] = {k: {"all": [], "home": [], "away": []} for k in STAT_PAIRS.keys()}
+
+    idx_team = build_index_by_fixture(team_entry)
+    idx_opp  = build_index_by_fixture(opp_entry)
+
+    # iterate team fixtures in latest->older order; cap by last_n additions
+    used_counts = {k: 0 for k in STAT_PAIRS.keys()}
+
+    for fid in team_entry.get("fixture_ids") or []:
+        try: fid = int(fid)
+        except Exception: continue
+        if fid not in idx_opp:  # need both sides present
+            continue
+        home_id, away_id = fixtures_idx.get(fid, (None, None))
+        t_id = team_entry.get("team_id")
+        side = "home" if (isinstance(t_id, int) and t_id == home_id) else ("away" if (isinstance(t_id, int) and t_id == away_id) else None)
+
+        for stat, (k_team, k_opp) in STAT_PAIRS.items():
+            if used_counts[stat] >= last_n:
+                continue
+            series_team = team_entry.get(k_team) or []
+            series_opp  = opp_entry.get(k_opp)  or []
+            i_t = idx_team.get(fid); i_o = idx_opp.get(fid)
+            if i_t is None or i_o is None: 
+                continue
+            try:
+                a = int(series_team[i_t])
+                b = int(series_opp[i_o])
+            except Exception:
+                continue
+
+            res = outcome(a, b)
+            if not res: 
+                continue
+
+            seqs[stat]["all"].append(res)
+            if side == "home": seqs[stat]["home"].append(res)
+            if side == "away": seqs[stat]["away"].append(res)
+            used_counts[stat] += 1
+
+        # Early exit if every stat hit last_n
+        if all(used_counts[s] >= last_n for s in STAT_PAIRS.keys()):
+            break
+
+    # clamp (already in order latest->older)
+    for stat in seqs:
+        for bucket in ("all","home","away"):
+            seqs[stat][bucket] = seqs[stat][bucket][:last_n]
+    return seqs
+
+def rates_from_sequence(seq: List[str]) -> Dict[str, float]:
     w = sum(1 for x in seq if x == "W")
     l = sum(1 for x in seq if x == "L")
     d = sum(1 for x in seq if x == "D")
-    n = w + l  # draws excluded
-    rate = (w / n) if n > 0 else 0.0
-    return {"wins": w, "losses": l, "draws": d, "n": n, "win_rate": round(rate, 4)}
+    n = w + l + d
+    win_rate = (w / n) if n else 0.0
+    return {"wins": w, "losses": l, "draws": d, "n": n, "win_rate": round(win_rate, 4)}
 
-# -------- key mapping (robust to naming differences) --------
-TEAM_KEYS = {
-    "corners": ["corners_last_n"],
-    "shots_total": ["shots_total_last_n", "shots_last_n"],
-    "shots_on_target": ["shots_on_target_last_n", "sot_last_n"],
-    # cards: prefer combined, else compose from yellow/red
-    "cards_combined": ["cards_last_n"],
-    "cards_yellow":   ["yellow_cards_last_n", "bookings_last_n", "yellows_last_n"],
-    "cards_red":      ["red_cards_last_n", "reds_last_n"],
-}
-
-OPP_KEYS = {
-    "corners": ["opp_corners_last_n"],
-    "shots_total": ["opp_shots_total_last_n", "opp_shots_last_n"],
-    "shots_on_target": ["opp_shots_on_target_last_n", "opp_sot_last_n"],
-    "cards_combined": ["opp_cards_last_n"],
-    "cards_yellow":   ["opp_yellow_cards_last_n", "opp_bookings_last_n", "opp_yellows_last_n"],
-    "cards_red":      ["opp_red_cards_last_n", "opp_reds_last_n"],
-}
-
-def _first_series(rec: dict, keys: List[str]) -> Optional[List[Optional[float]]]:
-    for k in keys:
-        if k in rec and isinstance(rec[k], list) and rec[k]:
-            return _norm_nums(rec[k])
-    return None
-
-def series_team(rec: dict, cat: str) -> Optional[List[Optional[float]]]:
-    if cat == "cards":
-        s = _first_series(rec, TEAM_KEYS["cards_combined"])
-        if s is not None:
-            return s
-        yc = _first_series(rec, TEAM_KEYS["cards_yellow"]) or []
-        rc = _first_series(rec, TEAM_KEYS["cards_red"]) or []
-        if yc or rc:
-            if not yc: yc = [None] * len(rc)
-            if not rc: rc = [None] * len(yc)
-            # cards = YC + RED_WEIGHT * RC
-            rcw = [ (x * RED_WEIGHT) if x is not None else None for x in rc ]
-            return _sum_series(yc, rcw)
-        return None
-    elif cat == "shots_total":
-        s = _first_series(rec, TEAM_KEYS["shots_total"])
-        if s is not None:
-            return s
-        # as a fallback, total = SOT + SOFF if available
-        sot = _first_series(rec, TEAM_KEYS["shots_on_target"]) or []
-        soff = _first_series(rec, ["shots_off_target_last_n"]) or []
-        if sot or soff:
-            if not sot:  sot  = [None] * len(soff)
-            if not soff: soff = [None] * len(sot)
-            return _sum_series(sot, soff)
-        return None
-    elif cat == "shots_on_target":
-        return _first_series(rec, TEAM_KEYS["shots_on_target"])
-    elif cat == "corners":
-        return _first_series(rec, TEAM_KEYS["corners"])
-    else:
-        return None
-
-def series_opp(rec: dict, cat: str) -> Optional[List[Optional[float]]]:
-    if cat == "cards":
-        s = _first_series(rec, OPP_KEYS["cards_combined"])
-        if s is not None:
-            return s
-        yc = _first_series(rec, OPP_KEYS["cards_yellow"]) or []
-        rc = _first_series(rec, OPP_KEYS["cards_red"]) or []
-        if yc or rc:
-            if not yc: yc = [None] * len(rc)
-            if not rc: rc = [None] * len(yc)
-            rcw = [ (x * RED_WEIGHT) if x is not None else None for x in rc ]
-            return _sum_series(yc, rcw)
-        return None
-    elif cat == "shots_total":
-        s = _first_series(rec, OPP_KEYS["shots_total"])
-        if s is not None:
-            return s
-        sot = _first_series(rec, OPP_KEYS["shots_on_target"]) or []
-        soff = _first_series(rec, ["opp_shots_off_target_last_n"]) or []
-        if sot or soff:
-            if not sot:  sot  = [None] * len(soff)
-            if not soff: soff = [None] * len(sot)
-            return _sum_series(sot, soff)
-        return None
-    elif cat == "shots_on_target":
-        return _first_series(rec, OPP_KEYS["shots_on_target"])
-    elif cat == "corners":
-        return _first_series(rec, OPP_KEYS["corners"])
-    else:
-        return None
-
-def build_team_row(team_rec: dict, opp_rec: dict) -> Optional[dict]:
-    team_name = team_rec.get("team_name") or opp_rec.get("team_name")
-    if not team_name:
-        return None
-
-    out = {"team_name": team_name, "last_n": LAST_N, "categories": {}}
-    for cat in ("corners", "shots_total", "shots_on_target", "cards"):
-        s_team = series_team(team_rec, cat) or []
-        s_opp  = series_opp(opp_rec, cat) or []
-        m = min(len(s_team), len(s_opp))
-        if m == 0:
-            continue
-        seq: List[str] = []
-        for i in range(m):
-            code = _cmp_code(s_team[i], s_opp[i])
-            if code is not None:
-                seq.append(code)
-        seq = _take_last_n(seq, LAST_N)
-        out["categories"][cat] = {
-            "sequence": seq,                          # e.g. ["W","L","D","W",...]
-            "rates": _rate(seq),                      # wins/losses/draws/n/win_rate
-        }
-    return out
-
+# --------- main ----------
 def main():
-    # league ids to process
     env = os.getenv("LEAGUE_IDS", "").strip()
-    if env:
-        league_ids = [int(x) for x in env.split(",") if x.strip()]
-    else:
-        league_ids = _discover_league_ids()
-
-    summary_lines = [f"Generated at (UTC): {dt.datetime.utcnow().isoformat()}",""]
+    league_ids = [int(x) for x in env.split(",") if x.strip()] if env else discover_league_ids()
 
     for lid in league_ids:
-        ts_path  = TS_DIR  / f"{lid}.json"
-        opp_path = OPP_DIR / f"{lid}.json"
-        ts_blob   = _load_json(ts_path)
-        opp_blob  = _load_json(opp_path)
-        ts_teams  = ts_blob.get("teams") or []
-        opp_teams = opp_blob.get("teams") or []
+        ts_blob  = load_json(TS_DIR / f"{lid}.json")
+        opp_blob = load_json(OPP_DIR / f"{lid}.json")
+        fixtures = read_fixtures(lid)
+        fx_idx   = build_home_away_index(fixtures)
 
-        # index opponent stats by normalized team name (simple lower/no-space normalization)
-        def key(name: str) -> str:
-            s = (name or "").lower()
-            s = re.sub(r"\s+", " ", s).strip()
-            return s
+        ts_map: Dict[int, dict] = {int(t["team_id"]): t for t in (ts_blob.get("teams") or []) if isinstance(t.get("team_id"), int)}
+        opp_map: Dict[int, dict] = {int(t["team_id"]): t for t in (opp_blob.get("teams") or []) if isinstance(t.get("team_id"), int)}
 
-        opp_idx: Dict[str, dict] = { key(t.get("team_name","")): t for t in opp_teams if t.get("team_name") }
+        out_teams: List[dict] = []
 
-        rows: List[dict] = []
-        for t in ts_teams:
-            nm = t.get("team_name")
-            if not nm: 
+        for tid, team_entry in ts_map.items():
+            opp_entry = opp_map.get(tid)
+            if not opp_entry:
                 continue
-            o = opp_idx.get(key(nm))
-            if not o:
-                # try a loose fallback: remove punctuation
-                nm2 = re.sub(r"[^a-z0-9 ]","", key(nm))
-                found = None
-                for k,v in opp_idx.items():
-                    if re.sub(r"[^a-z0-9 ]","", k) == nm2:
-                        found = v; break
-                o = found
-            if not o:
-                continue
-            row = build_team_row(t, o)
-            if row:
-                rows.append(row)
+
+            # ensure arrays are capped to LAST_N for safety (we still match by fixture_id)
+            for k_team, _ in STAT_PAIRS.values():
+                team_entry[k_team] = clamp_list(team_entry.get(k_team) or [], LAST_N)
+            for _, k_opp in STAT_PAIRS.values():
+                opp_entry[k_opp] = clamp_list(opp_entry.get(k_opp) or [], LAST_N)
+
+            seqs = sequences_for(team_entry, opp_entry, fx_idx, LAST_N)
+
+            cats = {}
+            # overall + splits
+            for stat in ("corners", "shots_total", "shots_on_target"):
+                overall = seqs[stat]["all"]
+                home    = seqs[stat]["home"]
+                away    = seqs[stat]["away"]
+                cats[stat] = {"sequence": overall, "rates": rates_from_sequence(overall)}
+                cats[f"{stat}_home"] = {"sequence": home, "rates": rates_from_sequence(home)}
+                cats[f"{stat}_away"] = {"sequence": away, "rates": rates_from_sequence(away)}
+
+            out_teams.append({
+                "team_name": team_entry.get("team_name") or "",
+                "team_id": tid,
+                "last_n": LAST_N,
+                "categories": cats,
+            })
 
         payload = {
-            "generated_at": dt.datetime.utcnow().isoformat(),
+            "generated_at": now_utc_iso(),
             "league_id": lid,
             "last_n": LAST_N,
-            "red_weight": RED_WEIGHT,
-            "teams": rows,
-            "count": len(rows),
+            "red_weight": 1.0,  # kept for backward compatibility
+            "teams": sorted(out_teams, key=lambda r: r["team_name"].lower()),
         }
-        out_path = OUT_DIR / "by_league" / f"{lid}.json"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
-        summary_lines.append(f"League {lid}: {len(rows)} teams written")
-    (OUT_DIR / "summary.txt").write_text("\n".join(summary_lines).rstrip() + "\n", encoding="utf-8")
-    print("\n".join(summary_lines))
+        (OUT_DIR / f"{lid}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Wrote {OUT_DIR / f'{lid}.json'}  (teams={len(out_teams)})")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
+    main()
