@@ -1,297 +1,303 @@
+# ========================= scripts/team_win_rates.py =========================
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-Team win rates (overall + HOME/AWAY splits) for:
-  - corners
-  - shots_total
-  - shots_on_target
+Most Corners — home/away split win-rates + Bet365 price filter.
 
-Inputs (local only):
-  - data/team_stats/by_league/{league_id}.json             (team series; latest -> older)
-  - data/team_opponent_stats/by_league/{league_id}.json    (opponent series; latest -> older)
-  - data/fixtures/by_league/{league_id}.json  (fallback: data/fixtures/{league_id}.json)
-      to map fixture_id -> (home_id, away_id)
+Reads (local files only):
+- Fixtures:                    data/fixtures/{league_id}.json
+- Team series (+ H/A flags):   data/team_stats/by_league/{league_id}.json
+- Opponent series (+ H/A):     data/team_opponent_stats/by_league/{league_id}.json
+- Bet365 odds (per-league):    data/odds/b365/{league_id}.json
 
-Output:
-  - data/team_winrates/by_league/{league_id}.json
-    {
-      "generated_at": "...",
-      "league_id": 8,
-      "last_n": 10,
-      "red_weight": 1.0,
-      "teams": [
-        {
-          "team_name": "Arsenal",
-          "last_n": 10,
-          "categories": {
-            "corners":        { "sequence":[...], "rates":{wins,losses,draws,n,win_rate} },
-            "corners_home":   {...}, "corners_away": {...},
-            "shots_total":    {...}, "shots_total_home": {...}, "shots_total_away": {...},
-            "shots_on_target":{...}, "shots_on_target_home": {...}, "shots_on_target_away": {...}
-          }
-        }, ...
-      ]
-    }
+What we compute:
+For each team we compare its 'corners_last_n' vs 'opp_corners_last_n' match-by-match.
+We split into HOME and AWAY using 'locations_last_n'. For each split:
+    wins = #games team corners > opp corners
+    losses = #games team corners < opp corners
+    draws = equal corners
+    n = wins + losses (draws excluded)
+    win_rate = wins / n  (if n>0)
 
-ENV (optional):
-  LEAGUE_IDS     CSV (default: auto from team_stats dir)
-  LAST_N         default 10 (use only latest N fixtures per team when building sequences)
+For each upcoming fixture in WINDOW_DAYS, we pick a side if:
+    - Side-specific win_rate >= MIN_SIDE_RATE
+    - Gap between sides' rates >= MIN_GAP
+    - Bet365 price for the side in a "Most Corners" 3-way market >= MIN_DEC_PRICE
+
+Output (minimal):
+  League {lid}: X candidates
+  HomeTeam vs AwayTeam — Most Corners: {HOME|AWAY} @ {price}
+    Home win rate: {pct}% (home n={nH}) | Away win rate: {pct}% (away n={nA})
+
+Env (optional):
+- LEAGUE_IDS      CSV of league IDs to scan (default: discover from fixtures dir)
+- WINDOW_DAYS     default 7
+- MIN_DEC_PRICE   default 1.70
+- MIN_SIDE_RATE   default 0.55
+- MIN_GAP         default 0.15
 """
 
-import os, json, datetime as dt, re, unicodedata
+import os, re, json, math, datetime as dt, unicodedata
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-ROOT = Path(".")
-TS_DIR   = ROOT / "data" / "team_stats" / "by_league"
-OPP_DIR  = ROOT / "data" / "team_opponent_stats" / "by_league"
-FIX_DIR1 = ROOT / "data" / "fixtures" / "by_league"
-FIX_DIR2 = ROOT / "data" / "fixtures"
-OUT_DIR  = ROOT / "data" / "team_winrates" / "by_league"
-OUT_DIR.mkdir(parents=True, exist_ok=True)
+ROOT      = Path(".")
+FIX_DIR   = ROOT / "data" / "fixtures"
+TS_DIR    = ROOT / "data" / "team_stats" / "by_league"
+OPP_DIR   = ROOT / "data" / "team_opponent_stats" / "by_league"
+ODDS_DIR  = ROOT / "data" / "odds" / "b365"
 
-LAST_N = int(os.getenv("LAST_N", "10"))
+WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS", "7"))
+MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.70"))
+MIN_SIDE_RATE = float(os.getenv("MIN_SIDE_RATE", "0.55"))
+MIN_GAP       = float(os.getenv("MIN_GAP", "0.15"))
 
-# --------- util ----------
-def load_json(p: Path) -> dict:
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-def discover_league_ids() -> List[int]:
-    lids = []
-    for p in TS_DIR.glob("*.json"):
-        try: lids.append(int(p.stem))
-        except: pass
-    return sorted(set(lids))
-
-def now_utc_iso() -> str:
-    return dt.datetime.utcnow().isoformat(timespec="seconds")
-
-def clamp_list(xs: List[int], n: int) -> List[int]:
-    return xs[:n] if isinstance(xs, list) else []
-
-# --------- team-name matching helpers (robust) ----------
-GENERIC_TEAM_TOKENS = {
-    "fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc",
-    "rc","rcd","ca","the","club","de","del","la","las","los","calcio",
-    "united","city","saint","st","bk"
-}
+# ---------- string helpers ----------
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
+
 def norm(s: str) -> str:
     s = strip_accents(s or "").lower()
     s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
+
+GENERIC_TOK = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
+               "the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
+
 def team_tokens(name: str):
-    return {t for t in norm(name).split() if t not in GENERIC_TEAM_TOKENS}
+    toks = set(norm(name).split())
+    return {t for t in toks if t not in GENERIC_TOK}
+
 def team_names_match(a: str, b: str) -> bool:
     if not a or not b: return False
     ta, tb = team_tokens(a), team_tokens(b)
     if not ta or not tb: return False
     if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; uni = ta | tb
-    return (len(inter) / max(1, len(uni)) >= 0.5) or (len(inter) >= 2)
+    if len(inter) / max(1, len(uni)) >= 0.5: return True
+    if len(inter) >= 2: return True
+    return False
 
-# --------- fixture home/away map ----------
-def read_fixtures(league_id: int) -> List[dict]:
-    blob = load_json(FIX_DIR1 / f"{league_id}.json")
-    if not blob:
-        blob = load_json(FIX_DIR2 / f"{league_id}.json")
-    return blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
+def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
+    if not fixture_name: return "",""
+    for sep in (" vs ", " v ", " - ", " VS ", " Vs "):
+        if sep in fixture_name:
+            a, b = fixture_name.split(sep, 1)
+            return a.strip(), b.strip()
+    return "", ""
 
-def build_home_away_index(fixtures: List[dict]) -> Dict[int, Tuple[Optional[int], Optional[int]]]:
+def within_window(starting_at: str, days: int) -> bool:
+    if not starting_at: return True
+    try:
+        dt_utc = dt.datetime.strptime(starting_at[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc)
+    except Exception:
+        return True
+    now = dt.datetime.now(dt.timezone.utc)
+    return now <= dt_utc <= (now + dt.timedelta(days=days))
+
+# ---------- IO ----------
+def load_json(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+def discover_league_ids() -> List[int]:
+    ids = []
+    for p in FIX_DIR.glob("*.json"):
+        try: ids.append(int(p.stem))
+        except: pass
+    return sorted(set(ids))
+
+# ---------- indexers ----------
+def index_team_rows(blob: dict) -> Dict[str, dict]:
+    m: Dict[str, dict] = {}
+    for t in (blob.get("teams") or []):
+        nm = t.get("team_name")
+        if not nm: continue
+        m[norm(nm)] = t
+    return m
+
+# ---------- win-rate calc (HOME/AWAY split) ----------
+def split_win_rates(team_row: dict, opp_row: dict, key_team: str, key_opp: str) -> Tuple[Tuple[int,int,int,int,float], Tuple[int,int,int,int,float]]:
     """
-    Return {fixture_id: (home_id, away_id)}
+    Returns:
+      home_tuple = (wins, losses, draws, n_non_draw, rate)
+      away_tuple = (wins, losses, draws, n_non_draw, rate)
     """
-    idx: Dict[int, Tuple[Optional[int], Optional[int]]] = {}
-    for fx in fixtures:
-        fid = fx.get("id") or fx.get("fixture_id")
-        if not isinstance(fid, int): continue
-        parts = fx.get("participants") or fx.get("teams") or []
-        home_id = away_id = None
-        if isinstance(parts, list) and len(parts) >= 2:
-            # try to detect by 'meta.location' if present
-            for p in parts:
-                try:
-                    pid = int(p.get("id") or p.get("team_id"))
-                except Exception:
-                    continue
-                loc = ((p.get("meta") or {}).get("location") or "").lower()
-                if loc == "home": home_id = pid
-                elif loc == "away": away_id = pid
-            # fallback: assume order [home, away]
-            if home_id is None or away_id is None:
-                try:
-                    home_id = home_id or int(parts[0].get("id") or parts[0].get("team_id"))
-                    away_id = away_id or int(parts[1].get("id") or parts[1].get("team_id"))
-                except Exception:
-                    pass
-        else:
-            # some shapes store explicit "home"/"away"
-            for key in ("home","localteam"):
-                t = fx.get(key)
-                if isinstance(t, dict):
-                    try: home_id = int(t.get("id") or t.get("team_id"))
-                    except Exception: pass
-            for key in ("away","visitorteam"):
-                t = fx.get(key)
-                if isinstance(t, dict):
-                    try: away_id = int(t.get("id") or t.get("team_id"))
-                    except Exception: pass
-        idx[int(fid)] = (home_id, away_id)
-    return idx
+    xs  = [x for x in (team_row.get(key_team) or []) if isinstance(x, int)]
+    ys  = [y for y in (opp_row.get(key_opp)  or []) if isinstance(y, int)]
+    loc = [s for s in (team_row.get("locations_last_n") or [])]
 
-# --------- core win-rate calc ----------
-StatPair = Tuple[str, str]  # (team_key, opp_key)
-STAT_PAIRS: Dict[str, StatPair] = {
-    "corners": ("corners_last_n", "opp_corners_last_n"),
-    "shots_total": ("shots_total_last_n", "opp_shots_total_last_n"),
-    "shots_on_target": ("shots_on_target_last_n", "opp_shots_on_target_last_n"),
-}
-
-def build_index_by_fixture(team_entry: dict) -> Dict[int, int]:
-    """
-    Map fixture_id -> index in series for this team entry (latest -> older).
-    """
-    out: Dict[int, int] = {}
-    fids = team_entry.get("fixture_ids") or []
-    for i, fid in enumerate(fids):
-        try: out[int(fid)] = i
-        except Exception: pass
-    return out
-
-def outcome(a: Optional[int], b: Optional[int]) -> Optional[str]:
-    if a is None or b is None: return None
-    if a > b:  return "W"
-    if a < b:  return "L"
-    return "D"
-
-def sequences_for(team_entry: dict,
-                  opp_entry: dict,
-                  fixtures_idx: Dict[int, Tuple[Optional[int], Optional[int]]],
-                  last_n: int) -> Dict[str, Dict[str, List[str]]]:
-    """
-    Return sequences per stat:
-      {"corners": {"all":[...], "home":[...], "away":[...]}, ...}
-    (latest -> older, capped to last_n)
-    """
-    seqs: Dict[str, Dict[str, List[str]]] = {k: {"all": [], "home": [], "away": []} for k in STAT_PAIRS.keys()}
-
-    idx_team = build_index_by_fixture(team_entry)
-    idx_opp  = build_index_by_fixture(opp_entry)
-
-    # iterate team fixtures in latest->older order; cap by last_n additions
-    used_counts = {k: 0 for k in STAT_PAIRS.keys()}
-
-    for fid in team_entry.get("fixture_ids") or []:
-        try: fid = int(fid)
-        except Exception: continue
-        if fid not in idx_opp:  # need both sides present
+    n = min(len(xs), len(ys), len(loc))
+    h_w=h_l=h_d=h_n=0
+    a_w=a_l=a_d=a_n=0
+    for i in range(n):
+        side = (loc[i] or "").lower()
+        a_val, b_val = xs[i], ys[i]
+        if a_val == b_val:
+            if side == "home": h_d += 1
+            elif side == "away": a_d += 1
             continue
-        home_id, away_id = fixtures_idx.get(fid, (None, None))
-        t_id = team_entry.get("team_id")
-        side = "home" if (isinstance(t_id, int) and t_id == home_id) else ("away" if (isinstance(t_id, int) and t_id == away_id) else None)
+        win = a_val > b_val
+        if side == "home":
+            if win: h_w += 1
+            else:   h_l += 1
+        elif side == "away":
+            if win: a_w += 1
+            else:   a_l += 1
+        # ignore "unknown" location for split rates
 
-        for stat, (k_team, k_opp) in STAT_PAIRS.items():
-            if used_counts[stat] >= last_n:
-                continue
-            series_team = team_entry.get(k_team) or []
-            series_opp  = opp_entry.get(k_opp)  or []
-            i_t = idx_team.get(fid); i_o = idx_opp.get(fid)
-            if i_t is None or i_o is None: 
-                continue
-            try:
-                a = int(series_team[i_t])
-                b = int(series_opp[i_o])
-            except Exception:
-                continue
+    h_n = h_w + h_l
+    a_n = a_w + a_l
+    h_rate = (h_w / h_n) if h_n > 0 else 0.0
+    a_rate = (a_w / a_n) if a_n > 0 else 0.0
+    return (h_w, h_l, h_d, h_n, h_rate), (a_w, a_l, a_d, a_n, a_rate)
 
-            res = outcome(a, b)
-            if not res: 
-                continue
+# ---------- odds parsing ----------
+def label_to_side(s: Optional[str]) -> Optional[str]:
+    s = (s or "").strip().lower()
+    if s in {"1","home","home (1)","team 1"}: return "home"
+    if s in {"2","away","away (2)","team 2"}: return "away"
+    if s in {"x","draw","tie"}: return "draw"
+    return None
 
-            seqs[stat]["all"].append(res)
-            if side == "home": seqs[stat]["home"].append(res)
-            if side == "away": seqs[stat]["away"].append(res)
-            used_counts[stat] += 1
+def is_most_corners_market(md: str) -> bool:
+    s = norm(md)
+    if not s: return False
+    if "race" in s or "handicap" in s or "total" in s or "over" in s or "under" in s:
+        return False
+    # Accept broad synonyms
+    keys = [
+        "most corners", "corner match bet", "corners match bet",
+        "team with most corners", "which team will have the most corners",
+        "corners - most", "corners most"
+    ]
+    return any(k in s for k in keys) or (("corner" in s or "corners" in s) and "most" in s)
 
-        # Early exit if every stat hit last_n
-        if all(used_counts[s] >= last_n for s in STAT_PAIRS.keys()):
-            break
+def extract_most_corners_prices(rows: List[dict]) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    """
+    Returns (home_price, away_price, draw_price) from Bet365 rows if present.
+    We take the MAX price seen for each side (best for the bettor).
+    """
+    h, a, d = None, None, None
+    for r in rows or []:
+        if not is_most_corners_market(r.get("market_description","")):
+            continue
+        side = label_to_side(r.get("label"))
+        try:
+            price = float(r.get("value"))
+        except Exception:
+            continue
+        if side == "home":
+            h = price if (h is None or price > h) else h
+        elif side == "away":
+            a = price if (a is None or price > a) else a
+        elif side == "draw":
+            d = price if (d is None or price > d) else d
+    return h, a, d
 
-    # clamp (already in order latest->older)
-    for stat in seqs:
-        for bucket in ("all","home","away"):
-            seqs[stat][bucket] = seqs[stat][bucket][:last_n]
-    return seqs
-
-def rates_from_sequence(seq: List[str]) -> Dict[str, float]:
-    w = sum(1 for x in seq if x == "W")
-    l = sum(1 for x in seq if x == "L")
-    d = sum(1 for x in seq if x == "D")
-    n = w + l + d
-    win_rate = (w / n) if n else 0.0
-    return {"wins": w, "losses": l, "draws": d, "n": n, "win_rate": round(win_rate, 4)}
-
-# --------- main ----------
+# ---------- main ----------
 def main():
-    env = os.getenv("LEAGUE_IDS", "").strip()
-    league_ids = [int(x) for x in env.split(",") if x.strip()] if env else discover_league_ids()
+    # leagues to scan
+    if os.getenv("LEAGUE_IDS"):
+        league_ids = [int(x) for x in os.getenv("LEAGUE_IDS").split(",") if x.strip()]
+    else:
+        league_ids = discover_league_ids()
+
+    any_out = False
 
     for lid in league_ids:
-        ts_blob  = load_json(TS_DIR / f"{lid}.json")
-        opp_blob = load_json(OPP_DIR / f"{lid}.json")
-        fixtures = read_fixtures(lid)
-        fx_idx   = build_home_away_index(fixtures)
+        fx_path   = FIX_DIR / f"{lid}.json"
+        ts_path   = TS_DIR / f"{lid}.json"
+        opp_path  = OPP_DIR / f"{lid}.json"
+        odds_path = ODDS_DIR / f"{lid}.json"
+        if not (fx_path.exists() and ts_path.exists() and opp_path.exists() and odds_path.exists()):
+            # skip quietly if any required file is missing
+            continue
 
-        ts_map: Dict[int, dict] = {int(t["team_id"]): t for t in (ts_blob.get("teams") or []) if isinstance(t.get("team_id"), int)}
-        opp_map: Dict[int, dict] = {int(t["team_id"]): t for t in (opp_blob.get("teams") or []) if isinstance(t.get("team_id"), int)}
+        fixtures = load_json(fx_path).get("fixtures") or []
+        ts_idx   = index_team_rows(load_json(ts_path))
+        opp_idx  = index_team_rows(load_json(opp_path))
 
-        out_teams: List[dict] = []
+        odds_blob = load_json(odds_path)
+        odds_by_fixture = {int(f.get("fixture_id")): f for f in (odds_blob.get("fixtures") or []) if isinstance(f.get("fixture_id"), int)}
 
-        for tid, team_entry in ts_map.items():
-            opp_entry = opp_map.get(tid)
-            if not opp_entry:
+        candidates = []
+
+        for fx in fixtures:
+            if not isinstance(fx, dict): continue
+            fid = fx.get("id") or fx.get("fixture_id")
+            name = fx.get("name") or ""
+            starting_at = fx.get("starting_at") or ""
+            if WINDOW_DAYS and not within_window(starting_at, WINDOW_DAYS):
                 continue
 
-            # ensure arrays are capped to LAST_N for safety (we still match by fixture_id)
-            for k_team, _ in STAT_PAIRS.values():
-                team_entry[k_team] = clamp_list(team_entry.get(k_team) or [], LAST_N)
-            for _, k_opp in STAT_PAIRS.values():
-                opp_entry[k_opp] = clamp_list(opp_entry.get(k_opp) or [], LAST_N)
+            home_nm, away_nm = parse_fixture_teams(name)
+            if not home_nm or not away_nm: 
+                continue
 
-            seqs = sequences_for(team_entry, opp_entry, fx_idx, LAST_N)
+            # find team rows by fuzzy name
+            home_rec_t = None; away_rec_t = None
+            home_rec_o = None; away_rec_o = None
+            for k, row in ts_idx.items():
+                if team_names_match(home_nm, row.get("team_name","")): home_rec_t = row
+                if team_names_match(away_nm, row.get("team_name","")): away_rec_t = row
+            for k, row in opp_idx.items():
+                if team_names_match(home_nm, row.get("team_name","")): home_rec_o = row
+                if team_names_match(away_nm, row.get("team_name","")): away_rec_o = row
+            if not (home_rec_t and away_rec_t and home_rec_o and away_rec_o):
+                continue
 
-            cats = {}
-            # overall + splits
-            for stat in ("corners", "shots_total", "shots_on_target"):
-                overall = seqs[stat]["all"]
-                home    = seqs[stat]["home"]
-                away    = seqs[stat]["away"]
-                cats[stat] = {"sequence": overall, "rates": rates_from_sequence(overall)}
-                cats[f"{stat}_home"] = {"sequence": home, "rates": rates_from_sequence(home)}
-                cats[f"{stat}_away"] = {"sequence": away, "rates": rates_from_sequence(away)}
+            # compute split win-rates for corners
+            (hW,hL,hD,hN,hRate), _ = split_win_rates(home_rec_t, home_rec_o, "corners_last_n", "opp_corners_last_n")
+            _, (aW,aL,aD,aN,aRate) = split_win_rates(away_rec_t, away_rec_o, "corners_last_n", "opp_corners_last_n")
 
-            out_teams.append({
-                "team_name": team_entry.get("team_name") or "",
-                "team_id": tid,
-                "last_n": LAST_N,
-                "categories": cats,
-            })
+            # choose side by thresholds
+            pick_side = None
+            if (aRate >= MIN_SIDE_RATE) and ((aRate - hRate) >= MIN_GAP):
+                pick_side = "away"
+            if (hRate >= MIN_SIDE_RATE) and ((hRate - aRate) >= MIN_GAP):
+                # if both satisfy (rare), prefer the bigger gap
+                if pick_side is None or (hRate - aRate) > (aRate - hRate):
+                    pick_side = "home"
+            if not pick_side:
+                continue
 
-        payload = {
-            "generated_at": now_utc_iso(),
-            "league_id": lid,
-            "last_n": LAST_N,
-            "red_weight": 1.0,  # kept for backward compatibility
-            "teams": sorted(out_teams, key=lambda r: r["team_name"].lower()),
-        }
-        (OUT_DIR / f"{lid}.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"Wrote {OUT_DIR / f'{lid}.json'}  (teams={len(out_teams)})")
+            # odds
+            odds_fx = odds_by_fixture.get(int(fid)) if isinstance(fid, int) else None
+            if not odds_fx: 
+                continue
+            home_p, away_p, _draw = extract_most_corners_prices(odds_fx.get("odds") or [])
+            price = home_p if pick_side=="home" else away_p
+            if price is None or price < MIN_DEC_PRICE:
+                continue
+
+            # pack
+            line = {
+                "fixture": name,
+                "side": pick_side,
+                "price": float(price),
+                "home_rate": hRate, "home_n": hN,
+                "away_rate": aRate, "away_n": aN,
+            }
+            candidates.append(line)
+
+        # render league block
+        if candidates:
+            any_out = True
+            print(f"League {lid}: {len(candidates)} candidates")
+            for r in candidates:
+                side_txt = "HOME" if r["side"]=="home" else "AWAY"
+                print(f"{r['fixture']} — Most Corners: {side_txt} @ {r['price']:.2f}")
+                print(f"  Home win rate: {r['home_rate']*100:.1f}% (home n={r['home_n']}) | Away win rate: {r['away_rate']*100:.1f}% (away n={r['away_n']})")
+            print("")
+        else:
+            print(f"League {lid}: no candidates")
+
+    if not any_out:
+        pass  # keep quiet overall (league lines are enough)
 
 if __name__ == "__main__":
     main()
