@@ -4,17 +4,41 @@
 """
 Build BOTH team and opponent series (latest->older) with HOME/AWAY flags.
 
+Captured team stats (per game, integers):
+  - shots_total (42)
+  - shots_on_target (86)
+  - fouls (56)
+  - tackles (78)
+  - cards_total = yellow (84) + red (83) [+ optional second yellow 85]
+  - saves (57)
+  - goal_kicks (53)
+  - corners (34)
+  - offsides (294)   <-- NEW
+
+Captured opponent-allowed series (values for the OPPOSING team in those games):
+  - opp_shots_total (42)
+  - opp_shots_on_target (86)
+  - opp_fouls (56)
+  - opp_tackles (78)
+  - opp_cards_total (84+83[+85])
+  - opp_saves (57)
+  - opp_goal_kicks (53)
+  - opp_corners (34)
+  - opp_offsides (294)   <-- NEW
+
 Outputs:
   - data/team_stats/by_league/{league_id}.json
       each team row includes:
         shots_total_last_n, shots_on_target_last_n, fouls_last_n, tackles_last_n,
         cards_total_last_n, saves_last_n, goal_kicks_last_n, corners_last_n,
+        offsides_last_n,                               <-- NEW
         fixture_ids, locations_last_n
   - data/team_opponent_stats/by_league/{league_id}.json
       each team row includes:
         opp_shots_total_last_n, opp_shots_on_target_last_n, opp_fouls_last_n,
         opp_tackles_last_n, opp_cards_total_last_n, opp_saves_last_n,
         opp_goal_kicks_last_n, opp_corners_last_n,
+        opp_offsides_last_n,                          <-- NEW
         fixture_ids, locations_last_n  (location is for THIS team in that game)
 
 Also writes combined.json + summary.txt in each tree.
@@ -25,6 +49,7 @@ Env:
   TEAM_OPP_STATS_LAST_N             (default 10)
   INCLUDE_SECOND_YELLOW_IN_CARDS    (0/1, default 0)
   SERIES_MODE                       (both | team | opp, default both)
+  TEAM_STAT_*_ID                    (override type IDs; OFFSIDES is TEAM_STAT_OFFSIDES_ID)
 """
 
 import os
@@ -96,6 +121,7 @@ SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))
 SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
+OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "294"))  # <-- NEW
 
 INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1","true","TRUE","yes","YES")
 
@@ -224,7 +250,7 @@ def infer_location(fx: dict, team_id: int) -> Optional[str]:
                     pass
     return None
 
-# ----------------- Fetch windows -----------------
+# ----------------- Fetch window -----------------
 def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, league_id: int, type_ids: List[int], page: int = 1) -> dict:
     """
     GET fixtures for team in [start,end] with league & statistic type filters, ordered desc.
@@ -246,18 +272,20 @@ def collect_team_series(league_id: int, season_id: int, team_id: int, last_n: in
     Returns:
       {
         'stats': { shots_total:[...], shots_on_target:[...], fouls:[...], tackles:[...],
-                   cards_total:[...], saves:[...], goal_kicks:[...], corners:[...] },
+                   cards_total:[...], saves:[...], goal_kicks:[...], corners:[...],
+                   offsides:[...] },
         'fixtures': [ids],  # aligned latest->older
         'locations': ["home"/"away"/"unknown", ...]
       }
     """
-    type_ids = list({SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS})
+    type_ids = list({SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS, OFFSIDES})
     start_season, end_today = get_season_bounds(season_id)
     end = end_today
 
     series = {
         "shots_total": [], "shots_on_target": [], "fouls": [], "tackles": [],
-        "cards_total": [], "saves": [], "goal_kicks": [], "corners": []
+        "cards_total": [], "saves": [], "goal_kicks": [], "corners": [],
+        "offsides": []  # NEW
     }
     fixture_ids: List[int] = []
     locations: List[str] = []
@@ -305,6 +333,7 @@ def collect_team_series(league_id: int, season_id: int, team_id: int, last_n: in
                 series["saves"].append(int(by_type.get(SAVES, 0)))
                 series["goal_kicks"].append(int(by_type.get(GOAL_KICKS, 0)))
                 series["corners"].append(int(by_type.get(CORNERS, 0)))
+                series["offsides"].append(int(by_type.get(OFFSIDES, 0)))  # NEW
                 fixture_ids.append(fid)
 
                 loc = infer_location(fx, team_id) or "unknown"
@@ -369,7 +398,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
     Build opponent stat series for the given team.
     Locations reflect THIS TEAM's home/away in each match.
     """
-    needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS}
+    needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS, OFFSIDES}
     if INCLUDE_SECOND_YELLOW_IN_CARDS:
         needed_type_ids.add(SECOND_YELLOW)
 
@@ -417,7 +446,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
                         val = vobj.get("value") if isinstance(vobj, dict) else None
                         if val is None:
                             continue
-                        # some feeds may include "%" strings
+                        # handle possible "%" strings
                         by_type_opp[t] = int(float(str(val).strip().replace("%","")))
                     except Exception:
                         continue
@@ -446,6 +475,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
         "opp_saves": [],
         "opp_goal_kicks": [],
         "opp_corners": [],
+        "opp_offsides": [],  # NEW
     }
     fixture_ids: List[int] = []
     locations: List[str] = []
@@ -460,6 +490,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
         series["opp_saves"].append(int(bt.get(SAVES, 0)))
         series["opp_goal_kicks"].append(int(bt.get(GOAL_KICKS, 0)))
         series["opp_corners"].append(int(bt.get(CORNERS, 0)))
+        series["opp_offsides"].append(int(bt.get(OFFSIDES, 0)))  # NEW
         fixture_ids.append(int(r["fid"]))
         locations.append(r.get("loc", "unknown"))
 
