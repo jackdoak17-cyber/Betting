@@ -1,59 +1,52 @@
-# ================= scripts/value_bets/offsides_match_bet.py =================
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Most Offsides — global picks (ranked), using team_winrates if available,
-otherwise falling back to team_stats + team_opponent_stats.
-Draws are treated as LOSSES when computing win rates.
+Team Offsides — OVER only (ranked by combo% then price) using Sportmonks + your series
 
-Reads (local only):
-- Fixtures:                     data/fixtures/{league_id}.json
-- Team winrates (optional):     data/team_winrates/by_league/{league_id}.json
-- Team series:                  data/team_stats/by_league/{league_id}.json
-- Opponent series:              data/team_opponent_stats/by_league/{league_id}.json
-- Bet365 odds (per-league):     data/odds/b365/{league_id}.json
+Reads (local files only):
+- Fixtures:                    data/fixtures/{league_id}.json
+- Team offense series:         data/team_stats/by_league/{league_id}.json         (offsides_last_n, locations_last_n)
+- Opponent-allowed series:     data/team_opponent_stats/by_league/{league_id}.json (opp_offsides_last_n, locations_last_n)
+- Bet365 odds from Sportmonks: data/odds/b365/{league_id}.json
 
-Selection logic (per fixture, within WINDOW_DAYS):
-- Consider HOME if home_home_rate >= MIN_SIDE_RATE and (home_home_rate - away_away_rate) >= MIN_GAP
-- Consider AWAY if away_away_rate >= MIN_SIDE_RATE and (away_away_rate - home_home_rate) >= MIN_GAP
-- Price for chosen side must be >= MIN_DEC_PRICE
-- Opponent guardrail: opponent overall < MAX_OPP_RATE and opponent split < MAX_OPP_RATE
+Market targeted:
+- Team Offsides (Bet365) — market_id 286 — labels “Home/Away” (or “1/2”) with Over/Under lines.
 
-Ranking (global):
-- chosen split win rate (desc), then gap (desc), then price (desc), fixture name (asc)
+Value logic (OVER only):
+- Compute team OVER% vs line, opponent-allowed OVER% vs line (overall).
+- combo% = average of the two (if only one side exists, use that one).
+- Rank picks by combo% desc, then price desc.
+- (Optional) ML filter: drop team if Match Winner price > OFFSIDES_ML_MAX (default 4.00).
+
+Output:
+- data/value_bets/offsides_match_bet.txt
 
 Env (optional):
-- LEAGUE_IDS      CSV (default: discover from fixtures)
-- WINDOW_DAYS     default 7
-- MIN_DEC_PRICE   default 1.70
-- MIN_SIDE_RATE   default 0.55
-- MIN_GAP         default 0.15
-- MAX_OPP_RATE    default 0.50
-- OUT_PATH        file to write (default data/value_bets/offsides_match_bet.txt)
+- LEAGUE_IDS         CSV of league IDs to scan (default: discover from fixtures dir)
+- WINDOW_DAYS        restrict fixtures to next N days (default 7, 0 = no limit)
+- MIN_DEC_PRICE      min decimal price to keep (default 1.20)
+- OFFSIDES_ML_MAX    drop teams with ML > this (default 4.00; set to 99 to disable)
 """
 
-import os, re, json, datetime as dt, unicodedata
+import os, re, json, math, datetime as dt, unicodedata
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-# --- IO roots ---
+# ---------- Config ----------
 ROOT       = Path(".")
 FIX_DIR    = ROOT / "data" / "fixtures"
-WINR_DIR   = ROOT / "data" / "team_winrates" / "by_league"
 TS_DIR     = ROOT / "data" / "team_stats" / "by_league"
 OPP_DIR    = ROOT / "data" / "team_opponent_stats" / "by_league"
 ODDS_DIR   = ROOT / "data" / "odds" / "b365"
-OUT_PATH   = Path(os.getenv("OUT_PATH", "data/value_bets/offsides_match_bet.txt"))
-OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+OUT_PATH   = Path("data/value_bets/offsides_match_bet.txt"); OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# --- thresholds ---
-WINDOW_DAYS   = int(os.getenv("WINDOW_DAYS", "7"))
-MIN_DEC_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.70"))
-MIN_SIDE_RATE = float(os.getenv("MIN_SIDE_RATE", "0.55"))
-MIN_GAP       = float(os.getenv("MIN_GAP", "0.15"))
-MAX_OPP_RATE  = float(os.getenv("MAX_OPP_RATE", "0.50"))
+WINDOW_DAYS     = int(os.getenv("WINDOW_DAYS", "7"))
+MIN_DEC_PRICE   = float(os.getenv("MIN_DEC_PRICE", "1.20"))
+OFFSIDES_ML_MAX = float(os.getenv("OFFSIDES_ML_MAX", "4.00"))
 
-# --- string utils / matching ---
+TEAM_OFFSIDES_MARKET_ID = 286  # Bet365 "Team Offsides"
+
+# ---------- String utils / matching ----------
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
@@ -89,6 +82,7 @@ def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
     return "", ""
 
 def within_window(starting_at: str, days: int) -> bool:
+    if not days: return True
     if not starting_at: return True
     try:
         dt_utc = dt.datetime.strptime(starting_at[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc)
@@ -97,7 +91,7 @@ def within_window(starting_at: str, days: int) -> bool:
     now = dt.datetime.now(dt.timezone.utc)
     return now <= dt_utc <= (now + dt.timedelta(days=days))
 
-# --- helpers ---
+# ---------- IO ----------
 def load_json(path: Path) -> dict:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -111,7 +105,7 @@ def discover_league_ids() -> List[int]:
         except: pass
     return sorted(set(ids))
 
-def index_by_team_name(blob: dict) -> Dict[str, dict]:
+def index_team_stats(blob: dict) -> Dict[str, dict]:
     m: Dict[str, dict] = {}
     for t in (blob.get("teams") or []):
         nm = t.get("team_name")
@@ -119,268 +113,254 @@ def index_by_team_name(blob: dict) -> Dict[str, dict]:
         m[norm(nm)] = t
     return m
 
-# --- compute win rates from sequences (D counts as LOSS) ---
-def _rate_from_seq(cat: dict) -> Tuple[int,int,int,float]:
-    """
-    Returns (wins, losses_incl_draws, n, rate) with draws counted as losses.
-    rate = wins / n  with n = W+L+D (i.e., len(sequence))
-    """
-    seq = [str(s).strip().upper() for s in (cat or {}).get("sequence", [])]
-    w = sum(s == "W" for s in seq)
-    l = sum(s == "L" for s in seq)
-    d = sum(s == "D" for s in seq)
-    n = w + l + d
-    losses_incl_draws = l + d
-    rate = (w / n) if n else 0.0
-    return w, losses_incl_draws, n, rate
+def index_team_opp_stats(blob: dict) -> Dict[str, dict]:
+    m: Dict[str, dict] = {}
+    for t in (blob.get("teams") or []):
+        nm = t.get("team_name")
+        if not nm: continue
+        m[norm(nm)] = t
+    return m
 
-def _offsides_rates_from_winrates(team_row: dict) -> Optional[dict]:
-    """
-    Pull overall/home/away Offsides win rates from team_winrates JSON (if present),
-    recomputing from `sequence` so that draws count as losses.
-    """
-    cats = (team_row or {}).get("categories", {})
-    if not any(k.startswith("offsides") for k in cats.keys()):
-        return None
-    _,_, n_overall, r_overall = _rate_from_seq(cats.get("offsides", {}))
-    _,_, n_home,    r_home    = _rate_from_seq(cats.get("offsides_home", {}))
-    _,_, n_away,    r_away    = _rate_from_seq(cats.get("offsides_away", {}))
-    return {
-        "overall_rate": r_overall,
-        "home_rate": r_home,  "home_n": n_home,
-        "away_rate": r_away,  "away_n": n_away,
-    }
+# ---------- Odds helpers ----------
+def is_team_offsides_row(row: dict) -> bool:
+    md = norm(row.get("market_description") or "")
+    mid = row.get("market_id")
+    if isinstance(mid, int) and mid == TEAM_OFFSIDES_MARKET_ID:
+        return True
+    # tolerate minor naming variants
+    if "offsides" in md and "team" in md:
+        return True
+    return False
 
-# --- compute rates from raw series fallback (team_stats + team_opponent_stats) ---
-def _rate_from_series(xs: List[int], ys: List[int]) -> Tuple[int,int,int,float]:
-    """
-    Compare aligned arrays xs (team stat) vs ys (opponent-allowed stat).
-    Draws count as losses: rate = wins / (wins+losses+draws) over aligned length.
-    """
-    n = min(len(xs), len(ys))
-    w = l = d = 0
-    for i in range(n):
-        a, b = xs[i], ys[i]
-        if a == b: d += 1
-        elif a > b: w += 1
-        else:       l += 1
-    tot = w + l + d
-    r = (w / tot) if tot else 0.0
-    return w, l + d, tot, r
-
-def _offsides_rates_from_series(team_row: dict, opp_row: dict) -> Optional[dict]:
-    """
-    Build overall/home/away rates using offsides_last_n vs opp_offsides_last_n,
-    filtered by locations_last_n for splits.
-    """
-    if not team_row or not opp_row:
-        return None
-
-    xs_all  = [x for x in (team_row.get("offsides_last_n") or []) if isinstance(x, int)]
-    ys_all  = [y for y in (opp_row.get("opp_offsides_last_n") or []) if isinstance(y, int)]
-    locs    = [str(s).lower() for s in (team_row.get("locations_last_n") or [])]
-    if not xs_all or not ys_all:
-        return None
-
-    # overall (venue-agnostic)
-    _,_, n_overall, r_overall = _rate_from_series(xs_all, ys_all)
-
-    # splits
-    def _filtered(xs, ys, locs, want):
-        x2, y2 = [], []
-        for i in range(min(len(xs), len(ys), len(locs))):
-            if locs[i] == want:
-                x2.append(xs[i]); y2.append(ys[i])
-        return _rate_from_series(x2, y2)
-
-    _,_, n_home,  r_home  = _filtered(xs_all, ys_all, locs, "home")
-    _,_, n_away,  r_away  = _filtered(xs_all, ys_all, locs, "away")
-
-    return {
-        "overall_rate": r_overall,
-        "home_rate": r_home,  "home_n": n_home,
-        "away_rate": r_away,  "away_n": n_away,
-    }
-
-# --- odds parsing (Most Offsides market) ---
-def label_to_side(s: Optional[str]) -> Optional[str]:
-    s = (s or "").strip().lower()
+def label_to_side(label: Optional[str]) -> Optional[str]:
+    s = (label or "").strip().lower()
     if s in {"1","home","home (1)","team 1"}: return "home"
     if s in {"2","away","away (2)","team 2"}: return "away"
-    if s in {"x","draw","tie"}: return "draw"
     return None
 
-def is_most_offsides_market(md: str) -> bool:
-    s = norm(md)
-    if not s: return False
-    if "race" in s or "handicap" in s or "total" in s or "over" in s or "under" in s:
-        return False
-    keys = [
-        "most offsides", "offsides match bet", "offsides - most",
-        "team with most offsides", "which team will have the most offsides",
-        "offsides most"
-    ]
-    return any(k in s for k in keys) or (("offside" in s or "offsides" in s) and "most" in s)
+def row_is_over(row: dict) -> bool:
+    # Many feeds stick "Over" inside total/label fields.
+    text = " ".join(str(row.get(k) or "") for k in ("total","label","original_label","name")).lower()
+    return "over" in text and ("under" not in text)
 
-def extract_most_offsides_prices(rows: List[dict]) -> Tuple[Optional[float], Optional[float], Optional[float]]:
-    h, a, d = None, None, None
-    for r in rows or []:
-        if not is_most_offsides_market(r.get("market_description","")):
-            continue
+def parse_line(row: dict) -> Optional[float]:
+    # Prefer explicit handicap/line field if numeric
+    h = row.get("handicap")
+    try:
+        if h is not None:
+            return float(h)
+    except Exception:
+        pass
+    # Fallback: extract first number from total/label
+    for k in ("total","label","original_label","name"):
+        s = str(row.get(k) or "")
+        m = re.search(r"([-+]?\d+(?:\.\d+)?)", s)
+        if m:
+            try: return float(m.group(1))
+            except Exception: pass
+    return None
+
+def parse_price(row: dict) -> Optional[float]:
+    try:
+        return float(row.get("value"))
+    except Exception:
+        return None
+
+# Match Winner (ML) for ML filter
+MATCH_WINNER_ALIASES = {
+    "match winner","match result","full time result","fulltime result",
+    "1x2","result","win/draw/win","90 minutes","3-way","3 way","regular time result"
+}
+def is_ml_row(r: dict) -> bool:
+    return norm(r.get("market_description") or "") in MATCH_WINNER_ALIASES
+
+def extract_ml(rows: List[dict]) -> Tuple[Optional[float], Optional[float]]:
+    home_ml = None; away_ml = None
+    for r in rows:
+        if not is_ml_row(r): continue
         side = label_to_side(r.get("label"))
-        try:
-            price = float(r.get("value"))
-        except Exception:
-            continue
+        price = parse_price(r)
+        if price is None or side not in {"home","away"}: continue
         if side == "home":
-            h = price if (h is None or price > h) else h
-        elif side == "away":
-            a = price if (a is None or price > a) else a
-        elif side == "draw":
-            d = price if (d is None or price > d) else d
-    return h, a, d
+            home_ml = price if (home_ml is None or price < home_ml) else home_ml
+        else:
+            away_ml = price if (away_ml is None or price < away_ml) else away_ml
+    return home_ml, away_ml
 
-# --- main ---
+# ---------- Rates ----------
+def over_threshold(line: float) -> int:
+    """
+    Convert a book line into an integer threshold for '>= hits'.
+    - For half lines (e.g., 2.5) -> ceil(2.5)=3
+    - For integer lines (e.g., 2.0 or 2) -> require strictly over (>= 3)
+    """
+    if float(line).is_integer():
+        return int(line) + 1
+    return math.ceil(float(line))
+
+def over_rate(seq: List[int], line: float) -> Optional[Tuple[int,int,float]]:
+    if seq is None: return None
+    xs = [x for x in seq if isinstance(x, int)]
+    if not xs: return None
+    thr = over_threshold(line)
+    hits = sum(1 for x in xs if x >= thr)
+    n = len(xs)
+    return hits, n, (hits / n) if n else None
+
+def combo_avg(team_over, oppA_over) -> Optional[Tuple[float, Tuple[int,int], Tuple[int,int]]]:
+    """
+    Average of team% and oppA% if both available.
+    If only one side has data, use that %. If neither, return None.
+    Returns (combo_pct, (team_hits, team_n), (opp_hits, opp_n))
+    """
+    t_pct = team_over[2] if team_over else None
+    a_pct = oppA_over[2] if oppA_over else None
+    if t_pct is None and a_pct is None:
+        return None
+    if t_pct is None:
+        return a_pct, (0,0), (oppA_over[0], oppA_over[1])
+    if a_pct is None:
+        return t_pct, (team_over[0], team_over[1]), (0,0)
+    return (t_pct + a_pct) / 2.0, (team_over[0], team_over[1]), (oppA_over[0], oppA_over[1])
+
+# ---------- Main ----------
 def main():
-    # league list
+    # leagues to scan
     if os.getenv("LEAGUE_IDS"):
         league_ids = [int(x) for x in os.getenv("LEAGUE_IDS").split(",") if x.strip()]
     else:
         league_ids = discover_league_ids()
 
-    picks = []
+    rows_out: List[dict] = []
 
     for lid in league_ids:
-        fx_path   = FIX_DIR  / f"{lid}.json"
-        wr_path   = WINR_DIR / f"{lid}.json"
-        ts_path   = TS_DIR   / f"{lid}.json"
-        opp_path  = OPP_DIR  / f"{lid}.json"
+        fx_path   = FIX_DIR / f"{lid}.json"
         odds_path = ODDS_DIR / f"{lid}.json"
-        if not (fx_path.exists() and odds_path.exists()):
+        ts_path   = TS_DIR / f"{lid}.json"
+        opp_path  = OPP_DIR / f"{lid}.json"
+        if not (fx_path.exists() and odds_path.exists() and ts_path.exists() and opp_path.exists()):
             continue
 
-        fixtures  = load_json(fx_path).get("fixtures") or []
+        fixtures = load_json(fx_path).get("fixtures") or []
         odds_blob = load_json(odds_path)
         odds_by_fixture = {int(f.get("fixture_id")): f for f in (odds_blob.get("fixtures") or []) if isinstance(f.get("fixture_id"), int)}
 
-        # optional winrates; also load raw series for fallback
-        winr_idx = index_by_team_name(load_json(wr_path)) if wr_path.exists() else {}
-        ts_idx   = index_by_team_name(load_json(ts_path)) if ts_path.exists() else {}
-        opp_idx  = index_by_team_name(load_json(opp_path)) if opp_path.exists() else {}
-
-        def find_row(idx: Dict[str,dict], team_name: str) -> Optional[dict]:
-            row = idx.get(norm(team_name))
-            if row: return row
-            for r in idx.values():
-                if team_names_match(team_name, r.get("team_name","")):
-                    return r
-            return None
+        ts_idx   = index_team_stats(load_json(ts_path))
+        opp_idx  = index_team_opp_stats(load_json(opp_path))
 
         for fx in fixtures:
-            if not isinstance(fx, dict):
-                continue
+            if not isinstance(fx, dict): continue
             fid = fx.get("id") or fx.get("fixture_id")
             name = fx.get("name") or ""
             starting_at = fx.get("starting_at") or ""
             if WINDOW_DAYS and not within_window(starting_at, WINDOW_DAYS):
                 continue
 
-            home_nm, away_nm = parse_fixture_teams(name)
-            if not home_nm or not away_nm:
+            home, away = parse_fixture_teams(name)
+            if not home or not away: 
                 continue
 
-            # rates for home/away (prefer team_winrates; else compute from series)
-            home_rates = None
-            away_rates = None
-
-            if winr_idx:
-                hr_wr = find_row(winr_idx, home_nm)
-                ar_wr = find_row(winr_idx, away_nm)
-                if hr_wr and ar_wr:
-                    home_rates = _offsides_rates_from_winrates(hr_wr)
-                    away_rates = _offsides_rates_from_winrates(ar_wr)
-
-            if (home_rates is None) or (away_rates is None):
-                # fallback to series
-                ht = find_row(ts_idx, home_nm)
-                at = find_row(ts_idx, away_nm)
-                ho = find_row(opp_idx, home_nm)
-                ao = find_row(opp_idx, away_nm)
-                if ht and at and ho and ao:
-                    home_rates = _offsides_rates_from_series(ht, ho)
-                    away_rates = _offsides_rates_from_series(at, ao)
-
-            if not (home_rates and away_rates):
-                continue
-
-            # overall (venue-agnostic)
-            hRate_all = float(home_rates["overall_rate"])
-            aRate_all = float(away_rates["overall_rate"])
-
-            # split (home team at home, away team away)
-            hRate = float(home_rates["home_rate"]); hN = int(home_rates["home_n"])
-            aRate = float(away_rates["away_rate"]); aN = int(away_rates["away_n"])
-
-            # choose side by thresholds/gap
-            pick_side = None
-            if (hRate >= MIN_SIDE_RATE) and ((hRate - aRate) >= MIN_GAP):
-                pick_side = "home"
-            if (aRate >= MIN_SIDE_RATE) and ((aRate - hRate) >= MIN_GAP):
-                if (pick_side is None) or ((aRate - hRate) > (hRate - aRate)):
-                    pick_side = "away"
-            if not pick_side:
-                continue
-
-            # opponent guardrail
-            other_overall = aRate_all if pick_side == "home" else hRate_all
-            other_split   = aRate      if pick_side == "home" else hRate
-            if (other_overall >= MAX_OPP_RATE) or (other_split >= MAX_OPP_RATE):
-                continue
-
-            # odds
             odds_fx = odds_by_fixture.get(int(fid)) if isinstance(fid, int) else None
-            if not odds_fx:
+            if not odds_fx: 
                 continue
-            home_p, away_p, _draw_p = extract_most_offsides_prices(odds_fx.get("odds") or [])
-            price = home_p if pick_side == "home" else away_p
-            if price is None or price < MIN_DEC_PRICE:
+            rows_odds = odds_fx.get("odds") or []
+            if not isinstance(rows_odds, list): 
                 continue
 
-            chosen_rate = hRate if pick_side=="home" else aRate
-            other_rate  = aRate if pick_side=="home" else hRate
-            gap = max(0.0, chosen_rate - other_rate)
+            # Compute ML once per fixture (for optional filter)
+            home_ml, away_ml = extract_ml(rows_odds)
 
-            picks.append({
-                "fixture": name,
-                "side": pick_side,
-                "price": float(price),
-                "chosen_rate": chosen_rate,
-                "gap": gap,
-                "hRate_all": hRate_all, "hRate": hRate, "hN": hN,
-                "aRate_all": aRate_all, "aRate": aRate, "aN": aN,
-            })
+            for row in rows_odds:
+                if not is_team_offsides_row(row):
+                    continue
+                if not row_is_over(row):
+                    continue
 
-    # rank globally
-    picks.sort(key=lambda r: (-r["chosen_rate"], -r["gap"], -r["price"], r["fixture"]))
+                side = label_to_side(row.get("label"))
+                if side not in {"home","away"}:
+                    # fallback: try to infer from text
+                    text = " ".join([str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
+                    if "home" in text and "away" not in text: side = "home"
+                    elif "away" in text and "home" not in text: side = "away"
+                    else:
+                        continue
 
+                line  = parse_line(row)
+                price = parse_price(row)
+                if line is None or price is None or price < MIN_DEC_PRICE:
+                    continue
+
+                team_nm = home if side=="home" else away
+                opp_nm  = away if side=="home" else home
+
+                # Optional ML filter (drop big underdogs)
+                team_ml = home_ml if side=="home" else away_ml
+                if (team_ml is None) or (team_ml > OFFSIDES_ML_MAX):
+                    continue
+
+                # Pull series
+                t_rec = ts_idx.get(norm(team_nm))
+                a_rec = opp_idx.get(norm(opp_nm))
+                if not t_rec or not a_rec:
+                    # fuzzy fallback
+                    for r in ts_idx.values():
+                        if not t_rec and team_names_match(team_nm, r.get("team_name","")):
+                            t_rec = r
+                    for r in opp_idx.values():
+                        if not a_rec and team_names_match(opp_nm, r.get("team_name","")):
+                            a_rec = r
+                    if not t_rec or not a_rec:
+                        continue
+
+                team_seq = [x for x in (t_rec.get("offsides_last_n") or []) if isinstance(x, int)]
+                oppA_seq = [x for x in (a_rec.get("opp_offsides_last_n") or []) if isinstance(x, int)]
+
+                t_over = over_rate(team_seq, line)
+                a_over = over_rate(oppA_seq, line)
+                combo  = combo_avg(t_over, a_over)
+                if not combo:
+                    continue
+
+                combo_pct, (t_hits, t_n), (a_hits, a_n) = combo
+
+                rows_out.append({
+                    "fixture": name,
+                    "kickoff": starting_at,
+                    "team": team_nm,
+                    "opp": opp_nm,
+                    "side": side,
+                    "line": float(line),
+                    "price": float(price),
+                    "team_hits": t_hits, "team_n": t_n,
+                    "opp_hits": a_hits,  "opp_n": a_n,
+                    "combo": combo_pct,
+                    "team_ml": float(team_ml) if team_ml is not None else None,
+                })
+
+    # Rank by combo desc, then price desc
+    rows_out.sort(key=lambda r: (-r["combo"], -r["price"], r["fixture"], r["team"], r["line"]))
+
+    # Render
     lines = []
     lines.append(f"Generated at (UTC): {dt.datetime.utcnow().isoformat(timespec='seconds')}")
     lines.append("")
-    lines.append("Most Offsides — candidates (ranked by likelihood)")
-    if not picks:
+    lines.append("Team Offsides — OVER candidates (ranked by combo% then price)")
+    if not rows_out:
         lines.append("(no candidates)")
     else:
-        for r in picks:
-            side_txt = "HOME" if r["side"] == "home" else "AWAY"
-            lines.append(f"{r['fixture']} — Most Offsides: {side_txt} @ {r['price']:.2f}")
+        for r in rows_out:
+            t_pct = (r["team_hits"]/r["team_n"]*100.0) if r["team_n"] else None
+            a_pct = (r["opp_hits"]/r["opp_n"]*100.0) if r["opp_n"] else None
+            t_str = f"{r['team_hits']}/{r['team_n']} ({t_pct:5.1f}%)" if r["team_n"] else "n/a"
+            a_str = f"{r['opp_hits']}/{r['opp_n']} ({a_pct:5.1f}%)"  if r["opp_n"] else "n/a"
+            ml_str = f" | ML={r['team_ml']:.3f}" if isinstance(r.get("team_ml"), float) else ""
             lines.append(
-                f"  Home: {r['hRate_all']*100:.1f}% overall | {r['hRate']*100:.1f}% home (n={r['hN']}) | "
-                f"Away: {r['aRate_all']*100:.1f}% overall | {r['aRate']*100:.1f}% away (n={r['aN']})"
+                f" • {r['team']} — Offsides Over {r['line']:.1f} @ {r['price']:.3f} | {r['fixture']} | side={r['side']} | "
+                f"team {t_str}, oppA {a_str} | combo={(r['combo']*100):5.1f}%{ml_str}"
             )
 
-    out = "\n".join(lines).rstrip() + "\n"
-    OUT_PATH.write_text(out, encoding="utf-8")
-    print(out, end="")
+    OUT_PATH.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    print("\n".join(lines))
 
 if __name__ == "__main__":
     main()
