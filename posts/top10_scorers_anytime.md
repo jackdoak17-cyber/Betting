@@ -2,13 +2,13 @@ Top 10 Scorers — Bet365 Anytime
 
 | Rank | Player | Goals | Odds | Opponent |
 |:---:|:--|:---:|:---:|:--|
-| 1 | H. Kane — Bayern (BUN) | 12 | @ 1.50 | v Leverkusen |
-| 2 | E. Haaland — Man City (PL) | 11 | @ 1.61 | v Bournemouth |
-| 3 | K. Mbappé — Real Madrid (LAL) | 11 | @ 1.40 | v Valencia |
+| 1 | K. Mbappé — Real Madrid (LAL) | 13 | @ 1.36 | v Rayo |
+| 2 | H. Kane — Bayern (BUN) | 12 | @ 1.61 | v Union Berlin |
+| 3 | E. Haaland — Man City (PL) | 11 | @ 1.61 | v Bournemouth |
 | 4 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.40 | v Rennes |
-| 5 | M. Greenwood — Marseille (L1) | 7 | @ 2.05 | v Auxerre |
-| 6 | A. Semenyo — Bournemouth (PL) | 6 | @ 4.50 | v Man City |
-| 7 | I. Thiago — Brentford (PL) | 6 | @ 2.87 | v Crystal Palace |
-| 8 | J. Burkardt — Frankfurt (BUN) | 6 | @ 1.95 | v Heidenheim |
-| 9 | J. Alvarez — Atleti (LAL) | 6 | @ 1.90 | v Sevilla |
-| 10 | K. Eyong — Levante (LAL) | 6 | @ 2.40 | v Celta de Vigo |
+| 5 | J. Alvarez — Atleti (LAL) | 7 | @ 1.72 | v Levante |
+| 6 | M. Greenwood — Marseille (L1) | 7 | @ 2.00 | v Brest |
+| 7 | A. Semenyo — Bournemouth (PL) | 6 | @ 4.50 | v Man City |
+| 8 | D. Welbeck — Brighton (PL) | 6 | @ 2.50 | v Crystal Palace |
+| 9 | I. Thiago — Brentford (PL) | 6 | @ 3.00 | v Newcastle |
+| 10 | J. Mateta — Crystal Palace (PL) | 6 | @ 2.30 | v Brighton |
