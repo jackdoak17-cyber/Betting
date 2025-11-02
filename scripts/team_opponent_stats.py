@@ -12,6 +12,7 @@ Opponent stats captured (latest -> older):
 - opp_saves             (57)
 - opp_goal_kicks        (53)
 - opp_corners           (34)
+- opp_offsides          (OPTIONAL; set TEAM_STAT_OFFSIDES_ID)
 
 Writes:
   - data/team_opponent_stats/by_league/{league_id}.json
@@ -22,6 +23,9 @@ Notes:
 - Only finished fixtures (state_id == 5) in the target league/season.
 - include=participants;statistics;state
 - Filter by fixtureStatisticTypes to keep payloads lean.
+
+Enable Offsides:
+- Set env TEAM_STAT_OFFSIDES_ID to the correct type_id (non-zero) to include opp_offsides.
 """
 
 import os, json, time, datetime as dt
@@ -55,6 +59,7 @@ SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))  # option
 SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
+OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "0"))  # 0 = disabled
 
 INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1", "true", "TRUE", "yes", "YES")
 
@@ -189,7 +194,6 @@ def _parse_start_ts(fx: dict) -> int:
     Best-effort: return a UNIX timestamp for fixture kickoff.
     """
     st = fx.get("starting_at")
-    # Common shape: starting_at: { "date_time": "YYYY-MM-DD HH:MM:SS", "timestamp": 1234567890 }
     if isinstance(st, dict):
         ts = st.get("timestamp") or st.get("ts")
         if isinstance(ts, (int, float)):
@@ -197,12 +201,10 @@ def _parse_start_ts(fx: dict) -> int:
         dt_str = st.get("date_time") or st.get("date") or st.get("starting_at")
         if isinstance(dt_str, str):
             try:
-                # tolerate "YYYY-MM-DD HH:MM:SS" or ISO-ish
                 s = dt_str.replace("Z", "").replace("T", " ")
                 return int(dt.datetime.strptime(s[:19], "%Y-%m-%d %H:%M:%S").timestamp())
             except Exception:
                 pass
-    # Sometimes under "time" blob
     tm = fx.get("time")
     if isinstance(tm, dict):
         ts = tm.get("timestamp") or (tm.get("starting_at") or {}).get("timestamp")
@@ -215,7 +217,6 @@ def _parse_start_ts(fx: dict) -> int:
                 return int(dt.datetime.strptime(s[:19], "%Y-%m-%d %H:%M:%S").timestamp())
             except Exception:
                 pass
-    # Fallback: 0 (will sort last)
     return 0
 
 def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
@@ -228,7 +229,6 @@ def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
         others = [i for i in ids if i != team_id]
         if others:
             return others[0]
-    # Fallback
     stats = fx.get("statistics") or []
     participants = {int(s.get("participant_id")) for s in stats if s.get("participant_id") is not None}
     others = [i for i in participants if i != team_id]
@@ -241,19 +241,19 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
     Build opponent stat series for the given team.
     Returns:
       {
-        'stats': {... eight series ...},
+        'stats': {... eight series (+ opp_offsides if enabled) ...},
         'fixtures': [ids],  # aligned to the series; latest->older
       }
     """
     needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS}
-    # Add second yellow to the filter so it's available if included in cards
     if INCLUDE_SECOND_YELLOW_IN_CARDS:
         needed_type_ids.add(SECOND_YELLOW)
+    if OFFSIDES > 0:
+        needed_type_ids.add(OFFSIDES)
 
     start_season, end_today = get_season_bounds(season_id)
     end = end_today
 
-    # Collect all candidate fixtures first (dedup), then sort, then build arrays
     recs: List[dict] = []
     seen_fids: set[int] = set()
 
@@ -261,7 +261,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         return len(recs) >= LAST_N
 
     while end >= start_season and not got_enough_unique():
-        win_start = max(start_season, end - dt.timedelta(days=99))  # 100-day window
+        win_start = max(start_season, end - dt.timedelta(days=99))
         page = 1
         has_more = True
         while has_more and not got_enough_unique():
@@ -277,7 +277,7 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
                     continue
                 if int(fx.get("season_id") or 0) != season_id:
                     continue
-                if int(fx.get("state_id") or 0) not in (5,):  # finished only
+                if int(fx.get("state_id") or 0) not in (5,):
                     continue
 
                 fid = int(fx.get("id") or 0)
@@ -288,7 +288,6 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
                 if opp_id is None:
                     continue
 
-                # Build opponent type -> value
                 by_type_opp: Dict[int, int] = {}
                 for s in (fx.get("statistics") or []):
                     try:
@@ -309,7 +308,6 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
 
         end = win_start - dt.timedelta(days=1)
 
-    # Sort newest -> older, then build arrays
     recs.sort(key=lambda r: r["ts"], reverse=True)
 
     def card_sum(bt: Dict[int, int]) -> int:
@@ -328,6 +326,8 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         "opp_goal_kicks": [],
         "opp_corners": [],
     }
+    if OFFSIDES > 0:
+        series["opp_offsides"] = []
     fixture_ids: List[int] = []
 
     for r in recs[:LAST_N]:
@@ -340,6 +340,8 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         series["opp_saves"].append(int(bt.get(SAVES, 0)))
         series["opp_goal_kicks"].append(int(bt.get(GOAL_KICKS, 0)))
         series["opp_corners"].append(int(bt.get(CORNERS, 0)))
+        if OFFSIDES > 0:
+            series["opp_offsides"].append(int(bt.get(OFFSIDES, 0)))
         fixture_ids.append(int(r["fid"]))
 
     return {"stats": series, "fixtures": fixture_ids}
