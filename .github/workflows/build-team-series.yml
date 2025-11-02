@@ -23,6 +23,7 @@ jobs:
       INCLUDE_SECOND_YELLOW_IN_CARDS: "0"  # set "1" if you want 2nd yellows included in cards_total
       SERIES_MODE: "both"                  # both | team | opp
       PYTHONUNBUFFERED: "1"
+      TEAM_STAT_OFFSIDES_ID: "294"         # <<< enable Offsides (type_id 294)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
