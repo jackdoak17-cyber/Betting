@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Collect per-team LAST_N opponent series from Sportmonks v3 fixture team statistics.
+Collect per-team LAST_N opponent series from Sportmonks v3 fixture team statistics
+**with HOME/AWAY flags aligned to the INDEX TEAM's fixtures**.
 
 Opponent stats captured (latest -> older):
-- opp_shots_total       (type_id 42)
+- opp_shots_total       (42)
 - opp_shots_on_target   (86)
 - opp_fouls             (56)
 - opp_tackles           (78)
@@ -12,7 +13,7 @@ Opponent stats captured (latest -> older):
 - opp_saves             (57)
 - opp_goal_kicks        (53)
 - opp_corners           (34)
-- opp_offsides          (OPTIONAL; set TEAM_STAT_OFFSIDES_ID)
+- opp_offsides          (294)  <-- NEW
 
 Writes:
   - data/team_opponent_stats/by_league/{league_id}.json
@@ -21,11 +22,8 @@ Writes:
 
 Notes:
 - Only finished fixtures (state_id == 5) in the target league/season.
-- include=participants;statistics;state
+- include=participants;statistics;state to infer home/away and read values.
 - Filter by fixtureStatisticTypes to keep payloads lean.
-
-Enable Offsides:
-- Set env TEAM_STAT_OFFSIDES_ID to the correct type_id (non-zero) to include opp_offsides.
 """
 
 import os, json, time, datetime as dt
@@ -33,7 +31,6 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import requests
 
-# ---- API config ----
 API_BASE = "https://api.sportmonks.com/v3/football"
 API_TOKEN = (
     os.getenv("SPORTMONKS_TOKEN")
@@ -46,32 +43,29 @@ if not API_TOKEN:
 TIMEOUT = 25
 RETRIES = 3
 BACKOFF = 1.6
-GLOBAL_MIN_DELAY = 0.18  # gentle pacing
+GLOBAL_MIN_DELAY = 0.18
 
-# ---- Type IDs (override via env if needed) ----
 SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))
 SHOTS_ON_TARGET  = int(os.getenv("TEAM_STAT_SHOTS_ON_TARGET_ID", "86"))
 FOULS            = int(os.getenv("TEAM_STAT_FOULS_ID", "56"))
 TACKLES          = int(os.getenv("TEAM_STAT_TACKLES_ID", "78"))
 YELLOW           = int(os.getenv("TEAM_STAT_YELLOW_CARDS_ID", "84"))
 RED              = int(os.getenv("TEAM_STAT_RED_CARDS_ID", "83"))
-SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))  # optional in cards
+SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))
 SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
-OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "0"))  # 0 = disabled
+OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "294"))  # <-- NEW
 
 INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1", "true", "TRUE", "yes", "YES")
 
 LAST_N = int(os.getenv("TEAM_OPP_STATS_LAST_N", "10"))
 
-# ---- IO ----
 PX_DIR = Path("data/predicted_xi/by_league")
 OUT_ROOT = Path("data/team_opponent_stats")
 BY_LEAGUE_DIR = OUT_ROOT / "by_league"
 BY_LEAGUE_DIR.mkdir(parents=True, exist_ok=True)
 
-# ---- tiny http helpers ----
 _last_call = 0.0
 def _pace():
     global _last_call
@@ -117,6 +111,54 @@ def dstr(d: dt.date) -> str:
 def ensure_dir(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
+def _infer_location_from_part(part: dict, default: Optional[str] = None) -> Optional[str]:
+    meta = (part.get("meta") or {}) if isinstance(part, dict) else {}
+    loc = (meta.get("location") or part.get("location") or "").strip().lower()
+    if loc.startswith("home") or loc.startswith("local"):
+        return "home"
+    if loc.startswith("away") or loc.startswith("visitor") or loc.startswith("visit"):
+        return "away"
+    return default
+
+def infer_location(fx: dict, team_id: int) -> Optional[str]:
+    parts = fx.get("participants")
+    if isinstance(parts, list) and parts:
+        for idx, p in enumerate(parts):
+            pid = p.get("id") or p.get("team_id")
+            try:
+                pid = int(pid)
+            except Exception:
+                continue
+            if pid == team_id:
+                loc = _infer_location_from_part(p)
+                if loc:
+                    return loc
+                if idx == 0:
+                    return "home"
+                if idx == 1:
+                    return "away"
+        return None
+    if isinstance(parts, dict):
+        for hk in ("home", "localteam", "local", "home_team"):
+            d = parts.get(hk)
+            if isinstance(d, dict):
+                pid = d.get("id") or d.get("team_id")
+                try:
+                    if int(pid) == team_id:
+                        return "home"
+                except Exception:
+                    pass
+        for ak in ("away", "visitorteam", "visitor", "away_team"):
+            d = parts.get(ak)
+            if isinstance(d, dict):
+                pid = d.get("id") or d.get("team_id")
+                try:
+                    if int(pid) == team_id:
+                        return "away"
+                except Exception:
+                    pass
+    return None
+
 def load_target_teams() -> Dict[Tuple[int, int], Dict[int, str]]:
     """
     Returns: teams_by_league_season[(league_id, season_id)] = {team_id: team_name}
@@ -153,16 +195,18 @@ def load_target_teams() -> Dict[Tuple[int, int], Dict[int, str]]:
     return teams
 
 def get_season_bounds(season_id: int) -> Tuple[dt.date, dt.date]:
-    """Fetch season start/end (clamp end to today)."""
     j = api_get(f"seasons/{season_id}")
     data = j.get("data") or {}
+
     def _take(s: Optional[str]) -> Optional[str]:
-        if not s: return None
+        if not s:
+            return None
         return s.split("T")[0].split(" ")[0]
+
     start_s = _take(data.get("starting_at"))
-    end_s   = _take(data.get("ending_at"))
+    end_s = _take(data.get("ending_at"))
     start = dt.datetime.strptime(start_s, "%Y-%m-%d").date() if start_s else today_utc_date().replace(month=8, day=1)
-    end   = min(today_utc_date(), dt.datetime.strptime(end_s, "%Y-%m-%d").date() if end_s else today_utc_date())
+    end = min(today_utc_date(), dt.datetime.strptime(end_s, "%Y-%m-%d").date() if end_s else today_utc_date())
     return start, end
 
 def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, league_id: int, type_ids: List[int], page: int = 1) -> dict:
@@ -175,7 +219,7 @@ def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, leagu
     params = {
         "include": includes,
         "filters": filt,
-        "order": "desc",        # if supported; we'll still sort locally
+        "order": "desc",
         "per_page": 50,
         "page": page,
     }
@@ -190,9 +234,6 @@ def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, leagu
         raise
 
 def _parse_start_ts(fx: dict) -> int:
-    """
-    Best-effort: return a UNIX timestamp for fixture kickoff.
-    """
     st = fx.get("starting_at")
     if isinstance(st, dict):
         ts = st.get("timestamp") or st.get("ts")
@@ -220,9 +261,6 @@ def _parse_start_ts(fx: dict) -> int:
     return 0
 
 def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
-    """
-    Prefer participants include; fallback to any statistics participant != team_id.
-    """
     parts = fx.get("participants")
     if isinstance(parts, list) and len(parts) >= 2:
         ids = [int(p.get("id")) for p in parts if p.get("id") is not None]
@@ -237,19 +275,9 @@ def _opponent_id_from_fixture(fx: dict, team_id: int) -> Optional[int]:
     return None
 
 def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dict:
-    """
-    Build opponent stat series for the given team.
-    Returns:
-      {
-        'stats': {... eight series (+ opp_offsides if enabled) ...},
-        'fixtures': [ids],  # aligned to the series; latest->older
-      }
-    """
-    needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS}
+    needed_type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS, OFFSIDES}
     if INCLUDE_SECOND_YELLOW_IN_CARDS:
         needed_type_ids.add(SECOND_YELLOW)
-    if OFFSIDES > 0:
-        needed_type_ids.add(OFFSIDES)
 
     start_season, end_today = get_season_bounds(season_id)
     end = end_today
@@ -303,7 +331,8 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
                         continue
 
                 start_ts = _parse_start_ts(fx)
-                recs.append({"fid": fid, "ts": start_ts, "by_type": by_type_opp})
+                loc = infer_location(fx, team_id) or "unknown"   # location for the INDEX TEAM
+                recs.append({"fid": fid, "ts": start_ts, "by_type": by_type_opp, "loc": loc})
                 seen_fids.add(fid)
 
         end = win_start - dt.timedelta(days=1)
@@ -325,10 +354,10 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         "opp_saves": [],
         "opp_goal_kicks": [],
         "opp_corners": [],
+        "opp_offsides": [],   # <-- NEW
     }
-    if OFFSIDES > 0:
-        series["opp_offsides"] = []
     fixture_ids: List[int] = []
+    locations: List[str] = []
 
     for r in recs[:LAST_N]:
         bt = r["by_type"]
@@ -340,11 +369,11 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int) -> dic
         series["opp_saves"].append(int(bt.get(SAVES, 0)))
         series["opp_goal_kicks"].append(int(bt.get(GOAL_KICKS, 0)))
         series["opp_corners"].append(int(bt.get(CORNERS, 0)))
-        if OFFSIDES > 0:
-            series["opp_offsides"].append(int(bt.get(OFFSIDES, 0)))
+        series["opp_offsides"].append(int(bt.get(OFFSIDES, 0)))  # <-- NEW
         fixture_ids.append(int(r["fid"]))
+        locations.append(r.get("loc", "unknown"))
 
-    return {"stats": series, "fixtures": fixture_ids}
+    return {"stats": series, "fixtures": fixture_ids, "locations": locations}
 
 def main():
     teams_by_ls = load_target_teams()
@@ -373,12 +402,12 @@ def main():
             "order": "latest_first",
             "n_requested": LAST_N,
             "fixture_ids": coll["fixtures"],
+            "locations_last_n": coll["locations"],  # keep H/A flags (for the index team)
             **{k + "_last_n": coll["stats"][k] for k in coll["stats"].keys()},
         }
         per_league.setdefault(lid, []).append(entry)
         combined_rows.append(entry)
 
-    # write per-league
     for lid, rows in per_league.items():
         rows.sort(key=lambda r: (r["team_name"].lower(), r["team_id"]))
         payload = {
@@ -394,7 +423,6 @@ def main():
         tmp.replace(out)
         print(f"Wrote {out}")
 
-    # combined
     combined = {
         "generated_at": generated_at,
         "count": len(combined_rows),
@@ -406,7 +434,6 @@ def main():
     tmpc.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8")
     tmpc.replace(outc)
 
-    # summary (counts per league)
     lines = []
     lines.append(f"Time (UTC): {generated_at}")
     lines.append(f"Teams  : {len(combined_rows)}")
