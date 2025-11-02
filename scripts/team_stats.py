@@ -12,6 +12,7 @@ Stats captured (type_ids in comments):
 - saves (57)
 - goal_kicks (53)
 - corners (34)
+- offsides (OPTIONAL; set TEAM_STAT_OFFSIDES_ID)
 
 Writes:
   - data/team_stats/by_league/{league_id}.json
@@ -22,6 +23,9 @@ Notes:
 - Only finished fixtures in the target league & season.
 - 'statistics' include returns team stats with participant_id == team_id.
 - We filter by fixtureStatisticTypes to keep responses lean.
+
+Enable Offsides:
+- Set env TEAM_STAT_OFFSIDES_ID to the correct type_id (non-zero) to include offsides.
 """
 
 import os, json, time, datetime as dt
@@ -44,15 +48,16 @@ BACKOFF = 1.6
 GLOBAL_MIN_DELAY = 0.18
 
 # ---- Type IDs (override via env if needed) ----
-SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))   # :contentReference[oaicite:2]{index=2}
-SHOTS_ON_TARGET  = int(os.getenv("TEAM_STAT_SHOTS_ON_TARGET_ID", "86"))# :contentReference[oaicite:3]{index=3}
-FOULS            = int(os.getenv("TEAM_STAT_FOULS_ID", "56"))          # :contentReference[oaicite:4]{index=4}
-TACKLES          = int(os.getenv("TEAM_STAT_TACKLES_ID", "78"))        # :contentReference[oaicite:5]{index=5}
-YELLOW           = int(os.getenv("TEAM_STAT_YELLOW_CARDS_ID", "84"))   # :contentReference[oaicite:6]{index=6}
-RED              = int(os.getenv("TEAM_STAT_RED_CARDS_ID", "83"))      # :contentReference[oaicite:7]{index=7}
-SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))          # :contentReference[oaicite:8]{index=8}
-GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))     # :contentReference[oaicite:9]{index=9}
-CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))        # :contentReference[oaicite:10]{index=10}
+SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))
+SHOTS_ON_TARGET  = int(os.getenv("TEAM_STAT_SHOTS_ON_TARGET_ID", "86"))
+FOULS            = int(os.getenv("TEAM_STAT_FOULS_ID", "56"))
+TACKLES          = int(os.getenv("TEAM_STAT_TACKLES_ID", "78"))
+YELLOW           = int(os.getenv("TEAM_STAT_YELLOW_CARDS_ID", "84"))
+RED              = int(os.getenv("TEAM_STAT_RED_CARDS_ID", "83"))
+SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
+GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
+CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
+OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "0"))  # 0 = disabled
 
 STAT_ID_MAP = {
     "shots_total": SHOTS_TOTAL,
@@ -69,6 +74,9 @@ SERIES_KEYS = [
     "shots_total", "shots_on_target", "fouls", "tackles",
     "cards_total", "saves", "goal_kicks", "corners"
 ]
+if OFFSIDES > 0:
+    STAT_ID_MAP["offsides"] = OFFSIDES
+    SERIES_KEYS.append("offsides")
 
 LAST_N = int(os.getenv("TEAM_STATS_LAST_N", "10"))
 
@@ -189,13 +197,18 @@ def collect_team_series(league_id: int, season_id: int, team_id: int) -> dict:
       {
         'stats': {
             'shots_total':[...],'shots_on_target':[...],'fouls':[...],'tackles':[...],
-            'cards_total':[...],'saves':[...],'goal_kicks':[...],'corners':[...]
+            'cards_total':[...],'saves':[...],'goal_kicks':[...],'corners':[...],
+            'offsides':[...]?  # only if enabled
         },
         'fixtures': [ids],  # aligned to the series; latest->older
       }
     """
     # All type IDs needed (yellow+red included to compute cards_total)
-    type_ids = list({SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS})
+    type_ids = {SHOTS_TOTAL, SHOTS_ON_TARGET, FOULS, TACKLES, YELLOW, RED, SAVES, GOAL_KICKS, CORNERS}
+    if OFFSIDES > 0:
+        type_ids.add(OFFSIDES)
+    type_ids = list(type_ids)
+
     start_season, end_today = get_season_bounds(season_id)
     end = end_today
 
@@ -203,6 +216,8 @@ def collect_team_series(league_id: int, season_id: int, team_id: int) -> dict:
         "shots_total": [], "shots_on_target": [], "fouls": [], "tackles": [],
         "cards_total": [], "saves": [], "goal_kicks": [], "corners": []
     }
+    if OFFSIDES > 0:
+        series["offsides"] = []
     fixture_ids: List[int] = []
 
     def have_enough() -> bool:
@@ -254,6 +269,8 @@ def collect_team_series(league_id: int, season_id: int, team_id: int) -> dict:
                 series["saves"].append(int(by_type.get(SAVES, 0)))
                 series["goal_kicks"].append(int(by_type.get(GOAL_KICKS, 0)))
                 series["corners"].append(int(by_type.get(CORNERS, 0)))
+                if OFFSIDES > 0:
+                    series["offsides"].append(int(by_type.get(OFFSIDES, 0)))
                 fixture_ids.append(fid)
 
                 if have_enough():
@@ -262,7 +279,7 @@ def collect_team_series(league_id: int, season_id: int, team_id: int) -> dict:
         end = win_start - dt.timedelta(days=1)
 
     # Clamp latest->older to LAST_N
-    for k in series:
+    for k in list(series.keys()):
         series[k] = series[k][:LAST_N]
     fixture_ids = fixture_ids[:LAST_N]
 
