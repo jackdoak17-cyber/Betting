@@ -13,7 +13,7 @@ Captured team stats (per game, integers):
   - saves (57)
   - goal_kicks (53)
   - corners (34)
-  - offsides (294)   <-- NEW
+  - offsides (51)   <-- NEW
 
 Captured opponent-allowed series (values for the OPPOSING team in those games):
   - opp_shots_total (42)
@@ -24,7 +24,7 @@ Captured opponent-allowed series (values for the OPPOSING team in those games):
   - opp_saves (57)
   - opp_goal_kicks (53)
   - opp_corners (34)
-  - opp_offsides (294)   <-- NEW
+  - opp_offsides (51)   <-- NEW
 
 Outputs:
   - data/team_stats/by_league/{league_id}.json
@@ -121,7 +121,7 @@ SECOND_YELLOW    = int(os.getenv("TEAM_STAT_SECOND_YELLOWS_ID", "85"))
 SAVES            = int(os.getenv("TEAM_STAT_SAVES_ID", "57"))
 GOAL_KICKS       = int(os.getenv("TEAM_STAT_GOAL_KICKS_ID", "53"))
 CORNERS          = int(os.getenv("TEAM_STAT_CORNERS_ID", "34"))
-OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "294"))  # <-- NEW
+OFFSIDES         = int(os.getenv("TEAM_STAT_OFFSIDES_ID", "51"))  # <-- NEW
 
 INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1","true","TRUE","yes","YES")
 
