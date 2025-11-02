@@ -1,0 +1,297 @@
+name: PLAYER Value Bets — All (every 2h)
+
+on:
+  schedule:
+    - cron: "18 */2 * * *"     # every 2 hours at :18 UTC
+  workflow_run:
+    workflows: ["Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      league_ids:
+        description: "CSV league IDs (blank = auto)"
+        required: false
+        default: ""
+      # Common player markets
+      min_dec_price_05:
+        description: "Min price for Over 0.5 markets (shots/SOT certs)"
+        required: false
+        default: "1.30"
+      team_win_max:
+        description: "Max Team ML (drop big underdogs)"
+        required: false
+        default: "3.50"
+      min_dec_price_singles:
+        description: "Min price for singles (shots 0.5 / 2+ / SOT)"
+        required: false
+        default: "1.72"
+      pos_tags_ok:
+        description: "CSV roles for possible_shot_certs (e.g., MID,FWD)"
+        required: false
+        default: "MID,FWD"
+      window_days:
+        description: "Fixture window (days) for SOT certs/value_singles_sot"
+        required: false
+        default: "7"
+
+      # Passes (singles)
+      passes_min_dec_price:
+        description: "Passes singles: min price for Over line"
+        required: false
+        default: "1.72"
+      passes_team_underdog_max:
+        description: "Passes singles: drop if Team ML >= this"
+        required: false
+        default: "4.00"
+
+      # Tackles (certs & value)
+      tackles_certs_min_price:
+        description: "Tackles CERTS: min price for 1+"
+        required: false
+        default: "1.80"
+      tackles_singles_1plus_min_price:
+        description: "Tackles singles: 1+ min price"
+        required: false
+        default: "1.72"
+      tackles_singles_2plus_min_price:
+        description: "Tackles singles: 2+ min price"
+        required: false
+        default: "1.80"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-value-bets-all
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  DEFAULT_BRANCH: "main"
+  RESULTS_DIR: "data/value_bets"
+
+  # Common inputs (dispatch overrides if provided)
+  LEAGUE_IDS:        "${{ github.event.inputs.league_ids || '' }}"
+  MIN_DEC_PRICE_05:  "${{ github.event.inputs.min_dec_price_05 || '1.30' }}"
+  TEAM_WIN_MAX:      "${{ github.event.inputs.team_win_max || '3.50' }}"
+  MIN_DEC_PRICE_SNG: "${{ github.event.inputs.min_dec_price_singles || '1.72' }}"
+  POS_TAGS_OK:       "${{ github.event.inputs.pos_tags_ok || 'MID,FWD' }}"
+  WINDOW_DAYS:       "${{ github.event.inputs.window_days || '7' }}"
+
+  # Passes inputs
+  PASSES_MIN_DEC_PRICE:     "${{ github.event.inputs.passes_min_dec_price || '1.72' }}"
+  PASSES_TEAM_UNDER_MAX:    "${{ github.event.inputs.passes_team_underdog_max || '4.00' }}"
+
+  # Tackles inputs
+  TACKLES_CERTS_MIN_PRICE:       "${{ github.event.inputs.tackles_certs_min_price || '1.80' }}"
+  TACKLES_SNG_1PLUS_MIN_PRICE:   "${{ github.event.inputs.tackles_singles_1plus_min_price || '1.72' }}"
+  TACKLES_SNG_2PLUS_MIN_PRICE:   "${{ github.event.inputs.tackles_singles_2plus_min_price || '1.80' }}"
+
+  # Output files
+  FILE_POSSIBLE_CERTS:    "possible_shot_certs.txt"
+  FILE_SHOTS_CERTS:       "shots_certs.txt"
+  FILE_SOT_CERTS:         "sot_certs.txt"
+  FILE_SINGLES_05:        "value_singles.txt"
+  FILE_SINGLES_2PLUS:     "value_singles_2plus.txt"
+  FILE_SINGLES_SOT:       "value_singles_sot.txt"
+  FILE_TACKLES_VALUE:     "tackles_value.txt"
+  FILE_PASSES_SINGLES:    "passes_value_singles.txt"
+
+  SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+  SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+jobs:
+  player-value-bets-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare working branch
+        run: |
+          set -e
+          git fetch origin "${DEFAULT_BRANCH}"
+          git checkout -B "${DEFAULT_BRANCH}" "origin/${DEFAULT_BRANCH}"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Prepare output dir
+        run: mkdir -p "${RESULTS_DIR}"
+
+      # -------- Player shots / SOT value scripts --------
+      - name: Possible Shot Certs (Sportmonks/Bet365)
+        env:
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE_05 }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+          POS_TAGS_OK:   ${{ env.POS_TAGS_OK }}
+        run: |
+          if [ -f scripts/value_bets/possible_shot_certs_sportmonks.py ]; then
+            python scripts/value_bets/possible_shot_certs_sportmonks.py | tee "${RESULTS_DIR}/${FILE_POSSIBLE_CERTS}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_POSSIBLE_CERTS}" || true
+          else
+            echo "SKIP: scripts/value_bets/possible_shot_certs_sportmonks.py not found."
+          fi
+
+      - name: Shots Certs (Sportmonks/Bet365)
+        env:
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE_05 }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+        run: |
+          if [ -f scripts/value_bets/value_bets_shots_certs_sportmonks.py ]; then
+            python scripts/value_bets/value_bets_shots_certs_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SHOTS_CERTS}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_SHOTS_CERTS}" || true
+          else
+            echo "SKIP: scripts/value_bets/value_bets_shots_certs_sportmonks.py not found."
+          fi
+
+      - name: SOT Certs (windowed)
+        env:
+          MIN_DEC_PRICE: ${{ env.MIN_DEC_PRICE_05 }}
+          TEAM_WIN_MAX:  ${{ env.TEAM_WIN_MAX }}
+          WINDOW_DAYS:   ${{ env.WINDOW_DAYS }}
+          LEAGUE_IDS:    ${{ env.LEAGUE_IDS }}
+        run: |
+          if [ -f scripts/value_bets/sot_certs.py ]; then
+            python scripts/value_bets/sot_certs.py | tee "${RESULTS_DIR}/${FILE_SOT_CERTS}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_SOT_CERTS}" || true
+          else
+            echo "SKIP: scripts/value_bets/sot_certs.py not found."
+          fi
+
+      - name: Value Singles — Shots Over 0.5
+        env:
+          MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
+          TEAM_UNDERDOG_MAX: ${{ env.TEAM_WIN_MAX }}   # script uses this as underdog cap
+          LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
+        run: |
+          if [ -f scripts/value_bets/value_singles_shots_sportmonks.py ]; then
+            python scripts/value_bets/value_singles_shots_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SINGLES_05}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_05}" || true
+          else
+            echo "SKIP: scripts/value_bets/value_singles_shots_sportmonks.py not found."
+          fi
+
+      - name: Value Singles — 2+ Shots (Over 1.5)
+        env:
+          MIN_DEC_PRICE:    ${{ env.MIN_DEC_PRICE_SNG }}
+          UNDERDOG_MAX:     ${{ env.TEAM_WIN_MAX }}
+          LEAGUE_IDS:       ${{ env.LEAGUE_IDS }}
+        run: |
+          if [ -f scripts/value_bets/value_singles_shots2_sportmonks.py ]; then
+            python scripts/value_bets/value_singles_shots2_sportmonks.py | tee "${RESULTS_DIR}/${FILE_SINGLES_2PLUS}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_2PLUS}" || true
+          else
+            echo "SKIP: scripts/value_bets/value_singles_shots2_sportmonks.py not found."
+          fi
+
+      - name: Value Singles — SOT
+        env:
+          LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
+          MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
+          TEAM_UNDERDOG_MAX: ${{ env.TEAM_WIN_MAX }}
+          WINDOW_DAYS:       ${{ env.WINDOW_DAYS }}
+        run: |
+          if [ -f scripts/value_bets/value_singles_sot.py ]; then
+            python scripts/value_bets/value_singles_sot.py | tee "${RESULTS_DIR}/${FILE_SINGLES_SOT}"
+            {
+              echo ""
+              echo "Run timestamp (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")"
+              echo "Params: LEAGUE_IDS='${LEAGUE_IDS}' MIN_DEC_PRICE=${MIN_DEC_PRICE} TEAM_UNDERDOG_MAX=${TEAM_UNDERDOG_MAX} WINDOW_DAYS=${WINDOW_DAYS}"
+            } >> "${RESULTS_DIR}/${FILE_SINGLES_SOT}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_SINGLES_SOT}" || true
+          else
+            echo "SKIP: scripts/value_bets/value_singles_sot.py not found."
+          fi
+
+      # -------- NEW: Player Tackles (certs & value) --------
+      - name: Value — Player Tackles (Certs & Singles)
+        env:
+          CERTS_MIN_PRICE:          ${{ env.TACKLES_CERTS_MIN_PRICE }}
+          SINGLES_MIN_PRICE_1PLUS:  ${{ env.TACKLES_SNG_1PLUS_MIN_PRICE }}
+          DOUBLES_MIN_PRICE_2PLUS:  ${{ env.TACKLES_SNG_2PLUS_MIN_PRICE }}
+          LEAGUE_IDS:               ${{ env.LEAGUE_IDS }}
+        run: |
+          if [ -f scripts/value_bets/tackles_value.py ]; then
+            python scripts/value_bets/tackles_value.py | tee "${RESULTS_DIR}/${FILE_TACKLES_VALUE}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_TACKLES_VALUE}" || true
+          else
+            echo "SKIP: scripts/value_bets/tackles_value.py not found."
+          fi
+
+      # -------- NEW: Player Passes (singles with ML<4) --------
+      - name: Value Singles — Passes
+        env:
+          MIN_DEC_PRICE:     ${{ env.PASSES_MIN_DEC_PRICE }}
+          TEAM_UNDERDOG_MAX: ${{ env.PASSES_TEAM_UNDER_MAX }}
+          LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
+        run: |
+          if [ -f scripts/value_bets/value_singles_passes.py ]; then
+            python scripts/value_bets/value_singles_passes.py | tee "${RESULTS_DIR}/${FILE_PASSES_SINGLES}"
+            tail -n 200 "${RESULTS_DIR}/${FILE_PASSES_SINGLES}" || true
+          else
+            echo "SKIP: scripts/value_bets/value_singles_passes.py not found."
+          fi
+
+      - name: Upload artifacts (all)
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-value-bets-${{ github.run_number }}
+          path: |
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_POSSIBLE_CERTS }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_SHOTS_CERTS }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_SOT_CERTS }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_SINGLES_05 }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_SINGLES_2PLUS }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_SINGLES_SOT }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_TACKLES_VALUE }}
+            ${{ env.RESULTS_DIR }}/${{ env.FILE_PASSES_SINGLES }}
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Commit & push results (rebase + lease-safe)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+
+          git add -A "${RESULTS_DIR}"
+
+          if git diff --cached --quiet; then
+            echo "No value-bets changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(player-value-bets): aggregated updates ${ts} [skip ci]"
+
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+            if git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"; then
+              echo "Push succeeded on attempt ${attempt}"
+              exit 0
+            fi
+            echo "Push failed (attempt ${attempt}) — retrying..."
+            sleep 3
+          done
+
+          git fetch origin "${DEFAULT_BRANCH}"
+          git pull --rebase --autostash origin "${DEFAULT_BRANCH}" || true
+          git push --force-with-lease origin HEAD:"${DEFAULT_BRANCH}"
