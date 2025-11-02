@@ -12,7 +12,6 @@ on:
         description: "CSV league IDs (blank = auto)"
         required: false
         default: ""
-      # Common player markets
       min_dec_price_05:
         description: "Min price for Over 0.5 markets (shots/SOT certs)"
         required: false
@@ -25,26 +24,14 @@ on:
         description: "Min price for singles (shots 0.5 / 2+ / SOT)"
         required: false
         default: "1.72"
-      pos_tags_ok:
-        description: "CSV roles for possible_shot_certs (e.g., MID,FWD)"
-        required: false
-        default: "MID,FWD"
       window_days:
         description: "Fixture window (days) for SOT certs/value_singles_sot"
         required: false
         default: "7"
-
-      # Passes (singles)
       passes_min_dec_price:
         description: "Passes singles: min price for Over line"
         required: false
         default: "1.72"
-      passes_team_underdog_max:
-        description: "Passes singles: drop if Team ML >= this"
-        required: false
-        default: "4.00"
-
-      # Tackles (certs & value)
       tackles_certs_min_price:
         description: "Tackles CERTS: min price for 1+"
         required: false
@@ -70,32 +57,34 @@ env:
   DEFAULT_BRANCH: "main"
   RESULTS_DIR: "data/value_bets"
 
-  # Common inputs (dispatch overrides if provided)
+  # Common (dispatch overrides if provided)
   LEAGUE_IDS:        "${{ github.event.inputs.league_ids || '' }}"
   MIN_DEC_PRICE_05:  "${{ github.event.inputs.min_dec_price_05 || '1.30' }}"
   TEAM_WIN_MAX:      "${{ github.event.inputs.team_win_max || '3.50' }}"
   MIN_DEC_PRICE_SNG: "${{ github.event.inputs.min_dec_price_singles || '1.72' }}"
-  POS_TAGS_OK:       "${{ github.event.inputs.pos_tags_ok || 'MID,FWD' }}"
   WINDOW_DAYS:       "${{ github.event.inputs.window_days || '7' }}"
 
+  # Fixed defaults (trimmed inputs to stay <=10)
+  POS_TAGS_OK: "MID,FWD"        # used by possible_shot_certs
+  PASSES_TEAM_UNDER_MAX: "4.00" # passes ML cap, per your requirement
+
   # Passes inputs
-  PASSES_MIN_DEC_PRICE:     "${{ github.event.inputs.passes_min_dec_price || '1.72' }}"
-  PASSES_TEAM_UNDER_MAX:    "${{ github.event.inputs.passes_team_underdog_max || '4.00' }}"
+  PASSES_MIN_DEC_PRICE: "${{ github.event.inputs.passes_min_dec_price || '1.72' }}"
 
   # Tackles inputs
-  TACKLES_CERTS_MIN_PRICE:       "${{ github.event.inputs.tackles_certs_min_price || '1.80' }}"
-  TACKLES_SNG_1PLUS_MIN_PRICE:   "${{ github.event.inputs.tackles_singles_1plus_min_price || '1.72' }}"
-  TACKLES_SNG_2PLUS_MIN_PRICE:   "${{ github.event.inputs.tackles_singles_2plus_min_price || '1.80' }}"
+  TACKLES_CERTS_MIN_PRICE:     "${{ github.event.inputs.tackles_certs_min_price || '1.80' }}"
+  TACKLES_SNG_1PLUS_MIN_PRICE: "${{ github.event.inputs.tackles_singles_1plus_min_price || '1.72' }}"
+  TACKLES_SNG_2PLUS_MIN_PRICE: "${{ github.event.inputs.tackles_singles_2plus_min_price || '1.80' }}"
 
   # Output files
-  FILE_POSSIBLE_CERTS:    "possible_shot_certs.txt"
-  FILE_SHOTS_CERTS:       "shots_certs.txt"
-  FILE_SOT_CERTS:         "sot_certs.txt"
-  FILE_SINGLES_05:        "value_singles.txt"
-  FILE_SINGLES_2PLUS:     "value_singles_2plus.txt"
-  FILE_SINGLES_SOT:       "value_singles_sot.txt"
-  FILE_TACKLES_VALUE:     "tackles_value.txt"
-  FILE_PASSES_SINGLES:    "passes_value_singles.txt"
+  FILE_POSSIBLE_CERTS: "possible_shot_certs.txt"
+  FILE_SHOTS_CERTS:    "shots_certs.txt"
+  FILE_SOT_CERTS:      "sot_certs.txt"
+  FILE_SINGLES_05:     "value_singles.txt"
+  FILE_SINGLES_2PLUS:  "value_singles_2plus.txt"
+  FILE_SINGLES_SOT:    "value_singles_sot.txt"
+  FILE_TACKLES_VALUE:  "tackles_value.txt"
+  FILE_PASSES_SINGLES: "passes_value_singles.txt"
 
   SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
   SPORTMONKS_API_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
@@ -174,7 +163,7 @@ jobs:
       - name: Value Singles — Shots Over 0.5
         env:
           MIN_DEC_PRICE:     ${{ env.MIN_DEC_PRICE_SNG }}
-          TEAM_UNDERDOG_MAX: ${{ env.TEAM_WIN_MAX }}   # script uses this as underdog cap
+          TEAM_UNDERDOG_MAX: ${{ env.TEAM_WIN_MAX }}
           LEAGUE_IDS:        ${{ env.LEAGUE_IDS }}
         run: |
           if [ -f scripts/value_bets/value_singles_shots_sportmonks.py ]; then
@@ -216,7 +205,7 @@ jobs:
             echo "SKIP: scripts/value_bets/value_singles_sot.py not found."
           fi
 
-      # -------- NEW: Player Tackles (certs & value) --------
+      # -------- Player Tackles (certs & value) --------
       - name: Value — Player Tackles (Certs & Singles)
         env:
           CERTS_MIN_PRICE:          ${{ env.TACKLES_CERTS_MIN_PRICE }}
@@ -231,7 +220,7 @@ jobs:
             echo "SKIP: scripts/value_bets/tackles_value.py not found."
           fi
 
-      # -------- NEW: Player Passes (singles with ML<4) --------
+      # -------- Player Passes (singles with ML<4) --------
       - name: Value Singles — Passes
         env:
           MIN_DEC_PRICE:     ${{ env.PASSES_MIN_DEC_PRICE }}
