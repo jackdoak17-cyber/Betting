@@ -84,6 +84,10 @@ jobs:
         run: |
           [ -f scripts/check_player_sot_coverage.py ] && python scripts/check_player_sot_coverage.py || true
 
+      # NEW: Player passes
+      - name: Build player passes
+        run: python scripts/player_passes.py
+
       # ---------- Commit & push ----------
       - name: Commit & push all player data (robust rebase)
         env:
@@ -103,7 +107,7 @@ jobs:
           git checkout -B main origin/main
 
           # Stage all produced directories (include deletions)
-          git add -A data/player_fouls data/player_shots data/player_tackles data/player_shots_on_target || true
+          git add -A data/player_fouls data/player_shots data/player_tackles data/player_shots_on_target data/player_passes || true
           # Catch any additional player_* outputs your scripts may write
           git add -A data/player_* || true
 
