@@ -1,7 +1,7 @@
 {
-  "generated_at": "2025-11-02T13:47:22.941659+00:00",
+  "generated_at": "2025-11-03T07:39:39.561303+00:00",
   "league_id": 567,
-  "count": 241,
+  "count": 240,
   "players": [
     {
       "league_id": 567,
@@ -115,11 +115,41 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 60,
-      "player_id": 383387,
-      "name": "José Corpas",
+      "player_id": 190379,
+      "name": "Álvaro Rodríguez",
       "position_tag": "RB",
       "passes_last_n": [
-        25,
+        36,
+        27,
+        15,
+        29
+      ],
+      "minutes_last_n": [
+        84,
+        90,
+        60,
+        66
+      ],
+      "fixture_ids": [
+        19441194,
+        19441165,
+        19441149,
+        19441116
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 60,
+      "player_id": 383387,
+      "name": "José Corpas",
+      "position_tag": "MID",
+      "passes_last_n": [
+        24,
         36,
         28,
         17,
@@ -163,34 +193,19 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 60,
-      "player_id": 447249,
-      "name": "Peru Nolaskoain",
+      "player_id": 446236,
+      "name": "Javi Martínez",
       "position_tag": "MID",
       "passes_last_n": [
-        70,
-        40,
-        52,
-        104,
-        40,
-        42
+        55
       ],
       "minutes_last_n": [
-        90,
-        71,
-        90,
-        90,
-        72,
         90
       ],
       "fixture_ids": [
-        19441187,
-        19441176,
-        19441149,
-        19441140,
-        19441089,
-        19441078
+        19441194
       ],
-      "n": 6,
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -251,7 +266,7 @@
       "name": "Xeber Alkain",
       "position_tag": "MID",
       "passes_last_n": [
-        32,
+        31,
         19,
         11,
         13,
@@ -280,83 +295,11 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 60,
-      "player_id": 25922184,
-      "name": "Jon Guruzeta",
-      "position_tag": "MID",
-      "passes_last_n": [
-        20,
-        18,
-        30,
-        37,
-        28,
-        19,
-        22,
-        21,
-        23
-      ],
-      "minutes_last_n": [
-        58,
-        71,
-        75,
-        78,
-        66,
-        74,
-        84,
-        90,
-        84
-      ],
-      "fixture_ids": [
-        19441187,
-        19441176,
-        19441140,
-        19441134,
-        19441116,
-        19441112,
-        19441098,
-        19441089,
-        19441078
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 60,
-      "player_id": 37249155,
-      "name": "Javi Martón",
-      "position_tag": "MID",
-      "passes_last_n": [
-        15,
-        5,
-        3
-      ],
-      "minutes_last_n": [
-        68,
-        68,
-        76
-      ],
-      "fixture_ids": [
-        19441187,
-        19441089,
-        19441078
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 60,
       "player_id": 37316524,
       "name": "Marco Moreno",
       "position_tag": "CB",
       "passes_last_n": [
-        79,
+        78,
         39,
         61,
         50,
@@ -431,6 +374,51 @@
         19441176,
         19441140,
         19441134,
+        19441112,
+        19441098,
+        19441089,
+        19441078
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 60,
+      "player_id": 37592783,
+      "name": "Aleix Garrido",
+      "position_tag": "MID",
+      "passes_last_n": [
+        70,
+        42,
+        11,
+        44,
+        84,
+        39,
+        52,
+        56,
+        37
+      ],
+      "minutes_last_n": [
+        90,
+        64,
+        46,
+        66,
+        90,
+        75,
+        84,
+        90,
+        75
+      ],
+      "fixture_ids": [
+        19441194,
+        19441165,
+        19441149,
+        19441134,
+        19441116,
         19441112,
         19441098,
         19441089,
@@ -922,22 +910,43 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 126,
-      "player_id": 177188,
-      "name": "Darko Brašanac",
+      "player_id": 189254,
+      "name": "Juanpe",
       "position_tag": "MID",
       "passes_last_n": [
-        34,
-        10
+        55,
+        50,
+        37,
+        53,
+        35,
+        43,
+        44,
+        49,
+        24
       ],
       "minutes_last_n": [
-        49,
-        46
+        90,
+        74,
+        71,
+        90,
+        80,
+        70,
+        79,
+        90,
+        85
       ],
       "fixture_ids": [
-        19441190,
-        19441137
+        19441195,
+        19441177,
+        19441167,
+        19441157,
+        19441138,
+        19441137,
+        19441120,
+        19441113,
+        19441099
       ],
-      "n": 2,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -950,6 +959,7 @@
       "name": "Víctor García",
       "position_tag": "LB",
       "passes_last_n": [
+        28,
         23,
         29,
         19,
@@ -960,6 +970,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         75,
         46,
         90,
@@ -968,6 +979,7 @@
         82
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441157,
         19441137,
@@ -976,7 +988,7 @@
         19441091,
         19441078
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -989,6 +1001,7 @@
       "name": "Alfonso Herrero",
       "position_tag": "GK",
       "passes_last_n": [
+        32,
         25,
         28,
         35,
@@ -997,8 +1010,7 @@
         23,
         26,
         36,
-        28,
-        24
+        28
       ],
       "minutes_last_n": [
         90,
@@ -1013,6 +1025,7 @@
         90
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441177,
         19441167,
@@ -1021,10 +1034,30 @@
         19441137,
         19441120,
         19441113,
-        19441099,
-        19441091
+        19441099
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 126,
+      "player_id": 446977,
+      "name": "Eneko Jauregi",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        13
+      ],
+      "minutes_last_n": [
+        90
+      ],
+      "fixture_ids": [
+        19441195
+      ],
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1037,6 +1070,7 @@
       "name": "Javi Montero",
       "position_tag": "CB",
       "passes_last_n": [
+        56,
         39,
         30,
         54,
@@ -1049,6 +1083,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         45,
         90,
         82,
@@ -1059,6 +1094,7 @@
         90
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441157,
         19441138,
@@ -1069,7 +1105,7 @@
         19441091,
         19441078
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1078,37 +1114,34 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 126,
-      "player_id": 540508,
-      "name": "Joaquín Muñoz",
+      "player_id": 27797020,
+      "name": "Julen Lobete",
       "position_tag": "MID",
       "passes_last_n": [
+        18,
         12,
-        31,
-        14,
-        16,
-        12,
-        14,
-        30
+        23,
+        26,
+        6,
+        17
       ],
       "minutes_last_n": [
-        52,
-        83,
+        82,
         60,
-        85,
-        61,
-        68,
-        67
+        60,
+        58,
+        46,
+        56
       ],
       "fixture_ids": [
-        19441190,
-        19441177,
-        19441167,
+        19441195,
+        19441157,
+        19441138,
+        19441137,
         19441120,
-        19441113,
-        19441099,
-        19441091
+        19441078
       ],
-      "n": 7,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1121,6 +1154,7 @@
       "name": "David Larrubia",
       "position_tag": "MID",
       "passes_last_n": [
+        11,
         35,
         25,
         30,
@@ -1129,10 +1163,10 @@
         36,
         19,
         24,
-        30,
-        35
+        30
       ],
       "minutes_last_n": [
+        68,
         78,
         90,
         90,
@@ -1141,10 +1175,10 @@
         90,
         90,
         78,
-        90,
         90
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441177,
         19441167,
@@ -1153,8 +1187,7 @@
         19441137,
         19441120,
         19441113,
-        19441099,
-        19441091
+        19441099
       ],
       "n": 10,
       "n_requested": 10,
@@ -1169,24 +1202,27 @@
       "name": "Carlos Dotor",
       "position_tag": "MID",
       "passes_last_n": [
+        23,
         31,
         19,
         39,
         36
       ],
       "minutes_last_n": [
+        69,
         52,
         67,
         83,
         57
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441120,
         19441091,
         19441078
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1199,6 +1235,7 @@
       "name": "Diego Murillo",
       "position_tag": "CB",
       "passes_last_n": [
+        37,
         66,
         70,
         47,
@@ -1218,9 +1255,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441177,
         19441167,
@@ -1231,7 +1270,7 @@
         19441113,
         19441099
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1244,6 +1283,7 @@
       "name": "Dani Lorenzo",
       "position_tag": "MID",
       "passes_last_n": [
+        35,
         45,
         62,
         43,
@@ -1254,6 +1294,7 @@
         31
       ],
       "minutes_last_n": [
+        82,
         84,
         90,
         90,
@@ -1264,6 +1305,7 @@
         69
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441177,
         19441167,
@@ -1272,51 +1314,6 @@
         19441137,
         19441091,
         19441078
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 126,
-      "player_id": 37640769,
-      "name": "Chupe",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        18,
-        7,
-        11,
-        16,
-        10,
-        21,
-        10,
-        18,
-        14
-      ],
-      "minutes_last_n": [
-        83,
-        46,
-        86,
-        75,
-        70,
-        90,
-        67,
-        85,
-        68
-      ],
-      "fixture_ids": [
-        19441190,
-        19441177,
-        19441167,
-        19441157,
-        19441138,
-        19441137,
-        19441120,
-        19441113,
-        19441099
       ],
       "n": 9,
       "n_requested": 10,
@@ -1331,6 +1328,7 @@
       "name": "Rafael Garrido",
       "position_tag": "RB",
       "passes_last_n": [
+        29,
         49,
         40,
         17
@@ -1338,14 +1336,16 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         71
       ],
       "fixture_ids": [
+        19441195,
         19441190,
         19441177,
         19441167
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1475,6 +1475,66 @@
         19441092
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 274,
+      "player_id": 189729,
+      "name": "Dani Ojeda",
+      "position_tag": "MID",
+      "passes_last_n": [
+        18
+      ],
+      "minutes_last_n": [
+        62
+      ],
+      "fixture_ids": [
+        19441155
+      ],
+      "n": 1,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 274,
+      "player_id": 2846749,
+      "name": "Julio Alonso",
+      "position_tag": "LB",
+      "passes_last_n": [
+        49,
+        35,
+        32,
+        24,
+        21,
+        23,
+        35
+      ],
+      "minutes_last_n": [
+        90,
+        72,
+        90,
+        90,
+        82,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441193,
+        19441133,
+        19441120,
+        19441105,
+        19441098,
+        19441092,
+        19441076
+      ],
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1654,42 +1714,6 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 274,
-      "player_id": 37416827,
-      "name": "Daniel Luna",
-      "position_tag": "MID",
-      "passes_last_n": [
-        9,
-        17,
-        24,
-        19,
-        10,
-        19
-      ],
-      "minutes_last_n": [
-        55,
-        72,
-        69,
-        67,
-        73,
-        56
-      ],
-      "fixture_ids": [
-        19441189,
-        19441163,
-        19441155,
-        19441141,
-        19441120,
-        19441105
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 274,
       "player_id": 37545140,
       "name": "Hugo Pérez",
       "position_tag": "CB",
@@ -1709,36 +1733,6 @@
         19441105
       ],
       "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 274,
-      "player_id": 37585293,
-      "name": "Ro Abajas",
-      "position_tag": "LB",
-      "passes_last_n": [
-        25,
-        8,
-        23,
-        27
-      ],
-      "minutes_last_n": [
-        90,
-        46,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441189,
-        19441163,
-        19441155,
-        19441141
-      ],
-      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1781,6 +1775,7 @@
       "name": "Rubén Yáñez",
       "position_tag": "GK",
       "passes_last_n": [
+        22,
         32,
         27,
         31,
@@ -1789,8 +1784,7 @@
         29,
         18,
         18,
-        15,
-        19
+        15
       ],
       "minutes_last_n": [
         90,
@@ -1805,6 +1799,7 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
@@ -1813,10 +1808,39 @@
         19441129,
         19441126,
         19441111,
-        19441104,
-        19441083
+        19441104
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 344,
+      "player_id": 187254,
+      "name": "Kevin Vázquez",
+      "position_tag": "CB",
+      "passes_last_n": [
+        12,
+        40,
+        18,
+        12
+      ],
+      "minutes_last_n": [
+        54,
+        90,
+        90,
+        63
+      ],
+      "fixture_ids": [
+        19441203,
+        19441148,
+        19441111,
+        19441082
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1829,6 +1853,7 @@
       "name": "Pablo Vázquez",
       "position_tag": "CB",
       "passes_last_n": [
+        38,
         25,
         31,
         36,
@@ -1837,8 +1862,7 @@
         32,
         51,
         42,
-        51,
-        27
+        51
       ],
       "minutes_last_n": [
         90,
@@ -1853,6 +1877,7 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
@@ -1861,56 +1886,7 @@
         19441129,
         19441126,
         19441111,
-        19441104,
-        19441083
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 344,
-      "player_id": 237377,
-      "name": "Juan Otero",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        10,
-        26,
-        21,
-        20,
-        31,
-        22,
-        26,
-        18,
-        36,
-        20
-      ],
-      "minutes_last_n": [
-        45,
-        90,
-        90,
-        90,
-        78,
-        90,
-        90,
-        85,
-        83,
-        88
-      ],
-      "fixture_ids": [
-        19441192,
-        19441180,
-        19441170,
-        19441150,
-        19441148,
-        19441129,
-        19441126,
-        19441111,
-        19441104,
-        19441083
+        19441104
       ],
       "n": 10,
       "n_requested": 10,
@@ -1925,6 +1901,7 @@
       "name": "Lucas Perrin",
       "position_tag": "CB",
       "passes_last_n": [
+        30,
         29,
         28,
         30,
@@ -1933,10 +1910,10 @@
         37,
         46,
         49,
-        57,
-        20
+        57
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -1945,10 +1922,10 @@
         90,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
@@ -1957,56 +1934,7 @@
         19441129,
         19441126,
         19441111,
-        19441104,
-        19441083
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 344,
-      "player_id": 537094,
-      "name": "Àlex Corredera",
-      "position_tag": "MID",
-      "passes_last_n": [
-        33,
-        44,
-        43,
-        12,
-        30,
-        59,
-        42,
-        45,
-        30,
-        23
-      ],
-      "minutes_last_n": [
-        83,
-        90,
-        90,
-        66,
-        90,
-        90,
-        90,
-        90,
-        88,
-        90
-      ],
-      "fixture_ids": [
-        19441192,
-        19441180,
-        19441170,
-        19441150,
-        19441129,
-        19441126,
-        19441111,
-        19441104,
-        19441083,
-        19441082
+        19441104
       ],
       "n": 10,
       "n_requested": 10,
@@ -2021,6 +1949,7 @@
       "name": "César Gelabert",
       "position_tag": "MID",
       "passes_last_n": [
+        25,
         14,
         37,
         23,
@@ -2029,10 +1958,10 @@
         22,
         49,
         27,
-        61,
-        27
+        61
       ],
       "minutes_last_n": [
+        90,
         46,
         90,
         79,
@@ -2041,10 +1970,10 @@
         58,
         90,
         85,
-        74,
         74
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
@@ -2053,8 +1982,7 @@
         19441129,
         19441126,
         19441111,
-        19441104,
-        19441083
+        19441104
       ],
       "n": 10,
       "n_requested": 10,
@@ -2069,6 +1997,7 @@
       "name": "Guille Rosas",
       "position_tag": "RB",
       "passes_last_n": [
+        24,
         16,
         36,
         29,
@@ -2080,6 +2009,7 @@
         32
       ],
       "minutes_last_n": [
+        90,
         84,
         90,
         90,
@@ -2091,97 +2021,11 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
         19441150,
-        19441129,
-        19441126,
-        19441111,
-        19441104,
-        19441083
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 344,
-      "player_id": 18574331,
-      "name": "Gaspar Campos",
-      "position_tag": "MID",
-      "passes_last_n": [
-        20,
-        26,
-        18,
-        36,
-        23,
-        27,
-        29
-      ],
-      "minutes_last_n": [
-        72,
-        78,
-        86,
-        86,
-        68,
-        81,
-        65
-      ],
-      "fixture_ids": [
-        19441180,
-        19441170,
-        19441150,
-        19441148,
-        19441129,
-        19441126,
-        19441083
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 344,
-      "player_id": 37304119,
-      "name": "Jonathan Dubasin",
-      "position_tag": "MID",
-      "passes_last_n": [
-        8,
-        25,
-        28,
-        15,
-        38,
-        10,
-        38,
-        28,
-        34,
-        31
-      ],
-      "minutes_last_n": [
-        45,
-        84,
-        90,
-        90,
-        90,
-        57,
-        90,
-        90,
-        75,
-        90
-      ],
-      "fixture_ids": [
-        19441192,
-        19441180,
-        19441170,
-        19441150,
-        19441148,
         19441129,
         19441126,
         19441111,
@@ -2197,10 +2041,83 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 344,
+      "player_id": 37296324,
+      "name": "Pablo García",
+      "position_tag": "MID",
+      "passes_last_n": [
+        19,
+        3,
+        22,
+        20
+      ],
+      "minutes_last_n": [
+        90,
+        45,
+        53,
+        60
+      ],
+      "fixture_ids": [
+        19441203,
+        19441192,
+        19441111,
+        19441082
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 344,
+      "player_id": 37543378,
+      "name": "Nacho Martín",
+      "position_tag": "MID",
+      "passes_last_n": [
+        31,
+        8,
+        56,
+        26,
+        20,
+        49,
+        25,
+        27
+      ],
+      "minutes_last_n": [
+        90,
+        54,
+        90,
+        46,
+        56,
+        83,
+        74,
+        90
+      ],
+      "fixture_ids": [
+        19441203,
+        19441192,
+        19441148,
+        19441126,
+        19441111,
+        19441104,
+        19441083,
+        19441082
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 344,
       "player_id": 37543383,
       "name": "Diego Sánchez",
       "position_tag": "LB",
       "passes_last_n": [
+        20,
         25,
         28,
         36,
@@ -2215,6 +2132,7 @@
         90,
         90,
         90,
+        90,
         46,
         90,
         90,
@@ -2223,6 +2141,7 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
@@ -2233,7 +2152,7 @@
         19441104,
         19441083
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2246,6 +2165,7 @@
       "name": "Justin Smith",
       "position_tag": "MID",
       "passes_last_n": [
+        16,
         17,
         38,
         29,
@@ -2256,17 +2176,43 @@
         90,
         90,
         90,
+        90,
         78,
         68
       ],
       "fixture_ids": [
+        19441203,
         19441192,
         19441180,
         19441170,
         19441148,
         19441129
       ],
-      "n": 5,
+      "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 344,
+      "player_id": 37614233,
+      "name": "A. Coundoul",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        14,
+        14
+      ],
+      "minutes_last_n": [
+        83,
+        63
+      ],
+      "fixture_ids": [
+        19441203,
+        19441104
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2744,6 +2690,7 @@
       "name": "Germán Parreño",
       "position_tag": "GK",
       "passes_last_n": [
+        42,
         40,
         39,
         43,
@@ -2752,8 +2699,7 @@
         42,
         34,
         44,
-        28,
-        27
+        28
       ],
       "minutes_last_n": [
         90,
@@ -2768,6 +2714,7 @@
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441167,
@@ -2776,34 +2723,9 @@
         19441133,
         19441122,
         19441111,
-        19441100,
-        19441088
+        19441100
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 429,
-      "player_id": 337457,
-      "name": "Stoichkov",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        16,
-        17
-      ],
-      "minutes_last_n": [
-        67,
-        65
-      ],
-      "fixture_ids": [
-        19441186,
-        19441140
-      ],
-      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2816,6 +2738,7 @@
       "name": "Miguel Loureiro",
       "position_tag": "CB",
       "passes_last_n": [
+        61,
         60,
         55,
         41,
@@ -2824,8 +2747,7 @@
         48,
         59,
         61,
-        62,
-        49
+        62
       ],
       "minutes_last_n": [
         90,
@@ -2840,6 +2762,7 @@
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441167,
@@ -2848,8 +2771,7 @@
         19441133,
         19441122,
         19441111,
-        19441100,
-        19441088
+        19441100
       ],
       "n": 10,
       "n_requested": 10,
@@ -2860,32 +2782,65 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 429,
-      "player_id": 12394109,
-      "name": "Samuele Mulattieri",
-      "position_tag": "FWD",
+      "player_id": 4536544,
+      "name": "Arnau Comas",
+      "position_tag": "CB",
       "passes_last_n": [
-        18,
-        7,
-        12,
-        10,
-        12,
-        9
+        64,
+        76,
+        20,
+        46,
+        56
+      ],
+      "minutes_last_n": [
+        80,
+        90,
+        46,
+        57,
+        76
+      ],
+      "fixture_ids": [
+        19441202,
+        19441167,
+        19441100,
+        19441088,
+        19441075
+      ],
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 429,
+      "player_id": 9950234,
+      "name": "José Gragera",
+      "position_tag": "MID",
+      "passes_last_n": [
+        47,
+        33,
+        53,
+        25,
+        71,
+        50
       ],
       "minutes_last_n": [
         90,
-        65,
-        65,
-        60,
-        71,
-        60
+        57,
+        67,
+        46,
+        90,
+        90
       ],
       "fixture_ids": [
-        19441186,
-        19441152,
-        19441140,
-        19441133,
-        19441122,
-        19441111
+        19441202,
+        19441178,
+        19441167,
+        19441100,
+        19441088,
+        19441075
       ],
       "n": 6,
       "n_requested": 10,
@@ -2900,6 +2855,7 @@
       "name": "Giacomo Quagliata",
       "position_tag": "LB",
       "passes_last_n": [
+        30,
         22,
         29,
         31,
@@ -2908,6 +2864,7 @@
         17
       ],
       "minutes_last_n": [
+        90,
         59,
         64,
         90,
@@ -2916,6 +2873,7 @@
         66
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441152,
@@ -2923,7 +2881,7 @@
         19441133,
         19441122
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2936,6 +2894,7 @@
       "name": "Diego Villares",
       "position_tag": "MID",
       "passes_last_n": [
+        31,
         37,
         49,
         28,
@@ -2944,10 +2903,10 @@
         37,
         47,
         54,
-        26,
-        34
+        26
       ],
       "minutes_last_n": [
+        90,
         77,
         90,
         46,
@@ -2956,10 +2915,10 @@
         90,
         90,
         90,
-        67,
-        65
+        67
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441167,
@@ -2968,8 +2927,7 @@
         19441133,
         19441122,
         19441111,
-        19441100,
-        19441088
+        19441100
       ],
       "n": 10,
       "n_requested": 10,
@@ -2984,6 +2942,7 @@
       "name": "Mario Soriano",
       "position_tag": "MID",
       "passes_last_n": [
+        30,
         70,
         27,
         37,
@@ -2992,10 +2951,10 @@
         32,
         42,
         50,
-        54,
-        38
+        54
       ],
       "minutes_last_n": [
+        79,
         90,
         67,
         72,
@@ -3004,10 +2963,10 @@
         72,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441167,
@@ -3016,10 +2975,45 @@
         19441133,
         19441122,
         19441111,
-        19441100,
-        19441088
+        19441100
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 429,
+      "player_id": 32404514,
+      "name": "Zakaria Eddahchouri",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        8,
+        7,
+        6,
+        6,
+        13,
+        10
+      ],
+      "minutes_last_n": [
+        67,
+        46,
+        90,
+        46,
+        78,
+        61
+      ],
+      "fixture_ids": [
+        19441202,
+        19441178,
+        19441167,
+        19441100,
+        19441088,
+        19441075
+      ],
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3030,8 +3024,9 @@
       "team_id": 429,
       "player_id": 37551146,
       "name": "Yeremay Hernández",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "passes_last_n": [
+        28,
         35,
         25,
         29,
@@ -3040,10 +3035,10 @@
         30,
         24,
         42,
-        24,
         24
       ],
       "minutes_last_n": [
+        87,
         90,
         90,
         90,
@@ -3052,10 +3047,10 @@
         90,
         71,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441167,
@@ -3064,56 +3059,7 @@
         19441133,
         19441122,
         19441111,
-        19441100,
-        19441088
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 429,
-      "player_id": 37554558,
-      "name": "Dani Barcia",
-      "position_tag": "CB",
-      "passes_last_n": [
-        29,
-        47,
-        68,
-        77,
-        39,
-        62,
-        58,
-        78,
-        50,
-        64
-      ],
-      "minutes_last_n": [
-        46,
-        64,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441186,
-        19441178,
-        19441167,
-        19441152,
-        19441140,
-        19441133,
-        19441122,
-        19441111,
-        19441100,
-        19441088
+        19441100
       ],
       "n": 10,
       "n_requested": 10,
@@ -3128,15 +3074,18 @@
       "name": "Lucas Noubi",
       "position_tag": "CB",
       "passes_last_n": [
+        53,
         56
       ],
       "minutes_last_n": [
+        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186
       ],
-      "n": 1,
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3149,6 +3098,7 @@
       "name": "David Mella",
       "position_tag": "RB",
       "passes_last_n": [
+        26,
         33,
         25,
         20,
@@ -3159,17 +3109,19 @@
         90,
         90,
         90,
+        90,
         66,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441186,
         19441178,
         19441133,
         19441122,
         19441100
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3265,36 +3217,36 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 618,
-      "player_id": 186390,
-      "name": "Léo Baptistão",
+      "player_id": 186513,
+      "name": "Adrián Embarba",
       "position_tag": "MID",
       "passes_last_n": [
-        15,
-        21,
+        23,
+        23,
+        31,
         22,
-        24,
-        12,
+        40,
+        23,
         18,
-        22,
-        19,
-        35
+        23,
+        15
       ],
       "minutes_last_n": [
-        71,
+        76,
         70,
-        64,
-        60,
-        46,
-        74,
-        64,
+        90,
         66,
-        90
+        90,
+        64,
+        65,
+        90,
+        70
       ],
       "fixture_ids": [
-        19441183,
+        19441194,
         19441174,
         19441161,
-        19441152,
+        19441142,
         19441129,
         19441124,
         19441107,
@@ -3729,9 +3681,9 @@
       "team_id": 844,
       "player_id": 186427,
       "name": "Rubén Peña",
-      "position_tag": "RB",
+      "position_tag": "MID",
       "passes_last_n": [
-        51,
+        53,
         15,
         34,
         39,
@@ -3755,6 +3707,69 @@
         19441187,
         19441177,
         19441168,
+        19441110,
+        19441100,
+        19441090,
+        19441076
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 844,
+      "player_id": 188282,
+      "name": "Óscar Plano",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        26
+      ],
+      "minutes_last_n": [
+        72
+      ],
+      "fixture_ids": [
+        19441199
+      ],
+      "n": 1,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 844,
+      "player_id": 188910,
+      "name": "Jorge Sáenz",
+      "position_tag": "CB",
+      "passes_last_n": [
+        69,
+        68,
+        57,
+        53,
+        57,
+        47,
+        72,
+        39
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441199,
+        19441143,
+        19441136,
+        19441119,
         19441110,
         19441100,
         19441090,
@@ -3912,7 +3927,7 @@
       "team_id": 844,
       "player_id": 17177580,
       "name": "Juan Cruz",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "passes_last_n": [
         23,
         26,
@@ -3952,136 +3967,25 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 844,
-      "player_id": 33186404,
-      "name": "Diego García",
+      "player_id": 31625666,
+      "name": "Álex Millán",
       "position_tag": "FWD",
       "passes_last_n": [
         15,
-        11,
-        10,
-        10,
-        10,
-        11,
-        18,
-        14
+        14,
+        17
       ],
       "minutes_last_n": [
-        78,
-        70,
-        69,
-        65,
-        64,
         72,
-        89,
-        79
+        60,
+        63
       ],
       "fixture_ids": [
-        19441187,
-        19441177,
-        19441153,
-        19441136,
-        19441119,
-        19441110,
-        19441090,
-        19441076
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 844,
-      "player_id": 37581805,
-      "name": "Naim García",
-      "position_tag": "MID",
-      "passes_last_n": [
-        30,
-        20,
-        28,
-        27,
-        17,
-        12,
-        13,
-        23,
-        26,
-        18
-      ],
-      "minutes_last_n": [
-        66,
-        88,
-        90,
-        75,
-        65,
-        90,
-        55,
-        90,
-        86,
-        82
-      ],
-      "fixture_ids": [
-        19441187,
-        19441168,
-        19441153,
+        19441199,
         19441143,
-        19441136,
-        19441119,
-        19441110,
-        19441100,
-        19441090,
-        19441076
+        19441100
       ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 844,
-      "player_id": 37593246,
-      "name": "Marvelous Antolín Garzón",
-      "position_tag": "LB",
-      "passes_last_n": [
-        45,
-        25,
-        59,
-        39,
-        43,
-        38,
-        45,
-        49,
-        42,
-        29
-      ],
-      "minutes_last_n": [
-        90,
-        70,
-        88,
-        90,
-        90,
-        90,
-        80,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441187,
-        19441177,
-        19441168,
-        19441153,
-        19441136,
-        19441119,
-        19441110,
-        19441100,
-        19441090,
-        19441076
-      ],
-      "n": 10,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4094,7 +3998,7 @@
       "name": "Lalo Aguilar",
       "position_tag": "CB",
       "passes_last_n": [
-        59,
+        58,
         62,
         39,
         75,
@@ -4142,6 +4046,7 @@
       "name": "Jacobo González",
       "position_tag": "FWD",
       "passes_last_n": [
+        21,
         24,
         33,
         22,
@@ -4150,10 +4055,10 @@
         23,
         31,
         24,
-        22,
-        36
+        22
       ],
       "minutes_last_n": [
+        76,
         90,
         90,
         81,
@@ -4162,10 +4067,10 @@
         71,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4174,8 +4079,7 @@
         19441118,
         19441109,
         19441103,
-        19441086,
-        19441082
+        19441086
       ],
       "n": 10,
       "n_requested": 10,
@@ -4190,6 +4094,7 @@
       "name": "Carlos Albarrán",
       "position_tag": "LB",
       "passes_last_n": [
+        15,
         20,
         21,
         26,
@@ -4201,16 +4106,18 @@
         90,
         90,
         90,
+        90,
         79
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441109,
         19441103,
         19441086
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4223,6 +4130,7 @@
       "name": "Rubén Alves",
       "position_tag": "CB",
       "passes_last_n": [
+        32,
         31,
         27,
         46,
@@ -4232,6 +4140,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         84,
         90,
         90,
@@ -4239,6 +4148,7 @@
         46
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4246,7 +4156,7 @@
         19441146,
         19441082
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4259,6 +4169,7 @@
       "name": "Cristian Carracedo",
       "position_tag": "FWD",
       "passes_last_n": [
+        33,
         23,
         21,
         34,
@@ -4270,6 +4181,7 @@
         45
       ],
       "minutes_last_n": [
+        76,
         75,
         85,
         81,
@@ -4281,6 +4193,7 @@
         90
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4291,7 +4204,7 @@
         19441086,
         19441082
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4304,6 +4217,7 @@
       "name": "Carlos Isaac",
       "position_tag": "RB",
       "passes_last_n": [
+        31,
         27,
         24,
         32,
@@ -4319,11 +4233,13 @@
         90,
         90,
         90,
+        90,
         82,
         90,
         87
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4333,7 +4249,7 @@
         19441118,
         19441082
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4346,6 +4262,7 @@
       "name": "Iker Álvarez",
       "position_tag": "GK",
       "passes_last_n": [
+        31,
         46,
         38,
         27,
@@ -4357,16 +4274,18 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441159,
         19441146,
         19441131
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4379,6 +4298,7 @@
       "name": "Adrián Fuentes",
       "position_tag": "FWD",
       "passes_last_n": [
+        16,
         8,
         5,
         10,
@@ -4386,17 +4306,19 @@
       ],
       "minutes_last_n": [
         76,
+        76,
         70,
         74,
         76
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
         19441159
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4409,6 +4331,7 @@
       "name": "Franck Fomeyem",
       "position_tag": "CB",
       "passes_last_n": [
+        39,
         28,
         39,
         55,
@@ -4417,12 +4340,11 @@
         70,
         59,
         30,
-        33,
-        50
+        33
       ],
       "minutes_last_n": [
-        65,
         90,
+        65,
         90,
         90,
         90,
@@ -4433,6 +4355,7 @@
         90
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4441,8 +4364,7 @@
         19441131,
         19441118,
         19441109,
-        19441103,
-        19441086
+        19441103
       ],
       "n": 10,
       "n_requested": 10,
@@ -4457,6 +4379,7 @@
       "name": "Dalisson de Almeida",
       "position_tag": "MID",
       "passes_last_n": [
+        14,
         11,
         19,
         21,
@@ -4464,17 +4387,19 @@
       ],
       "minutes_last_n": [
         62,
+        62,
         70,
         64,
         82
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
         19441159
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4487,6 +4412,7 @@
       "name": "Isma Ruiz",
       "position_tag": "MID",
       "passes_last_n": [
+        30,
         39,
         22,
         45,
@@ -4495,8 +4421,7 @@
         52,
         41,
         32,
-        28,
-        21
+        28
       ],
       "minutes_last_n": [
         90,
@@ -4511,6 +4436,7 @@
         90
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4519,8 +4445,7 @@
         19441131,
         19441118,
         19441109,
-        19441103,
-        19441086
+        19441103
       ],
       "n": 10,
       "n_requested": 10,
@@ -4535,6 +4460,7 @@
       "name": "Dani Requena",
       "position_tag": "MID",
       "passes_last_n": [
+        35,
         32,
         20,
         25,
@@ -4543,6 +4469,7 @@
         28
       ],
       "minutes_last_n": [
+        70,
         76,
         61,
         74,
@@ -4551,6 +4478,7 @@
         71
       ],
       "fixture_ids": [
+        19441196,
         19441182,
         19441174,
         19441164,
@@ -4558,7 +4486,7 @@
         19441118,
         19441086
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4571,6 +4499,7 @@
       "name": "Dinko Horkas",
       "position_tag": "GK",
       "passes_last_n": [
+        42,
         47,
         42,
         41,
@@ -4579,8 +4508,7 @@
         41,
         40,
         30,
-        42,
-        38
+        42
       ],
       "minutes_last_n": [
         90,
@@ -4595,6 +4523,7 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441166,
@@ -4603,10 +4532,39 @@
         19441136,
         19441121,
         19441108,
-        19441099,
-        19441086
+        19441099
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 2921,
+      "player_id": 190863,
+      "name": "Viti Rozada",
+      "position_tag": "RB",
+      "passes_last_n": [
+        29,
+        11,
+        6,
+        13
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        65,
+        65
+      ],
+      "fixture_ids": [
+        19441203,
+        19441176,
+        19441166,
+        19441156
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4619,6 +4577,7 @@
       "name": "Enrique Clemente",
       "position_tag": "LB",
       "passes_last_n": [
+        81,
         64,
         29,
         58,
@@ -4636,11 +4595,13 @@
         90,
         90,
         90,
+        90,
         75,
         90,
         90
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441166,
@@ -4651,7 +4612,7 @@
         19441086,
         19441077
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4664,6 +4625,7 @@
       "name": "Manu Fuster",
       "position_tag": "MID",
       "passes_last_n": [
+        38,
         40,
         27,
         38,
@@ -4675,6 +4637,7 @@
         30
       ],
       "minutes_last_n": [
+        90,
         71,
         90,
         85,
@@ -4686,6 +4649,7 @@
         79
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441166,
         19441156,
@@ -4696,7 +4660,7 @@
         19441086,
         19441077
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4705,19 +4669,70 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 2921,
-      "player_id": 12066426,
-      "name": "Kirian Rodríguez",
+      "player_id": 11323002,
+      "name": "Enzo Loiodice",
       "position_tag": "MID",
       "passes_last_n": [
-        46
+        47,
+        35,
+        36,
+        48,
+        54,
+        40,
+        63,
+        59,
+        65,
+        39
       ],
       "minutes_last_n": [
-        55
+        86,
+        89,
+        65,
+        77,
+        67,
+        89,
+        85,
+        90,
+        75,
+        90
       ],
       "fixture_ids": [
-        19441189
+        19441203,
+        19441176,
+        19441166,
+        19441156,
+        19441142,
+        19441136,
+        19441121,
+        19441108,
+        19441099,
+        19441077
       ],
-      "n": 1,
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 2921,
+      "player_id": 11705315,
+      "name": "Francisco Jesús Crespo García",
+      "position_tag": "MID",
+      "passes_last_n": [
+        18,
+        24
+      ],
+      "minutes_last_n": [
+        62,
+        64
+      ],
+      "fixture_ids": [
+        19441203,
+        19441121
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4728,8 +4743,9 @@
       "team_id": 2921,
       "player_id": 12148408,
       "name": "Iván Gil",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "passes_last_n": [
+        26,
         49,
         20,
         19,
@@ -4739,6 +4755,7 @@
         36
       ],
       "minutes_last_n": [
+        74,
         90,
         62,
         57,
@@ -4748,6 +4765,7 @@
         83
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441166,
@@ -4756,7 +4774,7 @@
         19441121,
         19441077
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4769,6 +4787,7 @@
       "name": "Sergio Barcia",
       "position_tag": "CB",
       "passes_last_n": [
+        87,
         106,
         50,
         72,
@@ -4777,8 +4796,7 @@
         62,
         69,
         68,
-        94,
-        17
+        94
       ],
       "minutes_last_n": [
         90,
@@ -4793,6 +4811,7 @@
         90
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441166,
@@ -4801,104 +4820,7 @@
         19441136,
         19441121,
         19441108,
-        19441099,
-        19441086
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 2921,
-      "player_id": 23278692,
-      "name": "Marvin Park",
-      "position_tag": "RB",
-      "passes_last_n": [
-        28,
-        26,
-        34,
-        36,
-        38,
-        29,
-        36,
-        42,
-        54,
-        17
-      ],
-      "minutes_last_n": [
-        71,
-        89,
-        90,
-        90,
-        90,
-        90,
-        86,
-        90,
-        83,
-        62
-      ],
-      "fixture_ids": [
-        19441189,
-        19441176,
-        19441166,
-        19441156,
-        19441142,
-        19441136,
-        19441121,
-        19441108,
-        19441099,
-        19441086
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 2921,
-      "player_id": 37589553,
-      "name": "Ale García",
-      "position_tag": "MID",
-      "passes_last_n": [
-        25,
-        11,
-        14,
-        26,
-        20,
-        17,
-        21,
-        32,
-        44,
-        13
-      ],
-      "minutes_last_n": [
-        89,
-        90,
-        90,
-        90,
-        90,
-        88,
-        90,
-        90,
-        90,
-        79
-      ],
-      "fixture_ids": [
-        19441189,
-        19441176,
-        19441166,
-        19441156,
-        19441142,
-        19441136,
-        19441121,
-        19441108,
-        19441099,
-        19441086
+        19441099
       ],
       "n": 10,
       "n_requested": 10,
@@ -4913,6 +4835,7 @@
       "name": "Milos Lukovic",
       "position_tag": "FWD",
       "passes_last_n": [
+        12,
         18,
         9,
         6,
@@ -4924,6 +4847,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         79,
         58,
         69,
@@ -4933,6 +4857,7 @@
         62
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441142,
@@ -4942,7 +4867,7 @@
         19441099,
         19441086
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4955,6 +4880,7 @@
       "name": "Lorenzo Amatucci",
       "position_tag": "MID",
       "passes_last_n": [
+        62,
         51,
         38,
         27,
@@ -4963,10 +4889,10 @@
         57,
         62,
         66,
-        27,
-        33
+        27
       ],
       "minutes_last_n": [
+        90,
         89,
         90,
         90,
@@ -4975,10 +4901,10 @@
         90,
         90,
         90,
-        90,
-        79
+        90
       ],
       "fixture_ids": [
+        19441203,
         19441189,
         19441176,
         19441166,
@@ -4987,10 +4913,48 @@
         19441136,
         19441121,
         19441099,
-        19441086,
-        19441077
+        19441086
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 3169,
+      "player_id": 32536,
+      "name": "Jesús Vallejo",
+      "position_tag": "CB",
+      "passes_last_n": [
+        39,
+        26,
+        58,
+        70,
+        21,
+        29,
+        21
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441193,
+        19441160,
+        19441151,
+        19441148,
+        19441128,
+        19441125,
+        19441072
+      ],
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5033,42 +4997,6 @@
         19441125
       ],
       "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 3169,
-      "player_id": 187060,
-      "name": "José Carlos Lazo",
-      "position_tag": "MID",
-      "passes_last_n": [
-        9,
-        21,
-        16,
-        30,
-        16,
-        8
-      ],
-      "minutes_last_n": [
-        64,
-        76,
-        71,
-        70,
-        64,
-        46
-      ],
-      "fixture_ids": [
-        19441182,
-        19441173,
-        19441160,
-        19441151,
-        19441125,
-        19441072
-      ],
-      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5380,34 +5308,40 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 3169,
-      "player_id": 27048484,
-      "name": "Javi Moreno",
-      "position_tag": "CB",
+      "player_id": 19988729,
+      "name": "Jon Morcillo",
+      "position_tag": "MID",
       "passes_last_n": [
-        23,
-        23,
-        45,
-        23,
-        36,
-        48
+        18,
+        21,
+        22,
+        35,
+        18,
+        33,
+        18,
+        25
       ],
       "minutes_last_n": [
-        78,
         90,
-        70,
-        46,
+        90,
+        82,
+        90,
+        82,
+        90,
         90,
         90
       ],
       "fixture_ids": [
-        19441182,
-        19441173,
+        19441193,
+        19441160,
+        19441151,
         19441148,
+        19441125,
         19441106,
         19441094,
         19441084
       ],
-      "n": 6,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5452,43 +5386,11 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 3968,
-      "player_id": 178034,
-      "name": "Aleksandar Radovanovic",
-      "position_tag": "CB",
-      "passes_last_n": [
-        43,
-        27,
-        46,
-        28,
-        31
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        82,
-        57
-      ],
-      "fixture_ids": [
-        19441181,
-        19441127,
-        19441095,
-        19441093,
-        19441080
-      ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 3968,
       "player_id": 186354,
       "name": "Pablo Insua",
       "position_tag": "CB",
       "passes_last_n": [
+        46,
         53,
         44,
         42,
@@ -5506,9 +5408,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441181,
         19441161,
@@ -5518,7 +5422,7 @@
         19441115,
         19441095
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5531,15 +5435,45 @@
       "name": "Martín Aguirregabiria",
       "position_tag": "RB",
       "passes_last_n": [
+        34,
         49
       ],
       "minutes_last_n": [
+        83,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192
       ],
-      "n": 1,
+      "n": 2,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 3968,
+      "player_id": 187270,
+      "name": "Toni Moya",
+      "position_tag": "MID",
+      "passes_last_n": [
+        54,
+        11,
+        39
+      ],
+      "minutes_last_n": [
+        90,
+        62,
+        90
+      ],
+      "fixture_ids": [
+        19441202,
+        19441161,
+        19441095
+      ],
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5552,6 +5486,7 @@
       "name": "Raúl Guti",
       "position_tag": "MID",
       "passes_last_n": [
+        22,
         39,
         46,
         35,
@@ -5560,10 +5495,10 @@
         35,
         41,
         23,
-        42,
-        47
+        42
       ],
       "minutes_last_n": [
+        68,
         90,
         63,
         90,
@@ -5572,10 +5507,10 @@
         46,
         90,
         69,
-        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441181,
         19441161,
@@ -5584,8 +5519,7 @@
         19441125,
         19441115,
         19441095,
-        19441093,
-        19441080
+        19441093
       ],
       "n": 10,
       "n_requested": 10,
@@ -5600,6 +5534,7 @@
       "name": "Carlos Pomares",
       "position_tag": "LB",
       "passes_last_n": [
+        56,
         58,
         19,
         43,
@@ -5610,6 +5545,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         46,
         90,
         83,
@@ -5618,6 +5554,7 @@
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441181,
         19441144,
@@ -5626,37 +5563,7 @@
         19441093,
         19441080
       ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 3968,
-      "player_id": 381034,
-      "name": "Tachi",
-      "position_tag": "MID",
-      "passes_last_n": [
-        40,
-        59,
-        37,
-        68
-      ],
-      "minutes_last_n": [
-        61,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441192,
-        19441161,
-        19441159,
-        19441144
-      ],
-      "n": 4,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5669,18 +5576,21 @@
       "name": "Mario Soberón",
       "position_tag": "FWD",
       "passes_last_n": [
+        14,
         17,
         22
       ],
       "minutes_last_n": [
+        68,
         61,
         65
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441093
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5693,15 +5603,18 @@
       "name": "Valery Fernández",
       "position_tag": "MID",
       "passes_last_n": [
+        21,
         29
       ],
       "minutes_last_n": [
+        83,
         75
       ],
       "fixture_ids": [
+        19441202,
         19441192
       ],
-      "n": 1,
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5714,6 +5627,7 @@
       "name": "Adrián Rodríguez",
       "position_tag": "GK",
       "passes_last_n": [
+        24,
         21,
         17,
         25,
@@ -5729,9 +5643,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441127,
         19441125,
@@ -5740,7 +5656,7 @@
         19441093,
         19441080
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5753,6 +5669,7 @@
       "name": "Francho Serrano",
       "position_tag": "MID",
       "passes_last_n": [
+        56,
         54,
         19,
         30,
@@ -5771,10 +5688,12 @@
         90,
         90,
         90,
+        90,
         56,
         90
       ],
       "fixture_ids": [
+        19441202,
         19441192,
         19441181,
         19441161,
@@ -5785,7 +5704,7 @@
         19441093,
         19441080
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5829,6 +5748,7 @@
       "position_tag": "MID",
       "passes_last_n": [
         30,
+        30,
         49,
         27,
         38,
@@ -5836,10 +5756,10 @@
         30,
         28,
         32,
-        20,
-        39
+        20
       ],
       "minutes_last_n": [
+        71,
         90,
         90,
         90,
@@ -5848,124 +5768,12 @@
         88,
         74,
         65,
-        61,
-        80
+        61
       ],
       "fixture_ids": [
+        19441198,
         19441188,
         19441172,
-        19441156,
-        19441139,
-        19441137,
-        19441116,
-        19441114,
-        19441094,
-        19441090,
-        19441074
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 6827,
-      "player_id": 6333,
-      "name": "Álex Fernández",
-      "position_tag": "MID",
-      "passes_last_n": [
-        18,
-        56,
-        60,
-        26
-      ],
-      "minutes_last_n": [
-        55,
-        90,
-        90,
-        45
-      ],
-      "fixture_ids": [
-        19441188,
-        19441172,
-        19441163,
-        19441094
-      ],
-      "n": 4,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 6827,
-      "player_id": 187034,
-      "name": "Javi Ontiveros",
-      "position_tag": "MID",
-      "passes_last_n": [
-        12,
-        40,
-        40,
-        21,
-        40
-      ],
-      "minutes_last_n": [
-        55,
-        90,
-        73,
-        64,
-        67
-      ],
-      "fixture_ids": [
-        19441188,
-        19441172,
-        19441163,
-        19441156,
-        19441074
-      ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 6827,
-      "player_id": 189238,
-      "name": "Iza Carcelén",
-      "position_tag": "RB",
-      "passes_last_n": [
-        17,
-        54,
-        63,
-        21,
-        33,
-        38,
-        31,
-        45,
-        42,
-        40
-      ],
-      "minutes_last_n": [
-        70,
-        90,
-        90,
-        46,
-        90,
-        90,
-        90,
-        90,
-        86,
-        90
-      ],
-      "fixture_ids": [
-        19441188,
-        19441172,
-        19441163,
         19441156,
         19441139,
         19441137,
@@ -5975,6 +5783,27 @@
         19441090
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6827,
+      "player_id": 185975,
+      "name": "Roger Martí",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        5
+      ],
+      "minutes_last_n": [
+        46
+      ],
+      "fixture_ids": [
+        19441198
+      ],
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5987,6 +5816,7 @@
       "name": "Sergio Ortuño",
       "position_tag": "MID",
       "passes_last_n": [
+        36,
         44,
         65,
         62,
@@ -5997,6 +5827,7 @@
         14
       ],
       "minutes_last_n": [
+        85,
         90,
         90,
         90,
@@ -6007,6 +5838,7 @@
         46
       ],
       "fixture_ids": [
+        19441198,
         19441188,
         19441172,
         19441163,
@@ -6016,7 +5848,7 @@
         19441116,
         19441090
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6025,67 +5857,37 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 6827,
-      "player_id": 37316525,
-      "name": "Iker Recio",
-      "position_tag": "CB",
+      "player_id": 6599935,
+      "name": "Iuri Tabatadze",
+      "position_tag": "MID",
       "passes_last_n": [
-        27,
-        49,
-        62,
-        38,
-        39,
-        26,
-        54,
-        51,
-        58,
-        61
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441188,
-        19441172,
-        19441163,
-        19441156,
-        19441139,
-        19441137,
-        19441116,
-        19441114,
-        19441094,
-        19441090
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 6827,
-      "player_id": 37553160,
-      "name": "Dawda Camara",
-      "position_tag": "FWD",
-      "passes_last_n": [
+        11,
+        8,
+        13,
+        10,
+        15,
+        6,
         10
       ],
       "minutes_last_n": [
-        82
+        46,
+        46,
+        76,
+        81,
+        78,
+        70,
+        72
       ],
       "fixture_ids": [
-        19441188
+        19441198,
+        19441172,
+        19441163,
+        19441156,
+        19441139,
+        19441137,
+        19441116
       ],
-      "n": 1,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6098,6 +5900,7 @@
       "name": "Mario Climent",
       "position_tag": "LB",
       "passes_last_n": [
+        40,
         25,
         26,
         32,
@@ -6110,6 +5913,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         89,
         87,
         90,
@@ -6120,6 +5924,7 @@
         90
       ],
       "fixture_ids": [
+        19441198,
         19441188,
         19441156,
         19441139,
@@ -6130,7 +5935,31 @@
         19441090,
         19441074
       ],
-      "n": 9,
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6827,
+      "player_id": 37584215,
+      "name": "Pelayo Fernández",
+      "position_tag": "CB",
+      "passes_last_n": [
+        42,
+        39
+      ],
+      "minutes_last_n": [
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441198,
+        19441114
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6143,6 +5972,7 @@
       "name": "Bojan Kovacevic",
       "position_tag": "CB",
       "passes_last_n": [
+        26,
         29,
         30,
         36,
@@ -6155,6 +5985,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         76,
         90,
         90,
@@ -6165,12 +5996,58 @@
         90
       ],
       "fixture_ids": [
+        19441198,
         19441188,
         19441172,
         19441156,
         19441139,
         19441137,
         19441116,
+        19441094,
+        19441090,
+        19441074
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6827,
+      "player_id": 37615913,
+      "name": "Moussa Diakité",
+      "position_tag": "MID",
+      "passes_last_n": [
+        29,
+        36,
+        39,
+        39,
+        35,
+        51,
+        42,
+        43,
+        50
+      ],
+      "minutes_last_n": [
+        90,
+        89,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441198,
+        19441156,
+        19441139,
+        19441137,
+        19441116,
+        19441114,
         19441094,
         19441090,
         19441074
@@ -6188,6 +6065,7 @@
       "name": "Victor Wehbi Aznar",
       "position_tag": "GK",
       "passes_last_n": [
+        40,
         27,
         32,
         29,
@@ -6196,8 +6074,7 @@
         33,
         37,
         35,
-        30,
-        21
+        30
       ],
       "minutes_last_n": [
         90,
@@ -6212,7 +6089,55 @@
         90
       ],
       "fixture_ids": [
+        19441198,
         19441188,
+        19441172,
+        19441163,
+        19441156,
+        19441139,
+        19441137,
+        19441116,
+        19441114,
+        19441094
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6827,
+      "player_id": 37774860,
+      "name": "García Pascual",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        16,
+        10,
+        12,
+        17,
+        11,
+        15,
+        11,
+        11,
+        13,
+        8
+      ],
+      "minutes_last_n": [
+        71,
+        46,
+        76,
+        90,
+        87,
+        82,
+        72,
+        85,
+        86,
+        90
+      ],
+      "fixture_ids": [
+        19441198,
         19441172,
         19441163,
         19441156,
@@ -6232,28 +6157,19 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 6827,
-      "player_id": 37656331,
-      "name": "José Antonio de la Rosa",
-      "position_tag": "MID",
+      "player_id": 37778960,
+      "name": "Juan Díaz",
+      "position_tag": "RB",
       "passes_last_n": [
-        8,
-        8,
-        11,
-        20
+        30
       ],
       "minutes_last_n": [
-        71,
-        45,
-        61,
         90
       ],
       "fixture_ids": [
-        19441188,
-        19441094,
-        19441090,
-        19441074
+        19441198
       ],
-      "n": 4,
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6266,7 +6182,7 @@
       "name": "Carlos Fernández",
       "position_tag": "FWD",
       "passes_last_n": [
-        22,
+        24,
         26,
         24,
         17,
@@ -6301,59 +6217,11 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 6968,
-      "player_id": 3510267,
-      "name": "Juan Gutiérrez",
-      "position_tag": "CB",
-      "passes_last_n": [
-        42,
-        39,
-        20,
-        19,
-        52,
-        14,
-        46,
-        26,
-        24,
-        39
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441191,
-        19441171,
-        19441168,
-        19441158,
-        19441144,
-        19441135,
-        19441122,
-        19441106,
-        19441097,
-        19441092
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 6968,
       "player_id": 22136561,
       "name": "Martín Pascual",
       "position_tag": "CB",
       "passes_last_n": [
-        42,
+        44,
         40,
         48,
         29,
@@ -6395,7 +6263,7 @@
       "name": "Alberto Marí",
       "position_tag": "FWD",
       "passes_last_n": [
-        13,
+        14,
         19,
         10
       ],
@@ -6420,7 +6288,7 @@
       "team_id": 6968,
       "player_id": 37316454,
       "name": "Hugo Novoa",
-      "position_tag": "RB",
+      "position_tag": "MID",
       "passes_last_n": [
         10,
         22,
@@ -6465,9 +6333,9 @@
       "team_id": 6968,
       "player_id": 37516975,
       "name": "Pablo Pérez",
-      "position_tag": "LB",
+      "position_tag": "MID",
       "passes_last_n": [
-        30,
+        27,
         32,
         18,
         10,
@@ -6540,9 +6408,9 @@
       "team_id": 6968,
       "player_id": 37543479,
       "name": "Álex Cardero",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "passes_last_n": [
-        16,
+        17,
         31,
         27,
         13
@@ -6558,6 +6426,36 @@
         19441191,
         19441106,
         19441097
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6968,
+      "player_id": 37550914,
+      "name": "Adrián Pica",
+      "position_tag": "CB",
+      "passes_last_n": [
+        35,
+        39,
+        49,
+        18
+      ],
+      "minutes_last_n": [
+        90,
+        67,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441197,
+        19441144,
+        19441092,
+        19441074
       ],
       "n": 4,
       "n_requested": 10,
@@ -6601,11 +6499,56 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 6968,
+      "player_id": 37716722,
+      "name": "Rafel Bauzà",
+      "position_tag": "MID",
+      "passes_last_n": [
+        27,
+        38,
+        19,
+        22,
+        51,
+        10,
+        44,
+        28,
+        18
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        84,
+        83,
+        90,
+        90,
+        78,
+        84,
+        68
+      ],
+      "fixture_ids": [
+        19441197,
+        19441171,
+        19441168,
+        19441158,
+        19441144,
+        19441135,
+        19441122,
+        19441106,
+        19441097
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 6968,
       "player_id": 37720968,
       "name": "Iker Córdoba",
       "position_tag": "CB",
       "passes_last_n": [
-        39,
+        41,
         44,
         38,
         22,
@@ -6645,54 +6588,12 @@
     {
       "league_id": 567,
       "season_id": 25673,
-      "team_id": 6968,
-      "player_id": 37737689,
-      "name": "Ismael Barea",
-      "position_tag": "MID",
-      "passes_last_n": [
-        30,
-        17,
-        20,
-        25,
-        13,
-        33,
-        33,
-        24
-      ],
-      "minutes_last_n": [
-        71,
-        46,
-        90,
-        90,
-        46,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441191,
-        19441171,
-        19441168,
-        19441158,
-        19441122,
-        19441097,
-        19441092,
-        19441074
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
       "team_id": 8366,
       "player_id": 98956,
       "name": "Florian Miguel",
       "position_tag": "LB",
       "passes_last_n": [
-        24,
+        25,
         16,
         18,
         32,
@@ -6786,9 +6687,9 @@
       "team_id": 8366,
       "player_id": 187977,
       "name": "Curro Sánchez",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "passes_last_n": [
-        37,
+        39,
         38,
         35,
         68,
@@ -6917,7 +6818,7 @@
       "name": "Grego Sierra",
       "position_tag": "CB",
       "passes_last_n": [
-        27,
+        26,
         51,
         34,
         37,
@@ -6965,7 +6866,7 @@
       "name": "Miguel Atienza",
       "position_tag": "MID",
       "passes_last_n": [
-        27,
+        28,
         47,
         35,
         34,
@@ -7013,7 +6914,7 @@
       "name": "Iván Morante",
       "position_tag": "MID",
       "passes_last_n": [
-        29,
+        28,
         51,
         32,
         19,
@@ -7198,102 +7099,9 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 9656,
-      "player_id": 538721,
-      "name": "Mikel Rodriguez",
-      "position_tag": "MID",
-      "passes_last_n": [
-        40,
-        24,
-        25,
-        25,
-        35,
-        51,
-        41,
-        42,
-        27
-      ],
-      "minutes_last_n": [
-        90,
-        66,
-        77,
-        72,
-        90,
-        81,
-        61,
-        77,
-        63
-      ],
-      "fixture_ids": [
-        19441184,
-        19441169,
-        19441154,
-        19441146,
-        19441134,
-        19441114,
-        19441102,
-        19441091,
-        19441080
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 9656,
-      "player_id": 37412535,
-      "name": "Peru Rodríguez",
-      "position_tag": "CB",
-      "passes_last_n": [
-        69,
-        57,
-        77,
-        39,
-        75,
-        58,
-        69,
-        67,
-        44,
-        42
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        70
-      ],
-      "fixture_ids": [
-        19441184,
-        19441169,
-        19441154,
-        19441146,
-        19441134,
-        19441121,
-        19441114,
-        19441102,
-        19441091,
-        19441080
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 9656,
       "player_id": 37552766,
       "name": "Jon Balda",
-      "position_tag": "MID",
+      "position_tag": "LB",
       "passes_last_n": [
         33,
         29,
@@ -7414,42 +7222,6 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 9656,
-      "player_id": 37676502,
-      "name": "Arkaitz Mariezkurrena",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        21,
-        17,
-        17,
-        21,
-        15,
-        15
-      ],
-      "minutes_last_n": [
-        71,
-        63,
-        82,
-        90,
-        62,
-        63
-      ],
-      "fixture_ids": [
-        19441184,
-        19441134,
-        19441121,
-        19441102,
-        19441091,
-        19441080
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 9656,
       "player_id": 37678224,
       "name": "Gorka Carrera",
       "position_tag": "FWD",
@@ -7494,7 +7266,7 @@
       "team_id": 9656,
       "player_id": 37686328,
       "name": "Kazunari Kita",
-      "position_tag": "LB",
+      "position_tag": "CB",
       "passes_last_n": [
         52,
         52,
@@ -7514,6 +7286,33 @@
         19441121
       ],
       "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 9656,
+      "player_id": 37687947,
+      "name": "Dani Díaz",
+      "position_tag": "MID",
+      "passes_last_n": [
+        5,
+        9,
+        10
+      ],
+      "minutes_last_n": [
+        54,
+        54,
+        63
+      ],
+      "fixture_ids": [
+        19441200,
+        19441169,
+        19441134
+      ],
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7577,6 +7376,78 @@
         19441102
       ],
       "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 9656,
+      "player_id": 37716602,
+      "name": "Gorka Gorosabel",
+      "position_tag": "MID",
+      "passes_last_n": [
+        21,
+        23,
+        20,
+        32,
+        7,
+        34,
+        25,
+        24
+      ],
+      "minutes_last_n": [
+        67,
+        90,
+        90,
+        71,
+        56,
+        90,
+        88,
+        84
+      ],
+      "fixture_ids": [
+        19441200,
+        19441169,
+        19441154,
+        19441134,
+        19441121,
+        19441114,
+        19441091,
+        19441080
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 9656,
+      "player_id": 37719250,
+      "name": "Alex Marchal",
+      "position_tag": "MID",
+      "passes_last_n": [
+        17,
+        17,
+        13,
+        21
+      ],
+      "minutes_last_n": [
+        67,
+        75,
+        63,
+        69
+      ],
+      "fixture_ids": [
+        19441200,
+        19441169,
+        19441134,
+        19441114
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8065,312 +7936,27 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 10008,
-      "player_id": 84619,
-      "name": "Awer Mabil",
+      "player_id": 129736,
+      "name": "Ronaldo",
       "position_tag": "MID",
       "passes_last_n": [
-        9,
-        22,
-        16,
-        23,
-        34,
-        30,
+        21,
+        28,
+        31,
+        46,
+        29,
         28
       ],
       "minutes_last_n": [
         46,
-        61,
-        60,
-        90,
-        90,
-        84,
-        75
-      ],
-      "fixture_ids": [
-        19441183,
-        19441165,
-        19441117,
-        19441109,
-        19441095,
-        19441085,
-        19441079
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 134040,
-      "name": "Fabrizio Brignani",
-      "position_tag": "CB",
-      "passes_last_n": [
-        54,
-        25,
-        21
-      ],
-      "minutes_last_n": [
-        90,
-        60,
-        70
-      ],
-      "fixture_ids": [
-        19441183,
-        19441117,
-        19441109
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 186743,
-      "name": "Salva Ruiz",
-      "position_tag": "CB",
-      "passes_last_n": [
-        55,
-        48,
-        43,
-        66,
-        11,
-        30,
-        13,
-        35,
-        33,
-        43
-      ],
-      "minutes_last_n": [
-        80,
-        66,
-        90,
-        90,
-        51,
-        83,
-        82,
-        90,
-        62,
-        90
-      ],
-      "fixture_ids": [
-        19441183,
-        19441173,
-        19441165,
-        19441150,
-        19441143,
-        19441117,
-        19441109,
-        19441095,
-        19441085,
-        19441079
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 433042,
-      "name": "Jérémy Mellot",
-      "position_tag": "RB",
-      "passes_last_n": [
-        62,
-        77,
-        39,
-        40,
-        40,
-        39,
-        67,
-        44,
-        60,
-        64
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441183,
-        19441173,
-        19441165,
-        19441150,
-        19441143,
-        19441132,
-        19441117,
-        19441109,
-        19441095,
-        19441085
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 1479103,
-      "name": "Romain Matthys",
-      "position_tag": "GK",
-      "passes_last_n": [
-        37,
-        24,
-        47,
-        25,
-        33,
-        35,
-        23
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441183,
-        19441173,
-        19441165,
-        19441150,
-        19441143,
-        19441132,
-        19441117
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 3156870,
-      "name": "Diego Barri",
-      "position_tag": "MID",
-      "passes_last_n": [
-        38,
-        42,
-        26,
-        27,
-        36,
-        60,
-        35,
-        62
-      ],
-      "minutes_last_n": [
-        71,
-        62,
-        67,
-        60,
-        90,
-        90,
-        61,
-        90
-      ],
-      "fixture_ids": [
-        19441183,
-        19441150,
-        19441132,
-        19441117,
-        19441109,
-        19441095,
-        19441085,
-        19441079
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 19979243,
-      "name": "Adam Jakobsen",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        11,
-        8,
-        9,
-        13,
-        8,
-        20,
-        13,
-        17
-      ],
-      "minutes_last_n": [
-        90,
-        60,
+        57,
         75,
         82,
         69,
-        90,
-        90,
-        70
+        57
       ],
       "fixture_ids": [
-        19441183,
-        19441173,
-        19441165,
-        19441150,
-        19441143,
-        19441132,
-        19441117,
-        19441109
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 10008,
-      "player_id": 37529827,
-      "name": "Lucas Alcázar",
-      "position_tag": "LB",
-      "passes_last_n": [
-        29,
-        28,
-        39,
-        33,
-        23,
-        24
-      ],
-      "minutes_last_n": [
-        90,
-        75,
-        90,
-        71,
-        90,
-        58
-      ],
-      "fixture_ids": [
-        19441183,
+        19441195,
         19441173,
         19441165,
         19441150,
@@ -8386,10 +7972,308 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 10008,
+      "player_id": 134040,
+      "name": "Fabrizio Brignani",
+      "position_tag": "CB",
+      "passes_last_n": [
+        29,
+        54,
+        25,
+        21
+      ],
+      "minutes_last_n": [
+        76,
+        90,
+        60,
+        70
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441117,
+        19441109
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 186743,
+      "name": "Salva Ruiz",
+      "position_tag": "CB",
+      "passes_last_n": [
+        41,
+        55,
+        48,
+        43,
+        66,
+        11,
+        30,
+        13,
+        35,
+        33
+      ],
+      "minutes_last_n": [
+        64,
+        80,
+        66,
+        90,
+        90,
+        51,
+        83,
+        82,
+        90,
+        62
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441173,
+        19441165,
+        19441150,
+        19441143,
+        19441117,
+        19441109,
+        19441095,
+        19441085
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 433042,
+      "name": "Jérémy Mellot",
+      "position_tag": "RB",
+      "passes_last_n": [
+        39,
+        62,
+        77,
+        39,
+        40,
+        40,
+        39,
+        67,
+        44,
+        60
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441173,
+        19441165,
+        19441150,
+        19441143,
+        19441132,
+        19441117,
+        19441109,
+        19441095
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 1479103,
+      "name": "Romain Matthys",
+      "position_tag": "GK",
+      "passes_last_n": [
+        26,
+        37,
+        24,
+        47,
+        25,
+        33,
+        35,
+        23
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441173,
+        19441165,
+        19441150,
+        19441143,
+        19441132,
+        19441117
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 3156870,
+      "name": "Diego Barri",
+      "position_tag": "MID",
+      "passes_last_n": [
+        23,
+        38,
+        42,
+        26,
+        27,
+        36,
+        60,
+        35,
+        62
+      ],
+      "minutes_last_n": [
+        64,
+        71,
+        62,
+        67,
+        60,
+        90,
+        90,
+        61,
+        90
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441150,
+        19441132,
+        19441117,
+        19441109,
+        19441095,
+        19441085,
+        19441079
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 19979243,
+      "name": "Adam Jakobsen",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        10,
+        11,
+        8,
+        9,
+        13,
+        8,
+        20,
+        13,
+        17
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        60,
+        75,
+        82,
+        69,
+        90,
+        90,
+        70
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441173,
+        19441165,
+        19441150,
+        19441143,
+        19441132,
+        19441117,
+        19441109
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
+      "player_id": 37529827,
+      "name": "Lucas Alcázar",
+      "position_tag": "LB",
+      "passes_last_n": [
+        35,
+        29,
+        28,
+        39,
+        33,
+        23,
+        24
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        75,
+        90,
+        71,
+        90,
+        58
+      ],
+      "fixture_ids": [
+        19441195,
+        19441183,
+        19441173,
+        19441165,
+        19441150,
+        19441143,
+        19441132
+      ],
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 10008,
       "player_id": 37540758,
       "name": "Brian Cipenga",
       "position_tag": "MID",
       "passes_last_n": [
+        25,
         14,
         25,
         31,
@@ -8408,10 +8292,12 @@
         90,
         90,
         90,
+        90,
         71,
         63
       ],
       "fixture_ids": [
+        19441195,
         19441183,
         19441173,
         19441150,
@@ -8422,7 +8308,7 @@
         19441095,
         19441079
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8435,6 +8321,7 @@
       "name": "Álex Calatrava",
       "position_tag": "MID",
       "passes_last_n": [
+        27,
         22,
         44,
         27,
@@ -8443,10 +8330,10 @@
         26,
         43,
         26,
-        17,
-        39
+        17
       ],
       "minutes_last_n": [
+        90,
         71,
         90,
         90,
@@ -8455,10 +8342,10 @@
         90,
         90,
         70,
-        71,
-        90
+        71
       ],
       "fixture_ids": [
+        19441195,
         19441183,
         19441173,
         19441165,
@@ -8467,8 +8354,7 @@
         19441132,
         19441117,
         19441109,
-        19441095,
-        19441085
+        19441095
       ],
       "n": 10,
       "n_requested": 10,
@@ -8479,25 +8365,28 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 10008,
-      "player_id": 37590338,
-      "name": "Beñat Gerenabarrena",
+      "player_id": 37591206,
+      "name": "Pablo Santiago",
       "position_tag": "MID",
       "passes_last_n": [
-        26,
-        37,
-        44
+        12,
+        23,
+        20,
+        18
       ],
       "minutes_last_n": [
-        65,
-        68,
-        90
+        64,
+        78,
+        71,
+        46
       ],
       "fixture_ids": [
-        19441183,
-        19441085,
-        19441079
+        19441195,
+        19441132,
+        19441117,
+        19441109
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8594,7 +8483,7 @@
       "name": "Rubén Sobrino",
       "position_tag": "MID",
       "passes_last_n": [
-        18,
+        19,
         26,
         13,
         25,
@@ -8632,46 +8521,34 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 11354,
-      "player_id": 188727,
-      "name": "Bicho",
+      "player_id": 187284,
+      "name": "Agustín Pastoriza",
       "position_tag": "MID",
       "passes_last_n": [
-        90,
-        74,
-        22,
-        45,
-        28,
-        52,
-        55,
-        42,
-        31,
-        34
+        27,
+        23,
+        20,
+        20,
+        17,
+        18
       ],
       "minutes_last_n": [
-        90,
-        84,
-        67,
-        90,
-        73,
-        90,
-        90,
-        76,
-        73,
-        90
+        81,
+        75,
+        80,
+        61,
+        56,
+        75
       ],
       "fixture_ids": [
-        19441185,
-        19441181,
-        19441164,
+        19441197,
         19441151,
         19441147,
         19441132,
         19441123,
-        19441110,
-        19441104,
-        19441087
+        19441110
       ],
-      "n": 10,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8808,9 +8685,9 @@
       "team_id": 11354,
       "player_id": 37554535,
       "name": "Selu Diallo",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "passes_last_n": [
-        50,
+        51,
         36,
         30,
         29,
@@ -8843,7 +8720,7 @@
       "name": "Thiago Ojeda",
       "position_tag": "MID",
       "passes_last_n": [
-        55,
+        54,
         82,
         64,
         45,
@@ -8891,7 +8768,7 @@
       "name": "Matia Barzic",
       "position_tag": "CB",
       "passes_last_n": [
-        54,
+        55,
         64,
         37,
         27,
@@ -8984,6 +8861,7 @@
       "name": "Kuki Zalazar",
       "position_tag": "MID",
       "passes_last_n": [
+        17,
         29,
         30,
         18,
@@ -8992,10 +8870,10 @@
         21,
         22,
         39,
-        28,
-        22
+        28
       ],
       "minutes_last_n": [
+        59,
         82,
         73,
         66,
@@ -9004,10 +8882,10 @@
         69,
         84,
         80,
-        90,
-        78
+        90
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9016,8 +8894,7 @@
         19441127,
         19441117,
         19441105,
-        19441101,
-        19441083
+        19441101
       ],
       "n": 10,
       "n_requested": 10,
@@ -9032,6 +8909,7 @@
       "name": "José Matos",
       "position_tag": "LB",
       "passes_last_n": [
+        24,
         22,
         44,
         24,
@@ -9040,8 +8918,7 @@
         32,
         20,
         21,
-        26,
-        32
+        26
       ],
       "minutes_last_n": [
         90,
@@ -9052,10 +8929,11 @@
         90,
         90,
         90,
-        71,
-        90
+        90,
+        71
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9064,8 +8942,7 @@
         19441127,
         19441117,
         19441105,
-        19441101,
-        19441083
+        19441101
       ],
       "n": 10,
       "n_requested": 10,
@@ -9080,6 +8957,7 @@
       "name": "Carlos Hernández",
       "position_tag": "CB",
       "passes_last_n": [
+        14,
         21,
         33,
         59,
@@ -9088,8 +8966,7 @@
         35,
         20,
         42,
-        29,
-        59
+        29
       ],
       "minutes_last_n": [
         90,
@@ -9104,6 +8981,7 @@
         90
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9112,8 +8990,7 @@
         19441127,
         19441117,
         19441105,
-        19441101,
-        19441083
+        19441101
       ],
       "n": 10,
       "n_requested": 10,
@@ -9128,6 +9005,7 @@
       "name": "Guillermo Vallejo",
       "position_tag": "GK",
       "passes_last_n": [
+        38,
         29,
         31,
         51,
@@ -9147,9 +9025,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9160,7 +9040,7 @@
         19441105,
         19441081
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9173,6 +9053,7 @@
       "name": "Anuar",
       "position_tag": "RB",
       "passes_last_n": [
+        28,
         16,
         41,
         30,
@@ -9185,12 +9066,14 @@
         90,
         90,
         90,
+        90,
         71,
         86,
         45,
         90
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9199,7 +9082,7 @@
         19441101,
         19441083
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9212,6 +9095,7 @@
       "name": "Rubén Díez",
       "position_tag": "MID",
       "passes_last_n": [
+        30,
         40,
         37,
         54,
@@ -9223,6 +9107,7 @@
         38
       ],
       "minutes_last_n": [
+        58,
         82,
         73,
         90,
@@ -9234,6 +9119,7 @@
         66
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9244,7 +9130,7 @@
         19441105,
         19441101
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9257,6 +9143,7 @@
       "name": "Youness Lachhab",
       "position_tag": "MID",
       "passes_last_n": [
+        20,
         36,
         65,
         59,
@@ -9268,6 +9155,7 @@
         61
       ],
       "minutes_last_n": [
+        58,
         90,
         90,
         78,
@@ -9279,6 +9167,7 @@
         84
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9289,7 +9178,7 @@
         19441105,
         19441083
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9302,18 +9191,63 @@
       "name": "Konrad de la Fuente",
       "position_tag": "FWD",
       "passes_last_n": [
+        14,
         8,
         19
       ],
       "minutes_last_n": [
+        90,
         60,
         60
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171
       ],
-      "n": 2,
+      "n": 3,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 12330,
+      "player_id": 33213337,
+      "name": "Kialy Abdoul Kone",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        16,
+        19,
+        34,
+        38,
+        31,
+        14,
+        29,
+        14
+      ],
+      "minutes_last_n": [
+        68,
+        66,
+        78,
+        68,
+        85,
+        76,
+        80,
+        48
+      ],
+      "fixture_ids": [
+        19441196,
+        19441160,
+        19441149,
+        19441139,
+        19441127,
+        19441117,
+        19441105,
+        19441081
+      ],
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9326,6 +9260,7 @@
       "name": "Diego González",
       "position_tag": "CB",
       "passes_last_n": [
+        31,
         36,
         52,
         69,
@@ -9341,9 +9276,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9352,55 +9289,7 @@
         19441127,
         19441083
       ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 12330,
-      "player_id": 37547774,
-      "name": "Aisar Ahmed",
-      "position_tag": "FWD",
-      "passes_last_n": [
-        10,
-        20,
-        16,
-        31,
-        18,
-        18,
-        13,
-        31,
-        30,
-        21
-      ],
-      "minutes_last_n": [
-        82,
-        73,
-        78,
-        90,
-        68,
-        78,
-        52,
-        90,
-        82,
-        84
-      ],
-      "fixture_ids": [
-        19441185,
-        19441171,
-        19441160,
-        19441149,
-        19441139,
-        19441127,
-        19441117,
-        19441105,
-        19441101,
-        19441083
-      ],
-      "n": 10,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9413,6 +9302,7 @@
       "name": "Marcos Fernández",
       "position_tag": "FWD",
       "passes_last_n": [
+        12,
         17,
         22,
         21,
@@ -9424,6 +9314,7 @@
         12
       ],
       "minutes_last_n": [
+        79,
         89,
         88,
         90,
@@ -9435,6 +9326,7 @@
         71
       ],
       "fixture_ids": [
+        19441196,
         19441185,
         19441171,
         19441160,
@@ -9445,34 +9337,7 @@
         19441105,
         19441101
       ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 238115,
-      "player_id": 187056,
-      "name": "Diego Alende",
-      "position_tag": "CB",
-      "passes_last_n": [
-        57,
-        83,
-        67
-      ],
-      "minutes_last_n": [
-        75,
-        86,
-        58
-      ],
-      "fixture_ids": [
-        19441190,
-        19441175,
-        19441153
-      ],
-      "n": 3,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9485,6 +9350,7 @@
       "name": "Sergio Molina",
       "position_tag": "MID",
       "passes_last_n": [
+        49,
         52,
         63,
         38,
@@ -9493,10 +9359,10 @@
         64,
         37,
         75,
-        49,
-        54
+        49
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         74,
@@ -9505,10 +9371,10 @@
         90,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441175,
         19441169,
@@ -9517,10 +9383,39 @@
         19441135,
         19441118,
         19441112,
-        19441096,
-        19441093
+        19441096
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 238115,
+      "player_id": 449596,
+      "name": "Manu Nieto",
+      "position_tag": "FWD",
+      "passes_last_n": [
+        16,
+        17,
+        12,
+        13
+      ],
+      "minutes_last_n": [
+        74,
+        90,
+        74,
+        59
+      ],
+      "fixture_ids": [
+        19441198,
+        19441175,
+        19441169,
+        19441077
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9533,6 +9428,7 @@
       "name": "Thomas Carrique",
       "position_tag": "RB",
       "passes_last_n": [
+        28,
         61,
         32,
         61,
@@ -9546,6 +9442,7 @@
         90,
         90,
         90,
+        90,
         46,
         81,
         84,
@@ -9553,6 +9450,7 @@
         90
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441175,
         19441169,
@@ -9561,6 +9459,48 @@
         19441135,
         19441093,
         19441077
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 238115,
+      "player_id": 25568440,
+      "name": "Dani Villahermosa",
+      "position_tag": "MID",
+      "passes_last_n": [
+        42,
+        25,
+        28,
+        38,
+        45,
+        34,
+        48,
+        47
+      ],
+      "minutes_last_n": [
+        86,
+        67,
+        64,
+        90,
+        90,
+        65,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441198,
+        19441175,
+        19441169,
+        19441153,
+        19441145,
+        19441135,
+        19441112,
+        19441096
       ],
       "n": 8,
       "n_requested": 10,
@@ -9571,31 +9511,61 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 238115,
-      "player_id": 540647,
-      "name": "Martí Vilà",
+      "player_id": 25922181,
+      "name": "Imanol García de Albéniz",
       "position_tag": "LB",
       "passes_last_n": [
-        16,
-        21,
-        60,
-        30,
-        67
+        38,
+        39,
+        15,
+        56,
+        74,
+        56,
+        64
       ],
       "minutes_last_n": [
-        46,
-        55,
-        79,
-        73,
+        90,
+        54,
+        56,
+        90,
+        90,
+        90,
         90
       ],
       "fixture_ids": [
-        19441190,
-        19441175,
-        19441153,
-        19441145,
-        19441135
+        19441198,
+        19441169,
+        19441118,
+        19441112,
+        19441096,
+        19441093,
+        19441077
       ],
-      "n": 5,
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 238115,
+      "player_id": 27048381,
+      "name": "Jesús Owono",
+      "position_tag": "GK",
+      "passes_last_n": [
+        42,
+        38
+      ],
+      "minutes_last_n": [
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19441198,
+        19441153
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9608,6 +9578,7 @@
       "name": "Théo Le Normand",
       "position_tag": "MID",
       "passes_last_n": [
+        15,
         10,
         15,
         11,
@@ -9616,6 +9587,7 @@
         29
       ],
       "minutes_last_n": [
+        74,
         61,
         64,
         62,
@@ -9624,6 +9596,7 @@
         80
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441169,
         19441145,
@@ -9631,49 +9604,7 @@
         19441093,
         19441077
       ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 238115,
-      "player_id": 37316489,
-      "name": "Marc Doménech",
-      "position_tag": "MID",
-      "passes_last_n": [
-        16,
-        19,
-        11,
-        21,
-        37,
-        26,
-        31,
-        41
-      ],
-      "minutes_last_n": [
-        46,
-        58,
-        55,
-        69,
-        80,
-        60,
-        76,
-        90
-      ],
-      "fixture_ids": [
-        19441190,
-        19441153,
-        19441135,
-        19441118,
-        19441112,
-        19441096,
-        19441093,
-        19441077
-      ],
-      "n": 8,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9686,6 +9617,7 @@
       "name": "Gael Alonso",
       "position_tag": "CB",
       "passes_last_n": [
+        63,
         52,
         66,
         100,
@@ -9694,10 +9626,10 @@
         42,
         35,
         65,
-        59,
-        117
+        59
       ],
       "minutes_last_n": [
+        90,
         90,
         58,
         90,
@@ -9706,10 +9638,10 @@
         90,
         60,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441169,
         19441153,
@@ -9718,8 +9650,7 @@
         19441118,
         19441112,
         19441096,
-        19441093,
-        19441077
+        19441093
       ],
       "n": 10,
       "n_requested": 10,
@@ -9730,19 +9661,19 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 238115,
-      "player_id": 37656789,
-      "name": "Áron Yaakobishvili",
-      "position_tag": "GK",
+      "player_id": 37621635,
+      "name": "Marc Bombardó",
+      "position_tag": "CB",
       "passes_last_n": [
-        31,
-        38,
-        40,
-        35,
-        27,
-        36,
-        38,
+        55,
+        73,
+        99,
+        53,
+        109,
         33,
-        55
+        70,
+        60,
+        99
       ],
       "minutes_last_n": [
         90,
@@ -9756,7 +9687,7 @@
         90
       ],
       "fixture_ids": [
-        19441190,
+        19441198,
         19441175,
         19441169,
         19441145,
@@ -9775,37 +9706,11 @@
       "league_id": 567,
       "season_id": 25673,
       "team_id": 238115,
-      "player_id": 37661770,
-      "name": "Jastin Garcia",
-      "position_tag": "MID",
-      "passes_last_n": [
-        21,
-        21,
-        34
-      ],
-      "minutes_last_n": [
-        61,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19441190,
-        19441175,
-        19441169
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 238115,
       "player_id": 37671513,
       "name": "Min-su Kim",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "passes_last_n": [
+        28,
         25,
         24,
         36,
@@ -9814,10 +9719,10 @@
         34,
         15,
         25,
-        35,
-        25
+        35
       ],
       "minutes_last_n": [
+        90,
         90,
         86,
         90,
@@ -9826,10 +9731,10 @@
         90,
         90,
         79,
-        60,
-        68
+        60
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441175,
         19441169,
@@ -9838,8 +9743,7 @@
         19441135,
         19441118,
         19441112,
-        19441096,
-        19441093
+        19441096
       ],
       "n": 10,
       "n_requested": 10,
@@ -9854,6 +9758,7 @@
       "name": "Aingeru Olabarrieta",
       "position_tag": "MID",
       "passes_last_n": [
+        13,
         28,
         16,
         26,
@@ -9865,6 +9770,7 @@
         9
       ],
       "minutes_last_n": [
+        63,
         90,
         67,
         90,
@@ -9876,6 +9782,7 @@
         56
       ],
       "fixture_ids": [
+        19441198,
         19441190,
         19441175,
         19441153,
@@ -9886,7 +9793,7 @@
         19441096,
         19441093
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"

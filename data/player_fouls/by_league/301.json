@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-02T13:35:00.440168+00:00",
+  "generated_at": "2025-11-03T07:30:37.513684+00:00",
   "league_id": 301,
   "count": 198,
   "players": [
@@ -85,9 +85,69 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 44,
+      "player_id": 32390,
+      "name": "Ulisses Garcia",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        65,
+        90
+      ],
+      "fixture_ids": [
+        19467794,
+        19433785
+      ],
+      "n": 2,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 44,
+      "player_id": 35574,
+      "name": "Benjamin Pavard",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        1,
+        1,
+        1,
+        0,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        61,
+        90,
+        90,
+        90,
+        78
+      ],
+      "fixture_ids": [
+        19467794,
+        19467779,
+        19467771,
+        19467765,
+        19433812,
+        19433803
+      ],
+      "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 44,
       "player_id": 129794,
       "name": "Emerson",
-      "position_tag": "LB",
+      "position_tag": "CB",
       "fouls_last_n": [
         1,
         0,
@@ -168,7 +228,7 @@
       "team_id": 44,
       "player_id": 512560,
       "name": "Amir Murillo",
-      "position_tag": "RB",
+      "position_tag": "MID",
       "fouls_last_n": [
         3,
         1,
@@ -200,45 +260,6 @@
         19433447
       ],
       "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 44,
-      "player_id": 516291,
-      "name": "Nayef Aguerd",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        1,
-        0,
-        3,
-        1,
-        1,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433828,
-        19467779,
-        19467771,
-        19467765,
-        19433820,
-        19433812,
-        19433803
-      ],
-      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -292,43 +313,37 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 44,
-      "player_id": 20333643,
-      "name": "Mason Greenwood",
+      "player_id": 1494712,
+      "name": "Matt O'Riley",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
+        0,
+        1,
+        0,
         2,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        1
+        3,
+        2
       ],
       "minutes_last_n": [
         90,
+        74,
         90,
-        79,
+        85,
+        85,
         90,
-        89,
-        90,
-        46,
-        90,
-        90
+        46
       ],
       "fixture_ids": [
-        19433828,
+        19467794,
         19467779,
         19467771,
         19467765,
+        19433820,
         19433812,
-        19433803,
-        19433795,
-        19433785,
-        19433447
+        19433803
       ],
-      "n": 9,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -367,58 +382,25 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 44,
-      "player_id": 29328428,
-      "name": "Igor Paixão",
-      "position_tag": "MID",
+      "player_id": 37713942,
+      "name": "Robinio Vaz",
+      "position_tag": "FWD",
       "fouls_last_n": [
-        0,
-        0,
+        2,
         1,
-        0,
-        0,
-        0
+        2
       ],
       "minutes_last_n": [
-        76,
-        90,
-        71,
-        80,
-        58,
-        61
+        63,
+        52,
+        64
       ],
       "fixture_ids": [
-        19433828,
+        19467794,
         19467779,
-        19467771,
-        19467765,
-        19433820,
-        19433812
+        19467765
       ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 44,
-      "player_id": 37599086,
-      "name": "Arthur Vermeeren",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        46,
-        90
-      ],
-      "fixture_ids": [
-        19433828,
-        19467779
-      ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -431,18 +413,21 @@
       "name": "Youssef El Arabi",
       "position_tag": "FWD",
       "fouls_last_n": [
+        0,
         1,
         1
       ],
       "minutes_last_n": [
+        90,
         71,
         70
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -467,7 +452,7 @@
         0
       ],
       "minutes_last_n": [
-        90,
+        89,
         90,
         90,
         90,
@@ -479,6 +464,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -487,8 +473,7 @@
         19433811,
         19433802,
         19433794,
-        19433788,
-        19433443
+        19433788
       ],
       "n": 10,
       "n_requested": 10,
@@ -503,6 +488,7 @@
       "name": "Kelvin Amian",
       "position_tag": "RB",
       "fouls_last_n": [
+        2,
         0,
         0,
         3,
@@ -511,8 +497,7 @@
         0,
         1,
         1,
-        0,
-        1
+        0
       ],
       "minutes_last_n": [
         90,
@@ -527,6 +512,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -535,8 +521,7 @@
         19433811,
         19433802,
         19433794,
-        19433788,
-        19433443
+        19433788
       ],
       "n": 10,
       "n_requested": 10,
@@ -553,18 +538,18 @@
       "fouls_last_n": [
         1,
         1,
+        1,
         2,
         1,
         1,
         1,
         0,
         0,
-        2,
-        0
+        2
       ],
       "minutes_last_n": [
-        76,
         90,
+        76,
         90,
         90,
         90,
@@ -575,6 +560,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -583,8 +569,7 @@
         19433811,
         19433802,
         19433794,
-        19433788,
-        19433443
+        19433788
       ],
       "n": 10,
       "n_requested": 10,
@@ -595,31 +580,34 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 59,
-      "player_id": 37295947,
-      "name": "Hyeok-kyu Kwon",
-      "position_tag": "MID",
+      "player_id": 433778,
+      "name": "Nicolas Cozza",
+      "position_tag": "LB",
       "fouls_last_n": [
+        0,
+        2,
+        0,
         2,
         1,
-        1,
-        2,
         0
       ],
       "minutes_last_n": [
-        64,
-        69,
-        83,
+        89,
+        82,
+        86,
         90,
-        79
+        90,
+        90
       ],
       "fixture_ids": [
-        19433826,
-        19467786,
-        19467770,
-        19467766,
+        19467787,
+        19433811,
+        19433802,
+        19433794,
+        19433788,
         19433443
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -630,8 +618,9 @@
       "team_id": 59,
       "player_id": 37328128,
       "name": "Matthis Abline",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "fouls_last_n": [
+        2,
         1,
         0,
         1,
@@ -645,11 +634,13 @@
         90,
         90,
         90,
+        90,
         89,
         90,
         90
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -658,7 +649,7 @@
         19433811,
         19433802
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -671,6 +662,7 @@
       "name": "Junior Mwanga",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         1,
         3,
         2,
@@ -686,9 +678,11 @@
         90,
         90,
         90,
+        90,
         77
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -697,7 +691,7 @@
         19433811,
         19433802
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -710,6 +704,7 @@
       "name": "Dehmaine Tabibou",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         2,
         1,
         0,
@@ -717,6 +712,7 @@
         1
       ],
       "minutes_last_n": [
+        79,
         63,
         76,
         69,
@@ -724,13 +720,14 @@
         73
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
         19467766,
         19433822
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -741,8 +738,9 @@
       "team_id": 59,
       "player_id": 37660429,
       "name": "Louis Leroux",
-      "position_tag": "LB",
+      "position_tag": "MID",
       "fouls_last_n": [
+        0,
         2,
         2,
         0,
@@ -759,10 +757,12 @@
         90,
         90,
         90,
+        90,
         71,
         86
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -772,7 +772,7 @@
         19433788,
         19433443
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -783,8 +783,9 @@
       "team_id": 59,
       "player_id": 37660433,
       "name": "Herba Guirassy",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "fouls_last_n": [
+        0,
         0,
         1,
         0,
@@ -793,6 +794,7 @@
         0
       ],
       "minutes_last_n": [
+        67,
         71,
         90,
         63,
@@ -801,6 +803,7 @@
         59
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -808,7 +811,7 @@
         19433788,
         19433443
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -822,6 +825,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         1,
+        1,
         0,
         0,
         2,
@@ -836,6 +840,7 @@
         90,
         90,
         90,
+        90,
         66,
         90,
         90,
@@ -843,6 +848,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433826,
         19467786,
         19467770,
@@ -853,7 +859,7 @@
         19433788,
         19433443
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -862,46 +868,13 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 79,
-      "player_id": 4344,
-      "name": "Ainsley Maitland-Niles",
+      "player_id": 25087,
+      "name": "Hans Hateboer",
       "position_tag": "RB",
-      "fouls_last_n": [
-        3,
-        2,
-        0,
-        1,
-        1,
-        1,
-        0,
-        0,
-        4,
-        3
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433829,
-        19467778,
-        19467777,
-        19467760,
-        19447239,
-        19433813,
-        19433807,
-        19433795,
-        19433786,
-        19433445
-      ],
-      "n": 10,
+      "fouls_last_n": [],
+      "minutes_last_n": [],
+      "fixture_ids": [],
+      "n": 0,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -915,17 +888,18 @@
       "position_tag": "CB",
       "fouls_last_n": [
         1,
-        2,
-        1,
-        0,
-        0,
-        1,
         1,
         2,
+        1,
         0,
+        0,
+        1,
+        1,
+        2,
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         77,
@@ -934,10 +908,10 @@
         90,
         90,
         90,
-        86,
-        90
+        86
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467777,
@@ -946,8 +920,7 @@
         19433813,
         19433807,
         19433795,
-        19433786,
-        19433445
+        19433786
       ],
       "n": 10,
       "n_requested": 10,
@@ -962,6 +935,7 @@
       "name": "Corentin Tolisso",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         0,
         2,
         2,
@@ -970,10 +944,10 @@
         0,
         1,
         2,
-        0,
-        5
+        0
       ],
       "minutes_last_n": [
+        84,
         68,
         90,
         90,
@@ -982,10 +956,10 @@
         81,
         90,
         90,
-        75,
-        90
+        75
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467777,
@@ -994,8 +968,7 @@
         19433813,
         19433807,
         19433795,
-        19433786,
-        19433445
+        19433786
       ],
       "n": 10,
       "n_requested": 10,
@@ -1011,6 +984,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         0,
+        0,
         1,
         2,
         2,
@@ -1029,9 +1003,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467760,
@@ -1042,7 +1018,7 @@
         19433786,
         19433445
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1060,6 +1036,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -1068,9 +1045,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467777,
@@ -1078,7 +1057,40 @@
         19447239,
         19433813
       ],
-      "n": 6,
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 79,
+      "player_id": 188444,
+      "name": "Nicolás Tagliafico",
+      "position_tag": "LB",
+      "fouls_last_n": [
+        0,
+        3,
+        3,
+        1,
+        3
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467792,
+        19467778,
+        19467760,
+        19447239,
+        19433813
+      ],
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1089,26 +1101,29 @@
       "team_id": 79,
       "player_id": 24469162,
       "name": "Pavel Sulc",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "fouls_last_n": [
+        1,
         3,
         3,
         0,
         2
       ],
       "minutes_last_n": [
+        90,
         85,
         77,
         90,
         74
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467777,
         19433786
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1117,34 +1132,40 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 79,
-      "player_id": 29313248,
-      "name": "Abner",
-      "position_tag": "LB",
+      "player_id": 27081112,
+      "name": "Tanner Tessmann",
+      "position_tag": "MID",
       "fouls_last_n": [
-        2,
         0,
-        2,
+        0,
+        4,
+        0,
         1,
         1,
-        2
+        0,
+        0
       ],
       "minutes_last_n": [
-        61,
-        68,
         90,
-        71,
-        74,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
         90
       ],
       "fixture_ids": [
-        19433829,
-        19467777,
+        19467778,
+        19467760,
+        19447239,
+        19433813,
         19433807,
         19433795,
         19433786,
         19433445
       ],
-      "n": 6,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1158,6 +1179,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         0,
+        0,
         1,
         2,
         0,
@@ -1170,6 +1192,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         77,
         90,
         90,
@@ -1179,6 +1202,7 @@
         90
       ],
       "fixture_ids": [
+        19467792,
         19433829,
         19467778,
         19467777,
@@ -1189,7 +1213,7 @@
         19433786,
         19433445
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1198,40 +1222,28 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 79,
-      "player_id": 37332629,
-      "name": "Adam Karabec",
-      "position_tag": "MID",
+      "player_id": 37396571,
+      "name": "Martín Satriano",
+      "position_tag": "FWD",
       "fouls_last_n": [
-        3,
         0,
-        2,
         1,
         1,
-        1,
-        1,
-        2
+        3
       ],
       "minutes_last_n": [
-        68,
-        77,
-        68,
-        78,
-        75,
+        76,
         90,
-        67,
-        90
+        90,
+        81
       ],
       "fixture_ids": [
-        19433829,
-        19467778,
+        19467792,
         19467777,
         19467760,
-        19447239,
-        19433813,
-        19433807,
-        19433795
+        19433813
       ],
-      "n": 8,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1244,36 +1256,18 @@
       "name": "Afonso Moreira",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         1
       ],
       "minutes_last_n": [
+        90,
         74
       ],
       "fixture_ids": [
+        19467792,
         19433829
       ],
-      "n": 1,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 79,
-      "player_id": 37717185,
-      "name": "M. de Carvalho",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        0
-      ],
-      "minutes_last_n": [
-        90
-      ],
-      "fixture_ids": [
-        19433829
-      ],
-      "n": 1,
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1287,10 +1281,10 @@
       "position_tag": "RB",
       "fouls_last_n": [
         1,
+        1,
         0,
         1,
         1,
-        0,
         0,
         0,
         0,
@@ -1300,8 +1294,8 @@
       "minutes_last_n": [
         90,
         90,
-        78,
         90,
+        78,
         90,
         90,
         90,
@@ -1310,10 +1304,127 @@
         90
       ],
       "fixture_ids": [
+        19467792,
         19433823,
         19467783,
         19467772,
         19467766,
+        19433817,
+        19433816,
+        19433806,
+        19433797,
+        19433789
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 266,
+      "player_id": 96715,
+      "name": "Brendan Chardonnet",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        2,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        72,
+        90
+      ],
+      "fixture_ids": [
+        19467792,
+        19433823,
+        19467772,
+        19467766,
+        19433817,
+        19433816,
+        19433806,
+        19433789,
+        19433446
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 266,
+      "player_id": 96886,
+      "name": "Lucas Tousart",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        2,
+        2
+      ],
+      "minutes_last_n": [
+        71,
+        74
+      ],
+      "fixture_ids": [
+        19467792,
+        19433823
+      ],
+      "n": 2,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 266,
+      "player_id": 97439,
+      "name": "Romain Del Castillo",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        1,
+        1,
+        2,
+        3,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        88,
+        89,
+        85,
+        90,
+        59,
+        72,
+        90
+      ],
+      "fixture_ids": [
+        19467792,
+        19433823,
+        19467783,
+        19467772,
         19433817,
         19433816,
         19433806,
@@ -1330,163 +1441,11 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 266,
-      "player_id": 96715,
-      "name": "Brendan Chardonnet",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        1,
-        1,
-        0,
-        0,
-        0,
-        1,
-        2,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        72,
-        90
-      ],
-      "fixture_ids": [
-        19433823,
-        19467772,
-        19467766,
-        19433817,
-        19433816,
-        19433806,
-        19433789,
-        19433446
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 266,
-      "player_id": 96886,
-      "name": "Lucas Tousart",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        2
-      ],
-      "minutes_last_n": [
-        74
-      ],
-      "fixture_ids": [
-        19433823
-      ],
-      "n": 1,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 266,
-      "player_id": 97439,
-      "name": "Romain Del Castillo",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        1,
-        1,
-        2,
-        3,
-        2,
-        2,
-        2,
-        2,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        88,
-        89,
-        85,
-        90,
-        59,
-        72,
-        90
-      ],
-      "fixture_ids": [
-        19433823,
-        19467783,
-        19467772,
-        19433817,
-        19433816,
-        19433806,
-        19433797,
-        19433789,
-        19433446
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 266,
-      "player_id": 97454,
-      "name": "Hugo Magnetti",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        0,
-        2,
-        5,
-        1,
-        1,
-        2,
-        1,
-        1,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        78,
-        90,
-        90,
-        90,
-        90,
-        90,
-        72,
-        90
-      ],
-      "fixture_ids": [
-        19433823,
-        19467783,
-        19467772,
-        19467766,
-        19433817,
-        19433816,
-        19433797,
-        19433789,
-        19433446
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 266,
       "player_id": 98457,
       "name": "Ludovic Ajorque",
       "position_tag": "FWD",
       "fouls_last_n": [
+        3,
         0,
         0,
         0,
@@ -1495,10 +1454,10 @@
         3,
         1,
         2,
-        4,
-        1
+        4
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -1507,10 +1466,10 @@
         85,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19467792,
         19433823,
         19467783,
         19467772,
@@ -1519,8 +1478,7 @@
         19433816,
         19433806,
         19433797,
-        19433789,
-        19433446
+        19433789
       ],
       "n": 10,
       "n_requested": 10,
@@ -1540,6 +1498,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         0
@@ -1550,11 +1509,13 @@
         90,
         90,
         90,
+        90,
         55,
         90,
         90
       ],
       "fixture_ids": [
+        19467792,
         19433823,
         19467783,
         19467772,
@@ -1564,7 +1525,7 @@
         19433789,
         19433446
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1573,28 +1534,31 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 266,
-      "player_id": 5283870,
-      "name": "Junior Dina Ebimbe",
-      "position_tag": "FWD",
+      "player_id": 162141,
+      "name": "Mama Baldé",
+      "position_tag": "MID",
       "fouls_last_n": [
+        2,
         0,
-        2,
-        2,
-        1
+        1,
+        1,
+        3
       ],
       "minutes_last_n": [
-        57,
-        67,
-        64,
-        78
+        72,
+        46,
+        75,
+        84,
+        90
       ],
       "fixture_ids": [
-        19433823,
-        19467783,
-        19467772,
-        19467766
+        19467792,
+        19433806,
+        19433797,
+        19433789,
+        19433446
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1607,6 +1571,7 @@
       "name": "Joris Chotard",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
         2,
         2,
         1,
@@ -1624,9 +1589,11 @@
         90,
         90,
         90,
+        90,
         86
       ],
       "fixture_ids": [
+        19467792,
         19433823,
         19467783,
         19467772,
@@ -1636,7 +1603,7 @@
         19433806,
         19433797
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1649,6 +1616,7 @@
       "name": "Soumaïla Coulibaly",
       "position_tag": "CB",
       "fouls_last_n": [
+        2,
         1,
         0,
         1
@@ -1656,14 +1624,16 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467792,
         19433823,
         19467783,
         19467772
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1672,19 +1642,76 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 266,
-      "player_id": 37555775,
-      "name": "Daouda Guindo",
+      "player_id": 37531000,
+      "name": "Bradley Locko",
       "position_tag": "LB",
       "fouls_last_n": [
-        2
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        2,
+        0,
+        0
       ],
       "minutes_last_n": [
-        74
+        90,
+        79,
+        90,
+        90,
+        90,
+        90,
+        86,
+        86,
+        90,
+        90
       ],
       "fixture_ids": [
-        19433823
+        19467792,
+        19467783,
+        19467772,
+        19467766,
+        19433817,
+        19433816,
+        19433806,
+        19433797,
+        19433789,
+        19433446
       ],
-      "n": 1,
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 266,
+      "player_id": 37644042,
+      "name": "Pathé Mboup",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        4,
+        1,
+        2,
+        3
+      ],
+      "minutes_last_n": [
+        82,
+        67,
+        78,
+        61
+      ],
+      "fixture_ids": [
+        19467792,
+        19467783,
+        19467766,
+        19433816
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1699,6 +1726,7 @@
       "fouls_last_n": [
         0,
         0,
+        0,
         1,
         1,
         0,
@@ -1708,6 +1736,7 @@
         0
       ],
       "minutes_last_n": [
+        71,
         88,
         81,
         72,
@@ -1719,6 +1748,7 @@
         73
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -1729,7 +1759,7 @@
         19433797,
         19433781
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1740,8 +1770,9 @@
       "team_id": 271,
       "player_id": 65528,
       "name": "Matthieu Udol",
-      "position_tag": "CB",
+      "position_tag": "MID",
       "fouls_last_n": [
+        0,
         1,
         0,
         1,
@@ -1750,8 +1781,7 @@
         3,
         1,
         2,
-        1,
-        0
+        1
       ],
       "minutes_last_n": [
         90,
@@ -1760,12 +1790,13 @@
         90,
         90,
         90,
-        80,
         90,
+        80,
         90,
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -1774,10 +1805,51 @@
         19433815,
         19433804,
         19433797,
+        19433781
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 271,
+      "player_id": 96222,
+      "name": "Wesley Saïd",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        0,
+        0,
+        3,
+        0,
+        1,
+        1,
+        4,
+        3
+      ],
+      "minutes_last_n": [
+        82,
+        69,
+        81,
+        61,
+        74,
+        90,
+        89,
+        86
+      ],
+      "fixture_ids": [
+        19467793,
+        19467779,
+        19467762,
+        19433821,
+        19433815,
+        19433797,
         19433781,
         19433445
       ],
-      "n": 10,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1790,6 +1862,7 @@
       "name": "Adrien Thomasson",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         3,
         1,
         3,
@@ -1798,8 +1871,7 @@
         4,
         1,
         0,
-        1,
-        0
+        1
       ],
       "minutes_last_n": [
         90,
@@ -1814,7 +1886,55 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
+        19467779,
+        19467776,
+        19467762,
+        19433821,
+        19433815,
+        19433804,
+        19433797,
+        19433781
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 271,
+      "player_id": 96765,
+      "name": "Malang Sarr",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467793,
         19467779,
         19467776,
         19467762,
@@ -1838,6 +1958,7 @@
       "name": "Odsonne Édouard",
       "position_tag": "FWD",
       "fouls_last_n": [
+        1,
         0,
         1,
         0,
@@ -1845,6 +1966,7 @@
         1
       ],
       "minutes_last_n": [
+        71,
         46,
         81,
         59,
@@ -1852,13 +1974,14 @@
         66
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
         19433821,
         19433804
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1871,6 +1994,7 @@
       "name": "Jonathan Gradit",
       "position_tag": "CB",
       "fouls_last_n": [
+        3,
         0,
         0,
         1,
@@ -1880,6 +2004,7 @@
         2
       ],
       "minutes_last_n": [
+        90,
         88,
         90,
         90,
@@ -1889,6 +2014,7 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -1897,7 +2023,7 @@
         19433797,
         19433781
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1906,49 +2032,46 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 271,
-      "player_id": 237316,
-      "name": "Deiver Machado",
+      "player_id": 98711,
+      "name": "Ruben Aguilar",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
+        1,
+        1,
+        2,
         1,
         0,
-        2,
-        1
+        0,
+        1,
+        0,
+        0
       ],
       "minutes_last_n": [
-        63,
-        46,
+        82,
+        85,
+        73,
         90,
-        76
+        78,
+        69,
+        66,
+        76,
+        90,
+        85
       ],
       "fixture_ids": [
-        19433825,
+        19467793,
+        19467779,
+        19467776,
+        19467762,
+        19433821,
+        19433815,
+        19433804,
         19433797,
         19433781,
         19433445
       ],
-      "n": 4,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 271,
-      "player_id": 24445509,
-      "name": "Saud Abdulhamid",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        2
-      ],
-      "minutes_last_n": [
-        90
-      ],
-      "fixture_ids": [
-        19433825
-      ],
-      "n": 1,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1961,6 +2084,7 @@
       "name": "Samson Baidoo",
       "position_tag": "CB",
       "fouls_last_n": [
+        0,
         1,
         0,
         2,
@@ -1978,9 +2102,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -1990,7 +2116,7 @@
         19433804,
         19433445
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2004,6 +2130,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         2,
+        2,
         3,
         0,
         1,
@@ -2013,6 +2140,7 @@
         0
       ],
       "minutes_last_n": [
+        59,
         90,
         90,
         90,
@@ -2023,6 +2151,7 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -2032,28 +2161,7 @@
         19433804,
         19433797
       ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 271,
-      "player_id": 37539430,
-      "name": "Abdallah Sima",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        1
-      ],
-      "minutes_last_n": [
-        46
-      ],
-      "fixture_ids": [
-        19433825
-      ],
-      "n": 1,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2090,6 +2198,7 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433825,
         19467779,
         19467776,
@@ -2098,8 +2207,7 @@
         19433815,
         19433804,
         19433797,
-        19433781,
-        19433445
+        19433781
       ],
       "n": 10,
       "n_requested": 10,
@@ -2114,6 +2222,7 @@
       "name": "Rasmus Nicolaisen",
       "position_tag": "CB",
       "fouls_last_n": [
+        1,
         2,
         2,
         1,
@@ -2125,6 +2234,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         73,
         90,
         90,
@@ -2134,6 +2244,7 @@
         63
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2142,90 +2253,6 @@
         19433809,
         19433800,
         19433798
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 289,
-      "player_id": 95699,
-      "name": "Djibril Sidibé",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        2,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "minutes_last_n": [
-        61,
-        64,
-        78,
-        86,
-        63,
-        70,
-        90
-      ],
-      "fixture_ids": [
-        19433831,
-        19467775,
-        19467760,
-        19433822,
-        19433798,
-        19433789,
-        19433444
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 289,
-      "player_id": 281527,
-      "name": "Mark McKenzie",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        1,
-        1,
-        2,
-        2,
-        3,
-        1,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433831,
-        19467781,
-        19467760,
-        19433822,
-        19433809,
-        19433800,
-        19433798,
-        19433789,
-        19433444
       ],
       "n": 9,
       "n_requested": 10,
@@ -2236,11 +2263,54 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 289,
-      "player_id": 455796,
-      "name": "Aron Dønnum",
-      "position_tag": "FWD",
+      "player_id": 95699,
+      "name": "Djibril Sidibé",
+      "position_tag": "CB",
       "fouls_last_n": [
         1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        61,
+        64,
+        78,
+        86,
+        63,
+        70,
+        90
+      ],
+      "fixture_ids": [
+        19467788,
+        19433831,
+        19467775,
+        19467760,
+        19433822,
+        19433798,
+        19433789,
+        19433444
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 289,
+      "player_id": 455796,
+      "name": "Aron Dønnum",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        1,
         1,
         1,
         1,
@@ -2248,8 +2318,7 @@
         1,
         1,
         2,
-        3,
-        0
+        3
       ],
       "minutes_last_n": [
         90,
@@ -2264,6 +2333,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2272,8 +2342,7 @@
         19433809,
         19433800,
         19433798,
-        19433789,
-        19433444
+        19433789
       ],
       "n": 10,
       "n_requested": 10,
@@ -2289,6 +2358,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         0,
+        0,
         2,
         0,
         1,
@@ -2298,6 +2368,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         80,
         84,
         90,
@@ -2308,6 +2379,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2317,7 +2389,7 @@
         19433798,
         19433789
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2330,6 +2402,7 @@
       "name": "Frank Magri",
       "position_tag": "FWD",
       "fouls_last_n": [
+        0,
         1,
         2,
         3,
@@ -2338,10 +2411,10 @@
         1,
         2,
         0,
-        2,
         2
       ],
       "minutes_last_n": [
+        79,
         80,
         73,
         64,
@@ -2350,10 +2423,10 @@
         90,
         89,
         70,
-        83,
-        76
+        83
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2362,8 +2435,7 @@
         19433809,
         19433800,
         19433798,
-        19433789,
-        19433444
+        19433789
       ],
       "n": 10,
       "n_requested": 10,
@@ -2378,6 +2450,7 @@
       "name": "Yann Gboho",
       "position_tag": "FWD",
       "fouls_last_n": [
+        0,
         1,
         1,
         0,
@@ -2389,6 +2462,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         83,
@@ -2400,6 +2474,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2410,43 +2485,7 @@
         19433789,
         19433444
       ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 289,
-      "player_id": 37259993,
-      "name": "Abu Francis",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        0,
-        2,
-        0,
-        1,
-        0,
-        1
-      ],
-      "minutes_last_n": [
-        61,
-        66,
-        90,
-        62,
-        70,
-        72
-      ],
-      "fixture_ids": [
-        19433831,
-        19467781,
-        19467775,
-        19433822,
-        19433809,
-        19433800
-      ],
-      "n": 6,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2460,6 +2499,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         1,
+        1,
         2,
         2,
         0,
@@ -2467,8 +2507,7 @@
         4,
         0,
         0,
-        0,
-        1
+        0
       ],
       "minutes_last_n": [
         90,
@@ -2483,6 +2522,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2491,10 +2531,75 @@
         19433809,
         19433800,
         19433798,
+        19433789
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 289,
+      "player_id": 37561879,
+      "name": "Mario Sauer",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2
+      ],
+      "minutes_last_n": [
+        60,
+        46,
+        90,
+        63,
+        60,
+        68
+      ],
+      "fixture_ids": [
+        19467788,
+        19467760,
+        19433822,
+        19433798,
         19433789,
         19433444
       ],
-      "n": 10,
+      "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 289,
+      "player_id": 37577447,
+      "name": "Emersonn",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        5,
+        3,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        76,
+        46
+      ],
+      "fixture_ids": [
+        19467788,
+        19467781,
+        19467775,
+        19433822
+      ],
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2531,6 +2636,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2539,8 +2645,7 @@
         19433809,
         19433800,
         19433798,
-        19433789,
-        19433444
+        19433789
       ],
       "n": 10,
       "n_requested": 10,
@@ -2555,6 +2660,7 @@
       "name": "Dayann Methalie",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         0,
         1,
         2,
@@ -2565,6 +2671,7 @@
         4
       ],
       "minutes_last_n": [
+        79,
         90,
         84,
         76,
@@ -2575,6 +2682,7 @@
         82
       ],
       "fixture_ids": [
+        19467788,
         19433831,
         19467781,
         19467775,
@@ -2584,7 +2692,7 @@
         19433789,
         19433444
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2593,37 +2701,19 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 450,
-      "player_id": 4637,
-      "name": "Jérémie Boga",
-      "position_tag": "FWD",
+      "player_id": 96090,
+      "name": "Morgan Sanson",
+      "position_tag": "MID",
       "fouls_last_n": [
-        0,
-        2,
-        0,
-        0,
-        0,
-        0,
         0
       ],
       "minutes_last_n": [
-        68,
-        90,
-        73,
-        79,
-        75,
-        67,
-        73
+        71
       ],
       "fixture_ids": [
-        19433827,
-        19467784,
-        19467777,
-        19433816,
-        19433802,
-        19433792,
-        19433784
+        19467790
       ],
-      "n": 7,
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2680,9 +2770,36 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 450,
+      "player_id": 305358,
+      "name": "Ali Abdi",
+      "position_tag": "LB",
+      "fouls_last_n": [
+        2,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        71,
+        46
+      ],
+      "fixture_ids": [
+        19467790,
+        19467784,
+        19433819
+      ],
+      "n": 3,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 450,
       "player_id": 2206980,
       "name": "Melvin Bard",
-      "position_tag": "MID",
+      "position_tag": "CB",
       "fouls_last_n": [
         1,
         1,
@@ -2728,37 +2845,40 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 450,
-      "player_id": 10990739,
-      "name": "Sofiane Diop",
-      "position_tag": "FWD",
+      "player_id": 10310744,
+      "name": "Hicham Boudaoui",
+      "position_tag": "MID",
       "fouls_last_n": [
-        1,
-        1,
-        1,
         0,
         1,
-        1,
+        0,
+        0,
+        0,
+        2,
+        2,
         3
       ],
       "minutes_last_n": [
-        68,
-        77,
+        90,
+        90,
+        71,
         73,
-        72,
+        81,
         90,
         90,
-        62
+        90
       ],
       "fixture_ids": [
-        19433827,
-        19467784,
+        19467790,
         19467777,
         19467767,
-        19433819,
         19433816,
-        19433802
+        19433802,
+        19433792,
+        19433784,
+        19433444
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2767,37 +2887,28 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 450,
-      "player_id": 13155985,
-      "name": "Charles Vanhoutte",
-      "position_tag": "MID",
+      "player_id": 16466810,
+      "name": "Isak Jansson",
+      "position_tag": "FWD",
       "fouls_last_n": [
+        0,
+        0,
         1,
-        3,
-        2,
-        1,
-        1,
-        2,
-        1
+        2
       ],
       "minutes_last_n": [
-        85,
-        90,
-        90,
-        90,
-        90,
-        73,
-        90
+        46,
+        60,
+        63,
+        76
       ],
       "fixture_ids": [
-        19433827,
-        19467784,
-        19467777,
-        19467767,
-        19433819,
-        19433816,
-        19433802
+        19467790,
+        19433792,
+        19433784,
+        19433444
       ],
-      "n": 7,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2833,64 +2944,28 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 450,
-      "player_id": 37263769,
-      "name": "Kevin Carlos",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        3,
-        2,
-        2,
-        4,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        61,
-        62,
-        90,
-        73
-      ],
-      "fixture_ids": [
-        19433827,
-        19467784,
-        19433802,
-        19433792,
-        19433784
-      ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 450,
-      "player_id": 37296692,
-      "name": "Salis Abdul Samed",
+      "player_id": 37372396,
+      "name": "Tom Louchet",
       "position_tag": "MID",
       "fouls_last_n": [
         0,
+        1,
         0,
-        2,
-        3,
-        0
+        2
       ],
       "minutes_last_n": [
-        69,
-        77,
-        46,
-        60,
-        63
+        84,
+        82,
+        90,
+        76
       ],
       "fixture_ids": [
-        19433827,
-        19467784,
-        19433819,
+        19467790,
         19433792,
-        19433784
+        19433784,
+        19433444
       ],
-      "n": 5,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2901,7 +2976,7 @@
       "team_id": 450,
       "player_id": 37569271,
       "name": "Antoine Mendy",
-      "position_tag": "CB",
+      "position_tag": "RB",
       "fouls_last_n": [
         1,
         0,
@@ -3031,25 +3106,37 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 591,
-      "player_id": 32403,
-      "name": "Ousmane Dembélé",
-      "position_tag": "FWD",
+      "player_id": 187260,
+      "name": "Achraf Hakimi",
+      "position_tag": "RB",
       "fouls_last_n": [
+        0,
         1,
         1,
-        0
+        1,
+        0,
+        0,
+        1
       ],
       "minutes_last_n": [
-        62,
-        70,
-        81
+        90,
+        90,
+        54,
+        90,
+        90,
+        90,
+        90
       ],
       "fixture_ids": [
-        19433824,
+        19467790,
+        19467783,
+        19447241,
+        19433812,
+        19433804,
         19433798,
         19433787
       ],
-      "n": 3,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3058,10 +3145,44 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 591,
-      "player_id": 96208,
-      "name": "Marquinhos",
-      "position_tag": "CB",
+      "player_id": 1479337,
+      "name": "Khvicha Kvaratskhelia",
+      "position_tag": "FWD",
       "fouls_last_n": [
+        2,
+        1,
+        0,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        70,
+        46,
+        90
+      ],
+      "fixture_ids": [
+        19467790,
+        19467783,
+        19447241,
+        19433812
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 591,
+      "player_id": 4545430,
+      "name": "Vitinha",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        0,
+        0,
+        0,
         0,
         0,
         0
@@ -3069,14 +3190,55 @@
       "minutes_last_n": [
         90,
         90,
+        90,
+        90,
+        46,
+        90,
         90
       ],
       "fixture_ids": [
-        19433824,
+        19467790,
+        19467783,
+        19433812,
+        19433804,
+        19433798,
+        19433787,
+        19433443
+      ],
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 591,
+      "player_id": 12393419,
+      "name": "Willian Pacho",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        67,
+        90,
+        64,
+        90
+      ],
+      "fixture_ids": [
+        19467790,
+        19467783,
+        19467761,
         19433812,
         19433787
       ],
-      "n": 3,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3135,7 +3297,7 @@
       "team_id": 591,
       "player_id": 24065255,
       "name": "Ilya Zabarnyi",
-      "position_tag": "RB",
+      "position_tag": "CB",
       "fouls_last_n": [
         1,
         2,
@@ -3211,37 +3373,40 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 591,
-      "player_id": 37562940,
-      "name": "Lucas Beraldo",
-      "position_tag": "CB",
+      "player_id": 37317369,
+      "name": "Bradley Barcola",
+      "position_tag": "FWD",
       "fouls_last_n": [
         1,
+        2,
+        1,
         0,
         0,
-        1,
-        1,
-        1,
-        1
+        0,
+        0,
+        2
       ],
       "minutes_last_n": [
-        90,
+        66,
+        79,
         61,
-        90,
-        90,
+        59,
         71,
-        90,
+        75,
+        67,
         90
       ],
       "fixture_ids": [
-        19433824,
+        19467790,
+        19467783,
         19467769,
         19467761,
-        19447241,
         19433804,
         19433798,
+        19433787,
         19433443
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3250,28 +3415,25 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 591,
-      "player_id": 37590938,
-      "name": "Désiré Doué",
-      "position_tag": "FWD",
+      "player_id": 37592729,
+      "name": "João Neves",
+      "position_tag": "MID",
       "fouls_last_n": [
         2,
-        0,
-        2,
-        0
+        1,
+        1
       ],
       "minutes_last_n": [
-        63,
-        61,
-        63,
-        77
+        65,
+        90,
+        66
       ],
       "fixture_ids": [
-        19433824,
-        19467769,
+        19467790,
         19433798,
         19433787
       ],
-      "n": 4,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3327,7 +3489,7 @@
       "team_id": 591,
       "player_id": 37656838,
       "name": "Senny Mayulu",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "fouls_last_n": [
         1,
         1,
@@ -3351,66 +3513,6 @@
         19467769,
         19467761,
         19447241
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 591,
-      "player_id": 37656842,
-      "name": "Quentin Ndjantou",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        46,
-        90
-      ],
-      "fixture_ids": [
-        19433824,
-        19467761
-      ],
-      "n": 2,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 591,
-      "player_id": 37726575,
-      "name": "Ibrahim Mbaye",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        0,
-        2,
-        2,
-        3,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        46,
-        90,
-        59,
-        90,
-        60,
-        61
-      ],
-      "fixture_ids": [
-        19433824,
-        19467769,
-        19467761,
-        19447241,
-        19433804,
-        19433443
       ],
       "n": 6,
       "n_requested": 10,
@@ -3449,6 +3551,7 @@
         90
       ],
       "fixture_ids": [
+        19467795,
         19433831,
         19467784,
         19467773,
@@ -3457,8 +3560,7 @@
         19433811,
         19433807,
         19433790,
-        19433783,
-        19433447
+        19433783
       ],
       "n": 10,
       "n_requested": 10,
@@ -3473,6 +3575,7 @@
       "name": "Valentin Rongier",
       "position_tag": "MID",
       "fouls_last_n": [
+        4,
         1,
         1,
         1,
@@ -3488,6 +3591,7 @@
         90,
         90,
         90,
+        90,
         46,
         90,
         90,
@@ -3495,256 +3599,11 @@
         90
       ],
       "fixture_ids": [
+        19467795,
         19433831,
         19467784,
         19467773,
         19467764,
-        19433811,
-        19433807,
-        19433790,
-        19433783,
-        19433447
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 155180,
-      "name": "Przemyslaw Frankowski",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        0,
-        2,
-        2,
-        0
-      ],
-      "minutes_last_n": [
-        79,
-        90,
-        46,
-        90,
-        85
-      ],
-      "fixture_ids": [
-        19433831,
-        19467764,
-        19433807,
-        19433790,
-        19433447
-      ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 474354,
-      "name": "Mousa Tamari",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        2,
-        0,
-        2
-      ],
-      "minutes_last_n": [
-        90,
-        61,
-        60,
-        84
-      ],
-      "fixture_ids": [
-        19433831,
-        19433821,
-        19433790,
-        19433447
-      ],
-      "n": 4,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 527351,
-      "name": "Lilian Brassier",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        1,
-        2,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        83
-      ],
-      "fixture_ids": [
-        19433831,
-        19467784,
-        19467764,
-        19433790
-      ],
-      "n": 4,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 527765,
-      "name": "Mahdi Camara",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        1,
-        0,
-        1,
-        3,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        58,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433831,
-        19467784,
-        19467773,
-        19467764,
-        19433821,
-        19433811
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 13187047,
-      "name": "Estéban Lepaul",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        0,
-        0,
-        1,
-        1,
-        0,
-        3,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        80,
-        46,
-        90,
-        90,
-        90,
-        81,
-        90,
-        83
-      ],
-      "fixture_ids": [
-        19433831,
-        19467784,
-        19467773,
-        19467764,
-        19433821,
-        19433811,
-        19433807,
-        19433790
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 37590937,
-      "name": "Djaoui Cissé",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        71,
-        63,
-        69
-      ],
-      "fixture_ids": [
-        19433831,
-        19467764,
-        19433807
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 598,
-      "player_id": 37631909,
-      "name": "Jérémy Jacquet",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        0,
-        0,
-        2,
-        3,
-        3,
-        1,
-        1,
-        3,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433831,
-        19467784,
-        19467773,
-        19467764,
-        19433821,
         19433811,
         19433807,
         19433790,
@@ -3760,22 +3619,289 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 598,
-      "player_id": 37694961,
-      "name": "Abdelhamid Ait Boudlal",
-      "position_tag": "CB",
+      "player_id": 155180,
+      "name": "Przemyslaw Frankowski",
+      "position_tag": "MID",
       "fouls_last_n": [
+        1,
+        1,
+        0,
+        2,
         2,
         0
       ],
       "minutes_last_n": [
         90,
+        79,
+        90,
+        46,
+        90,
+        85
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467764,
+        19433807,
+        19433790,
+        19433447
+      ],
+      "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 474354,
+      "name": "Mousa Tamari",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        1,
+        2,
+        0,
+        2
+      ],
+      "minutes_last_n": [
+        59,
+        90,
+        61,
+        60,
+        84
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19433821,
+        19433790,
+        19433447
+      ],
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 527351,
+      "name": "Lilian Brassier",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        1,
+        2,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        83
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467784,
+        19467764,
+        19433790
+      ],
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 527765,
+      "name": "Mahdi Camara",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        3,
+        1,
+        1,
+        0,
+        1,
+        3,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        58,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467784,
+        19467773,
+        19467764,
+        19433821,
+        19433811
+      ],
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 13187047,
+      "name": "Estéban Lepaul",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        3,
+        1,
+        2
+      ],
+      "minutes_last_n": [
+        90,
+        80,
+        46,
+        90,
+        90,
+        90,
+        81,
+        90,
+        83
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467784,
+        19467773,
+        19467764,
+        19433821,
+        19433811,
+        19433807,
+        19433790
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 37590937,
+      "name": "Djaoui Cissé",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        68,
+        71,
+        63,
+        69
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467764,
+        19433807
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 37631909,
+      "name": "Jérémy Jacquet",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        0,
+        0,
+        2,
+        3,
+        3,
+        1,
+        1,
+        3,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467795,
+        19433831,
+        19467784,
+        19467773,
+        19467764,
+        19433821,
+        19433811,
+        19433807,
+        19433790,
+        19433783
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 598,
+      "player_id": 37694961,
+      "name": "Abdelhamid Ait Boudlal",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        1,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
         46
       ],
       "fixture_ids": [
+        19467795,
         19433831,
         19433807
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3788,37 +3914,16 @@
       "name": "Mohamed Kader Meïté",
       "position_tag": "FWD",
       "fouls_last_n": [
+        3,
         1
       ],
       "minutes_last_n": [
+        68,
         69
       ],
       "fixture_ids": [
+        19467795,
         19433831
-      ],
-      "n": 1,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 686,
-      "player_id": 3876919,
-      "name": "Sebastian Nanasi",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        46
-      ],
-      "fixture_ids": [
-        19433830,
-        19433788
       ],
       "n": 2,
       "n_requested": 10,
@@ -3829,19 +3934,58 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 686,
-      "player_id": 24830085,
-      "name": "Andrew Omobamidele",
+      "player_id": 1601,
+      "name": "Ben Chilwell",
       "position_tag": "CB",
       "fouls_last_n": [
-        0
+        1,
+        2,
+        1,
+        0,
+        1
       ],
       "minutes_last_n": [
-        90
+        90,
+        90,
+        90,
+        90,
+        46
       ],
       "fixture_ids": [
-        19433830
+        19467795,
+        19467769,
+        19433820,
+        19433814,
+        19433805
       ],
-      "n": 1,
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 686,
+      "player_id": 29419594,
+      "name": "Julio Enciso",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        0,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        83,
+        77,
+        65
+      ],
+      "fixture_ids": [
+        19467795,
+        19467778,
+        19467769
+      ],
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3854,6 +3998,7 @@
       "name": "Guéla Doué",
       "position_tag": "CB",
       "fouls_last_n": [
+        0,
         1,
         5,
         3,
@@ -3865,58 +4010,18 @@
         90,
         90,
         90,
+        90,
         84
       ],
       "fixture_ids": [
+        19467795,
         19433830,
         19467778,
         19467769,
         19467763,
         19433820
       ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 686,
-      "player_id": 37532344,
-      "name": "Mamadou Sarr",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        2,
-        2,
-        1,
-        1,
-        2,
-        0,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433830,
-        19467778,
-        19433820,
-        19433814,
-        19433805,
-        19433791,
-        19433788,
-        19433442
-      ],
-      "n": 8,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3929,6 +4034,7 @@
       "name": "Valentín Barco",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         0,
         1,
         0,
@@ -3937,10 +4043,10 @@
         2,
         0,
         1,
-        0,
-        1
+        0
       ],
       "minutes_last_n": [
+        90,
         62,
         90,
         90,
@@ -3949,10 +4055,10 @@
         90,
         90,
         90,
-        49,
-        90
+        49
       ],
       "fixture_ids": [
+        19467795,
         19433830,
         19467778,
         19467769,
@@ -3961,8 +4067,7 @@
         19433814,
         19433805,
         19433791,
-        19433788,
-        19433442
+        19433788
       ],
       "n": 10,
       "n_requested": 10,
@@ -3979,6 +4084,7 @@
       "fouls_last_n": [
         0,
         0,
+        0,
         1,
         0,
         0,
@@ -3996,9 +4102,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467795,
         19433830,
         19467778,
         19467769,
@@ -4009,7 +4117,31 @@
         19433791,
         19433442
       ],
-      "n": 9,
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 686,
+      "player_id": 37592030,
+      "name": "Samuel Amo-Ameyaw",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        1,
+        3
+      ],
+      "minutes_last_n": [
+        52,
+        80
+      ],
+      "fixture_ids": [
+        19467795,
+        19433442
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4022,6 +4154,7 @@
       "name": "Diego Moreira",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
         1,
         2,
         0,
@@ -4032,6 +4165,7 @@
         0
       ],
       "minutes_last_n": [
+        83,
         62,
         90,
         73,
@@ -4042,6 +4176,7 @@
         71
       ],
       "fixture_ids": [
+        19467795,
         19433830,
         19467778,
         19467769,
@@ -4051,34 +4186,7 @@
         19433805,
         19433791
       ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 686,
-      "player_id": 37597764,
-      "name": "Rafael Filipe Gonçalves Soares Luís",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        0,
-        1
-      ],
-      "minutes_last_n": [
-        46,
-        70,
-        90
-      ],
-      "fixture_ids": [
-        19433830,
-        19433805,
-        19433791
-      ],
-      "n": 3,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4092,6 +4200,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         0,
+        0,
         1,
         0,
         4,
@@ -4101,6 +4210,7 @@
         1
       ],
       "minutes_last_n": [
+        61,
         46,
         90,
         90,
@@ -4111,83 +4221,12 @@
         55
       ],
       "fixture_ids": [
+        19467795,
         19433830,
         19467778,
         19467769,
         19467763,
         19433814,
-        19433791,
-        19433788,
-        19433442
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 686,
-      "player_id": 37622796,
-      "name": "Martial Godo",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        3,
-        0,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        73,
-        61
-      ],
-      "fixture_ids": [
-        19433830,
-        19467763,
-        19433814
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 686,
-      "player_id": 37663291,
-      "name": "Joaquín Panichelli",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        1,
-        3,
-        3,
-        1,
-        2,
-        0,
-        3,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        66,
-        90,
-        90,
-        84,
-        60,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433830,
-        19467778,
-        19467769,
-        19467763,
-        19433814,
-        19433805,
         19433791,
         19433788,
         19433442
@@ -4200,11 +4239,243 @@
     {
       "league_id": 301,
       "season_id": 25651,
+      "team_id": 686,
+      "player_id": 37663291,
+      "name": "Joaquín Panichelli",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        2,
+        1,
+        3,
+        3,
+        1,
+        2,
+        0,
+        3,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        66,
+        90,
+        90,
+        84,
+        60,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467795,
+        19433830,
+        19467778,
+        19467769,
+        19467763,
+        19433814,
+        19433805,
+        19433791,
+        19433788,
+        19433442
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 686,
+      "player_id": 37668633,
+      "name": "Lucas Høgsberg",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        0,
+        3,
+        0,
+        2,
+        3,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        77,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467795,
+        19467778,
+        19467769,
+        19467763,
+        19433820,
+        19433805,
+        19433791,
+        19433442
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 686,
+      "player_id": 37692095,
+      "name": "Samir El Mourabet",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        0,
+        2,
+        0,
+        2,
+        0,
+        0,
+        2
+      ],
+      "minutes_last_n": [
+        52,
+        77,
+        65,
+        90,
+        73,
+        65,
+        72
+      ],
+      "fixture_ids": [
+        19467795,
+        19467778,
+        19467769,
+        19467763,
+        19433814,
+        19433788,
+        19433442
+      ],
+      "n": 7,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 690,
+      "player_id": 798,
+      "name": "Olivier Giroud",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        2,
+        2,
+        1,
+        3,
+        3,
+        1,
+        1,
+        2
+      ],
+      "minutes_last_n": [
+        71,
+        76,
+        76,
+        90,
+        78,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467789,
+        19467770,
+        19467761,
+        19447239,
+        19433815,
+        19433800,
+        19433782,
+        19433446
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 690,
+      "player_id": 1377,
+      "name": "Chancel Mbemba",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        3,
+        0,
+        3,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        45
+      ],
+      "fixture_ids": [
+        19467789,
+        19467782,
+        19467770,
+        19433815,
+        19433800
+      ],
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 690,
+      "player_id": 25734,
+      "name": "Calvin Verdonk",
+      "position_tag": "LB",
+      "fouls_last_n": [
+        3,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        72
+      ],
+      "fixture_ids": [
+        19467789,
+        19447239,
+        19433815
+      ],
+      "n": 3,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
       "team_id": 690,
       "player_id": 61517,
       "name": "Thomas Meunier",
       "position_tag": "RB",
       "fouls_last_n": [
+        1,
         3,
         2,
         1,
@@ -4216,11 +4487,13 @@
         90,
         90,
         90,
+        90,
         76,
         85,
         90
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4228,7 +4501,7 @@
         19433793,
         19433782
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4241,6 +4514,7 @@
       "name": "Benjamin André",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         3,
         0,
         1,
@@ -4251,6 +4525,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         81,
         90,
         90,
@@ -4261,6 +4536,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4270,7 +4546,7 @@
         19433782,
         19433446
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4284,6 +4560,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         0,
+        0,
         2,
         0,
         1,
@@ -4293,6 +4570,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         68,
         90,
         90,
@@ -4301,6 +4579,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4308,48 +4587,6 @@
         19447239,
         19433815,
         19433800
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 690,
-      "player_id": 337432,
-      "name": "Romain Perraud",
-      "position_tag": "LB",
-      "fouls_last_n": [
-        0,
-        0,
-        1,
-        0,
-        0,
-        3,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        82,
-        90,
-        90,
-        90,
-        90,
-        72
-      ],
-      "fixture_ids": [
-        19433827,
-        19467782,
-        19467770,
-        19467761,
-        19433800,
-        19433793,
-        19433782,
-        19433446
       ],
       "n": 8,
       "n_requested": 10,
@@ -4360,22 +4597,43 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 690,
-      "player_id": 608100,
-      "name": "Arnaud Bodart",
+      "player_id": 204877,
+      "name": "Berke Özer",
       "position_tag": "GK",
       "fouls_last_n": [
-        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0
       ],
       "minutes_last_n": [
         90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
         90
       ],
       "fixture_ids": [
-        19433827,
-        19447239
+        19467789,
+        19467782,
+        19467770,
+        19467761,
+        19433815,
+        19433800,
+        19433793,
+        19433782,
+        19433446
       ],
-      "n": 2,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4388,6 +4646,7 @@
       "name": "Hákon Arnar Haraldsson",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
         1,
         3,
         5,
@@ -4399,6 +4658,7 @@
         1
       ],
       "minutes_last_n": [
+        79,
         85,
         90,
         90,
@@ -4410,6 +4670,7 @@
         85
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4420,7 +4681,7 @@
         19433782,
         19433446
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4433,6 +4694,7 @@
       "name": "Félix Correia",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         0,
         0,
         0,
@@ -4444,6 +4706,7 @@
         0
       ],
       "minutes_last_n": [
+        85,
         69,
         83,
         82,
@@ -4455,6 +4718,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4465,73 +4729,7 @@
         19433782,
         19433446
       ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 690,
-      "player_id": 37459056,
-      "name": "N. Ngoy",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        0,
-        1,
-        3,
-        0,
-        0,
-        1,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433827,
-        19467761,
-        19447239,
-        19433815,
-        19433800,
-        19433793,
-        19433782,
-        19433446
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 690,
-      "player_id": 37562510,
-      "name": "Hamza Igamane",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        70,
-        68
-      ],
-      "fixture_ids": [
-        19433827,
-        19467782
-      ],
-      "n": 2,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4546,6 +4744,7 @@
       "fouls_last_n": [
         0,
         0,
+        0,
         1,
         0,
         1,
@@ -4554,6 +4753,7 @@
         1
       ],
       "minutes_last_n": [
+        78,
         90,
         68,
         90,
@@ -4564,6 +4764,7 @@
         85
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4573,7 +4774,7 @@
         19433800,
         19433793
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4586,6 +4787,7 @@
       "name": "Ayyoub Bouaddi",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         2,
         3,
         2,
@@ -4597,6 +4799,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         69,
         46,
         90,
@@ -4608,6 +4811,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433827,
         19467782,
         19467770,
@@ -4618,7 +4822,7 @@
         19433793,
         19433782
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4631,6 +4835,7 @@
       "name": "Carlens Arcus",
       "position_tag": "RB",
       "fouls_last_n": [
+        3,
         0,
         1,
         3,
@@ -4639,10 +4844,10 @@
         2,
         3,
         1,
-        1,
-        2
+        1
       ],
       "minutes_last_n": [
+        90,
         80,
         90,
         90,
@@ -4651,10 +4856,10 @@
         90,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
@@ -4663,8 +4868,7 @@
         19433813,
         19433801,
         19433790,
-        19433787,
-        19433439
+        19433787
       ],
       "n": 10,
       "n_requested": 10,
@@ -4682,15 +4886,16 @@
         0,
         0,
         0,
-        1,
-        1,
-        1,
-        1,
-        1,
         0,
-        2
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
       ],
       "minutes_last_n": [
+        83,
         90,
         90,
         90,
@@ -4699,10 +4904,10 @@
         90,
         90,
         90,
-        90,
         90
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
@@ -4711,8 +4916,7 @@
         19433813,
         19433801,
         19433790,
-        19433787,
-        19433439
+        19433787
       ],
       "n": 10,
       "n_requested": 10,
@@ -4728,12 +4932,12 @@
       "position_tag": "CB",
       "fouls_last_n": [
         1,
+        1,
         2,
         0,
         0,
         0,
         1,
-        0,
         0,
         0,
         0
@@ -4751,6 +4955,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
@@ -4759,8 +4964,7 @@
         19433813,
         19433801,
         19433790,
-        19433787,
-        19433439
+        19433787
       ],
       "n": 10,
       "n_requested": 10,
@@ -4781,8 +4985,8 @@
         0,
         0,
         0,
-        1,
         0,
+        1,
         0,
         0
       ],
@@ -4799,6 +5003,7 @@
         90
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
@@ -4807,8 +5012,7 @@
         19433813,
         19433801,
         19433790,
-        19433787,
-        19433439
+        19433787
       ],
       "n": 10,
       "n_requested": 10,
@@ -4824,6 +5028,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         2,
+        2,
         1,
         1,
         1,
@@ -4831,19 +5036,21 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         89,
         71,
         72,
         70
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
         19467763,
         19433817
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4856,6 +5063,7 @@
       "name": "Lilian Raolisoa",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
         1,
         1,
         1,
@@ -4865,6 +5073,7 @@
         2
       ],
       "minutes_last_n": [
+        61,
         59,
         63,
         90,
@@ -4874,6 +5083,7 @@
         62
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467763,
         19433813,
@@ -4882,7 +5092,7 @@
         19433787,
         19433439
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4895,6 +5105,7 @@
       "name": "Louis Mouton",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         0,
         0,
         2,
@@ -4904,6 +5115,7 @@
         2
       ],
       "minutes_last_n": [
+        83,
         81,
         64,
         79,
@@ -4913,6 +5125,7 @@
         57
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
@@ -4921,7 +5134,7 @@
         19433790,
         19433439
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4930,38 +5143,65 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 776,
-      "player_id": 37316421,
-      "name": "Yassin Belkhdim",
+      "player_id": 37289245,
+      "name": "Amine Sbaï",
       "position_tag": "MID",
       "fouls_last_n": [
-        0,
-        2,
-        2,
-        2,
         1,
         0,
-        1,
-        1,
-        1,
-        1
+        0
       ],
       "minutes_last_n": [
-        69,
-        89,
-        90,
-        90,
-        79,
-        82,
-        90,
-        90,
-        87,
-        85
+        61,
+        64,
+        71
       ],
       "fixture_ids": [
+        19467789,
+        19467785,
+        19467774
+      ],
+      "n": 3,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 776,
+      "player_id": 37531184,
+      "name": "Ousmane Camara",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        46,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19467774,
-        19467763,
         19433817,
         19433813,
         19433801,
@@ -4978,55 +5218,11 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 776,
-      "player_id": 37531184,
-      "name": "Ousmane Camara",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        46,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433828,
-        19467785,
-        19467774,
-        19433817,
-        19433813,
-        19433801,
-        19433790,
-        19433787,
-        19433439
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 776,
       "player_id": 37591971,
       "name": "Jacques Ekomié",
       "position_tag": "LB",
       "fouls_last_n": [
+        0,
         1,
         0,
         4,
@@ -5037,12 +5233,14 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         66,
         90,
         90,
         76
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467763,
         19433817,
@@ -5050,7 +5248,7 @@
         19433790,
         19433787
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5064,6 +5262,7 @@
       "position_tag": "FWD",
       "fouls_last_n": [
         0,
+        0,
         2,
         0,
         0,
@@ -5072,6 +5271,7 @@
         1
       ],
       "minutes_last_n": [
+        72,
         59,
         62,
         70,
@@ -5081,6 +5281,7 @@
         62
       ],
       "fixture_ids": [
+        19467789,
         19433828,
         19467785,
         19433817,
@@ -5089,7 +5290,52 @@
         19433787,
         19433439
       ],
-      "n": 7,
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 1055,
+      "player_id": 6170,
+      "name": "Loïc Nego",
+      "position_tag": "RB",
+      "fouls_last_n": [
+        1,
+        0,
+        1,
+        2,
+        1,
+        0,
+        3,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        77,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467788,
+        19467780,
+        19467771,
+        19467764,
+        19433818,
+        19433810,
+        19433805,
+        19433792,
+        19433781
+      ],
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5102,6 +5348,7 @@
       "name": "Abdoulaye Touré",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         1,
         2,
         2,
@@ -5111,42 +5358,20 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         86,
         85,
         76
       ],
       "fixture_ids": [
+        19467788,
         19433823,
         19467780,
         19433818,
         19433810,
         19433805
       ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 1055,
-      "player_id": 96461,
-      "name": "Thomas Delaine",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        0,
-        1
-      ],
-      "minutes_last_n": [
-        65,
-        85
-      ],
-      "fixture_ids": [
-        19433823,
-        19433810
-      ],
-      "n": 2,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5159,6 +5384,7 @@
       "name": "Gautier Lloris",
       "position_tag": "CB",
       "fouls_last_n": [
+        3,
         2,
         1,
         0,
@@ -5176,9 +5402,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467788,
         19433823,
         19467764,
         19433818,
@@ -5188,7 +5416,7 @@
         19433781,
         19433440
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5225,6 +5453,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433823,
         19467780,
         19467771,
@@ -5233,8 +5462,7 @@
         19433810,
         19433805,
         19433792,
-        19433781,
-        19433440
+        19433781
       ],
       "n": 10,
       "n_requested": 10,
@@ -5253,6 +5481,7 @@
         1,
         1,
         1,
+        1,
         3,
         2,
         3,
@@ -5260,6 +5489,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         84,
@@ -5271,6 +5501,7 @@
         90
       ],
       "fixture_ids": [
+        19467788,
         19433823,
         19467780,
         19467771,
@@ -5281,7 +5512,7 @@
         19433781,
         19433440
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5290,19 +5521,43 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 1055,
-      "player_id": 17187256,
-      "name": "Godson Kyeremeh",
-      "position_tag": "FWD",
+      "player_id": 3169795,
+      "name": "Yanis Zouaoui",
+      "position_tag": "LB",
       "fouls_last_n": [
-        3
+        0,
+        0,
+        1,
+        0,
+        4,
+        2,
+        2,
+        2,
+        0
       ],
       "minutes_last_n": [
+        77,
+        90,
+        90,
+        90,
+        76,
+        90,
+        67,
+        90,
         90
       ],
       "fixture_ids": [
-        19433823
+        19467788,
+        19467780,
+        19467771,
+        19467764,
+        19433818,
+        19433805,
+        19433792,
+        19433781,
+        19433440
       ],
-      "n": 1,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5316,6 +5571,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         0,
+        0,
         1,
         1,
         0,
@@ -5326,6 +5582,7 @@
         3
       ],
       "minutes_last_n": [
+        90,
         83,
         90,
         90,
@@ -5337,94 +5594,11 @@
         78
       ],
       "fixture_ids": [
+        19467788,
         19433823,
         19467780,
         19467771,
         19467764,
-        19433810,
-        19433805,
-        19433792,
-        19433781,
-        19433440
-      ],
-      "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 1055,
-      "player_id": 37288977,
-      "name": "Fodé Doucouré",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        0,
-        1,
-        0,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        72,
-        90,
-        63,
-        69,
-        82,
-        63
-      ],
-      "fixture_ids": [
-        19433823,
-        19467771,
-        19433810,
-        19433805,
-        19433792,
-        19433781
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 1055,
-      "player_id": 37337715,
-      "name": "Issa Soumaré",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        2,
-        1,
-        2,
-        1,
-        2,
-        4,
-        2,
-        1,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433823,
-        19467780,
-        19467771,
-        19467764,
-        19433818,
         19433810,
         19433805,
         19433792,
@@ -5440,28 +5614,40 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 1055,
-      "player_id": 37629335,
-      "name": "Simon Ebonog",
+      "player_id": 22168918,
+      "name": "Rassoul Ndiaye",
       "position_tag": "MID",
       "fouls_last_n": [
-        2,
+        0,
+        0,
+        0,
+        1,
         1,
         0,
-        0
+        1,
+        1
       ],
       "minutes_last_n": [
-        72,
+        90,
         78,
-        61,
-        58
+        65,
+        90,
+        69,
+        66,
+        63,
+        79
       ],
       "fixture_ids": [
-        19433823,
+        19467788,
+        19467780,
+        19467771,
         19467764,
-        19433818,
+        19433805,
+        19433792,
+        19433781,
         19433440
       ],
-      "n": 4,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5470,19 +5656,112 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 1055,
-      "player_id": 37920888,
-      "name": "Stephan Zagadou",
-      "position_tag": "CB",
+      "player_id": 23278709,
+      "name": "Felix Mambimbi",
+      "position_tag": "FWD",
       "fouls_last_n": [
-        0
+        2,
+        3
       ],
       "minutes_last_n": [
-        65
+        66,
+        63
       ],
       "fixture_ids": [
-        19433823
+        19467788,
+        19467764
       ],
-      "n": 1,
+      "n": 2,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 1055,
+      "player_id": 29313334,
+      "name": "Yassine Kechta",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        4,
+        2,
+        2,
+        3,
+        3,
+        1,
+        1,
+        3
+      ],
+      "minutes_last_n": [
+        66,
+        78,
+        84,
+        63,
+        90,
+        67,
+        84,
+        90
+      ],
+      "fixture_ids": [
+        19467788,
+        19467780,
+        19467771,
+        19433810,
+        19433805,
+        19433792,
+        19433781,
+        19433440
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 1055,
+      "player_id": 37337715,
+      "name": "Issa Soumaré",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        0,
+        2,
+        1,
+        2,
+        1,
+        2,
+        4,
+        2,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467788,
+        19433823,
+        19467780,
+        19467771,
+        19467764,
+        19433818,
+        19433810,
+        19433805,
+        19433792,
+        19433781
+      ],
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5497,19 +5776,22 @@
       "fouls_last_n": [
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         69,
         90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467765,
         19433808
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5523,6 +5805,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         0,
+        0,
         1,
         0,
         2,
@@ -5541,9 +5824,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467775,
@@ -5554,7 +5839,7 @@
         19433786,
         19433442
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5567,6 +5852,7 @@
       "name": "Habib Diallo",
       "position_tag": "FWD",
       "fouls_last_n": [
+        0,
         6,
         0,
         0,
@@ -5578,6 +5864,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         84,
         79,
         90,
@@ -5585,6 +5872,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467775,
@@ -5592,48 +5880,6 @@
         19433818,
         19433808,
         19433801
-      ],
-      "n": 7,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 3513,
-      "player_id": 96733,
-      "name": "Gauthier Hein",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        2,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        83,
-        90,
-        80,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433825,
-        19467775,
-        19467765,
-        19433818,
-        19433808,
-        19433801,
-        19433796,
-        19433786
       ],
       "n": 8,
       "n_requested": 10,
@@ -5648,6 +5894,7 @@
       "name": "Koffi Kouao",
       "position_tag": "RB",
       "fouls_last_n": [
+        1,
         0,
         0,
         0,
@@ -5656,10 +5903,10 @@
         0,
         3,
         0,
-        3,
         3
       ],
       "minutes_last_n": [
+        90,
         90,
         61,
         90,
@@ -5668,10 +5915,10 @@
         90,
         90,
         90,
-        90,
-        84
+        90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467775,
@@ -5680,8 +5927,7 @@
         19433808,
         19433801,
         19433796,
-        19433786,
-        19433442
+        19433786
       ],
       "n": 10,
       "n_requested": 10,
@@ -5697,6 +5943,7 @@
       "position_tag": "MID",
       "fouls_last_n": [
         0,
+        0,
         3,
         0,
         1,
@@ -5704,6 +5951,7 @@
         2
       ],
       "minutes_last_n": [
+        78,
         81,
         90,
         90,
@@ -5712,6 +5960,7 @@
         73
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467765,
@@ -5719,7 +5968,7 @@
         19433808,
         19433442
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5732,6 +5981,7 @@
       "name": "Giorgi Tsitaishvili",
       "position_tag": "MID",
       "fouls_last_n": [
+        0,
         1,
         1,
         2,
@@ -5740,6 +5990,7 @@
         3
       ],
       "minutes_last_n": [
+        90,
         81,
         90,
         72,
@@ -5748,6 +5999,7 @@
         90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19433801,
@@ -5755,7 +6007,7 @@
         19433786,
         19433442
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5768,6 +6020,7 @@
       "name": "Cheikh Sabaly",
       "position_tag": "MID",
       "fouls_last_n": [
+        1,
         4,
         1,
         0,
@@ -5777,6 +6030,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         81,
         90,
         90,
@@ -5786,6 +6040,7 @@
         73
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467775,
@@ -5794,7 +6049,7 @@
         19433808,
         19433442
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5815,6 +6070,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -5826,9 +6082,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467775,
         19467765,
@@ -5839,7 +6097,7 @@
         19433786,
         19433442
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5852,6 +6110,7 @@
       "name": "Terry Yegbe",
       "position_tag": "CB",
       "fouls_last_n": [
+        1,
         0,
         0,
         0,
@@ -5867,9 +6126,11 @@
         90,
         90,
         90,
+        90,
         77
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467765,
@@ -5878,7 +6139,31 @@
         19433801,
         19433796
       ],
-      "n": 7,
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 3513,
+      "player_id": 37683596,
+      "name": "Ibou Sané",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        78,
+        73
+      ],
+      "fixture_ids": [
+        19467787,
+        19433801
+      ],
+      "n": 2,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5891,6 +6176,7 @@
       "name": "Alpha Touré",
       "position_tag": "MID",
       "fouls_last_n": [
+        3,
         2,
         4,
         2,
@@ -5899,19 +6185,69 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         61,
         90,
         90,
         49
       ],
       "fixture_ids": [
+        19467787,
         19433825,
         19467782,
         19467775,
         19433801,
         19433786
       ],
-      "n": 5,
+      "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 3682,
+      "player_id": 54303,
+      "name": "Gideon Mensah",
+      "position_tag": "LB",
+      "fouls_last_n": [
+        1,
+        4,
+        3,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        69,
+        87,
+        90,
+        90,
+        90,
+        90,
+        90,
+        84,
+        73,
+        90
+      ],
+      "fixture_ids": [
+        19467794,
+        19467780,
+        19467773,
+        19467762,
+        19447241,
+        19433809,
+        19433799,
+        19433794,
+        19433784,
+        19433441
+      ],
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5957,27 +6293,6 @@
         19433441
       ],
       "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 3682,
-      "player_id": 129735,
-      "name": "Assane Dioussé",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1
-      ],
-      "minutes_last_n": [
-        69
-      ],
-      "fixture_ids": [
-        19433830
-      ],
-      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6034,22 +6349,40 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 3682,
-      "player_id": 3219641,
-      "name": "Oussama El Azzouzi",
-      "position_tag": "CB",
+      "player_id": 580971,
+      "name": "Danny Namaso",
+      "position_tag": "MID",
       "fouls_last_n": [
-        5,
-        2
+        1,
+        1,
+        4,
+        2,
+        0,
+        4,
+        2,
+        3
       ],
       "minutes_last_n": [
         90,
-        77
+        90,
+        90,
+        90,
+        74,
+        90,
+        90,
+        90
       ],
       "fixture_ids": [
+        19467794,
         19467780,
-        19467773
+        19467773,
+        19467762,
+        19447241,
+        19433809,
+        19433799,
+        19433794
       ],
-      "n": 2,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6108,7 +6441,7 @@
       "team_id": 3682,
       "player_id": 13225178,
       "name": "Josué Casimir",
-      "position_tag": "FWD",
+      "position_tag": "RB",
       "fouls_last_n": [
         1,
         2,
@@ -6154,36 +6487,9 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 3682,
-      "player_id": 24816995,
-      "name": "Fredrik Oppegård",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        64,
-        90
-      ],
-      "fixture_ids": [
-        19433830,
-        19433809,
-        19433799
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 3682,
       "player_id": 36481539,
       "name": "Marvin Senaya",
-      "position_tag": "MID",
+      "position_tag": "CB",
       "fouls_last_n": [
         2,
         1,
@@ -6298,34 +6604,58 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 3682,
-      "player_id": 37549513,
-      "name": "Ibrahim Osman",
-      "position_tag": "FWD",
+      "player_id": 37577455,
+      "name": "Lasso Coulibaly",
+      "position_tag": "MID",
+      "fouls_last_n": [],
+      "minutes_last_n": [],
+      "fixture_ids": [],
+      "n": 0,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 3682,
+      "player_id": 37579899,
+      "name": "Kévin Danois",
+      "position_tag": "MID",
       "fouls_last_n": [
+        0,
+        0,
+        0,
+        0,
         1,
         2,
-        0,
-        0,
+        1,
         2,
-        1
+        3
       ],
       "minutes_last_n": [
-        47,
         90,
         68,
-        73,
-        62,
-        82
+        90,
+        75,
+        90,
+        90,
+        90,
+        90,
+        90
       ],
       "fixture_ids": [
         19467794,
-        19433830,
         19467773,
+        19467762,
+        19447241,
+        19433809,
+        19433799,
         19433794,
         19433784,
         19433441
       ],
-      "n": 6,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6334,37 +6664,70 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 4508,
-      "player_id": 64020,
-      "name": "Thibault De Smet",
-      "position_tag": "LB",
+      "player_id": 31053,
+      "name": "Kevin Trapp",
+      "position_tag": "GK",
       "fouls_last_n": [
-        3,
-        1,
         0,
-        2,
-        1,
-        1,
         0
       ],
       "minutes_last_n": [
-        67,
         90,
-        46,
-        90,
-        90,
-        90,
-        77
+        90
       ],
       "fixture_ids": [
+        19467791,
+        19433796
+      ],
+      "n": 2,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 4508,
+      "player_id": 62400,
+      "name": "Moses Simon",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        67,
+        85,
+        63,
+        85,
+        90,
+        69,
+        60,
+        90,
+        64
+      ],
+      "fixture_ids": [
+        19467791,
         19433829,
         19467786,
         19467776,
         19467768,
         19433819,
+        19433814,
         19433806,
-        19433796
+        19433796,
+        19433785
       ],
-      "n": 7,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6413,21 +6776,6 @@
         19433785
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 4508,
-      "player_id": 96608,
-      "name": "Jonathan Ikoné",
-      "position_tag": "FWD",
-      "fouls_last_n": [],
-      "minutes_last_n": [],
-      "fixture_ids": [],
-      "n": 0,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6520,6 +6868,39 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 4508,
+      "player_id": 432800,
+      "name": "Jean-Philippe Krasso",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        2,
+        0,
+        0,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        75,
+        73,
+        63,
+        68,
+        61
+      ],
+      "fixture_ids": [
+        19467791,
+        19467786,
+        19467776,
+        19467768,
+        19433439
+      ],
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 4508,
       "player_id": 433483,
       "name": "Samir Chergui",
       "position_tag": "RB",
@@ -6557,6 +6938,27 @@
         19433439
       ],
       "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 4508,
+      "player_id": 528790,
+      "name": "Tuomas Ollila",
+      "position_tag": "LB",
+      "fouls_last_n": [
+        0
+      ],
+      "minutes_last_n": [
+        90
+      ],
+      "fixture_ids": [
+        19467791
+      ],
+      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6613,42 +7015,6 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 4508,
-      "player_id": 2206983,
-      "name": "Willem Geubbels",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        1,
-        2,
-        0,
-        0,
-        0,
-        2
-      ],
-      "minutes_last_n": [
-        71,
-        78,
-        46,
-        60,
-        66,
-        64
-      ],
-      "fixture_ids": [
-        19433829,
-        19433819,
-        19433814,
-        19433806,
-        19433796,
-        19433785
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 4508,
       "player_id": 29336632,
       "name": "Moustapha Mbow",
       "position_tag": "CB",
@@ -6689,51 +7055,6 @@
         19433439
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 4508,
-      "player_id": 37403963,
-      "name": "Obed Nkambadio",
-      "position_tag": "GK",
-      "fouls_last_n": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433829,
-        19467786,
-        19467776,
-        19467768,
-        19433819,
-        19433814,
-        19433806,
-        19433785,
-        19433439
-      ],
-      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6820,40 +7141,67 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 6789,
-      "player_id": 52671,
-      "name": "Takumi Minamino",
-      "position_tag": "MID",
+      "player_id": 170199,
+      "name": "Aleksandr Golovin",
+      "position_tag": "FWD",
       "fouls_last_n": [
+        1,
         2,
-        0,
+        2,
         1,
-        0,
-        3,
-        0,
-        1,
-        0
+        2
       ],
       "minutes_last_n": [
-        69,
-        90,
-        70,
-        65,
-        79,
-        90,
+        61,
+        76,
+        85,
         74,
-        81
+        89
       ],
       "fixture_ids": [
-        19433826,
+        19467791,
         19467781,
-        19467767,
-        19447240,
-        19433808,
-        19433799,
+        19433791,
         19433782,
         19433440
       ],
-      "n": 8,
+      "n": 5,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 6789,
+      "player_id": 187557,
+      "name": "Caio Henrique",
+      "position_tag": "CB",
+      "fouls_last_n": [
+        0,
+        0,
+        1,
+        3,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        85,
+        90
+      ],
+      "fixture_ids": [
+        19467791,
+        19467774,
+        19447240,
+        19433791,
+        19433782,
+        19433440
+      ],
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6985,39 +7333,6 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 6789,
-      "player_id": 4969702,
-      "name": "Folarin Balogun",
-      "position_tag": "FWD",
-      "fouls_last_n": [
-        3,
-        3,
-        3,
-        0,
-        1
-      ],
-      "minutes_last_n": [
-        73,
-        60,
-        63,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433826,
-        19467781,
-        19433799,
-        19433791,
-        19433782
-      ],
-      "n": 5,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 6789,
       "player_id": 11347016,
       "name": "Mohammed Salisu",
       "position_tag": "CB",
@@ -7046,6 +7361,48 @@
         19433799
       ],
       "n": 6,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 6789,
+      "player_id": 28912753,
+      "name": "Mika Biereth",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        1,
+        2,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        46,
+        62,
+        69,
+        46,
+        68,
+        78,
+        79,
+        80
+      ],
+      "fixture_ids": [
+        19467791,
+        19467774,
+        19467767,
+        19447240,
+        19433808,
+        19433799,
+        19433791,
+        19433440
+      ],
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7138,42 +7495,6 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 6789,
-      "player_id": 37631969,
-      "name": "Christian Mawissa",
-      "position_tag": "CB",
-      "fouls_last_n": [
-        1,
-        1,
-        1,
-        0,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        69,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433826,
-        19467781,
-        19447240,
-        19433791,
-        19433782,
-        19433440
-      ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 6789,
       "player_id": 37695373,
       "name": "Mamadou Coulibaly",
       "position_tag": "MID",
@@ -7214,6 +7535,7 @@
       "name": "Laurent Abergel",
       "position_tag": "MID",
       "fouls_last_n": [
+        2,
         0,
         1,
         1,
@@ -7222,13 +7544,12 @@
         1,
         1,
         3,
-        3,
-        2
+        3
       ],
       "minutes_last_n": [
         90,
-        78,
         90,
+        78,
         90,
         90,
         90,
@@ -7238,6 +7559,7 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467785,
         19467772,
@@ -7246,8 +7568,7 @@
         19433810,
         19433803,
         19433793,
-        19433783,
-        19433441
+        19433783
       ],
       "n": 10,
       "n_requested": 10,
@@ -7263,6 +7584,7 @@
       "position_tag": "CB",
       "fouls_last_n": [
         0,
+        0,
         1,
         0,
         3
@@ -7271,15 +7593,17 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19433793,
         19433783,
         19433441
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7298,6 +7622,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -7307,9 +7632,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467785,
         19467772,
@@ -7317,6 +7644,45 @@
         19447240,
         19433810,
         19433803
+      ],
+      "n": 8,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 9257,
+      "player_id": 430249,
+      "name": "Aiyegun Tosin",
+      "position_tag": "FWD",
+      "fouls_last_n": [
+        2,
+        1,
+        0,
+        1,
+        0,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        75,
+        65,
+        62,
+        63,
+        68,
+        66,
+        90
+      ],
+      "fixture_ids": [
+        19467793,
+        19467785,
+        19447240,
+        19433810,
+        19433793,
+        19433783,
+        19433441
       ],
       "n": 7,
       "n_requested": 10,
@@ -7336,8 +7702,8 @@
         0,
         0,
         0,
-        1,
         0,
+        1,
         0,
         0,
         0
@@ -7355,6 +7721,7 @@
         90
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467785,
         19467772,
@@ -7363,31 +7730,9 @@
         19433810,
         19433803,
         19433793,
-        19433783,
-        19433441
+        19433783
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 9257,
-      "player_id": 22168251,
-      "name": "Noah Doriann Cadiou",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1
-      ],
-      "minutes_last_n": [
-        90
-      ],
-      "fixture_ids": [
-        19433824
-      ],
-      "n": 1,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7400,18 +7745,21 @@
       "name": "Darlin Yongwa",
       "position_tag": "CB",
       "fouls_last_n": [
+        1,
         0,
         0
       ],
       "minutes_last_n": [
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467785
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7420,28 +7768,34 @@
       "league_id": 301,
       "season_id": 25651,
       "team_id": 9257,
-      "player_id": 37347639,
-      "name": "Joel Mvuka",
-      "position_tag": "RB",
+      "player_id": 37303791,
+      "name": "Théo Le Bris",
+      "position_tag": "MID",
       "fouls_last_n": [
         0,
-        0,
         1,
-        2
+        0,
+        2,
+        0,
+        0
       ],
       "minutes_last_n": [
-        77,
-        74,
         75,
-        66
+        90,
+        83,
+        90,
+        83,
+        74
       ],
       "fixture_ids": [
-        19433824,
-        19433803,
-        19433793,
-        19433441
+        19467793,
+        19467785,
+        19467772,
+        19467768,
+        19447240,
+        19433810
       ],
-      "n": 4,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7454,6 +7808,7 @@
       "name": "Mohamed Bamba",
       "position_tag": "FWD",
       "fouls_last_n": [
+        1,
         0,
         0,
         1,
@@ -7462,6 +7817,7 @@
         2
       ],
       "minutes_last_n": [
+        65,
         69,
         72,
         60,
@@ -7470,6 +7826,7 @@
         65
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467772,
         19467768,
@@ -7477,40 +7834,7 @@
         19433810,
         19433441
       ],
-      "n": 6,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 301,
-      "season_id": 25651,
-      "team_id": 9257,
-      "player_id": 37536423,
-      "name": "Pablo Pagis",
-      "position_tag": "MID",
-      "fouls_last_n": [
-        1,
-        0,
-        1,
-        0,
-        2
-      ],
-      "minutes_last_n": [
-        68,
-        65,
-        73,
-        60,
-        65
-      ],
-      "fixture_ids": [
-        19433824,
-        19467785,
-        19467772,
-        19467768,
-        19433441
-      ],
-      "n": 5,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7521,8 +7845,9 @@
       "team_id": 9257,
       "player_id": 37576587,
       "name": "Karim Dermane",
-      "position_tag": "MID",
+      "position_tag": "FWD",
       "fouls_last_n": [
+        1,
         2,
         1,
         0,
@@ -7531,6 +7856,7 @@
         2
       ],
       "minutes_last_n": [
+        82,
         69,
         72,
         90,
@@ -7539,6 +7865,7 @@
         56
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19447240,
         19433810,
@@ -7546,7 +7873,7 @@
         19433793,
         19433783
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7557,8 +7884,9 @@
       "team_id": 9257,
       "player_id": 37676603,
       "name": "Arsène Kouassi",
-      "position_tag": "LB",
+      "position_tag": "MID",
       "fouls_last_n": [
+        0,
         0,
         1,
         1,
@@ -7567,10 +7895,10 @@
         1,
         0,
         0,
-        1,
-        0
+        1
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         83,
@@ -7579,10 +7907,10 @@
         90,
         76,
         82,
-        73,
-        75
+        73
       ],
       "fixture_ids": [
+        19467793,
         19433824,
         19467785,
         19467772,
@@ -7591,10 +7919,54 @@
         19433810,
         19433803,
         19433793,
+        19433783
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 301,
+      "season_id": 25651,
+      "team_id": 9257,
+      "player_id": 37676630,
+      "name": "Arthur Avom",
+      "position_tag": "MID",
+      "fouls_last_n": [
+        1,
+        1,
+        3,
+        0,
+        0,
+        2,
+        2,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        65,
+        90,
+        90,
+        90,
+        83,
+        90,
+        82,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19467793,
+        19467785,
+        19467772,
+        19467768,
+        19447240,
+        19433810,
+        19433793,
         19433783,
         19433441
       ],
-      "n": 10,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
