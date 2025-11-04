@@ -25,18 +25,17 @@ Leave a like if you find these useful.
 • L. Trossard (Arsenal) = 2, 1, 2, 1, 1
 • M. Rogers (Aston Villa) = 2, 2, 1, 1, 1
 • T. Hume (Sunderland) = 1, 2, 1, 1, 2
+• D. Brooks (Bournemouth) = 2, 1, 1, 1, 1
 • M. Lacroix (Crystal Palace) = 1, 1, 2, 1, 1
 • Y. Pino (Crystal Palace) = 1, 1, 1, 2, 1
 
 📊1+ Foul in 5/5 (100%)📊
 
-• S. Lukić (Fulham) = 4, 4, 3, 3, 5
-• D. Burn (Newcastle) = 3, 2, 2, 3, 2
+• D. Burn (Newcastle) = 2, 3, 2, 2, 3
 • R. Sessegnon (Fulham) = 2, 2, 4, 2, 2
 • E. Ampadu (Leeds United) = 2, 3, 1, 2, 3
-• B. Guimarães (Newcastle) = 2, 2, 3, 1, 2
 • D. Kamada (Crystal Palace) = 1, 1, 2, 2, 4
-• L. Paquetá (West Ham) = 2, 3, 1, 1, 3
+• B. Guimarães (Newcastle) = 1, 2, 2, 3, 1
 • C. Baleba (Brighton) = 2, 1, 1, 1, 4
 • F. Florentino (Burnley) = 1, 3, 1, 2, 2
 • K. Schade (Brentford) = 1, 3, 2, 2, 1
@@ -45,7 +44,6 @@ Leave a like if you find these useful.
 • E. Anderson (Nottm Forest) = 2, 1, 1, 2, 2
 • J. Larsen (Wolves) = 1, 1, 3, 2, 1
 • J. Timber (Arsenal) = 1, 1, 1, 2, 1
-• M. Kilman (West Ham) = 2, 1, 1, 1, 1
 • M. Caicedo (Chelsea) = 1, 1, 1, 2, 1
 • J. Cullen (Burnley) = 1, 1, 1, 1, 1
 • P. Foden (Man City) = 1, 1, 1, 1, 1
@@ -55,6 +53,7 @@ Leave a like if you find these useful.
 
 • E. Haaland (Man City) = 4, 3, 4, 1, 3
 • A. Semenyo (Bournemouth) = 2, 1, 1, 3, 1
+• I. Ndiaye (Everton) = 1, 1, 1, 1, 1
 
 
 Good luck with your bets today. Any value here?
