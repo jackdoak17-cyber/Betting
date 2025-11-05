@@ -9,20 +9,20 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 6. B. Mbeumo — 4 — Man Utd — @ 3.00 (vs Spurs)
 7. E. Kroupi — 4 — Bournemouth — @ 3.10 (vs Aston Villa)
 8. I. Ndiaye — 4 — Everton — @ 3.60 (vs Fulham)
-9. J. Anthony — 4 — Burnley — @ 4.50 (vs West Ham)
+9. J. Anthony — 4 — Burnley — @ 4.75 (vs West Ham)
 10. M. Salah — 4 — Liverpool — @ 2.75 (vs Man City)
 
 *LaLiga*
 1. K. Mbappé — 13 — Real Madrid — @ 1.61 (vs Rayo)
 2. J. Alvarez — 7 — Atleti — @ 1.72 (vs Levante)
 3. K. Eyong — 6 — Levante — @ 4.33 (vs Atleti)
-4. F. Torres — 5 — Barcelona — @ 2.05 (vs Celta)
+4. F. Torres — 5 — Barcelona — @ 2.20 (vs Celta)
 5. V. Muriqi — 5 — Mallorca — @ 3.20 (vs Getafe)
 6. V. Vinicius — 5 — Real Madrid — @ 2.37 (vs Rayo)
 7. A. Silva — 4 — Elche — @ 3.50 (vs Sociedad)
 8. A. Budimir — 4 — Osasuna — @ 3.00 (vs Sevilla)
 9. A. Antony — 4 — Betis — @ 3.40 (vs Valencia)
-10. B. Iglesias — 4 — Celta — @ 2.87 (vs Barcelona)
+10. B. Iglesias — 4 — Celta — @ 2.75 (vs Barcelona)
 
 *Bundesliga*
 1. H. Kane — 12 — Bayern — @ 1.61 (vs Union Berlin)
@@ -30,7 +30,7 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 3. C. Uzun — 5 — Frankfurt — @ 2.50 (vs FSV Mainz 05)
 4. C. Baumgartner — 5 — RB Leipzig — @ 3.10 (vs Hoffenheim)
 5. F. Asllani — 5 — Hoffenheim — @ 2.62 (vs RB Leipzig)
-6. H. Tabakovic — 5 — Gladbach — @ 2.62 (vs Koln)
+6. H. Tabakovic — 5 — Gladbach — @ 2.50 (vs Koln)
 7. L. Díaz — 5 — Bayern — @ 2.20 (vs Union Berlin)
 8. S. Guirassy — 5 — Dortmund — @ 1.66 (vs Hamburger SV)
 9. A. Grimaldo — 4 — Leverkusen — @ 3.20 (vs Heidenheim)
@@ -50,12 +50,12 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 
 *Ligue 1*
 1. J. Panichelli — 9 — Strasbourg — @ 2.50 (vs LOSC Lille)
-2. E. Lepaul — 8 — Rennes — @ 2.75 (vs Paris)
+2. E. Lepaul — 8 — Rennes — @ 2.60 (vs Paris)
 3. M. Greenwood — 7 — Marseille — @ — (vs Brest)
 4. S. Diop — 6 — Nice — @ 3.40 (vs Metz)
 5. A. Fati — 5 — Monaco — @ — (vs Lens)
 6. I. Kebbal — 5 — Paris — @ 3.40 (vs Rennes)
-7. B. Barcola — 4 — PSG — @ 2.40 (vs Rennes)
+7. B. Barcola — 4 — PSG — @ 2.62 (vs Rennes)
 8. F. Magri — 4 — Toulouse — @ 3.10 (vs Lorient)
 9. H. Igamane — 4 — LOSC Lille — @ 2.62 (vs Strasbourg)
 10. H. Haraldsson — 4 — LOSC Lille — @ 3.60 (vs Strasbourg)
