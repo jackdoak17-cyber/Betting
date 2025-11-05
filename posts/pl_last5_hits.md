@@ -4,16 +4,16 @@ Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
-• J. Grealish (Everton) = 2, 4, 5, 6, 2
+• J. Grealish (Everton) = 2, 2, 4, 5, 6
 • E. Anderson (Nottm Forest) = 3, 2, 4, 5, 2
 • M. Cunha (Man Utd) = 5, 2, 2, 3, 2
 • L. Paquetá (West Ham) = 2, 4, 1, 4, 1
-• R. Mandava (Sunderland) = 4, 1, 4, 2, 1
+• R. Mandava (Sunderland) = 1, 4, 1, 4, 2
 • B. Fernandes (Man Utd) = 2, 3, 2, 2, 2
 • D. Ouattara (Brentford) = 3, 2, 1, 3, 2
+• N. Sadiki (Sunderland) = 2, 1, 2, 1, 5
 • C. Summerville (West Ham) = 1, 1, 2, 4, 2
 • J. Pedro (Chelsea) = 2, 1, 3, 1, 3
-• N. Sadiki (Sunderland) = 1, 2, 1, 5, 1
 • A. Gordon (Newcastle) = 1, 3, 2, 1, 2
 • B. Kamara (Aston Villa) = 1, 1, 4, 2, 1
 • J. Hecke (Brighton) = 1, 1, 3, 3, 1
@@ -24,7 +24,6 @@ Leave a like if you find these useful.
 • J. Bowen (West Ham) = 1, 1, 2, 2, 1
 • L. Trossard (Arsenal) = 2, 1, 2, 1, 1
 • M. Rogers (Aston Villa) = 2, 2, 1, 1, 1
-• T. Hume (Sunderland) = 1, 2, 1, 1, 2
 • D. Brooks (Bournemouth) = 2, 1, 1, 1, 1
 • M. Lacroix (Crystal Palace) = 1, 1, 2, 1, 1
 • Y. Pino (Crystal Palace) = 1, 1, 1, 2, 1
