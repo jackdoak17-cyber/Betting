@@ -29,8 +29,8 @@ Missing entirely : 0
 ===== League 9 =====
 Predicted XI players: 352
 Found in SOT file : 352
-Non-empty series : 233
-Empty series     : 119
+Non-empty series : 232
+Empty series     : 120
 Missing entirely : 0
  -- Present but empty series --
    Birmingham City (TID 12): James Beadle, Tommy Doyle
@@ -52,7 +52,7 @@ Missing entirely : 0
    Sheffield United (TID 21): Ben Mee, Chiedozie Ogbene, Jaïro Riedewald, Michael Cooper
    Sheffield Wednesday (TID 56): Ethan Horvath, Ethan Horvath, Max Lowe, Max Lowe
    Southampton (TID 65): Alex McCarthy, Alex McCarthy, Flynn Downes, Flynn Downes, Mads Roerslev, Mads Roerslev
-   Stoke City (TID 26): Ashley Phillips, Eric-Junior Bocat, Tatsuki Seko, Viktor Johansson
+   Stoke City (TID 26): Ashley Phillips, Ben Wilmot, Eric-Junior Bocat, Tatsuki Seko, Viktor Johansson
    Swansea City (TID 30): Ben Cabango, Ben Cabango, Josh Key, Josh Key, Kaelan Casey, Kaelan Casey, Lawrence Vigouroux, Lawrence Vigouroux
    Watford (TID 25): Egil Selvik, James Abankwah, Marc Bola, Mattie Pollock, Tom Ince
    West Bromwich Albion (TID 10): Callum Styles, Charlie Taylor, Josh Griffiths, Krystian Bielik
@@ -86,14 +86,16 @@ Missing entirely : 0
 
 ===== League 301 =====
 Predicted XI players: 198
-Found in SOT file : 198
-Non-empty series : 136
-Empty series     : 62
-Missing entirely : 0
+Found in SOT file : 176
+Non-empty series : 118
+Empty series     : 58
+Missing entirely : 22
+ -- Missing players --
+   Brest (TID 266): Bradley Locko, Brendan Chardonnet, Joris Chotard, Kenny Lala, Lucas Tousart, Ludovic Ajorque, Mama Baldé, Pathé Mboup, Radoslaw Majecki, Romain Del Castillo, Soumaïla Coulibaly
+   Olympique Marseille (TID 44): Amir Murillo, Angel Gomes, Benjamin Pavard, CJ Egan-Riley, Emerson, Gerónimo Rulli, Matt O'Riley, Pierre-Emerick Aubameyang, Pierre-Emile Højbjerg, Robinio Vaz, Ulisses Garcia
  -- Present but empty series --
    Angers SCO (TID 776): Haris Belkebla, Hervé Koffi, Himad Abdelli
    Auxerre (TID 3682): Clément Akpa, Donovan Léon, Elisha Owusu, Gideon Mensah, Lasso Coulibaly, Sinaly Diomandé
-   Brest (TID 266): Kenny Lala, Radoslaw Majecki
    LOSC Lille (TID 690): Aïssa Mandi, Berke Özer, Calvin Verdonk
    Le Havre (TID 1055): Felix Mambimbi, Mory Diaw
    Lens (TID 271): Jonathan Gradit, Robin Risser
@@ -103,7 +105,6 @@ Missing entirely : 0
    Nantes (TID 59): Anthony Lopes, Kelvin Amian, Nicolas Cozza, Tylel Tati
    Nice (TID 450): Ali Abdi, Juma Bah, Morgan Sanson, Tiago Gouveia, Tom Louchet, Yehvann Diouf
    Olympique Lyonnais (TID 79): Afonso Moreira, Clinton Mata, Dominik Greif, Hans Hateboer, Moussa Niakhaté, Nicolás Tagliafico
-   Olympique Marseille (TID 44): CJ Egan-Riley, Gerónimo Rulli
    Paris (TID 4508): Kevin Trapp, Otávio, Tuomas Ollila
    Paris Saint Germain (TID 591): Lucas Chevalier, Willian Pacho
    Rennes (TID 598): Abdelhamid Ait Boudlal, Brice Samba, Lilian Brassier
