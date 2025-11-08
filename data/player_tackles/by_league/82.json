@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-07T07:34:10.101225+00:00",
+  "generated_at": "2025-11-08T07:31:02.309868+00:00",
   "league_id": 82,
   "count": 198,
   "players": [
@@ -404,6 +404,7 @@
       "name": "Marco Friedl",
       "position_tag": "LB",
       "tackles_last_n": [
+        0,
         2,
         0,
         2,
@@ -420,10 +421,12 @@
         90,
         90,
         90,
+        90,
         83,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -433,7 +436,7 @@
         19433498,
         19431623
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -446,6 +449,7 @@
       "name": "Jens Stage",
       "position_tag": "MID",
       "tackles_last_n": [
+        4,
         1,
         5,
         2,
@@ -459,11 +463,13 @@
         90,
         90,
         90,
+        90,
         80,
         60,
         63
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -472,7 +478,7 @@
         19433508,
         19433498
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -485,6 +491,7 @@
       "name": "Marco Grüll",
       "position_tag": "MID",
       "tackles_last_n": [
+        1,
         3,
         3,
         1,
@@ -494,6 +501,7 @@
         0
       ],
       "minutes_last_n": [
+        86,
         64,
         90,
         90,
@@ -503,6 +511,7 @@
         89
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -511,7 +520,7 @@
         19433490,
         19431623
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -524,6 +533,7 @@
       "name": "Romano Schmid",
       "position_tag": "MID",
       "tackles_last_n": [
+        1,
         0,
         0,
         0,
@@ -540,15 +550,92 @@
         90,
         90,
         90,
+        90,
         73,
         75,
         90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
+        19433526,
+        19433516,
+        19433508,
+        19433498,
+        19433490,
+        19431623
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 82,
+      "player_id": 537599,
+      "name": "Amos Pieper",
+      "position_tag": "CB",
+      "tackles_last_n": [
+        3,
+        1,
+        3,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433562,
+        19433550,
+        19433544,
+        19433529
+      ],
+      "n": 4,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 82,
+      "player_id": 539990,
+      "name": "Senne Lynen",
+      "position_tag": "MID",
+      "tackles_last_n": [
+        4,
+        2,
+        2,
+        1,
+        2,
+        1,
+        3,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        86,
+        90,
+        90,
+        90,
+        90,
+        77,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433562,
+        19433550,
+        19433544,
         19433526,
         19433516,
         19433508,
@@ -565,79 +652,11 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 82,
-      "player_id": 537599,
-      "name": "Amos Pieper",
-      "position_tag": "CB",
-      "tackles_last_n": [
-        1,
-        3,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433550,
-        19433544,
-        19433529
-      ],
-      "n": 3,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 82,
-      "player_id": 539990,
-      "name": "Senne Lynen",
-      "position_tag": "MID",
-      "tackles_last_n": [
-        2,
-        2,
-        1,
-        2,
-        1,
-        3,
-        2,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        77,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433550,
-        19433544,
-        19433526,
-        19433516,
-        19433508,
-        19433498,
-        19433490,
-        19431623
-      ],
-      "n": 8,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 82,
       "player_id": 5666480,
       "name": "Yukinari Sugawara",
       "position_tag": "RB",
       "tackles_last_n": [
+        0,
         1,
         2,
         1,
@@ -653,11 +672,13 @@
         90,
         90,
         90,
+        90,
         73,
         90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -667,7 +688,7 @@
         19433498,
         19433490
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -752,6 +773,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -761,9 +783,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -772,7 +796,7 @@
         19433490,
         19431623
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -785,6 +809,7 @@
       "name": "Karim Coulibaly",
       "position_tag": "CB",
       "tackles_last_n": [
+        0,
         1,
         0,
         1,
@@ -795,6 +820,7 @@
         0
       ],
       "minutes_last_n": [
+        80,
         81,
         90,
         90,
@@ -805,6 +831,7 @@
         90
       ],
       "fixture_ids": [
+        19433562,
         19433550,
         19433544,
         19433529,
@@ -814,7 +841,7 @@
         19433498,
         19433490
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2899,19 +2926,22 @@
       "tackles_last_n": [
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        87,
         75,
         67,
         78
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433537
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2924,6 +2954,7 @@
       "name": "Maximilian Arnold",
       "position_tag": "MID",
       "tackles_last_n": [
+        0,
         2,
         1,
         2,
@@ -2941,9 +2972,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433524,
@@ -2953,7 +2986,7 @@
         19433493,
         19433478
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2967,23 +3000,26 @@
       "position_tag": "MID",
       "tackles_last_n": [
         0,
+        0,
         1,
         1,
         0
       ],
       "minutes_last_n": [
+        67,
         60,
         69,
         78,
         70
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433537,
         19433524,
         19433519
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3004,6 +3040,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -3015,9 +3052,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433537,
@@ -3028,7 +3067,7 @@
         19433493,
         19433478
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3042,6 +3081,7 @@
       "position_tag": "MID",
       "tackles_last_n": [
         2,
+        2,
         1,
         2,
         4,
@@ -3053,6 +3093,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         56,
         90,
         46,
@@ -3063,6 +3104,7 @@
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433537,
@@ -3073,7 +3115,7 @@
         19433493,
         19433478
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3132,6 +3174,7 @@
       "position_tag": "FWD",
       "tackles_last_n": [
         1,
+        1,
         2,
         5,
         3,
@@ -3139,6 +3182,7 @@
         1
       ],
       "minutes_last_n": [
+        80,
         90,
         56,
         90,
@@ -3147,6 +3191,7 @@
         70
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433524,
@@ -3154,7 +3199,7 @@
         19433503,
         19433501
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3168,17 +3213,20 @@
       "position_tag": "CB",
       "tackles_last_n": [
         2,
+        2,
         1
       ],
       "minutes_last_n": [
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3191,6 +3239,7 @@
       "name": "Aaron Zehnter",
       "position_tag": "LB",
       "tackles_last_n": [
+        1,
         0,
         0,
         1,
@@ -3202,16 +3251,18 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433537,
         19433493,
         19433478
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3224,18 +3275,21 @@
       "name": "Saël Kumbedi",
       "position_tag": "RB",
       "tackles_last_n": [
+        0,
         2,
         1
       ],
       "minutes_last_n": [
         90,
+        90,
         85
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3248,24 +3302,27 @@
       "name": "Adam Daghim",
       "position_tag": "MID",
       "tackles_last_n": [
+        1,
         0,
         1,
         0,
         4
       ],
       "minutes_last_n": [
+        87,
         90,
         90,
         90,
         90
       ],
       "fixture_ids": [
+        19433562,
         19433555,
         19433543,
         19433537,
         19433524
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
