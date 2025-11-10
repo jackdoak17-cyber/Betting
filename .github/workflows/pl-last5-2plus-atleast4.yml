@@ -3,8 +3,7 @@ name: Post — PL Last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn)
 on:
   workflow_dispatch:
   schedule:
-    # Daily at 07:05 UTC (staggered after your 07:00 job)
-    - cron: "5 7 * * *"
+    - cron: "5 7 * * *"  # daily 07:05 UTC
 
 permissions:
   contents: write
@@ -18,32 +17,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (full history)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show repo tree (top 300 entries)
+        run: |
+          echo "PWD=$(pwd)"
+          find -L . -maxdepth 3 -type f | sort | sed -n '1,300p'
+
+      - name: Verify script exists
+        run: |
+          set -euo pipefail
+          test -f scripts/posts/pl_last5_2plus_atleast4.py || {
+            echo "::error file=scripts/posts/pl_last5_2plus_atleast4.py::Script not found. Check filename and location."
+            exit 1
+          }
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # Script uses only stdlib
+      - name: Python version
+        run: python -V
+
+      - name: Quick input files sanity (non-fatal)
+        run: |
+          for f in \
+            data/player_shots/by_league/8.json \
+            data/player_fouls/by_league/8.json \
+            data/player_fouls_drawn/by_league/8.json \
+            data/fixtures/by_league/8.json \
+            data/fixtures/8.json
+          do
+            [ -f "$f" ] && echo "✔ Found $f" || echo "ℹ Missing (ok): $f"
+          done
+
       - name: Generate PL last-5 ≥4/5 at 2+ post
         env:
           OUTPUT_PATH: posts/pl_last5_2plus_atleast4.md
-          LEAGUE_ID: "8"          # Premier League
-          MIN_MINUTES: "45"       # require ≥45' in ≥4 of the last 5
-        run: python scripts/posts/pl_last5_2plus_atleast4.py
-
-      - name: Show output (first 80 lines)
+          LEAGUE_ID: "8"
+          MIN_MINUTES: "45"
         run: |
-          echo "----- posts/pl_last5_2plus_atleast4.md -----"
+          set -euo pipefail
+          python scripts/posts/pl_last5_2plus_atleast4.py
+          echo "----- posts/pl_last5_2plus_atleast4.md (head) -----"
           head -n 80 posts/pl_last5_2plus_atleast4.md || true
-          echo "-------------------------------------------"
+          echo "---------------------------------------------------"
 
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add posts/pl_last5_2plus_atleast4.md
-          git diff --staged --quiet && echo "No changes to commit." || git commit -m "Update: PL last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn) [skip ci]"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update: PL last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn) [skip ci]"
+            git push
+          fi
