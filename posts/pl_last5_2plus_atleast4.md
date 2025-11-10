@@ -1,43 +1,44 @@
-Premier League: players hitting **2+** in **≥4 of their last 5** (Shots, Fouls, Fouls Drawn).
-Minutes gate: ≥45' in ≥4/5.
+I’ve collated Premier League player stats (≥4/5 at 2+) based on their last 5 games.
 
-📊2+ Shots in ≥4/5
+Leave a like if you find these useful.
 
-• E. Fernández (TBC) = 5, 2, 4, 2, 4  — 5/5 @2+
-• M. Salah (TBC) = 3, 3, 5, 3, 2  — 5/5 @2+
-• M. Gibbs-White (TBC) = 3, 2, 2, 4, 2  — 5/5 @2+
-• E. Haaland (TBC) = 2, 6, 3, 5, 1  — 4/5 @2+
-• I. Thiago (TBC) = 3, 0, 4, 6, 2  — 4/5 @2+
-• B. Fernandes (TBC) = 1, 2, 4, 2, 3  — 4/5 @2+
-• B. Saka (TBC) = 3, 2, 1, 2, 4  — 4/5 @2+
-• B. Mbeumo (TBC) = 2, 1, 3, 3, 2  — 4/5 @2+
-• J. Bowen (TBC) = 3, 4, 2, 2, 0  — 4/5 @2+
-• L. Trossard (TBC) = 1, 2, 3, 3, 2  — 4/5 @2+
-• M. Cunha (TBC) = 1, 2, 2, 2, 4  — 4/5 @2+
+📊2+ Shots in ≥4/5📊
 
-📊2+ Fouls Committed in ≥4/5
+• E. Fernández (Chelsea) = 5, 2, 4, 2, 4
+• M. Salah (Liverpool) = 3, 3, 5, 3, 2
+• M. Gibbs-White (Nottm Forest) = 3, 2, 2, 4, 2
+• E. Haaland (Man City) = 2, 6, 3, 5, 1
+• I. Thiago (Brentford) = 3, 0, 4, 6, 2
+• B. Fernandes (Man Utd) = 1, 2, 4, 2, 3
+• B. Saka (Arsenal) = 3, 2, 1, 2, 4
+• B. Mbeumo (Man Utd) = 2, 1, 3, 3, 2
+• J. Bowen (West Ham) = 3, 4, 2, 2, 0
+• L. Trossard (Arsenal) = 1, 2, 3, 3, 2
+• M. Cunha (Man Utd) = 1, 2, 2, 2, 4
 
-• D. Burn (TBC) = 4, 2, 3, 2, 2  — 5/5 @2+
-• P. Sarr (TBC) = 2, 3, 1, 6, 3  — 4/5 @2+
-• E. Ampadu (TBC) = 3, 2, 3, 1, 2  — 4/5 @2+
-• R. Sessegnon (TBC) = 1, 2, 2, 4, 2  — 4/5 @2+
-• K. Schade (TBC) = 2, 1, 3, 2, 2  — 4/5 @2+
-• R. Jiménez (TBC) = 2, 2, 0, 4, 2  — 4/5 @2+
-• C. Summerville (TBC) = 2, 1, 2, 2, 2  — 4/5 @2+
+📊2+ Fouls Committed in ≥4/5📊
 
-📊2+ Fouls Drawn in ≥4/5
+• D. Burn (Newcastle) = 4, 2, 3, 2, 2
+• P. Sarr (Spurs) = 2, 3, 1, 6, 3
+• E. Ampadu (Leeds United) = 3, 2, 3, 1, 2
+• R. Sessegnon (Fulham) = 1, 2, 2, 4, 2
+• K. Schade (Brentford) = 2, 1, 3, 2, 2
+• R. Jiménez (Fulham) = 2, 2, 0, 4, 2
+• C. Summerville (West Ham) = 2, 1, 2, 2, 2
 
-• J. Grealish (TBC) = 3, 2, 2, 4, 5  — 5/5 @2+
-• E. Anderson (TBC) = 1, 3, 2, 4, 5  — 4/5 @2+
-• L. Paquetá (TBC) = 3, 2, 4, 1, 4  — 4/5 @2+
-• B. Saka (TBC) = 3, 0, 2, 5, 3  — 4/5 @2+
-• D. Ouattara (TBC) = 3, 3, 2, 1, 3  — 4/5 @2+
-• M. Cunha (TBC) = 0, 5, 2, 2, 3  — 4/5 @2+
-• B. Aaronson (TBC) = 4, 2, 2, 0, 3  — 4/5 @2+
-• J. Doku (TBC) = 4, 0, 2, 2, 3  — 4/5 @2+
-• B. Fernandes (TBC) = 0, 2, 3, 2, 2  — 4/5 @2+
-• A. Scott (TBC) = 2, 2, 0, 2, 2  — 4/5 @2+
-• J. Palhinha (TBC) = 2, 2, 2, 0, 2  — 4/5 @2+
+📊2+ Fouls Drawn in ≥4/5📊
+
+• J. Grealish (Everton) = 3, 2, 2, 4, 5
+• E. Anderson (Nottm Forest) = 1, 3, 2, 4, 5
+• L. Paquetá (West Ham) = 3, 2, 4, 1, 4
+• B. Saka (Arsenal) = 3, 0, 2, 5, 3
+• D. Ouattara (Brentford) = 3, 3, 2, 1, 3
+• M. Cunha (Man Utd) = 0, 5, 2, 2, 3
+• B. Aaronson (Leeds United) = 4, 2, 2, 0, 3
+• J. Doku (Man City) = 4, 0, 2, 2, 3
+• B. Fernandes (Man Utd) = 0, 2, 3, 2, 2
+• A. Scott (Bournemouth) = 2, 2, 0, 2, 2
+• J. Palhinha (Spurs) = 2, 2, 2, 0, 2
 
 
-Use this as a shortlist, not advice. Shop around & play responsibly.
+Good luck with your bets today. Any value here?
