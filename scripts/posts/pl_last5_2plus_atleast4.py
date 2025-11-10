@@ -2,22 +2,32 @@
 # -*- coding: utf-8 -*-
 
 """
-Premier League — Last 5 (≥4/5 hits at 2+)
+Premier League — Last 5 (≥4/5 at 2+)
 Categories: Shots, Fouls, Fouls Drawn
 
-Finds:
-  • 2+ in ≥4 of last 5
+Output style intentionally mirrors your 100% post:
+- Header lines:
+    "I’ve collated Premier League player stats (≥4/5 at 2+) based on their last 5 games."
+    "Leave a like if you find these useful."
+- Section titles:
+    "📊2+ Shots in ≥4/5📊", "📊2+ Fouls Committed in ≥4/5📊", "📊2+ Fouls Drawn in ≥4/5📊"
+- Bullets:
+    "• F. Last (Pretty Team) = a, b, c, d, e"
+  (no trailing '— 4/5 @2+')
 
-Requires prebuilt JSONs from your extractors:
-  - data/player_shots/by_league/{LEAGUE_ID}.json            (.. "shots_last_n": [...])
-  - data/player_fouls/by_league/{LEAGUE_ID}.json            (.. "fouls_last_n": [...])
-  - data/player_fouls_drawn/by_league/{LEAGUE_ID}.json      (.. "fouls_drawn_last_n": [...])
+Requires prebuilt JSONs:
+  - data/player_shots/by_league/{LEAGUE_ID}.json           (shots_last_n)
+  - data/player_fouls/by_league/{LEAGUE_ID}.json           (fouls_last_n)
+  - data/player_fouls_drawn/by_league/{LEAGUE_ID}.json     (fouls_drawn_last_n)
+Optional team-name sources:
+  - data/fixtures/by_league/{LEAGUE_ID}.json
+  - data/predicted_xi/by_league/{LEAGUE_ID}.json
 
 ENV (optional):
-  OUTPUT_PATH    (default: posts/pl_last5_2plus_atleast4.md)
-  LEAGUE_ID      (default: 8  — Premier League)
-  MIN_MINUTES    (default: 45 — require ≥45' in ≥4 of last 5)
-  BULLET         (default: "• ")
+  OUTPUT_PATH (default: posts/pl_last5_2plus_atleast4.md)
+  LEAGUE_ID   (default: 8)
+  MIN_MINUTES (default: 45)   # require ≥45' in ≥4 of last 5
+  BULLET      (default: "• ")
 """
 
 import os
@@ -37,9 +47,9 @@ SHOTS_FILE      = ROOT / "data" / "player_shots" / "by_league" / f"{LEAGUE_ID}.j
 FOULS_FILE      = ROOT / "data" / "player_fouls" / "by_league" / f"{LEAGUE_ID}.json"
 F_DRAWN_FILE    = ROOT / "data" / "player_fouls_drawn" / "by_league" / f"{LEAGUE_ID}.json"
 
-# fixtures path can be stored in either location depending on your other jobs
 FIX_FILE        = ROOT / "data" / "fixtures" / "by_league" / f"{LEAGUE_ID}.json"
 FIX_FILE_ALT    = ROOT / "data" / "fixtures" / f"{LEAGUE_ID}.json"
+PX_FILE         = ROOT / "data" / "predicted_xi" / "by_league" / f"{LEAGUE_ID}.json"
 
 # ----- IO helpers -----
 def _load_json(p: Path) -> Any:
@@ -57,7 +67,6 @@ def short_player(name: str) -> str:
     if not raw:
         return ""
     parts = [p for p in re.split(r"\s+", raw) if p]
-    # remove suffixes like "Jr", "III", etc
     while parts and re.sub(r"[\W_]+", "", parts[-1]).lower() in SUFFIXES:
         parts = parts[:-1]
     last = parts[-1] if parts else raw
@@ -83,24 +92,17 @@ def pretty_team(name: Optional[str]) -> str:
         return "TBC"
     return PRETTY_MAP.get(name, name)
 
-def build_team_map_from_fixtures() -> Dict[int, str]:
+def team_map_from_fixtures() -> Dict[int, str]:
     """
-    Builds {team_id: team_name} from fixtures JSON.
-    Supports a few shapes:
-      - top-level: {"fixtures":[{"participants":[{"id":..,"name":..},...]},...]}
-      - top-level: {"data":{"fixtures":[...]}}
-      - participants may use keys {"id","name"} or {"team_id","name"}
+    Builds {team_id: team_name} from fixtures JSON (several shapes supported).
     """
     m: Dict[int, str] = {}
     blob = _load_json(FIX_FILE) or _load_json(FIX_FILE_ALT) or {}
     fixtures = blob.get("fixtures") or (blob.get("data") or {}).get("fixtures") or []
-
     for fx in fixtures:
         participants = fx.get("participants") or fx.get("teams") or []
-        # Sometimes home/away nested as dicts — normalize to list of dicts
         if isinstance(participants, dict):
             participants = list(participants.values())
-
         for p in (participants or []):
             tid = p.get("id") or p.get("team_id")
             nm = p.get("name")
@@ -110,8 +112,6 @@ def build_team_map_from_fixtures() -> Dict[int, str]:
                 continue
             if isinstance(nm, str) and nm:
                 m.setdefault(tid, nm)
-
-        # Fallback: some shapes store explicit home/away dicts
         for key in ("home", "away", "localteam", "visitorteam"):
             t = fx.get(key)
             if isinstance(t, dict):
@@ -123,7 +123,25 @@ def build_team_map_from_fixtures() -> Dict[int, str]:
                     continue
                 if isinstance(nm, str) and nm:
                     m.setdefault(tid, nm)
+    return m
 
+def team_map_from_px() -> Dict[int, str]:
+    """Fallback: {team_id: team_name} from predicted XI file."""
+    m: Dict[int, str] = {}
+    blob = _load_json(PX_FILE) or {}
+    for fx in blob.get("fixtures") or []:
+        for key in ("home", "away"):
+            t = fx.get(key) or {}
+            tid = t.get("team_id")
+            nm = t.get("name")
+            if isinstance(tid, int) and isinstance(nm, str) and nm:
+                m.setdefault(tid, nm)
+    return m
+
+def build_team_map() -> Dict[int, str]:
+    m = team_map_from_fixtures()
+    if not m:
+        m = team_map_from_px()
     return m
 
 # ----- Series helpers -----
@@ -149,7 +167,7 @@ def minutes_ok(minutes_last_n: Optional[List[int]]) -> bool:
 
 # ----- Core -----
 def collect_category_lines() -> List[str]:
-    team_map = build_team_map_from_fixtures()
+    team_map = build_team_map()
 
     shots_blob  = _load_json(SHOTS_FILE)   or {}
     fouls_blob  = _load_json(FOULS_FILE)   or {}
@@ -171,21 +189,22 @@ def collect_category_lines() -> List[str]:
                 continue
             hits = count_ge(series, threshold)
             if hits >= need_hits:
-                team_name = team_map.get(int(rec.get("team_id", -1)), "") or ""
+                # Prefer fixture/predicted XI team mapping; fallback to any name in record
+                team_name = team_map.get(int(rec.get("team_id", -1))) or rec.get("team_name") or ""
                 rows.append((rec.get("name", ""), team_name, series, hits))
         # Sort: more 2+ hits first, then higher sum of recent 5, then name
         rows.sort(key=lambda t: (-t[3], -sum(t[2]), t[0]))
         if rows:
             sections.append(title)
             sections.append("")
-            for name, team, series, hits in rows:
-                sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}  — {hits}/5 @2+")
+            for name, team, series, _ in rows:
+                sections.append(f"{BULLET}{short_player(name)} ({pretty_team(team)}) = {', '.join(map(str, series))}")
             sections.append("")
 
     # Order: Shots, Fouls, Fouls Drawn
-    build_block(shots_players, "shots_last_n",        "📊2+ Shots in ≥4/5")
-    build_block(fouls_players, "fouls_last_n",        "📊2+ Fouls Committed in ≥4/5")
-    build_block(fdrawn_players,"fouls_drawn_last_n",  "📊2+ Fouls Drawn in ≥4/5")
+    build_block(shots_players,  "shots_last_n",        "📊2+ Shots in ≥4/5📊")
+    build_block(fouls_players,  "fouls_last_n",        "📊2+ Fouls Committed in ≥4/5📊")
+    build_block(fdrawn_players, "fouls_drawn_last_n",  "📊2+ Fouls Drawn in ≥4/5📊")
 
     return sections
 
@@ -193,8 +212,9 @@ def main():
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     header = [
-        "Premier League: players hitting **2+** in **≥4 of their last 5** (Shots, Fouls, Fouls Drawn).",
-        f"Minutes gate: ≥{MIN_MINUTES}' in ≥4/5.",
+        "I’ve collated Premier League player stats (≥4/5 at 2+) based on their last 5 games.",
+        "",
+        "Leave a like if you find these useful.",
         "",
     ]
 
@@ -203,7 +223,7 @@ def main():
         sections = ["(No qualifying players found based on current files.)", ""]
 
     footer = [
-        "Use this as a shortlist, not advice. Shop around & play responsibly.",
+        "Good luck with your bets today. Any value here?",
     ]
 
     text = "\n".join(header + sections + [""] + footer).rstrip() + "\n"
