@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-09T07:39:29",
+  "generated_at": "2025-11-11T07:41:58",
   "league_id": 9,
   "last_n": 10,
   "red_weight": 1.0,
@@ -1046,7 +1046,7 @@
         },
         "cards_total": {
           "sequence": [
-            "D",
+            "W",
             "W",
             "L",
             "D",
@@ -1058,11 +1058,11 @@
             "W"
           ],
           "rates": {
-            "wins": 2,
+            "wins": 3,
             "losses": 3,
-            "draws": 5,
-            "n": 5,
-            "win_rate": 0.4
+            "draws": 4,
+            "n": 6,
+            "win_rate": 0.5
           }
         },
         "cards_total_home": {
@@ -1082,7 +1082,7 @@
         },
         "cards_total_away": {
           "sequence": [
-            "D",
+            "W",
             "L",
             "D",
             "D",
@@ -1090,11 +1090,11 @@
             "W"
           ],
           "rates": {
-            "wins": 1,
+            "wins": 2,
             "losses": 1,
-            "draws": 4,
-            "n": 2,
-            "win_rate": 0.5
+            "draws": 3,
+            "n": 3,
+            "win_rate": 0.6667
           }
         }
       }
@@ -4331,7 +4331,7 @@
         },
         "cards_total": {
           "sequence": [
-            "D",
+            "L",
             "W",
             "W",
             "W",
@@ -4344,25 +4344,25 @@
           ],
           "rates": {
             "wins": 4,
-            "losses": 5,
-            "draws": 1,
-            "n": 9,
-            "win_rate": 0.4444
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
           }
         },
         "cards_total_home": {
           "sequence": [
-            "D",
+            "L",
             "W",
             "W",
             "L"
           ],
           "rates": {
             "wins": 2,
-            "losses": 1,
-            "draws": 1,
-            "n": 3,
-            "win_rate": 0.6667
+            "losses": 2,
+            "draws": 0,
+            "n": 4,
+            "win_rate": 0.5
           }
         },
         "cards_total_away": {
