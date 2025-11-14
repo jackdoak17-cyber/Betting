@@ -8,7 +8,7 @@ Top 10 Scorers — Bet365 Anytime
 | 4 | J. Panichelli — Strasbourg (L1) | 9 | @ — | v TBC |
 | 5 | E. Lepaul — Rennes (L1) | 8 | @ — | v TBC |
 | 6 | I. Thiago — Brentford (PL) | 8 | @ — | v TBC |
-| 7 | M. Greenwood — Marseille (L1) | 8 | @ — | v TBC |
+| 7 | M. Greenwood — Marseille (L1) | 8 | @ — | v Nice |
 | 8 | J. Alvarez — Atleti (LAL) | 7 | @ — | v TBC |
 | 9 | R. Lewandowski — Barcelona (LAL) | 7 | @ — | v TBC |
 | 10 | A. Semenyo — Bournemouth (PL) | 6 | @ — | v TBC |
