@@ -48,7 +48,7 @@ jobs:
       - name: Run Bet365 odds gatherer (9 leagues)
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          LEAGUE_IDS: "301,384,387,564,567,600,8,82,9"
+          LEAGUE_IDS: "8,9,72,82,181,208,244,271,301,384,387,444,453,462,501,564,567,573,591,600"
           SM_BOOKMAKER_ID: "2"   # Bet365
           SM_SLEEP: "0.05"
           SM_TIMEOUT: "20"
