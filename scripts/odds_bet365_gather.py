@@ -36,7 +36,7 @@ API_TOKEN = (
 BET365_ID = int(os.getenv("SM_BOOKMAKER_ID", "2"))  # Bet365
 
 # Default to all 9 leagues; override with LEAGUE_IDS="8,301,..." if needed
-DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
+DEFAULT_LEAGUES = [8,9,72,82,181,208,244,271,301,384,387,444,453,462,501,564,567,573,591,600]
 LEAGUE_IDS = [
     int(x) for x in (os.getenv("LEAGUE_IDS") or ",".join(map(str, DEFAULT_LEAGUES))).split(",") if x.strip()
 ]
