@@ -27,8 +27,10 @@ Carrarese (70%) vs Reggiana (70%)
 FC Köln (70%) vs Eintracht Frankfurt (70%)
 Molde (70%) vs Brann (70%)
 
-📈 Single-team over 1.5 ≥90%📈
+📈 Single-team over 1.5 ≥80%📈
 (Share of last-10 league matches where the team scored 2+ goals)
 
 FC Bayern München (100%)
 PSV (90%)
+Bodø / Glimt (80%)
+Coventry City (80%)
