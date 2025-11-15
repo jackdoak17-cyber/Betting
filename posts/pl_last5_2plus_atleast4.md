@@ -9,18 +9,18 @@ Leave a like if you find these useful.
 • M. Gibbs-White (Nottm Forest) = 3, 2, 2, 4, 2
 • E. Haaland (Man City) = 2, 6, 3, 5, 1
 • I. Thiago (Brentford) = 3, 0, 4, 6, 2
-• B. Fernandes (Man Utd) = 1, 2, 4, 2, 3
-• B. Saka (Arsenal) = 3, 2, 1, 2, 4
-• B. Mbeumo (Man Utd) = 2, 1, 3, 3, 2
+• B. Fernandes (TBC) = 1, 2, 4, 2, 3
+• B. Saka (TBC) = 3, 2, 1, 2, 4
+• B. Mbeumo (TBC) = 2, 1, 3, 3, 2
 • J. Bowen (West Ham) = 3, 4, 2, 2, 0
-• L. Trossard (Arsenal) = 1, 2, 3, 3, 2
-• M. Cunha (Man Utd) = 1, 2, 2, 2, 4
+• L. Trossard (TBC) = 1, 2, 3, 3, 2
+• M. Cunha (TBC) = 1, 2, 2, 2, 4
 
 📊2+ Fouls Committed in ≥4/5📊
 
 • D. Burn (Newcastle) = 4, 2, 3, 2, 2
-• P. Sarr (Spurs) = 2, 3, 1, 6, 3
-• E. Ampadu (Leeds United) = 3, 2, 3, 1, 2
+• P. Sarr (TBC) = 2, 3, 1, 6, 3
+• E. Ampadu (TBC) = 3, 2, 3, 1, 2
 • R. Sessegnon (Fulham) = 1, 2, 2, 4, 2
 • K. Schade (Brentford) = 2, 1, 3, 2, 2
 • R. Jiménez (Fulham) = 2, 2, 0, 4, 2
@@ -28,17 +28,17 @@ Leave a like if you find these useful.
 
 📊2+ Fouls Drawn in ≥4/5📊
 
-• J. Grealish (Everton) = 3, 2, 2, 4, 5
+• J. Grealish (TBC) = 3, 2, 2, 4, 5
 • E. Anderson (Nottm Forest) = 1, 3, 2, 4, 5
 • L. Paquetá (West Ham) = 3, 2, 4, 1, 4
-• B. Saka (Arsenal) = 3, 0, 2, 5, 3
+• B. Saka (TBC) = 3, 0, 2, 5, 3
 • D. Ouattara (Brentford) = 3, 3, 2, 1, 3
-• M. Cunha (Man Utd) = 0, 5, 2, 2, 3
-• B. Aaronson (Leeds United) = 4, 2, 2, 0, 3
+• M. Cunha (TBC) = 0, 5, 2, 2, 3
+• B. Aaronson (TBC) = 4, 2, 2, 0, 3
 • J. Doku (Man City) = 4, 0, 2, 2, 3
-• B. Fernandes (Man Utd) = 0, 2, 3, 2, 2
+• B. Fernandes (TBC) = 0, 2, 3, 2, 2
 • A. Scott (Bournemouth) = 2, 2, 0, 2, 2
-• J. Palhinha (Spurs) = 2, 2, 2, 0, 2
+• J. Palhinha (TBC) = 2, 2, 2, 0, 2
 
 
 Good luck with your bets today. Any value here?
