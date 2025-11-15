@@ -3,7 +3,7 @@ name: Posts — Over 2.5 (All Leagues, Combined%)
 
 on:
   schedule:
-    - cron: "25 7 * * *"   # Daily at 07:25 UTC (run AFTER your fixtures job)
+    - cron: "40 7 * * *"   # Daily at 07:40 UTC (after your fixtures job)
   workflow_dispatch: {}
 
 permissions:
@@ -20,20 +20,19 @@ jobs:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
       PYTHONUNBUFFERED: "1"
 
-      # Script knobs (same defaults as before; override here if you like)
+      # Script knobs
       LAST_N: "10"
       MIN_GAMES: "6"
       MAX_ROWS: "20"
       LOOKBACK_DAYS: "140"
 
-      # Leagues: ALL you want, EXCLUDING cups (24, 27, 390, 570, …)
+      # Leagues you want (no cups)
       LEAGUE_IDS: >
         8 9 72 82 181 208 244 271 301 384 387
         444 453 462 486 501 564 567 573 591 600
 
     steps:
       - name: Checkout
-      # (Full history not required since we commit once at end)
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -46,27 +45,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Generate posts for all leagues (sequential)
+      - name: Generate posts for all leagues (sequential; always write a file)
         run: |
           set -euo pipefail
-          failed=""
           for LID in ${LEAGUE_IDS}; do
-            FILE="data/fixtures/by_league/${LID}.json"
-            OUT="posts/over25_matches_L${LID}.md"
-
-            if [ ! -f "$FILE" ]; then
-              echo "::warning::No fixtures file for league ${LID} (${FILE}). Skipping."
-              continue
-            fi
-
             echo "=== League ${LID} ==="
-            LEAGUE_ID="${LID}" OUTPUT_PATH="${OUT}" \
-              python scripts/posts/over25_matches.py || failed="${failed} ${LID}"
+            LEAGUE_ID="${LID}" OUTPUT_PATH="posts/over25_matches_L${LID}.md" \
+              python scripts/posts/over25_matches.py || echo "::warning::Script returned non-zero for ${LID}"
           done
-
-          if [ -n "${failed}" ]; then
-            echo "::warning::Some leagues failed to render:${failed}"
-          fi
 
       - name: Show a quick sample of outputs
         run: |
@@ -94,19 +80,6 @@ jobs:
           ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git commit -m "Update: Over 2.5 Candidates (multi-league) — ${ts}"
 
-          # Robust push with rebase + retry
           BRANCH="${GITHUB_REF_NAME:-main}"
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin "$BRANCH" || true
-            if git push origin HEAD:"$BRANCH"; then
-              echo "Push succeeded on attempt $attempt"
-              exit 0
-            fi
-            echo "Push failed on attempt $attempt — retrying..."
-            sleep 2
-          done
-
-          echo "Final attempt after fresh fetch..."
-          git fetch origin "$BRANCH"
           git pull --rebase --autostash origin "$BRANCH" || true
           git push origin HEAD:"$BRANCH"
