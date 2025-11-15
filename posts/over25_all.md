@@ -1,13 +1,16 @@
-# Over 2.5 Goals — Shortlist (Last-10 Form, >70% Combined)
+I’ve collated high probability goal list based on stats from their last 10 games
 
-Using each team’s **last 10 league games**, I calculated their Over 2.5 hit rates (share of matches with **3+ goals**). For each upcoming fixture, **Combined% = mean(Home%, Away%)**. Shown only if **Combined% > 70%** and both teams have at least **6** recent league games. Cups excluded.
+Leave a like if you find these useful
 
-• **NAC Breda vs PSV** — **85.0%** (H 80.0%, A 90.0%)
-• **Young Boys vs Winterthur** — **85.0%** (H 80.0%, A 90.0%)
-• **FC Bayern München vs SC Freiburg** — **80.0%** (H 100.0%, A 60.0%)
-• **Luzern vs Servette** — **80.0%** (H 80.0%, A 80.0%)
-• **FC Volendam vs FC Twente** — **75.0%** (H 80.0%, A 70.0%)
-• **Heracles Almelo vs Go Ahead Eagles** — **75.0%** (H 90.0%, A 60.0%)
-• **Lens vs Strasbourg** — **75.0%** (H 70.0%, A 80.0%)
-• **Molde vs Brann** — **75.0%** (H 70.0%, A 80.0%)
-• **Strømsgodset vs Sandefjord** — **75.0%** (H 90.0%, A 60.0%)
+📊Combined over 2.5 goals >70%📊
+(Both teams matches have had at least 2.5 goals in 70%+ of their last 10)
+
+NAC Breda (80%) vs PSV (90%)
+Young Boys (80%) vs Winterthur (90%)
+FC Bayern München (100%) vs SC Freiburg (60%)
+Luzern (80%) vs Servette (80%)
+FC Volendam (80%) vs FC Twente (70%)
+Heracles Almelo (90%) vs Go Ahead Eagles (60%)
+Lens (70%) vs Strasbourg (80%)
+Molde (70%) vs Brann (80%)
+Strømsgodset (90%) vs Sandefjord (60%)
