@@ -40,12 +40,23 @@ TIMEOUT = 25
 LEAGUES = {
     8:   "Premier League",
     9:   "Championship",
+    72:  "Eredivisie",
     82:  "Bundesliga",
+    181: "Admiral Bundesliga",
+    208: "Pro League",
+    244: "1. HNL",
+    271: "Superliga",
     301: "Ligue 1",
     384: "Serie A",
     387: "Serie B",
+    444: "Eliteserien",
+    453: "Ekstraklasa",
+    462: "Liga Portugal",
+    501: "Premiership",
     564: "La Liga",
     567: "La Liga 2",
+    573: "Allsvenskan",
+    591: "Super League",
     600: "Super Lig",
 }
 LEAGUE_IDS = sorted(LEAGUES.keys())
