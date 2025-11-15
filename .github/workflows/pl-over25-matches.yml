@@ -1,0 +1,72 @@
+name: Post — PL Over 2.5 Candidates (Combined%)
+
+on:
+  # Run after team-series job (which is at 07:00 UTC). Give it a buffer.
+  schedule:
+    - cron: "20 7 * * *"   # Daily at 07:20 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pl-over25-matches
+  cancel-in-progress: false
+
+jobs:
+  build-and-post:
+    runs-on: ubuntu-latest
+    env:
+      # Script inputs (can be adjusted):
+      LEAGUE_ID: "8"                 # Premier League
+      LAST_N: "10"                   # use last 10 games
+      MIN_GAMES: "6"                 # require at least 6 aligned games
+      O25_SPLIT_MODE: "mixed"        # "mixed" or "split"
+      OUTPUT_PATH: "posts/pl_over25_matches.md"
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # No external deps required (stdlib only)
+
+      - name: Guard — ensure team series exist
+        run: |
+          set -e
+          if [ ! -f "data/team_stats/by_league/${LEAGUE_ID}.json" ] || [ ! -f "data/team_opponent_stats/by_league/${LEAGUE_ID}.json" ]; then
+            echo "Missing team series JSON. Make sure 'Build team series' workflow ran successfully first." >&2
+            exit 1
+          fi
+
+      - name: Generate Over 2.5 post
+        run: |
+          python scripts/posts/pl_over25_matches.py
+
+      - name: Show output (first 80 lines)
+        run: |
+          echo "----- ${OUTPUT_PATH} -----"
+          head -n 80 "${OUTPUT_PATH}" || true
+          echo "-------------------------"
+
+      - name: Commit & push if changed
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${OUTPUT_PATH}"
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update: PL Over 2.5 Candidates (Combined%) [skip ci]"
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          git pull --rebase --autostash origin "$BRANCH" || true
+          git push origin HEAD:"$BRANCH"
