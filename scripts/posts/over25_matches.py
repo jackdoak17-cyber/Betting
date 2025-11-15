@@ -2,23 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """
-Over 2.5 Goals — Shortlist (Display-only tweak)
+Over 2.5 Goals — Shortlist (Both teams must meet threshold)
 
 Reads ONLY local JSONs:
   - data/fixtures/by_league/{league_id}.json
   - data/team_stats/by_league/{league_id}.json          (needs: goals_last_n, fixture_ids)
   - data/team_opponent_stats/by_league/{league_id}.json (needs: opp_goals_last_n, fixture_ids)
 
-Logic (unchanged):
+Logic:
   - For each team, compute Over 2.5 hit rate across its last LAST_N league games
     by pairing team goals with opponent goals via fixture_ids.
   - For each upcoming fixture: Combined% = mean(Home%, Away%).
-  - Keep if Combined% strictly > THRESHOLD (default 70) and each team has ≥ MIN_SAMPLE matches.
+  - KEEP ONLY if Home% >= THRESHOLD and Away% >= THRESHOLD (default 70).
+  - Require each team to have ≥ MIN_SAMPLE matches (default 6). Cups excluded (since we read your fixtures).
 
-Output (formatted like your example):
-  Title + short intro + single heading + ranked list lines:
+Output format (exactly as requested):
+  Intro lines + heading + parenthetical explainer + ranked list:
     TeamA (H%) vs TeamB (A%)
-  (No bullets, no dates, no leagues shown.)
+  (No bullets, no dates, no league sections.)
 
 Env (optional):
   OUTPUT_PATH   (default: posts/over25_matches.md)
@@ -141,17 +142,15 @@ def load_upcoming_fixtures() -> List[dict]:
 
 def render_output(entries: List[dict]) -> str:
     """
-    Exact display style requested:
-      Title + two intro lines + heading + parenthetical explainer + list lines:
-        TeamA (80%) vs TeamB (90%)
+    Exact display style requested.
     """
     lines: List[str] = []
-    lines.append("I’ve collated high probability goal list based on stats from their last 10 games")
+    lines.append("I’ve collated a high-probability over 2.5 goals list based on stats from their last 10 games.")
     lines.append("")
-    lines.append("Leave a like if you find these useful")
+    lines.append("Leave a like if you find these useful.")
     lines.append("")
     lines.append("📊Combined over 2.5 goals >70%📊")
-    lines.append("(Both teams matches have had at least 2.5 goals in 70%+ of their last 10)")
+    lines.append("(Both teams’ matches have had at least 2.5 goals in 70%+ of their last 10)")
     lines.append("")
 
     if not entries:
@@ -192,8 +191,9 @@ def main():
         if hpct is None or apct is None:
             continue
 
-        combined = (hpct + apct) / 2.0
-        if combined > THRESHOLD:
+        # NEW: require BOTH teams to meet the threshold
+        if hpct >= THRESHOLD and apct >= THRESHOLD:
+            combined = (hpct + apct) / 2.0
             shortlist.append({
                 "home_name": hname,
                 "away_name": aname,
@@ -202,6 +202,7 @@ def main():
                 "combined": combined,
             })
 
+    # Rank by combined descending
     shortlist.sort(key=lambda x: (-x["combined"], x["home_name"], x["away_name"]))
 
     text = render_output(shortlist)
