@@ -26,3 +26,14 @@ Vålerenga (80%) vs Kristiansund (70%)
 Carrarese (70%) vs Reggiana (70%)
 FC Köln (70%) vs Eintracht Frankfurt (70%)
 Molde (70%) vs Brann (70%)
+
+📈 Single-team over 2.5 ≥90%📈
+(At least one team has seen 3+ total goals in ≥90% of their last 10 league games)
+
+FC Bayern München (100%) vs SC Freiburg (60%)
+FC Barcelona (90%) vs Athletic Club (30%)
+Heracles Almelo (90%) vs Go Ahead Eagles (60%)
+NAC Breda (80%) vs PSV (90%)
+Racing Santander (90%) vs Granada (40%)
+Strømsgodset (90%) vs Sandefjord (60%)
+Young Boys (80%) vs Winterthur (90%)
