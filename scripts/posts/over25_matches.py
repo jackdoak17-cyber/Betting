@@ -2,385 +2,253 @@
 # -*- coding: utf-8 -*-
 
 """
-Over 2.5 goals — upcoming fixtures ranked by combined % (avg of each team's last-N O2.5%)
+Over 2.5 Goals — Ranked upcoming fixtures (pure local)
 
-What it does
-------------
-- Reads upcoming fixtures for a league from local files written by your fixtures job:
-    data/fixtures/by_league/{LEAGUE_ID}.json
-  (falls back to data/fixtures/{LEAGUE_ID}.json if needed)
-- For each team in those fixtures, fetches their last-N *league* matches via Sportmonks v3
-  and computes:
-    * O2.5 hits (total goals >= 3)
-    * O2.5 percentage
-    * average total goals
-- Ranks fixtures by the average of the two teams' O2.5 percentages (combined %)
-- Writes a social-ready post to posts/over25_matches_L{LEAGUE_ID}.md
+Reads:
+  - data/fixtures/by_league/{league_id}.json
+  - data/team_stats/by_league/{league_id}.json
+  - data/team_opponent_stats/by_league/{league_id}.json
 
-Env
----
-SPORTMONKS_TOKEN          required (or SPORTMONKS_API_TOKEN / SM_TOKEN)
-LEAGUE_ID                 int, default "8"
-LAST_N                    int, default "10"   (how many recent league matches per team)
-MIN_GAMES                 int, default "6"    (each team must have at least this many)
-MAX_ROWS                  int, default "20"   (max fixtures in the post)
-LOOKBACK_DAYS             int, default "140"  (initial window; script walks back in 100d steps)
-OUTPUT_PATH               path, default "posts/over25_matches_L{LEAGUE_ID}.md"
+Computes for each TEAM (last N, default 10):
+  - overall % of matches with total_goals >= 3 using:
+      total_goals = goals_last_n + opp_goals_last_n (aligned by fixture_id)
+  - optional home% and away% (venue-aware, if enabled)
 
-Notes
------
-- Uses /v3/football/fixtures/between/{start}/{end}/{team_id} with filters=fixtureLeagues:{LEAGUE_ID}
-- Includes "scores;state" and infers FT totals robustly from the "scores" array
-- Finished-only fixtures (state_id == 5) are considered
+For each UPCOMING fixture:
+  - Combined% = mean(home_overall%, away_overall%)  [default]
+  - (Optionally venue-aware: mean(home_home%, away_away%) if USE_HOME_AWAY=1)
+
+Outputs a single social-ready markdown file (see OUTPUT_PATH env).
+Skips a league if required local files are missing.
+
+Env (optional):
+  OUTPUT_PATH       (default: posts/over25_all.md)
+  LAST_N            (default: 10)
+  MIN_GAMES         (default: 6)   # min samples per team to include a fixture
+  TOP_K_PER_LEAGUE  (default: 8)   # top rows per league
+  USE_HOME_AWAY     (default: 0)   # 1 => use home(only) + away(only) for combined
 """
 
 import os
-import re
 import json
-import time
-import datetime as dt
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-import requests
-
-# ----------------- Config / Env -----------------
-API_BASE = "https://api.sportmonks.com/v3/football"
-TOKEN = (
-    os.getenv("SPORTMONKS_TOKEN")
-    or os.getenv("SPORTMONKS_API_TOKEN")
-    or os.getenv("SM_TOKEN")
-)
-if not TOKEN:
-    raise SystemExit("ERROR: SPORTMONKS_TOKEN / SPORTMONKS_API_TOKEN not set.")
-
-LEAGUE_ID   = int(os.getenv("LEAGUE_ID", "8"))
-LAST_N      = int(os.getenv("LAST_N", "10"))
-MIN_GAMES   = int(os.getenv("MIN_GAMES", "6"))
-MAX_ROWS    = int(os.getenv("MAX_ROWS", "20"))
-LOOKBACK_D  = int(os.getenv("LOOKBACK_DAYS", "140"))
-OUTPUT_PATH = os.getenv("OUTPUT_PATH", f"posts/over25_matches_L{LEAGUE_ID}.md")
-
-TIMEOUT = 25
-RETRIES = 3
-BACKOFF = 1.6
-PACE_DELAY = 0.18  # gentle global pacing
-_last_call = 0.0
+from typing import Dict, List, Optional, Tuple
 
 ROOT = Path(".")
-FIX_FILE     = ROOT / "data" / "fixtures" / "by_league" / f"{LEAGUE_ID}.json"
-FIX_FILE_ALT = ROOT / "data" / "fixtures" / f"{LEAGUE_ID}.json"
+FIX_DIR   = ROOT / "data" / "fixtures" / "by_league"
+TEAM_DIR  = ROOT / "data" / "team_stats" / "by_league"
+OPP_DIR   = ROOT / "data" / "team_opponent_stats" / "by_league"
 
-# Optional pretty map for common long names
-PRETTY_MAP = {
-    "Manchester City": "Man City",
-    "Manchester United": "Man Utd",
-    "Newcastle United": "Newcastle",
-    "Nottingham Forest": "Nottm Forest",
-    "Brighton & Hove Albion": "Brighton",
-    "Tottenham Hotspur": "Spurs",
-    "Wolverhampton Wanderers": "Wolves",
-    "West Ham United": "West Ham",
-    "AFC Bournemouth": "Bournemouth",
-    "Sheffield United": "Sheff Utd",
-}
-def pretty_team(name: Optional[str]) -> str:
-    if not name:
-        return "TBC"
-    return PRETTY_MAP.get(name, name)
+OUTPUT_PATH       = Path(os.getenv("OUTPUT_PATH", "posts/over25_all.md"))
+LAST_N            = int(os.getenv("LAST_N", "10"))
+MIN_GAMES         = int(os.getenv("MIN_GAMES", "6"))
+TOP_K_PER_LEAGUE  = int(os.getenv("TOP_K_PER_LEAGUE", "8"))
+USE_HOME_AWAY     = os.getenv("USE_HOME_AWAY", "0").strip() in ("1","true","TRUE","yes","YES")
 
-# ----------------- HTTP helpers -----------------
-def _pace():
-    global _last_call
-    now = time.time()
-    if now - _last_call < PACE_DELAY:
-        time.sleep(PACE_DELAY - (now - _last_call))
-    _last_call = time.time()
-
-def api_get(path: str, params: Optional[dict] = None) -> dict:
-    if params is None:
-        params = {}
-    params = {**params, "api_token": TOKEN}
-    url = f"{API_BASE}/{path.lstrip('/')}"
-    last_exc = None
-    for i in range(1, RETRIES + 1):
-        _pace()
-        try:
-            r = requests.get(url, params=params, timeout=TIMEOUT)
-            if r.status_code == 429:
-                sleep = min(60, (BACKOFF ** i) * 2.0)
-                print(f"[429] {path} — sleeping {sleep:.1f}s")
-                time.sleep(sleep)
-                continue
-            r.raise_for_status()
-            return r.json()
-        except Exception as e:
-            last_exc = e
-            if i < RETRIES:
-                sleep = BACKOFF ** i
-                print(f"[RETRY] {path} (attempt {i}) sleeping {sleep:.1f}s")
-                time.sleep(sleep)
-            else:
-                raise
-    raise last_exc
-
-# ----------------- Time helpers -----------------
-def today_utc_date() -> dt.date:
-    return dt.datetime.now(dt.timezone.utc).date()
-
-def dstr(d: dt.date) -> str:
-    return d.strftime("%Y-%m-%d")
-
-def parse_ts_from_str(s: str) -> Optional[int]:
-    if not s:
-        return None
+def _load_json(p: Path) -> Optional[dict]:
     try:
-        s2 = s.replace("T", " ").replace("Z", "")
-        return int(dt.datetime.strptime(s2[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc).timestamp())
+        if p.is_file():
+            return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
-        return None
+        pass
+    return None
 
-# ----------------- Local fixtures -----------------
-def _load_json(p: Path) -> Any:
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-
-def _participants_to_list(parts_any: Any) -> List[dict]:
-    if isinstance(parts_any, list):
-        return [p for p in parts_any if isinstance(p, dict)]
-    if isinstance(parts_any, dict):
-        cand = []
-        for k in ("home","local","localteam","home_team","away","visitor","visitorteam","away_team"):
-            v = parts_any.get(k)
-            if isinstance(v, dict):
-                cand.append(v)
-        return cand
-    return []
-
-def upcoming_fixtures_from_local() -> List[dict]:
-    blob = _load_json(FIX_FILE) or _load_json(FIX_FILE_ALT) or {}
-    fixtures = blob.get("fixtures") or []
-    now_ts = int(time.time())
-    up: List[dict] = []
-    for fx in fixtures:
-        st_ts = fx.get("starting_at_timestamp")
-        if st_ts is None:
-            st_ts = parse_ts_from_str(fx.get("starting_at") or "")
+def _idx_by_team(rows: List[dict]) -> Dict[int, dict]:
+    out = {}
+    for r in rows or []:
         try:
-            st_ts = int(st_ts) if st_ts is not None else None
+            tid = int(r.get("team_id"))
+            out[tid] = r
         except Exception:
-            st_ts = None
-        if st_ts is None or st_ts <= now_ts:
             continue
+    return out
 
-        parts = _participants_to_list(fx.get("participants"))
-        teams: List[Tuple[int,str]] = []
-        for p in parts:
-            tid = p.get("id") or p.get("team_id")
-            nm = p.get("name") or ""
+def _series_by_fixture(entry: dict, key_prefix: str) -> Tuple[Dict[int, int], Dict[int, str]]:
+    """
+    Build {fixture_id: goals} for either team or opponent entry.
+    Also return {fixture_id: location} from locations_last_n (when present).
+    """
+    goals = entry.get(f"{key_prefix}goals_last_n")
+    fids  = entry.get("fixture_ids")
+    locs  = entry.get("locations_last_n") or []
+    m_goals: Dict[int, int] = {}
+    m_locs: Dict[int, str] = {}
+    if isinstance(goals, list) and isinstance(fids, list):
+        for i, fid in enumerate(fids[:LAST_N]):
             try:
-                tid = int(tid)
+                g = int(goals[i])
+                m_goals[int(fid)] = g
+                if i < len(locs):
+                    m_locs[int(fid)] = (locs[i] or "unknown")
             except Exception:
                 continue
-            teams.append((tid, nm))
+    return m_goals, m_locs
 
-        if len(teams) >= 2:
-            up.append({
-                "fixture_id": fx.get("id"),
-                "starting_at_ts": st_ts,
-                "home_id": teams[0][0],
-                "home_name": teams[0][1],
-                "away_id": teams[1][0],
-                "away_name": teams[1][1],
-            })
-
-    up.sort(key=lambda r: (r["starting_at_ts"] or 0, r.get("fixture_id") or 0))
-    return up
-
-# ----------------- Goals parsing -----------------
-def total_goals_from_scores(fx: dict) -> Optional[int]:
+def _o25_rates(team_entry: dict, opp_entry: dict) -> dict:
     """
-    Read final totals from fx['scores'] robustly:
-    - For each participant_id, take the max score seen across entries.
-    - Sum the two largest values.
+    Compute Over 2.5 rates for a single team using aligned fixtures:
+      total = goals_last_n + opp_goals_last_n
+    Returns dict with overall/home/away pct and sample sizes.
     """
-    scores = fx.get("scores") or []
-    if not isinstance(scores, list) or not scores:
-        return None
-    per: Dict[int, int] = {}
-    for s in scores:
-        try:
-            pid = int(s.get("participant_id") or s.get("team_id") or 0)
-        except Exception:
-            continue
-        if pid <= 0:
-            continue
-        val = s.get("score")
-        if val is None:
-            vobj = s.get("data") or s.get("value") or {}
-            if isinstance(vobj, dict):
-                val = vobj.get("score") or vobj.get("value")
-        try:
-            val = int(float(val))
-        except Exception:
-            continue
-        per[pid] = max(per.get(pid, 0), val)
-    if len(per) < 2:
-        return None
-    top2 = sorted(per.values(), reverse=True)[:2]
-    return sum(top2) if len(top2) == 2 else None
+    if not (team_entry and opp_entry):
+        return {"overall_pct": None, "overall_n": 0,
+                "home_pct": None, "home_n": 0, "away_pct": None, "away_n": 0}
 
-# ----------------- Team last-N fetch -----------------
-def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, league_id: int, page: int = 1) -> dict:
-    path = f"fixtures/between/{dstr(start)}/{dstr(end)}/{team_id}"
-    params = {
-        "include": "scores;state",
-        "filters": f"fixtureLeagues:{league_id}",
-        "order": "desc",
-        "per_page": 50,
-        "page": page,
+    team_goals, team_locs = _series_by_fixture(team_entry, "")
+    opp_goals , _         = _series_by_fixture(opp_entry , "opp_")
+
+    # Intersect by fixture_id to guarantee alignment
+    fids = [fid for fid in team_goals.keys() if fid in opp_goals]
+    fids = fids[:LAST_N]
+
+    totals = [(team_goals[f] + opp_goals[f], team_locs.get(f, "unknown")) for f in fids]
+
+    def pct(rows: List[Tuple[int,str]]) -> Tuple[Optional[float], int]:
+        if not rows:
+            return (None, 0)
+        hits = sum(1 for (t, _) in rows if t >= 3)
+        return (round(100.0 * hits / len(rows), 1), len(rows))
+
+    overall_pct, overall_n = pct(totals)
+    home_pct  , home_n     = pct([r for r in totals if r[1] == "home"])
+    away_pct  , away_n     = pct([r for r in totals if r[1] == "away"])
+
+    return {
+        "overall_pct": overall_pct, "overall_n": overall_n,
+        "home_pct": home_pct, "home_n": home_n,
+        "away_pct": away_pct, "away_n": away_n,
     }
-    return api_get(path, params)
 
-def collect_team_over25(league_id: int, team_id: int) -> Dict[str, Any]:
-    """
-    Returns { n, hits, pct, avg_goals } over latest LAST_N finished league matches.
-    """
-    start_anchor = today_utc_date() - dt.timedelta(days=LOOKBACK_D)
-    end = today_utc_date()
-    totals: List[int] = []
+def _pick_home_away(parts: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
+    if not isinstance(parts, list) or len(parts) < 2:
+        return None, None
+    home = next((p for p in parts if ((p.get("meta") or {}).get("location") or "").lower()=="home"), None)
+    away = next((p for p in parts if ((p.get("meta") or {}).get("location") or "").lower()=="away"), None)
+    if not home or not away:
+        # fallback to list order
+        home = parts[0] if parts else None
+        away = parts[1] if len(parts) > 1 else None
+    return home, away
 
-    def have_enough() -> bool:
-        return len(totals) >= LAST_N
+def fmt_pct(x: Optional[float]) -> str:
+    return f"{x:.1f}%" if isinstance(x, (int, float)) else "—"
 
-    while end >= dt.date(2000, 1, 1) and not have_enough():
-        win_start = max(dt.date(2000, 1, 1), end - dt.timedelta(days=99))
-        if win_start > start_anchor:
-            win_start = start_anchor
-        page = 1
-        has_more = True
-        while has_more and not have_enough():
-            j = fetch_team_fixtures_window(team_id, win_start, end, league_id, page=page)
-            data = j.get("data") or []
-            meta = j.get("meta") or {}
-            per_page = 50
-            has_more = bool(meta.get("has_more")) or (len(data) == per_page)
-            page += 1
-
-            for fx in data:
-                # finished only
-                try:
-                    if int(fx.get("state_id") or 0) != 5:
-                        continue
-                except Exception:
-                    continue
-
-                tg = total_goals_from_scores(fx)
-                if tg is None:
-                    # string fallback like "2-1"
-                    res = fx.get("result") or fx.get("name") or ""
-                    m = re.search(r"(\d+)\s*[-:]\s*(\d+)$", str(res).strip())
-                    if m:
-                        tg = int(m.group(1)) + int(m.group(2))
-                if tg is None:
-                    continue
-
-                totals.append(int(tg))
-                if have_enough():
-                    break
-
-        end = win_start - dt.timedelta(days=1)
-
-    if not totals:
-        return {"n": 0, "hits": 0, "pct": 0.0, "avg_goals": 0.0}
-
-    totals = totals[:LAST_N]
-    n = len(totals)
-    hits = sum(1 for g in totals if g >= 3)
-    pct = (hits / n) * 100.0
-    avg_goals = sum(totals) / n
-    return {"n": n, "hits": hits, "pct": pct, "avg_goals": avg_goals}
-
-# ----------------- Main -----------------
 def main():
-    upcoming = upcoming_fixtures_from_local()
-
-    outp = Path(OUTPUT_PATH)
-    outp.parent.mkdir(parents=True, exist_ok=True)
-
-    if not upcoming:
-        outp.write_text("No upcoming fixtures found for this league.\n", encoding="utf-8")
-        print(f"Wrote {outp}")
-        return
-
-    team_cache: Dict[int, Dict[str, Any]] = {}
-    def team_stats(tid: int) -> Dict[str, Any]:
-        if tid not in team_cache:
-            team_cache[tid] = collect_team_over25(LEAGUE_ID, tid)
-        return team_cache[tid]
-
-    rows: List[dict] = []
-    for fx in upcoming:
-        h = team_stats(fx["home_id"])
-        a = team_stats(fx["away_id"])
-        if h["n"] < MIN_GAMES or a["n"] < MIN_GAMES:
-            continue
-        combined = (h["pct"] + a["pct"]) / 2.0
-        avg_mix = (h["avg_goals"] + a["avg_goals"]) / 2.0
-        rows.append({
-            "fixture_id": fx["fixture_id"],
-            "ts": fx["starting_at_ts"],
-            "home_name": fx["home_name"], "away_name": fx["away_name"],
-            "home_pct": h["pct"], "away_pct": a["pct"],
-            "home_hits": h["hits"], "home_n": h["n"], "home_avg": h["avg_goals"],
-            "away_hits": a["hits"], "away_n": a["n"], "away_avg": a["avg_goals"],
-            "combined": combined,
-            "avg_mix": avg_mix,
-        })
-
-    if not rows:
-        outp.write_text("No eligible fixtures (insufficient last-N data).\n", encoding="utf-8")
-        print(f"Wrote {outp}")
-        return
-
-    rows.sort(key=lambda r: (-r["combined"], -r["avg_mix"], r["ts"]))
-
-    def fmt_kick(ts: int) -> str:
-        # Keep UTC time for reproducibility in CI
-        return dt.datetime.utcfromtimestamp(ts).strftime("%a %d %b, %H:%M UTC")
-
+    sections: List[str] = []
     header = [
-        f"Upcoming fixtures ranked by **Over 2.5 Goals** (combined % = avg of each team's last {LAST_N} league games).",
-        f"Minimum data gate: each team must have ≥{MIN_GAMES} games collected.",
+        "I’ve ranked upcoming fixtures for **Over 2.5 Goals** using each team’s last 10 league games.",
         "",
-        "Like & follow if this helps your picks.",
-        "",
-        "**Top candidates**",
+        f"Method: combined% = mean(Home team %, Away team %){' (venue-aware)' if USE_HOME_AWAY else ''}.",
+        f"Filters: require ≥{MIN_GAMES} recent games per team.",
         "",
     ]
+    sections.extend(header)
 
-    lines: List[str] = []
-    lines.extend(header)
+    by_league_files = sorted([p for p in FIX_DIR.glob("*.json") if p.is_file()])
+    if not by_league_files:
+        sections.append("_No upcoming fixtures found. Did fetch_fixtures run?_")
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        OUTPUT_PATH.write_text("\n".join(sections) + "\n", encoding="utf-8")
+        print(f"Wrote {OUTPUT_PATH}")
+        return
 
-    for r in rows[:MAX_ROWS]:
-        hn, an = pretty_team(r["home_name"]), pretty_team(r["away_name"])
-        lines.append(
-            f"• {hn} vs {an} — {fmt_kick(r['ts'])} — "
-            f"Combined **{r['combined']:.0f}%** "
-            f"(H {r['home_pct']:.0f}% [{r['home_hits']}/{r['home_n']}], "
-            f"A {r['away_pct']:.0f}% [{r['away_hits']}/{r['away_n']}]) "
-            f"Avg goals: H {r['home_avg']:.2f} | A {r['away_avg']:.2f}"
-        )
+    any_rows = 0
 
-    lines.append("")
-    lines.append("_Method: team last-N league matches, finished only; totals inferred from fixture scores._")
+    for fx_path in by_league_files:
+        fx_blob = _load_json(fx_path) or {}
+        fixtures = fx_blob.get("fixtures") or []
+        if not fixtures:
+            continue
+        league_id = fx_blob.get("league_id") or None
+        league_name = fx_blob.get("league_name") or f"League {fx_path.stem}"
 
-    outp.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-    print(f"Wrote {outp}")
+        team_path = TEAM_DIR / f"{league_id}.json"
+        opp_path  = OPP_DIR  / f"{league_id}.json"
+        team_blob = _load_json(team_path) or {}
+        opp_blob  = _load_json(opp_path) or {}
+        team_rows = team_blob.get("teams") or []
+        opp_rows  = opp_blob.get("teams") or []
+        if not team_rows or not opp_rows:
+            # Skip leagues without built series (keep it silent but traceable in logs)
+            print(f"[skip] Missing team/opponent series for league {league_id} ({league_name})")
+            continue
+
+        team_idx = _idx_by_team(team_rows)
+        opp_idx  = _idx_by_team(opp_rows)
+
+        table = []
+
+        for fx in fixtures:
+            parts = fx.get("participants") or []
+            home, away = _pick_home_away(parts)
+            if not (home and away):
+                continue
+            try:
+                hid, aid = int(home.get("id")), int(away.get("id"))
+            except Exception:
+                continue
+
+            hname = (home.get("name") or "Home").strip()
+            aname = (away.get("name") or "Away").strip()
+
+            te_h, te_a = team_idx.get(hid), team_idx.get(aid)
+            oe_h, oe_a = opp_idx.get(hid),  opp_idx.get(aid)
+            if not (te_h and te_a and oe_h and oe_a):
+                # Missing data for either side -> skip fixture
+                continue
+
+            r_h = _o25_rates(te_h, oe_h)
+            r_a = _o25_rates(te_a, oe_a)
+
+            # Ensure sample size gate
+            if r_h["overall_n"] < MIN_GAMES or r_a["overall_n"] < MIN_GAMES:
+                continue
+
+            if USE_HOME_AWAY:
+                # Use home-only for home side, away-only for away side; if missing, fall back to overall.
+                h_pct = r_h["home_pct"] if (r_h["home_n"] >= MIN_GAMES//2 and r_h["home_pct"] is not None) else r_h["overall_pct"]
+                a_pct = r_a["away_pct"] if (r_a["away_n"] >= MIN_GAMES//2 and r_a["away_pct"] is not None) else r_a["overall_pct"]
+            else:
+                h_pct = r_h["overall_pct"]
+                a_pct = r_a["overall_pct"]
+
+            if h_pct is None or a_pct is None:
+                continue
+
+            combined = round((h_pct + a_pct) / 2.0, 1)
+            date_str = (fx.get("starting_at") or "").split("T")[0] or ""
+
+            table.append({
+                "combined": combined,
+                "h_pct": h_pct, "a_pct": a_pct,
+                "h_n": r_h["overall_n"], "a_n": r_a["overall_n"],
+                "h": hname, "a": aname, "date": date_str,
+            })
+
+        if not table:
+            continue
+
+        table.sort(key=lambda r: (-r["combined"], -(r["h_pct"] or 0), -(r["a_pct"] or 0), r["h"], r["a"]))
+        keep = table[:TOP_K_PER_LEAGUE]
+
+        sections.append(f"### {league_name}")
+        sections.append("")
+        for row in keep:
+            line = f"• {row['h']} vs {row['a']} — **{row['combined']:.1f}%** combined (H {fmt_pct(row['h_pct'])}, A {fmt_pct(row['a_pct'])}) — {row['date']}"
+            sections.append(line)
+        sections.append("")
+
+        any_rows += len(keep)
+
+    if not any_rows:
+        sections.append("_No qualified fixtures found (check that team series are built for these leagues)._")
+    else:
+        sections.append("Good luck with your bets today. Any value here?")
+
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text("\n".join(sections).rstrip() + "\n", encoding="utf-8")
+    print(f"Wrote {OUTPUT_PATH}")
+    print(f"Total rows: {any_rows}")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
+    main()
