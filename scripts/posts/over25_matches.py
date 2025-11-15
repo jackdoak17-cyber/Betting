@@ -2,27 +2,29 @@
 # -*- coding: utf-8 -*-
 
 """
-Over 2.5 Goals — Shortlist (Combined% > THRESHOLD)
+Over 2.5 Goals — Shortlist (Display-only tweak)
+
 Reads ONLY local JSONs:
   - data/fixtures/by_league/{league_id}.json
   - data/team_stats/by_league/{league_id}.json          (needs: goals_last_n, fixture_ids)
   - data/team_opponent_stats/by_league/{league_id}.json (needs: opp_goals_last_n, fixture_ids)
 
-Method:
-  - For each team, join goals_last_n with opp_goals_last_n by fixture_id (latest->older),
-    compute % of matches with total_goals >= 3 across the last LAST_N (default 10).
-  - For each upcoming fixture, Combined% = mean(HomeTeam%, AwayTeam%).
-  - Keep fixtures only if Combined% >= THRESHOLD (default 70) and both teams have at least
-    MIN_SAMPLE (default 6) valid recent matches.
+Logic (unchanged):
+  - For each team, compute Over 2.5 hit rate across its last LAST_N league games
+    by pairing team goals with opponent goals via fixture_ids.
+  - For each upcoming fixture: Combined% = mean(Home%, Away%).
+  - Keep if Combined% strictly > THRESHOLD (default 70) and each team has ≥ MIN_SAMPLE matches.
 
-Output:
-  posts/over25_matches.md (title + concise intro + ranked shortlist, no dates/league sections).
+Output (formatted like your example):
+  Title + short intro + single heading + ranked list lines:
+    TeamA (H%) vs TeamB (A%)
+  (No bullets, no dates, no leagues shown.)
 
 Env (optional):
   OUTPUT_PATH   (default: posts/over25_matches.md)
   LAST_N        (default: 10)
   MIN_SAMPLE    (default: 6)
-  THRESHOLD     (default: 70)   # Combined% cutoff
+  THRESHOLD     (default: 70)
 """
 
 import os
@@ -51,7 +53,6 @@ def _load_json(p: Path) -> Optional[dict]:
         return None
 
 
-# ---- Core calculations ----
 def _index_team_rows(blob: dict) -> Dict[int, dict]:
     """Return {team_id: row} from team_stats/team_opponent_stats payload."""
     out: Dict[int, dict] = {}
@@ -64,7 +65,7 @@ def _index_team_rows(blob: dict) -> Dict[int, dict]:
 
 def team_o25_rate(league_id: int, team_id: int) -> Tuple[Optional[float], int]:
     """
-    Compute Over 2.5 % for a given team using last LAST_N league fixtures.
+    Compute Over 2.5 % for team across LAST_N league fixtures.
     Returns (pct, sample_size). pct is None if insufficient data.
     """
     tfile = TEAM_DIR / f"{league_id}.json"
@@ -81,16 +82,14 @@ def team_o25_rate(league_id: int, team_id: int) -> Tuple[Optional[float], int]:
     if not trow or not orow:
         return (None, 0)
 
-    # Build fixture -> goals maps, then align via intersection, ordered latest->older
+    # Align latest->older by fixture_id intersection
     t_fids = [int(x) for x in (trow.get("fixture_ids") or [])]
     o_fids = [int(x) for x in (orow.get("fixture_ids") or [])]
     t_goals = list(map(int, (trow.get("goals_last_n") or [])))
     o_goals = list(map(int, (orow.get("opp_goals_last_n") or [])))
-
     tg = {fid: g for fid, g in zip(t_fids, t_goals)}
     og = {fid: g for fid, g in zip(o_fids, o_goals)}
 
-    # Keep the order from team list (latest_first), but only where both sides exist
     ordered_common = [fid for fid in t_fids if fid in og][:LAST_N]
 
     sample = 0
@@ -110,9 +109,7 @@ def team_o25_rate(league_id: int, team_id: int) -> Tuple[Optional[float], int]:
 
 
 def pick_home_away(parts: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
-    """
-    Try to find home/away participants robustly.
-    """
+    """Robustly find home/away participants."""
     home, away = None, None
     for p in parts or []:
         loc = ((p.get("meta") or {}).get("location") or "").lower()
@@ -120,7 +117,6 @@ def pick_home_away(parts: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
             home = p
         elif loc == "away":
             away = p
-    # Fallback: assume first=home, second=away
     if not home and len(parts or []) >= 1:
         home = parts[0]
     if not away and len(parts or []) >= 2:
@@ -129,9 +125,7 @@ def pick_home_away(parts: List[dict]) -> Tuple[Optional[dict], Optional[dict]]:
 
 
 def load_upcoming_fixtures() -> List[dict]:
-    """
-    Read fixtures from data/fixtures/by_league/*.json and return a flat list.
-    """
+    """Flatten fixtures from data/fixtures/by_league/*.json."""
     rows: List[dict] = []
     if not FIX_DIR.exists():
         return rows
@@ -145,43 +139,34 @@ def load_upcoming_fixtures() -> List[dict]:
     return rows
 
 
-# ---- Render ----
-def render_shortlist(entries: List[dict]) -> str:
+def render_output(entries: List[dict]) -> str:
     """
-    Build final markdown with title, concise intro and ranked shortlist.
-    Expect entries with keys: home_name, away_name, combined, hpct, apct.
+    Exact display style requested:
+      Title + two intro lines + heading + parenthetical explainer + list lines:
+        TeamA (80%) vs TeamB (90%)
     """
-    header = [
-        "# Over 2.5 Goals — Shortlist (Last-10 Form, >70% Combined)",
-        "",
-        "Using each team’s **last 10 league games**, I calculated their Over 2.5 hit rates "
-        "(share of matches with **3+ goals**). For each upcoming fixture, **Combined% = mean(Home%, Away%)**. "
-        f"Shown only if **Combined% > {THRESHOLD:.0f}%** and both teams have at least **{MIN_SAMPLE}** recent league games. Cups excluded.",
-        "",
-    ]
+    lines: List[str] = []
+    lines.append("I’ve collated high probability goal list based on stats from their last 10 games")
+    lines.append("")
+    lines.append("Leave a like if you find these useful")
+    lines.append("")
+    lines.append("📊Combined over 2.5 goals >70%📊")
+    lines.append("(Both teams matches have had at least 2.5 goals in 70%+ of their last 10)")
+    lines.append("")
 
     if not entries:
-        body = ["(No fixtures cleared the threshold based on the latest files.)", ""]
-    else:
-        lines = []
-        for e in entries:
-            lines.append(f"• **{e['home_name']} vs {e['away_name']}** — **{e['combined']:.1f}%** "
-                         f"(H {e['hpct']:.1f}%, A {e['apct']:.1f}%)")
-        body = lines + [""]
+        lines.append("(No fixtures cleared the threshold based on the latest files.)")
+        lines.append("")
 
-    footer = []
-    return "\n".join(header + body + footer).rstrip() + "\n"
+    for e in entries:
+        lines.append(f"{e['home_name']} ({e['hpct']:.0f}%) vs {e['away_name']} ({e['apct']:.0f}%)")
+
+    lines.append("")
+    return "\n".join(lines)
 
 
-# ---- Main ----
 def main():
     fixtures = load_upcoming_fixtures()
-    if not fixtures:
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_PATH.write_text("# Over 2.5 Goals — Shortlist (Last-10 Form, >70% Combined)\n\n(No fixtures found.)\n", encoding="utf-8")
-        print(f"Wrote {OUTPUT_PATH}")
-        return
-
     shortlist: List[dict] = []
 
     for fx in fixtures:
@@ -196,12 +181,11 @@ def main():
         hname = (home.get("name") or "Home").strip()
         aname = (away.get("name") or "Away").strip()
 
-        if not isinstance(hid, int) or not isinstance(aid, int) or not isinstance(lid, int):
-            # try coerce to int
-            try:
-                hid = int(hid); aid = int(aid); lid = int(lid)
-            except Exception:
-                continue
+        # normalize ids
+        try:
+            lid = int(lid); hid = int(hid); aid = int(aid)
+        except Exception:
+            continue
 
         hpct, hN = team_o25_rate(lid, hid)
         apct, aN = team_o25_rate(lid, aid)
@@ -220,7 +204,7 @@ def main():
 
     shortlist.sort(key=lambda x: (-x["combined"], x["home_name"], x["away_name"]))
 
-    text = render_shortlist(shortlist)
+    text = render_output(shortlist)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(text, encoding="utf-8")
     print(f"Wrote {OUTPUT_PATH} ({len(shortlist)} fixtures shown)")
