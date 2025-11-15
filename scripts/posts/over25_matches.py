@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-High-probability goals shortlist (Over 2.5 + BTTS + Single-team O1.5 ≥90%)
+High-probability goals shortlist (Over 2.5 + BTTS + Single-team O1.5)
 Reads ONLY local JSONs:
 
   - data/fixtures/by_league/{league_id}.json
@@ -13,13 +13,17 @@ Sections:
   1) Combined Over 2.5 — BOTH teams ≥ THRESHOLD (default 70%)
   2) BTTS               — BOTH teams ≥ THRESHOLD (default 70%)
   3) Single-team O1.5   — ANY team ≥ SINGLE_TEAM_O15_THRESHOLD (default 90%)
+     *Optional fallback:* drop threshold in steps until at least MIN_COUNT teams are found.
 
 Env (optional):
-  OUTPUT_PATH               (default: posts/over25_matches.md)
-  LAST_N                    (default: 10)
-  MIN_SAMPLE                (default: 6)
-  THRESHOLD                 (default: 70)   # gate for (1) and (2)
-  SINGLE_TEAM_O15_THRESHOLD (default: 90)   # gate for (3)
+  OUTPUT_PATH                      (default: posts/over25_matches.md)
+  LAST_N                           (default: 10)
+  MIN_SAMPLE                       (default: 6)
+  THRESHOLD                        (default: 70)     # gate for (1) and (2)
+  SINGLE_TEAM_O15_THRESHOLD        (default: 90)     # starting gate for (3)
+  SINGLE_TEAM_O15_MIN_THRESHOLD    (default: 80)     # lowest we’ll relax to
+  SINGLE_TEAM_O15_STEP             (default: 5)      # relaxation step in %
+  SINGLE_TEAM_O15_MIN_COUNT        (default: 5)      # aim for at least this many teams
 """
 
 import os
@@ -31,8 +35,13 @@ from typing import Dict, List, Optional, Tuple
 OUTPUT_PATH = Path(os.getenv("OUTPUT_PATH", "posts/over25_matches.md"))
 LAST_N      = int(os.getenv("LAST_N", "10"))
 MIN_SAMPLE  = int(os.getenv("MIN_SAMPLE", "6"))
+
 THRESHOLD   = float(os.getenv("THRESHOLD", "70"))
-SINGLE_TEAM_O15_THRESHOLD = float(os.getenv("SINGLE_TEAM_O15_THRESHOLD", "90"))
+
+START_O15   = float(os.getenv("SINGLE_TEAM_O15_THRESHOLD", "90"))
+MIN_O15     = float(os.getenv("SINGLE_TEAM_O15_MIN_THRESHOLD", "80"))
+STEP_O15    = float(os.getenv("SINGLE_TEAM_O15_STEP", "5"))
+MIN_CNT_O15 = int(os.getenv("SINGLE_TEAM_O15_MIN_COUNT", "5"))
 
 FIX_DIR     = Path("data/fixtures/by_league")
 TEAM_DIR    = Path("data/team_stats/by_league")
@@ -103,16 +112,20 @@ def _aligned_pairs(league_id: int, team_id: int) -> List[Tuple[int,int]]:
         return []
     t_fids = [int(x) for x in (trow.get("fixture_ids") or [])]
     o_fids = [int(x) for x in (orow.get("fixture_ids") or [])]
+
     def _ints(seq):
         out=[]
         for v in (seq or []):
             try: out.append(int(float(v)))
             except: pass
         return out
+
     t_goals = _ints(trow.get("goals_last_n"))
     o_goals = _ints(orow.get("opp_goals_last_n"))
+
     tg = {fid: g for fid, g in zip(t_fids, t_goals)}
     og = {fid: g for fid, g in zip(o_fids, o_goals)}
+
     ordered = [fid for fid in t_fids if fid in og][:LAST_N]
     pairs=[]
     for fid in ordered:
@@ -153,13 +166,14 @@ def team_o15_for_rate(league_id: int, team_id: int) -> Tuple[Optional[float], in
     trow = trows.get(team_id)
     if not trow:
         _RATE_CACHE_O15F[key] = (None, 0); return _RATE_CACHE_O15F[key]
-    # latest->older as written by build_team_series
+
     def _ints(seq):
         out=[]
         for v in (seq or []):
             try: out.append(int(float(v)))
             except: pass
         return out
+
     goals = _ints(trow.get("goals_last_n"))[:LAST_N]
     sample = len(goals)
     if sample < MIN_SAMPLE or sample == 0:
@@ -169,13 +183,15 @@ def team_o15_for_rate(league_id: int, team_id: int) -> Tuple[Optional[float], in
     return _RATE_CACHE_O15F[key]
 
 # ---------------- Render ----------------
-def render_output(o25_entries: List[dict], btts_entries: List[dict], single_o15_teams: List[dict]) -> str:
+def render_output(o25_entries: List[dict], btts_entries: List[dict],
+                  single_o15_teams: List[dict], o15_label_pct: float) -> str:
     lines: List[str] = []
     lines.append("I’ve collated a high-probability goals list based on stats from their last 10 games.")
     lines.append("")
     lines.append("Leave a like if you find these useful.")
     lines.append("")
-    # Over 2.5 — both teams gate
+
+    # O2.5 — both teams gate
     lines.append("📊Combined over 2.5 goals >70%📊")
     lines.append("(Both teams’ matches have had at least 2.5 goals in 70%+ of their last 10)")
     lines.append("")
@@ -185,6 +201,7 @@ def render_output(o25_entries: List[dict], btts_entries: List[dict], single_o15_
     else:
         lines.append("(No fixtures cleared the threshold based on the latest files.)")
     lines.append("")
+
     # BTTS — both teams gate
     lines.append("📊Both Teams To Score (BTTS) >70%📊")
     lines.append("(Both teams’ matches have seen goals at both ends in 70%+ of their last 10)")
@@ -195,9 +212,10 @@ def render_output(o25_entries: List[dict], btts_entries: List[dict], single_o15_
     else:
         lines.append("(No fixtures cleared the threshold based on the latest files.)")
     lines.append("")
-    # Single-team O1.5
-    lines.append(f"📈 Single-team over 1.5 ≥{SINGLE_TEAM_O15_THRESHOLD:.0f}%📈")
-    lines.append(f"(Share of last-10 league matches where the team scored 2+ goals)")
+
+    # Single-team O1.5 (with possibly relaxed threshold)
+    lines.append(f"📈 Single-team over 1.5 ≥{o15_label_pct:.0f}%📈")
+    lines.append("(Share of last-10 league matches where the team scored 2+ goals)")
     lines.append("")
     if single_o15_teams:
         for t in single_o15_teams:
@@ -213,24 +231,26 @@ def main():
 
     o25_list: List[dict] = []
     btts_list: List[dict] = []
-    single_o15_map: Dict[Tuple[int,int], dict] = {}  # (league_id, team_id) -> row
+    # every team we touch → store its O1.5% once (highest if seen twice)
+    single_o15_map: Dict[Tuple[int,int], dict] = {}  # (league_id, team_id) -> {team_name, pct}
 
     for fx in fixtures:
         lid = fx.get("league_id")
         parts = fx.get("participants") or []
         home, away = pick_home_away(parts)
-        if not (home and away): 
+        if not (home and away):
             continue
         try:
             lid = int(lid); hid = int(home.get("id")); aid = int(away.get("id"))
         except Exception:
             continue
-        # Prefer names from team_stats if available
+
+        # Prefer names from team_stats if available (consistent naming)
         trows, _ = _league_rows(lid)
         hname = (trows.get(hid, {}).get("team_name") or home.get("name") or "Home").strip()
         aname = (trows.get(aid, {}).get("team_name") or away.get("name") or "Away").strip()
 
-        # Over 2.5 rates
+        # --- Over 2.5 rates (team-centric) ---
         hpct_o25, _ = team_o25_rate(lid, hid)
         apct_o25, _ = team_o25_rate(lid, aid)
         if hpct_o25 is not None and apct_o25 is not None:
@@ -241,7 +261,7 @@ def main():
                     "combined": (hpct_o25 + apct_o25) / 2.0
                 })
 
-        # BTTS rates
+        # --- BTTS rates ---
         hpct_btts, _ = team_btts_rate(lid, hid)
         apct_btts, _ = team_btts_rate(lid, aid)
         if hpct_btts is not None and apct_btts is not None:
@@ -252,26 +272,43 @@ def main():
                     "combined": (hpct_btts + apct_btts) / 2.0
                 })
 
-        # Single-team O1.5 (team scored 2+)
+        # --- Single-team O1.5 (team scored 2+)
         for tid, tname in ((hid, hname), (aid, aname)):
             pct, _s = team_o15_for_rate(lid, tid)
-            if pct is not None and pct >= SINGLE_TEAM_O15_THRESHOLD:
-                key = (lid, tid)
-                # keep highest pct if somehow duplicated across multiple fixtures
-                prev = single_o15_map.get(key)
-                if (not prev) or pct > prev["pct"]:
-                    single_o15_map[key] = {"team_name": tname, "pct": pct}
+            if pct is None:
+                continue
+            key = (lid, tid)
+            prev = single_o15_map.get(key)
+            if (not prev) or pct > prev["pct"]:
+                single_o15_map[key] = {"team_name": tname, "pct": pct}
 
-    # Rank
+    # Rank O2.5 + BTTS
     o25_list.sort(key=lambda x: (-x["combined"], x["home_name"], x["away_name"]))
     btts_list.sort(key=lambda x: (-x["combined"], x["home_name"], x["away_name"]))
-    single_o15_teams = sorted(single_o15_map.values(), key=lambda x: (-x["pct"], x["team_name"]))
+
+    # Build Single-team O1.5 list with optional relaxation
+    all_o15 = sorted(single_o15_map.values(), key=lambda x: (-x["pct"], x["team_name"]))
+    o15_threshold_used = START_O15
+    def pick_o15(th):
+        return [t for t in all_o15 if t["pct"] >= th]
+
+    single_o15_teams = pick_o15(START_O15)
+    if len(single_o15_teams) < MIN_CNT_O15:
+        th = START_O15 - STEP_O15
+        while th >= MIN_O15 and len(single_o15_teams) < MIN_CNT_O15:
+            cand = pick_o15(th)
+            if len(cand) >= len(single_o15_teams):  # only replace if we got more
+                single_o15_teams = cand
+                o15_threshold_used = th
+            th -= STEP_O15
 
     # Render + write
-    text = render_output(o25_list, btts_list, single_o15_teams)
+    text = render_output(o25_list, btts_list, single_o15_teams, o15_threshold_used)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(text, encoding="utf-8")
-    print(f"Wrote {OUTPUT_PATH} (O2.5-both={len(o25_list)}, BTTS-both={len(btts_list)}, O1.5-single={len(single_o15_teams)})")
+    print(f"Wrote {OUTPUT_PATH} "
+          f"(O2.5-both={len(o25_list)}, BTTS-both={len(btts_list)}, O1.5-single={len(single_o15_teams)} "
+          f"@≥{o15_threshold_used:.0f}%)")
 
 if __name__ == "__main__":
     main()
