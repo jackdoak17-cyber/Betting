@@ -1,9 +1,9 @@
+# .github/workflows/over25-matches-all.yml
 name: Posts — Over 2.5 (All Leagues, Combined%)
 
 on:
-  # Run after fixtures job has refreshed local fixture files
   schedule:
-    - cron: "25 7 * * *"   # Daily at 07:25 UTC
+    - cron: "25 7 * * *"   # Daily at 07:25 UTC (run AFTER your fixtures job)
   workflow_dispatch: {}
 
 permissions:
@@ -14,48 +14,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-post:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        league:
-          # Exclude cups: 24 (FA Cup), 27 (Carabao Cup), 390 (Coppa Italia), 570 (Copa del Rey)
-          - { id: 8,   name: "Premier League" }
-          - { id: 9,   name: "Championship" }
-          - { id: 72,  name: "Eredivisie" }
-          - { id: 82,  name: "Bundesliga" }
-          - { id: 181, name: "Admiral Bundesliga" }
-          - { id: 208, name: "Pro League" }
-          - { id: 244, name: "1. HNL" }
-          - { id: 271, name: "Superliga" }
-          - { id: 301, name: "Ligue 1" }
-          - { id: 384, name: "Serie A" }
-          - { id: 387, name: "Serie B" }
-          - { id: 444, name: "Eliteserien" }
-          - { id: 453, name: "Ekstraklasa" }
-          - { id: 462, name: "Liga Portugal" }
-          - { id: 486, name: "Premier League" }
-          - { id: 501, name: "Premiership" }
-          - { id: 564, name: "La Liga" }
-          - { id: 567, name: "La Liga 2" }
-          - { id: 573, name: "Allsvenskan" }
-          - { id: 591, name: "Super League" }
-          - { id: 600, name: "Super Lig" }
-
     env:
+      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
       PYTHONUNBUFFERED: "1"
+
+      # Script knobs (same defaults as before; override here if you like)
       LAST_N: "10"
       MIN_GAMES: "6"
       MAX_ROWS: "20"
       LOOKBACK_DAYS: "140"
-      SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+
+      # Leagues: ALL you want, EXCLUDING cups (24, 27, 390, 570, …)
+      LEAGUE_IDS: >
+        8 9 72 82 181 208 244 271 301 384 387
+        444 453 462 486 501 564 567 573 591 600
 
     steps:
       - name: Checkout
+      # (Full history not required since we commit once at end)
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -65,48 +46,67 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Guard — ensure local fixtures exist for this league
-        id: guard
-        run: |
-          set -e
-          LID="${{ matrix.league.id }}"
-          if [ -f "data/fixtures/by_league/${LID}.json" ]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No fixtures file for league ${LID}; skipping."
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Generate Over 2.5 post
-        if: steps.guard.outputs.ok == 'true'
-        env:
-          LEAGUE_ID: ${{ matrix.league.id }}
-          OUTPUT_PATH: posts/over25_matches_L${{ matrix.league.id }}.md
-        run: |
-          python scripts/posts/over25_matches.py
-
-      - name: Show output (first 80 lines)
-        if: steps.guard.outputs.ok == 'true'
-        run: |
-          echo "----- posts/over25_matches_L${{ matrix.league.id }}.md -----"
-          head -n 80 "posts/over25_matches_L${{ matrix.league.id }}.md" || true
-          echo "-----------------------------------------------------------"
-
-      - name: Commit & push if changed
-        if: steps.guard.outputs.ok == 'true'
+      - name: Generate posts for all leagues (sequential)
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
+          failed=""
+          for LID in ${LEAGUE_IDS}; do
+            FILE="data/fixtures/by_league/${LID}.json"
+            OUT="posts/over25_matches_L${LID}.md"
+
+            if [ ! -f "$FILE" ]; then
+              echo "::warning::No fixtures file for league ${LID} (${FILE}). Skipping."
+              continue
+            fi
+
+            echo "=== League ${LID} ==="
+            LEAGUE_ID="${LID}" OUTPUT_PATH="${OUT}" \
+              python scripts/posts/over25_matches.py || failed="${failed} ${LID}"
+          done
+
+          if [ -n "${failed}" ]; then
+            echo "::warning::Some leagues failed to render:${failed}"
+          fi
+
+      - name: Show a quick sample of outputs
+        run: |
+          ls -1 posts/over25_matches_*.md | head -n 10 || true
+          echo
+          for f in $(ls -1 posts/over25_matches_*.md | head -n 3); do
+            echo "----- $f -----"
+            head -n 40 "$f" || true
+            echo
+          done
+
+      - name: Commit & push once
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add "posts/over25_matches_L${{ matrix.league.id }}.md"
+          git add posts/over25_matches_*.md || true
 
           if git diff --staged --quiet; then
-            echo "No changes to commit for ${{ matrix.league.name }} (L${{ matrix.league.id }})."
+            echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "Update: Over 2.5 Candidates — ${{ matrix.league.name }} (L${{ matrix.league.id }}) [skip ci]"
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "Update: Over 2.5 Candidates (multi-league) — ${ts}"
+
+          # Robust push with rebase + retry
           BRANCH="${GITHUB_REF_NAME:-main}"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "$BRANCH" || true
+            if git push origin HEAD:"$BRANCH"; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed on attempt $attempt — retrying..."
+            sleep 2
+          done
+
+          echo "Final attempt after fresh fetch..."
+          git fetch origin "$BRANCH"
           git pull --rebase --autostash origin "$BRANCH" || true
           git push origin HEAD:"$BRANCH"
