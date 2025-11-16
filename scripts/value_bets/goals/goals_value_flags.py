@@ -9,11 +9,11 @@ Flags a fixture/market when BOTH are true:
   • Bet365 best decimal price >= MIN_PRICE (default 1.30)
 
 Form signals computed from your series (latest -> older):
-  - Over 2.5 (team totals = goals + opp_goals)
+  - Over 2.5 (team totals = goals + opp_goals)  [Non-Asian only; prefers 'Alternative Total Goals']
   - BTTS (goals >0 AND opp_goals >0)
   - Team Over 1.5 (home team, away team separately)
 
-Inputs (must already exist in the repo):
+Inputs:
   - data/fixtures/{league_id}.json
   - data/team_stats/by_league/{league_id}.json
   - data/team_opponent_stats/by_league/{league_id}.json
@@ -23,7 +23,7 @@ Outputs:
   - data/value_bets/goals_value_flags.txt
   - posts/value_bets_goals.md
 
-Environment overrides (optional):
+Env (optional):
   - MIN_PRICE (default 1.30)
   - MIN_GAMES (default 6)
   - THRESH_OVER25 / THRESH_BTTS / THRESH_TEAM_O15 (default 0.70)
@@ -47,12 +47,12 @@ OUT_TXT   = OUT_DIR / "goals_value_flags.txt"
 POSTS_DIR = ROOT / "posts"; POSTS_DIR.mkdir(parents=True, exist_ok=True)
 OUT_MD    = POSTS_DIR / "value_bets_goals.md"
 
-MIN_PRICE        = float(os.getenv("MIN_PRICE", "1.30"))   # <— default now 1.30
+MIN_PRICE        = float(os.getenv("MIN_PRICE", "1.30"))
 MIN_GAMES        = int(os.getenv("MIN_GAMES", "6"))
 THRESH_OVER25    = float(os.getenv("THRESH_OVER25", "0.70"))
 THRESH_BTTS      = float(os.getenv("THRESH_BTTS",   "0.70"))
 THRESH_TEAM_O15  = float(os.getenv("THRESH_TEAM_O15","0.70"))
-WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))      # 0 = no date filter
+WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))  # 0 = no date filter
 
 # ---------- String / name utils ----------
 def strip_accents(s: str) -> str:
@@ -145,77 +145,68 @@ def team_over_from(goals: List[int], thr: int) -> Tuple[int,int,float]:
     n = len(xs)
     return hits, n, (hits / n) if n else 0.0
 
-# ---------- Odds parsing (robust) ----------
+# ---------- Odds parsing ----------
 def price_of(row: dict) -> Optional[float]:
     v = row.get("value")
     try: return float(v)
     except Exception: return None
 
 def numeric_line_from_row(row: dict) -> Optional[float]:
-    # Try explicit numeric fields in order: handicap, name, total, label, original_label
+    # Try explicit numeric fields first; then parse inside strings
     for field in ("handicap", "name", "total", "label", "original_label"):
         s = row.get(field)
-        if s is None: 
+        if s is None:
             continue
         try:
-            # exact numeric like 2.5
             return float(s)
         except Exception:
-            # search inside strings like "Over 1.5"
             m = re.search(r"([-+]?\d+(?:\.\d+)?)", str(s))
             if m:
                 try: return float(m.group(1))
                 except: pass
     return None
 
-def is_full_time(md: str) -> bool:
-    s = (md or "").lower()
-    # Exclude partial-period markets
+def is_full_time(market_desc_norm: str) -> bool:
+    s = (market_desc_norm or "")
     return not any(k in s for k in ("1st half", "first half", "2nd half", "second half", "half time", "1st period", "2nd period"))
 
 def nmarket(s: str) -> str:
     return norm(s)
 
-# Allowed market descriptions (normalized)
-O25_MDS = {
-    "goals over/under", "total goals", "alternative total goals", "goal line",
-    "goals over under", "alternative goals", "match goals", "goals"
-}
+# --- Market whitelists / priorities ---
+# Over 2.5: prefer Alternative Total Goals > Total Goals > Goals Over/Under (full time only)
+O25_PRIORITY = [
+    "alternative total goals",
+    "total goals",
+    "goals over/under",
+    "goals over under",
+]
+# Explicitly exclude 'goal line' here to avoid Asian totals bleeding in.
+
 BTTS_STANDALONE_MDS = {
     "both teams to score", "both teams to score?",
     "btts", "btts (yes/no)", "both teams to score - yes/no"
 }
-BTTS_TEAMS_TO_SCORE_MD = "teams to score"  # label must be 'Both Teams'
+BTTS_TEAMS_TO_SCORE_MD = "teams to score"  # label/name must be 'Both Teams'
 
-# Team totals
 HOME_TTG_MDS = {"home team total goals", "home team over/under", "home team goals", "home team - total goals"}
 AWAY_TTG_MDS = {"away team total goals", "away team over/under", "away team goals", "away team - total goals"}
-TEAM_TTG_MD  = "team total goals"  # needs label '1' or '2' (home/away)
+TEAM_TTG_MD  = "team total goals"  # label '1'/'2' for home/away
 
-def is_over25_row(row: dict) -> bool:
-    md = nmarket(row.get("market_description") or "")
-    if not is_full_time(md):
-        return False
-    if md not in O25_MDS:
-        return False
-    txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
-    if ("over" not in txt) or ("under" in txt):
-        return False
-    ln = numeric_line_from_row(row)
-    return (ln is not None) and abs(ln - 2.5) < 1e-6
+def text_has_over(row: dict) -> bool:
+    txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""),
+                    str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
+    return ("over" in txt) and ("under" not in txt)
 
 def is_btts_yes_row(row: dict) -> bool:
     md = nmarket(row.get("market_description") or "")
-    if not is_full_time(md):
-        return False
-    # ignore combo markets like 'result/both teams to score', 'total goals/both teams to score'
+    if not is_full_time(md): return False
     if "result/both teams to score" in md or "total goals/both teams to score" in md:
         return False
-    # Standalone BTTS where label carries 'Yes'
     if md in BTTS_STANDALONE_MDS:
-        txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("original_label") or "")]).lower()
+        txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""),
+                        str(row.get("original_label") or "")]).lower()
         return ("yes" in txt) and ("no" not in txt)
-    # 'Teams to Score' market where label/name must be 'Both Teams'
     if md == BTTS_TEAMS_TO_SCORE_MD:
         txt = " ".join([str(row.get("label") or ""), str(row.get("name") or "")]).strip().lower()
         return txt == "both teams"
@@ -223,41 +214,55 @@ def is_btts_yes_row(row: dict) -> bool:
 
 def side_from_label(label: Optional[str]) -> Optional[str]:
     s = (label or "").strip().lower()
-    if s in {"1","home","local","localteam","home team"}:
-        return "home"
-    if s in {"2","away","visitor","visitorteam","away team"}:
-        return "away"
+    if s in {"1","home","local","localteam","home team"}: return "home"
+    if s in {"2","away","visitor","visitorteam","away team"}: return "away"
     return None
 
 def is_team_over15_row(row: dict, want_side: str) -> bool:
     md = nmarket(row.get("market_description") or "")
-    if not is_full_time(md):
-        return False
-    # Team Total Goals — single market for both sides (label 1/2)
+    if not is_full_time(md): return False
     if md == TEAM_TTG_MD:
         side = side_from_label(row.get("label"))
-        if side != want_side:
-            return False
+        if side != want_side: return False
         ln = numeric_line_from_row(row)
-        txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
-        return (ln is not None) and abs(ln - 1.5) < 1e-6 and ("over" in txt) and ("under" not in txt)
-
-    # Split markets
+        return (ln is not None) and abs(ln - 1.5) < 1e-6 and text_has_over(row)
     if want_side == "home" and md in HOME_TTG_MDS:
         ln = numeric_line_from_row(row)
-        txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
-        return (ln is not None) and abs(ln - 1.5) < 1e-6 and ("over" in txt) and ("under" not in txt)
+        return (ln is not None) and abs(ln - 1.5) < 1e-6 and text_has_over(row)
     if want_side == "away" and md in AWAY_TTG_MDS:
         ln = numeric_line_from_row(row)
-        txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("total") or ""), str(row.get("original_label") or "")]).lower()
-        return (ln is not None) and abs(ln - 1.5) < 1e-6 and ("over" in txt) and ("under" not in txt)
+        return (ln is not None) and abs(ln - 1.5) < 1e-6 and text_has_over(row)
     return False
+
+def best_price_o25(rows: List[dict]) -> Optional[float]:
+    """Get Over 2.5 price with market priority; excludes 'Goal Line'."""
+    for md in O25_PRIORITY:
+        best = None
+        for r in rows:
+            rmd = nmarket(r.get("market_description") or "")
+            if rmd != md: 
+                continue
+            if not is_full_time(rmd):
+                continue
+            ln = numeric_line_from_row(r)
+            if (ln is None) or abs(ln - 2.5) > 1e-6:
+                continue
+            if not text_has_over(r):
+                continue
+            p = price_of(r)
+            if p is None:
+                continue
+            if (best is None) or (p > best):
+                best = p
+        if best is not None:
+            return best
+    return None
 
 def best_price(rows: List[dict], pred) -> Optional[float]:
     best = None
     for r in rows:
         try:
-            if not pred(r):
+            if not pred(r): 
                 continue
             p = price_of(r)
             if p is None:
@@ -345,9 +350,9 @@ def main():
             odds_fx = odds_by_fixture.get(fid) or {}
             rows = odds_fx.get("odds") or []
 
-            # ---- Over 2.5 ----
+            # ---- Over 2.5 (Non-Asian; prefer Alternative Total Goals) ----
             if pass_over25:
-                p = best_price(rows, is_over25_row)
+                p = best_price_o25(rows)
                 if p is not None and p >= MIN_PRICE:
                     combo = (h_over25[2] + a_over25[2]) / 2.0
                     flags_over25.append((name, p, h_over25[2], a_over25[2], combo))
