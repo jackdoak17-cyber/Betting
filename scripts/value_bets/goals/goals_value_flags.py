@@ -6,7 +6,7 @@ Goals markets — value flags (uses LOCAL files only; no API calls)
 
 Flags a fixture/market when BOTH are true:
   • Form threshold hit (default 70% on last-10 window)
-  • Bet365 decimal price >= 1.80
+  • Bet365 decimal price >= MIN_DEC_PRICE / MIN_PRICE (default 1.30)
 
 Form signals computed from your series:
   - Over 2.5 (team totals = goals + opp_goals)
@@ -39,11 +39,12 @@ OUT_TXT   = OUT_DIR / "goals_value_flags.txt"
 POSTS_DIR = ROOT / "posts"; POSTS_DIR.mkdir(parents=True, exist_ok=True)
 OUT_MD    = POSTS_DIR / "value_bets_goals.md"
 
-MIN_PRICE        = float(os.getenv("MIN_PRICE", "1.80"))
-MIN_GAMES        = int(os.getenv("MIN_GAMES", "6"))      # require at least N games in last-10
-THRESH_OVER25    = float(os.getenv("THRESH_OVER25", "0.70"))
-THRESH_BTTS      = float(os.getenv("THRESH_BTTS",   "0.70"))
-THRESH_TEAM_O15  = float(os.getenv("THRESH_TEAM_O15","0.70"))
+# Accept either MIN_DEC_PRICE or MIN_PRICE; default 1.30
+MIN_PRICE        = float(os.getenv("MIN_DEC_PRICE") or os.getenv("MIN_PRICE") or "1.30")
+MIN_GAMES        = int(os.getenv("MIN_SAMPLES") or os.getenv("MIN_GAMES") or "6")  # require at least N games in last-10
+THRESH_OVER25    = float(os.getenv("OVER25_MIN") or os.getenv("THRESH_OVER25") or "0.70")
+THRESH_BTTS      = float(os.getenv("BTTS_MIN")   or os.getenv("THRESH_BTTS")   or "0.70")
+THRESH_TEAM_O15  = float(os.getenv("TEAM_OVER15_MIN") or os.getenv("THRESH_TEAM_O15") or "0.70")
 WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))    # 0 = no date filter
 
 # ---------- String utils ----------
@@ -141,10 +142,13 @@ def team_over_from(goals: List[int], thr: int) -> Tuple[int,int,float]:
 def nmarket(s: str) -> str:
     return norm(s)
 
-OVER25_MD = {"goals over/under", "total goals", "alternative total goals", "goals over under"}
+OVER25_MD = {
+    "goals over/under", "total goals", "alternative total goals",
+    "goals over under", "totals", "over/under"
+}
 BTTS_MD   = {"both teams to score", "btts"}
-HOME_OU   = {"home team over/under", "home team total goals"}
-AWAY_OU   = {"away team over/under", "away team total goals"}
+HOME_OU   = {"home team over/under", "home team total goals", "home totals"}
+AWAY_OU   = {"away team over/under", "away team total goals", "away totals"}
 
 def row_line(row: dict) -> Optional[float]:
     h = row.get("handicap")
@@ -161,7 +165,6 @@ def row_line(row: dict) -> Optional[float]:
     return None
 
 def pick_over25(row: dict) -> bool:
-    # require "Over" and line ~= 2.5
     txt = " ".join([str(row.get("label") or ""), str(row.get("total") or ""), str(row.get("name") or "")]).lower()
     over = ("over" in txt) and ("under" not in txt)
     ln = row_line(row)
@@ -216,7 +219,7 @@ def main():
             if not (home and away): 
                 continue
 
-            # find team records
+            # match team records
             h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
             a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
             h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # opp allowed vs home
@@ -224,11 +227,11 @@ def main():
             if not (h_rec and a_rec and h_opp and a_opp):
                 continue
 
-            # series (latest->older) — align by index (built that way in your generator)
+            # series (latest->older)
             H_g  = as_int_list(h_rec.get("goals_last_n"))
             A_g  = as_int_list(a_rec.get("goals_last_n"))
-            HogA = as_int_list(a_opp.get("opp_goals_last_n"))  # away's conceded (vs home)
-            AogH = as_int_list(h_opp.get("opp_goals_last_n"))  # home's conceded (vs away)
+            HogA = as_int_list(a_opp.get("opp_goals_last_n"))  # away's conceded
+            AogH = as_int_list(h_opp.get("opp_goals_last_n"))  # home's conceded
 
             # guard on minimum samples
             def ok_len(x): return len(x) >= MIN_GAMES
@@ -325,7 +328,10 @@ def main():
     now_iso = dt.datetime.utcnow().isoformat(timespec="seconds")
     lines = []
     lines.append(f"Generated at (UTC): {now_iso}")
-    lines.append(f"Rules: MIN_PRICE>={MIN_PRICE:.2f}, MIN_GAMES>={MIN_GAMES}, thresholds: O2.5>={int(THRESH_OVER25*100)}%, BTTS>={int(THRESH_BTTS*100)}%, TeamO1.5>={int(THRESH_TEAM_O15*100)}%")
+    lines.append(
+        f"Rules: MIN_PRICE>={MIN_PRICE:.2f}, MIN_GAMES>={MIN_GAMES}, "
+        f"thresholds: O2.5>={int(THRESH_OVER25*100)}%, BTTS>={int(THRESH_BTTS*100)}%, TeamO1.5>={int(THRESH_TEAM_O15*100)}%"
+    )
     lines.append("")
     def pct(p): return f"{p*100:.1f}%"
 
@@ -353,7 +359,7 @@ def main():
 
     # --------- Render POST (Markdown) ---------
     md = []
-    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** where the market is pricing at **≥ 1.80**.")
+    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** where the market price meets the configured threshold.")
     md.append("")
     md.append(f"_Form gates:_ Over 2.5 ≥ {int(THRESH_OVER25*100)}%, BTTS ≥ {int(THRESH_BTTS*100)}%, Team Over 1.5 ≥ {int(THRESH_TEAM_O15*100)}% (≥{MIN_GAMES} games).")
     md.append("")
