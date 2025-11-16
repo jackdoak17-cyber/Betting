@@ -1,36 +1,38 @@
 name: Value Bets — Goals (Over2.5, BTTS, Team O1.5)
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "*/120 * * * *"  # every 30 minutes (UTC)
-  workflow_dispatch: {}
+    - cron: "*/30 * * * *"   # every 30 minutes (UTC)
 
 permissions:
   contents: write
 
 concurrency:
   group: value-bets-goals
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Thresholds & filters (script reads these if present)
-      OVER25_MIN: "0.70"        # Combined Over 2.5 minimum
-      BTTS_MIN: "0.70"          # Combined BTTS minimum
-      TEAM_OVER15_MIN: "0.70"   # Single-team Over 1.5 minimum
-      MIN_DEC_PRICE: "1.80"     # Only flag when any qualifying market price >= this
-      WINDOW_DAYS: "7"          # Look-ahead window for fixtures (days)
-      # Optional: limit to specific leagues (CSV)
+      # Thresholds & settings (change here if you want)
+      OVER25_MIN: "0.70"
+      BTTS_MIN: "0.70"
+      TEAM_OVER15_MIN: "0.70"
+      MIN_DEC_PRICE: "1.80"
+      WINDOW_DAYS: "7"
+      LAST_N: "10"
+      MIN_SAMPLES: "6"
+      # Optionally restrict leagues:
       # LEAGUE_IDS: "8,9,72,82,181,208,244,271,301,384,387,444,453,462,501,564,567,573,591,600"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # allow rebase before push
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,33 +48,25 @@ jobs:
             pip install requests
           fi
 
-      - name: Build goals value flags (writes to data/value_bets/)
+      - name: Run goals value flags
         run: |
-          python scripts/value_bets/goals_value_flags.py
+          python scripts/value_bets/goals/goals_value_flags.py
 
-      - name: Show summary in logs
-        run: |
-          echo "----- goals_value_flags.txt (first 200 lines) -----"
-          sed -n '1,200p' data/value_bets/goals_value_flags.txt || true
-          echo "----- posts/value_bets_goals.md (first 120 lines, if present) -----"
-          sed -n '1,120p' posts/value_bets_goals.md || true
-
-      - name: Commit & push outputs
+      - name: Commit & push output
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Always try to add the main value file; add post if it exists
-          git add data/value_bets/goals_value_flags.txt || true
-          [ -f posts/value_bets_goals.md ] && git add posts/value_bets_goals.md || true
+          # Add value-bets text outputs
+          git add data/value_bets/*.txt
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "chore(value-bets): update goals flags $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(value-bets-goals): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 
           BRANCH="${GITHUB_REF_NAME:-main}"
           git pull --rebase origin "$BRANCH" || true
