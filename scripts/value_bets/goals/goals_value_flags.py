@@ -2,45 +2,37 @@
 # -*- coding: utf-8 -*-
 
 """
-Goals markets — value flags (uses LOCAL files only; no live API)
+Goals markets — value flags (LOCAL files only)
 
-Flags a fixture/market when BOTH are true:
-  • Form threshold hit (default 70% on last-10 window)
-  • Bet365 decimal price >= MIN_PRICE  (default 1.30)
+Flags when BOTH hold:
+  • Form gate hits (default 70% using last-10 series)
+  • Bet365 price >= MIN_PRICE (default 1.30)
 
-Form signals computed from your series:
-  - Over 2.5 (team totals = goals + opp_goals)
-  - BTTS (goals >0 AND opp_goals >0)
-  - Team Over 1.5 (home team, away team separately) — only if favourite on ML
+Markets:
+  - Over 2.5 (full-time totals only; exact 2.5 line; accepts 'alternative totals')
+  - BTTS Yes (90 mins only)
+  - Team Over 1.5 (home/away) — only if that team is favourite on Match Winner
 
-Also enriches with H2H (last 2) from data/h2h/{minId}_{maxId}.json when present:
-  prints: " | H2H last2: O2.5 x/y, BTTS x/y"
+Enrichment:
+  - Appends H2H last-2 summary (O2.5 x/y, BTTS x/y) if data/h2h/{minId}_{maxId}.json exists.
 
-Inputs (must already exist in the repo):
-  - data/fixtures/{league_id}.json
-  - data/team_stats/by_league/{league_id}.json
-  - data/team_opponent_stats/by_league/{league_id}.json
-  - data/odds/b365/{league_id}.json
-  - data/h2h/{minId}_{maxId}.json      # optional, created by scripts/h2h_last2_fetch.py
+Inputs:
+  data/fixtures/{league_id}.json
+  data/team_stats/by_league/{league_id}.json
+  data/team_opponent_stats/by_league/{league_id}.json
+  data/odds/b365/{league_id}.json
+  data/h2h/{minId}_{maxId}.json  (optional; produced by scripts/h2h_last2_fetch.py)
 
 Outputs:
-  - data/value_bets/goals_value_flags.txt
-  - posts/value_bets_goals.md
-
-Env (optional):
-  MIN_PRICE        default "1.30"
-  MIN_GAMES        default "6"
-  THRESH_OVER25    default "0.70"
-  THRESH_BTTS      default "0.70"
-  THRESH_TEAM_O15  default "0.70"
-  WINDOW_DAYS      default "7"
+  data/value_bets/goals_value_flags.txt
+  posts/value_bets_goals.md
 """
 
 import os, re, json, math, datetime as dt, unicodedata
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-# ---------- Config ----------
+# -------- Config --------
 ROOT = Path(".")
 FIX_DIR   = ROOT / "data" / "fixtures"
 TS_DIR    = ROOT / "data" / "team_stats" / "by_league"
@@ -53,13 +45,13 @@ POSTS_DIR = ROOT / "posts"; POSTS_DIR.mkdir(parents=True, exist_ok=True)
 OUT_MD    = POSTS_DIR / "value_bets_goals.md"
 
 MIN_PRICE        = float(os.getenv("MIN_PRICE", "1.30"))
-MIN_GAMES        = int(os.getenv("MIN_GAMES", "6"))      # require at least N games in last-10
+MIN_GAMES        = int(os.getenv("MIN_GAMES", "6"))
 THRESH_OVER25    = float(os.getenv("THRESH_OVER25", "0.70"))
 THRESH_BTTS      = float(os.getenv("THRESH_BTTS",   "0.70"))
 THRESH_TEAM_O15  = float(os.getenv("THRESH_TEAM_O15","0.70"))
-WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))    # 0 = no date filter
+WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))
 
-# ---------- String utils ----------
+# -------- String utils --------
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
@@ -69,12 +61,10 @@ def norm(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-GENERIC_TOK = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
-               "the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
+GENERIC_TOK = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca","the","club","de","del","la","las","los","calcio","united","city","saint","st","bk"}
 
 def team_tokens(name: str):
-    toks = set(norm(name).split())
-    return {t for t in toks if t not in GENERIC_TOK}
+    return {t for t in set(norm(name).split()) if t not in GENERIC_TOK}
 
 def team_names_match(a: str, b: str) -> bool:
     if not a or not b: return False
@@ -82,50 +72,45 @@ def team_names_match(a: str, b: str) -> bool:
     if not ta or not tb: return False
     if ta == tb or ta.issubset(tb) or tb.issubset(ta): return True
     inter = ta & tb; uni = ta | tb
-    if len(inter) / max(1, len(uni)) >= 0.5: return True
-    if len(inter) >= 2: return True
-    return False
+    return (len(inter) / max(1, len(uni)) >= 0.5) or (len(inter) >= 2)
 
-def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
-    if not fixture_name: return "",""
+def parse_fixture_teams(name: str) -> Tuple[str,str]:
+    if not name: return "",""
     for sep in (" vs ", " v ", " - ", " VS ", " Vs "):
-        if sep in fixture_name:
-            a, b = fixture_name.split(sep, 1)
+        if sep in name:
+            a, b = name.split(sep, 1)
             return a.strip(), b.strip()
-    return "", ""
+    return "",""
 
 def within_window(starting_at: str, days: int) -> bool:
     if not days: return True
     try:
-        dt_utc = dt.datetime.strptime(starting_at[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc)
+        t = dt.datetime.strptime(starting_at[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=dt.timezone.utc)
     except Exception:
         return True
     now = dt.datetime.now(dt.timezone.utc)
-    return now <= dt_utc <= (now + dt.timedelta(days=days))
+    return now <= t <= (now + dt.timedelta(days=days))
 
-# ---------- Loaders ----------
+# -------- IO helpers --------
 def discover_league_ids() -> List[int]:
-    ids = []
+    out = []
     for p in FIX_DIR.glob("*.json"):
-        try: ids.append(int(p.stem))
+        try: out.append(int(p.stem))
         except: pass
-    return sorted(set(ids))
+    return sorted(set(out))
 
-def load_json(path: Path) -> dict:
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def load_json(p: Path) -> dict:
+    try: return json.loads(p.read_text(encoding="utf-8"))
+    except Exception: return {}
 
 def index_team(blob: dict) -> Dict[str, dict]:
     m: Dict[str, dict] = {}
     for t in (blob.get("teams") or []):
         nm = t.get("team_name")
-        if not nm: continue
-        m[norm(nm)] = t
+        if nm: m[norm(nm)] = t
     return m
 
-# ---------- Series helpers ----------
+# -------- Series helpers --------
 def as_int_list(xs) -> List[int]:
     out = []
     for v in (xs or []):
@@ -140,7 +125,7 @@ def btts_from(goals: List[int], opp_goals: List[int]) -> Tuple[int,int,float]:
 
 def over_k_from(goals: List[int], opp_goals: List[int], k: float) -> Tuple[int,int,float]:
     n = min(len(goals), len(opp_goals))
-    thr = math.ceil(k + 1e-9)   # e.g., 2.5 -> 3
+    thr = math.ceil(k + 1e-9)
     hits = sum(1 for i in range(n) if (goals[i] + opp_goals[i]) >= thr)
     return hits, n, (hits / n) if n else 0.0
 
@@ -150,28 +135,7 @@ def team_over_from(goals: List[int], thr: int) -> Tuple[int,int,float]:
     n = len(xs)
     return hits, n, (hits / n) if n else 0.0
 
-# ---------- Odds parsing ----------
-def nmarket(s: str) -> str:
-    return norm(s)
-
-# over/under markets that can contain a 2.5 line
-OVER25_MD = {
-    "goals over/under", "total goals", "alternative total goals",
-    "goals over under", "match goals", "over/under", "over under"
-}
-
-BTTS_MD   = {"both teams to score", "btts", "both teams to score? yes/no"}
-
-HOME_OU   = {"home team over/under", "home team total goals", "home team goals", "home team total"}
-AWAY_OU   = {"away team over/under", "away team total goals", "away team goals", "away team total"}
-
-# Match Winner market synonyms
-MATCH_WINNER_MD = {
-    "match winner","match result","full time result","fulltime result",
-    "1x2","result","win/draw/win","90 minutes","3-way","3 way",
-    "regular time result","match odds"
-}
-
+# -------- Odds parsing --------
 def row_line(row: dict) -> Optional[float]:
     h = row.get("handicap")
     try:
@@ -190,73 +154,87 @@ def price_of(row: dict) -> Optional[float]:
     try: return float(v)
     except Exception: return None
 
+# Allow any market_description; filter by context/line instead (Bet365 strings vary).
+BANNED_SUBSTRINGS_FT = {"first half","1st half","2nd half","second half","half time","ht","1h","2h",
+                        "home team","away team","team corners","corners","cards","bookings","offsides",
+                        "penalties","extra time","overtime","both halves","win to nil","clean sheet"}
+
+def is_fulltime_totals_context(text: str) -> bool:
+    t = text.lower()
+    return not any(b in t for b in BANNED_SUBSTRINGS_FT)
+
 def is_over25_row(row: dict) -> bool:
-    # require explicit Over AND an exact 2.5 line
-    txt = " ".join([str(row.get("label") or ""), str(row.get("total") or ""), str(row.get("name") or ""), str(row.get("original_label") or "")]).lower()
-    over = ("over" in txt) and ("under" not in txt)
+    blob = " ".join(str(row.get(k) or "") for k in ("market_description","label","name","total","original_label"))
+    if not is_fulltime_totals_context(blob): 
+        return False
     ln = row_line(row)
-    return over and (ln is not None) and (abs(ln - 2.5) < 1e-6)
+    if ln is None or abs(ln - 2.5) > 1e-6:
+        return False
+    t = blob.lower()
+    return ("over" in t) and ("under" not in t)
 
 def is_btts_yes_row(row: dict) -> bool:
-    txt = " ".join([str(row.get("label") or ""), str(row.get("name") or ""), str(row.get("original_label") or "")]).lower()
-    return ("yes" in txt) and ("no" not in txt)
+    blob = " ".join(str(row.get(k) or "") for k in ("market_description","label","name","original_label")).lower()
+    if any(x in blob for x in ("first half","1st half","2nd half","both halves","no goal")):
+        return False
+    return ("both teams to score" in blob or "btts" in blob) and ("yes" in blob) and ("no" not in blob)
 
-def is_team_over15_row(row: dict) -> bool:
-    txt = " ".join([str(row.get("label") or ""), str(row.get("total") or ""), str(row.get("name") or ""), str(row.get("original_label") or "")]).lower()
-    over = ("over" in txt) and ("under" not in txt)
+HOME_MD = {"home team over/under","home team total goals","home team goals","home team total",
+           "alternative home team total goals","alternative home team goals"}
+AWAY_MD = {"away team over/under","away team total goals","away team goals","away team total",
+           "alternative away team total goals","alternative away team goals"}
+
+def is_team_over15_row(row: dict, want_side: str) -> bool:
+    blob = " ".join(str(row.get(k) or "") for k in ("market_description","label","name","total","original_label")).lower()
+    if any(x in blob for x in ("first half","1st half","2nd half","both halves")):
+        return False
     ln = row_line(row)
-    return over and (ln is not None) and (abs(ln - 1.5) < 1e-6)
+    if ln is None or abs(ln - 1.5) > 1e-6:
+        return False
+    if ("over" not in blob) or ("under" in blob):
+        return False
+    md = norm(row.get("market_description") or "")
+    if want_side == "home":
+        return (md in HOME_MD) or ("home team" in blob)
+    else:
+        return (md in AWAY_MD) or ("away team" in blob)
+
+# Match Winner parsing (more synonyms)
+MATCH_WINNER_MD = {"match winner","match result","full time result","fulltime result","1x2","result",
+                   "win/draw/win","90 minutes","3-way","3 way","regular time result","match odds",
+                   "to win","moneyline"}
 
 def extract_match_winner_prices(rows: List[dict]) -> Tuple[Optional[float], Optional[float], Optional[float]]:
-    """
-    Return (home_ml, draw_ml, away_ml) as decimal prices.
-    Tries to be robust to label/name variations: "1"/"Home", "X"/"Draw", "2"/"Away".
-    If multiple ML rows exist, keeps the *lowest* price per side.
-    """
     home = draw = away = None
-
     def upd(side: str, p: Optional[float]):
         nonlocal home, draw, away
         if p is None: return
-        if side == "home":
-            home = p if (home is None or p < home) else home
-        elif side == "draw":
-            draw = p if (draw is None or p < draw) else draw
-        elif side == "away":
-            away = p if (away is None or p < away) else away
-
+        if side == "home": home = p if (home is None or p < home) else home
+        elif side == "draw": draw = p if (draw is None or p < draw) else draw
+        elif side == "away": away = p if (away is None or p < away) else away
     for r in rows:
-        md = nmarket(r.get("market_description") or "")
+        md = norm(r.get("market_description") or "")
         if md not in MATCH_WINNER_MD: 
             continue
         p = price_of(r)
         if p is None: 
             continue
-        # Detect side from several fields
         fields = " ".join(str(r.get(k) or "") for k in ("label","name","original_label")).lower()
         fields = fields.replace("home team","home").replace("away team","away")
-        if re.search(r"\b(home|1)\b", fields) and "away" not in fields:
-            upd("home", p); continue
-        if re.search(r"\b(away|2)\b", fields) and "home" not in fields:
-            upd("away", p); continue
-        if re.search(r"\b(draw|x)\b", fields):
-            upd("draw", p); continue
+        if re.search(r"\b(home|1)\b", fields) and "away" not in fields: upd("home", p); continue
+        if re.search(r"\b(away|2)\b", fields) and "home" not in fields: upd("away", p); continue
+        if re.search(r"\b(draw|x)\b", fields): upd("draw", p); continue
     return home, draw, away
 
-# ---------- H2H helpers ----------
+# -------- H2H helpers --------
 def extract_team_ids_from_fixture(fx: dict) -> Tuple[Optional[int], Optional[int]]:
     home_id = away_id = None
-    parts = fx.get("participants") or []
-    for p in parts:
-        try:
-            tid = int(p.get("id"))
-        except Exception:
-            continue
+    for p in (fx.get("participants") or []):
+        try: tid = int(p.get("id"))
+        except Exception: continue
         loc = ((p.get("meta") or {}).get("location") or (p.get("meta") or {}).get("venue") or "").lower()
-        if loc == "home":
-            home_id = tid
-        elif loc == "away":
-            away_id = tid
+        if loc == "home": home_id = tid
+        elif loc == "away": away_id = tid
     if home_id is None:
         for k in ("home_team_id","localteam_id","home_id","localteamid"):
             v = fx.get(k); 
@@ -268,260 +246,212 @@ def extract_team_ids_from_fixture(fx: dict) -> Tuple[Optional[int], Optional[int
     return home_id, away_id
 
 def h2h_last2_summary(h_id: Optional[int], a_id: Optional[int]) -> Optional[str]:
-    if not (isinstance(h_id,int) and isinstance(a_id,int)): 
-        return None
+    if not (isinstance(h_id,int) and isinstance(a_id,int)): return None
     lo, hi = (h_id, a_id) if h_id <= a_id else (a_id, h_id)
     p = H2H_DIR / f"{lo}_{hi}.json"
-    if not p.exists(): 
-        return None
-    try:
-        j = json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return None
+    if not p.exists(): return None
+    try: j = json.loads(p.read_text(encoding="utf-8"))
+    except Exception: return None
     s = (j.get("summary") or {})
     o25h, o25n = int(s.get("o25_hits",0)), int(s.get("o25_n",0))
     bttsh, bttsn = int(s.get("btts_hits",0)), int(s.get("btts_n",0))
     return f"H2H last2: O2.5 {o25h}/{o25n}, BTTS {bttsh}/{bttsn}"
 
-# ---------- Main ----------
+# -------- Main --------
 def main():
-    league_ids = discover_league_ids()
+    leagues = discover_league_ids()
 
-    flags_over25 = []  # (fixture, price, h_pct, a_pct, combo, h2h_str)
-    flags_btts   = []  # (fixture, price, h_pct, a_pct, combo, h2h_str)
+    flags_over25 = []  # (fixture, price, h_pct, a_pct, combo, h2h)
+    flags_btts   = []  # (fixture, price, h_pct, a_pct, combo, h2h)
     flags_team15 = []  # (fixture, side, team, price, team_pct, ml_price)
 
-    near_o25 = 0; near_btts = 0; near_o15 = 0
+    near_o25 = near_btts = near_o15 = 0
 
-    for lid in league_ids:
-        fx_path   = FIX_DIR / f"{lid}.json"
-        ts_path   = TS_DIR  / f"{lid}.json"
-        opp_path  = OPP_DIR / f"{lid}.json"
-        odds_path = ODDS_DIR/ f"{lid}.json"
-        if not (fx_path.exists() and ts_path.exists() and opp_path.exists() and odds_path.exists()):
+    for lid in leagues:
+        fx_path, ts_path, opp_path, odds_path = (
+            FIX_DIR/f"{lid}.json", TS_DIR/f"{lid}.json", OPP_DIR/f"{lid}.json", ODDS_DIR/f"{lid}.json"
+        )
+        if not all(p.exists() for p in (fx_path, ts_path, opp_path, odds_path)): 
             continue
 
         fixtures = load_json(fx_path).get("fixtures") or []
         ts_idx   = index_team(load_json(ts_path))
         opp_idx  = index_team(load_json(opp_path))
-        odds_blob = load_json(odds_path)
-        odds_by_fixture = {int(f.get("fixture_id")): f for f in (odds_blob.get("fixtures") or []) if isinstance(f.get("fixture_id"), int)}
+        odds     = load_json(odds_path)
+        odds_by_fixture = {int(f.get("fixture_id")): f for f in (odds.get("fixtures") or []) if isinstance(f.get("fixture_id"), int)}
 
         for fx in fixtures:
             fid = int(fx.get("id") or fx.get("fixture_id") or 0)
             if not fid: continue
             name = fx.get("name") or ""
             starting_at = fx.get("starting_at") or ""
-            if WINDOW_DAYS and not within_window(starting_at, WINDOW_DAYS):
+            if WINDOW_DAYS and not within_window(starting_at, WINDOW_DAYS): 
                 continue
 
-            home_name, away_name = parse_fixture_teams(name)
-            if not (home_name and away_name): 
+            home, away = parse_fixture_teams(name)
+            if not (home and away): continue
+
+            # team indices
+            h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
+            a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
+            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)
+            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home, k)), None)
+            if not (h_rec and a_rec and h_opp and a_opp): 
                 continue
 
-            # find team records
-            h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home_name, k)), None)
-            a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away_name, k)), None)
-            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away_name, k)), None)  # opp allowed vs home
-            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home_name, k)), None)  # opp allowed vs away
-            if not (h_rec and a_rec and h_opp and a_opp):
-                continue
-
-            # series
-            H_g  = as_int_list(h_rec.get("goals_last_n"))
-            A_g  = as_int_list(a_rec.get("goals_last_n"))
-            HogA = as_int_list(a_opp.get("opp_goals_last_n"))  # away's conceded (vs home)
-            AogH = as_int_list(h_opp.get("opp_goals_last_n"))  # home's conceded (vs away)
+            H_g  = as_int_list(h_rec.get("goals_last_n"));   HogA = as_int_list(a_opp.get("opp_goals_last_n"))
+            A_g  = as_int_list(a_rec.get("goals_last_n"));   AogH = as_int_list(h_opp.get("opp_goals_last_n"))
 
             def ok_len(x): return len(x) >= MIN_GAMES
 
-            # Over 2.5 per team last-10 (using team totals)
             h_over25 = over_k_from(H_g, HogA, 2.5) if ok_len(H_g) and ok_len(HogA) else (0,0,0.0)
             a_over25 = over_k_from(A_g, AogH, 2.5) if ok_len(A_g) and ok_len(AogH) else (0,0,0.0)
 
-            # BTTS per team last-10
             h_btts = btts_from(H_g, HogA) if ok_len(H_g) and ok_len(HogA) else (0,0,0.0)
             a_btts = btts_from(A_g, AogH) if ok_len(A_g) and ok_len(AogH) else (0,0,0.0)
 
-            # Team Over 1.5
             h_o15 = team_over_from(H_g, 2) if ok_len(H_g) else (0,0,0.0)
             a_o15 = team_over_from(A_g, 2) if ok_len(A_g) else (0,0,0.0)
 
-            pass_over25 = (h_over25[1] >= MIN_GAMES and a_over25[1] >= MIN_GAMES and
-                           h_over25[2] >= THRESH_OVER25 and a_over25[2] >= THRESH_OVER25)
-            pass_btts   = (h_btts[1]   >= MIN_GAMES and a_btts[1]   >= MIN_GAMES and
-                           h_btts[2]   >= THRESH_BTTS   and a_btts[2]   >= THRESH_BTTS)
+            pass_over25 = (h_over25[1] >= MIN_GAMES and a_over25[1] >= MIN_GAMES and h_over25[2] >= THRESH_OVER25 and a_over25[2] >= THRESH_OVER25)
+            pass_btts   = (h_btts[1]   >= MIN_GAMES and a_btts[1]   >= MIN_GAMES and h_btts[2]   >= THRESH_BTTS   and a_btts[2]   >= THRESH_BTTS)
             pass_h15    = (h_o15[1]    >= MIN_GAMES and h_o15[2]    >= THRESH_TEAM_O15)
             pass_a15    = (a_o15[1]    >= MIN_GAMES and a_o15[2]    >= THRESH_TEAM_O15)
 
             odds_fx = odds_by_fixture.get(fid) or {}
             rows = odds_fx.get("odds") or []
 
-            # ML prices (for favourites filter + display)
+            # Match winner for favourite check
             home_ml, draw_ml, away_ml = extract_match_winner_prices(rows)
 
-            # ---- OVER 2.5 (exact 2.5, standard or alternative groups) ----
+            # Over 2.5 (full-time totals, any label set)
             if pass_over25:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in OVER25_MD: 
-                        continue
-                    if not is_over25_row(r): 
-                        continue
-                    p = price_of(r)
-                    if p is None: 
-                        continue
-                    if (best is None) or (p > best): 
-                        best = p
+                    if is_over25_row(r):
+                        p = price_of(r)
+                        if p is None: 
+                            continue
+                        if (best is None) or (p > best): 
+                            best = p
                 combo = (h_over25[2] + a_over25[2]) / 2.0
                 if best is None or best < MIN_PRICE:
                     near_o25 += 1
                 else:
-                    # H2H enrich
                     hid, aid = extract_team_ids_from_fixture(fx)
-                    h2h_str = h2h_last2_summary(hid, aid)
-                    flags_over25.append((name, best, h_over25[2], a_over25[2], combo, h2h_str))
+                    h2h = h2h_last2_summary(hid, aid)
+                    flags_over25.append((name, best, h_over25[2], a_over25[2], combo, h2h))
 
-            # ---- BTTS YES ----
+            # BTTS Yes
             if pass_btts:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in BTTS_MD: 
-                        continue
-                    if not is_btts_yes_row(r): 
-                        continue
-                    p = price_of(r)
-                    if p is None: 
-                        continue
-                    if (best is None) or (p > best): 
-                        best = p
+                    if is_btts_yes_row(r):
+                        p = price_of(r)
+                        if p is None: 
+                            continue
+                        if (best is None) or (p > best): 
+                            best = p
                 combo = (h_btts[2] + a_btts[2]) / 2.0
                 if best is None or best < MIN_PRICE:
                     near_btts += 1
                 else:
                     hid, aid = extract_team_ids_from_fixture(fx)
-                    h2h_str = h2h_last2_summary(hid, aid)
-                    flags_btts.append((name, best, h_btts[2], a_btts[2], combo, h2h_str))
+                    h2h = h2h_last2_summary(hid, aid)
+                    flags_btts.append((name, best, h_btts[2], a_btts[2], combo, h2h))
 
-            # ---- TEAM OVER 1.5 (favourites only) ----
-            # favourite logic: strictly shorter ML price than the opponent
-            # home favourite
+            # Team Over 1.5 — favourites only
+            # Home fav
             if pass_h15 and isinstance(home_ml, float) and isinstance(away_ml, float) and home_ml < away_ml:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in HOME_OU: 
-                        continue
-                    if not is_team_over15_row(r): 
-                        continue
-                    p = price_of(r)
-                    if p is None: 
-                        continue
-                    if (best is None) or (p > best): 
-                        best = p
+                    if is_team_over15_row(r, "home"):
+                        p = price_of(r)
+                        if p is None: 
+                            continue
+                        if (best is None) or (p > best): 
+                            best = p
                 if best is None or best < MIN_PRICE:
                     near_o15 += 1
                 else:
-                    flags_team15.append((name, "home", home_name, best, h_o15[2], home_ml))
-
-            # away favourite
+                    flags_team15.append((name, "home", home, best, h_o15[2], home_ml))
+            # Away fav
             if pass_a15 and isinstance(home_ml, float) and isinstance(away_ml, float) and away_ml < home_ml:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in AWAY_OU: 
-                        continue
-                    if not is_team_over15_row(r): 
-                        continue
-                    p = price_of(r)
-                    if p is None: 
-                        continue
-                    if (best is None) or (p > best): 
-                        best = p
+                    if is_team_over15_row(r, "away"):
+                        p = price_of(r)
+                        if p is None: 
+                            continue
+                        if (best is None) or (p > best): 
+                            best = p
                 if best is None or best < MIN_PRICE:
                     near_o15 += 1
                 else:
-                    flags_team15.append((name, "away", away_name, best, a_o15[2], away_ml))
+                    flags_team15.append((name, "away", away, best, a_o15[2], away_ml))
 
-    # --------- Sorting ----------
-    flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))   # price desc, then combo desc
+    # Sorting
+    flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))
     flags_btts.sort(  key=lambda x: (-x[1], -x[4], x[0]))
     flags_team15.sort(key=lambda x: (-x[3], -x[4], x[0], x[1]))
 
-    # --------- Render ---------
+    # Render
     now_iso = dt.datetime.utcnow().isoformat(timespec="seconds")
-    def pct(p): return f"{p*100:.1f}%"
+    pct = lambda p: f"{p*100:.1f}%"
 
     lines = []
     lines.append(f"Generated at (UTC): {now_iso}")
     lines.append(f"Rules: MIN_PRICE>={MIN_PRICE:.2f}, MIN_GAMES>={MIN_GAMES}, thresholds: O2.5>={int(THRESH_OVER25*100)}%, BTTS>={int(THRESH_BTTS*100)}%, TeamO1.5>={int(THRESH_TEAM_O15*100)}%")
     lines.append("Notes: Team Over 1.5 is only flagged if that team is favourite on Match Winner (strictly shorter price).")
     lines.append("")
-
-    # O2.5
     lines.append("=== Over 2.5 — value flags ===")
     if not flags_over25: lines.append("  (none)")
     for name, price, hp, ap, combo, h2h in flags_over25:
         tail = f" | {h2h}" if h2h else ""
         lines.append(f" • {name} — Over 2.5 @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)}{tail}")
 
-    # BTTS
-    lines.append("")
-    lines.append("=== BTTS (Yes) — value flags ===")
+    lines.append("\n=== BTTS (Yes) — value flags ===")
     if not flags_btts: lines.append("  (none)")
     for name, price, hp, ap, combo, h2h in flags_btts:
         tail = f" | {h2h}" if h2h else ""
         lines.append(f" • {name} — BTTS Yes @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)}{tail}")
 
-    # Team O1.5
-    lines.append("")
-    lines.append("=== Team Over 1.5 — value flags (favourites only) ===")
+    lines.append("\n=== Team Over 1.5 — value flags (favourites only) ===")
     if not flags_team15: lines.append("  (none)")
     for name, side, team, price, tp, mlp in flags_team15:
         ml_str = f" | ML {mlp:.2f}" if isinstance(mlp, float) else ""
         lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)}{ml_str} | {name}")
 
-    if near_o25 or near_btts or near_o15:
-        lines.append("")
+    if any((near_o25, near_btts, near_o15)):
         bits = []
         if near_o25: bits.append(f"O2.5={near_o25}")
         if near_btts: bits.append(f"BTTS={near_btts}")
         if near_o15: bits.append(f"TeamO1.5={near_o15}")
-        lines.append(f"(near-misses: {', '.join(bits)})  # passed form but below MIN_PRICE")
+        lines.append(f"\n(near-misses: {', '.join(bits)})  # passed form but below MIN_PRICE")
 
     OUT_TXT.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
 
-    # --------- Render POST (Markdown) ---------
     md = []
-    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** based on local Bet365 prices.")
-    md.append("")
+    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** based on local Bet365 prices.\n")
     md.append(f"_Form gates:_ Over 2.5 ≥ {int(THRESH_OVER25*100)}%, BTTS ≥ {int(THRESH_BTTS*100)}%, Team Over 1.5 ≥ {int(THRESH_TEAM_O15*100)}% (≥{MIN_GAMES} games).")
-    md.append("_Notes:_ Team Over 1.5 only when that team is favourite on the Match Winner market.")
-    md.append("")
+    md.append("_Notes:_ Team Over 1.5 only when that team is favourite on the Match Winner market.\n")
     md.append("### Over 2.5 — value flags")
     if not flags_over25: md.append("- (none)")
     for name, price, hp, ap, combo, h2h in flags_over25:
         tail = f" — _{h2h}_" if h2h else ""
         md.append(f"- **{name}** — **Over 2.5 @ {price:.2f}** (H {pct(hp)} / A {pct(ap)}; combo {pct(combo)}){tail}")
-
-    md.append("")
-    md.append("### BTTS (Yes) — value flags")
+    md.append("\n### BTTS (Yes) — value flags")
     if not flags_btts: md.append("- (none)")
     for name, price, hp, ap, combo, h2h in flags_btts:
         tail = f" — _{h2h}_" if h2h else ""
         md.append(f"- **{name}** — **BTTS Yes @ {price:.2f}** (H {pct(hp)} / A {pct(ap)}; combo {pct(combo)}){tail}")
-
-    md.append("")
-    md.append("### Team Over 1.5 — value flags (favourites only)")
+    md.append("\n### Team Over 1.5 — value flags (favourites only)")
     if not flags_team15: md.append("- (none)")
     for name, side, team, price, tp, mlp in flags_team15:
         ml_str = f"; ML {mlp:.2f}" if isinstance(mlp, float) else ""
         md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; {pct(tp)}{ml_str}) — {name}")
 
     OUT_MD.write_text("\n".join(md).rstrip() + "\n", encoding="utf-8")
-
     print("\n".join(lines))
     print(f"\nWrote:\n  • {OUT_TXT}\n  • {OUT_MD}")
 
