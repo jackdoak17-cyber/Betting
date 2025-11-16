@@ -52,7 +52,7 @@ def strip_accents(s: str) -> str:
 
 def norm(s: str) -> str:
     s = strip_accents(s or "").lower()
-    s = re.sub(r"[^a-z0-9\s\.+,-]", " ", s)
+    s = re.sub(r"[^a-z0-9\s\.+,-/?]", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
@@ -141,6 +141,16 @@ def team_over_from(goals: List[int], thr: int) -> Tuple[int,int,float]:
 def nmarket(s: str) -> str:
     return norm(s)
 
+# Full-time filters (exclude halves/periods/props)
+PERIOD_BAD = (
+    "1st half","first half","1h","1 half","2nd half","second half","2h","half time","halftime",
+    "first period","second period","both halves","either half","each half","1st period","2nd period"
+)
+
+def is_full_time(row: dict) -> bool:
+    fields = " ".join(str(row.get(k) or "") for k in ("market_description","name","label","original_label")).lower()
+    return not any(tok in fields for tok in PERIOD_BAD)
+
 # Market name sets (normalized)
 OVER25_MD = {
     "goals over/under",
@@ -149,8 +159,13 @@ OVER25_MD = {
     "alternative goal line",
     "total goals",
     "totals",
+    "full time over/under",
 }
-BTTS_MD = {"both teams to score", "btts"}
+# BTTS — use substring match because books append suffixes (e.g., "Both Teams to Score – 90 Minutes")
+def is_btts_market(row: dict) -> bool:
+    md = nmarket(row.get("market_description") or "")
+    return ("both teams to score" in md) or (md == "btts")
+
 TEAM_TTG_MD = {"team total goals", "home team total goals", "away team total goals", "team goals"}
 
 def all_numbers_from(*texts: str) -> List[float]:
@@ -164,37 +179,55 @@ def all_numbers_from(*texts: str) -> List[float]:
                 pass
     return nums
 
-def row_line(row: dict) -> Optional[float]:
-    # Prefer explicit handicap; else parse numbers from total/label/name/original_label
+def parse_goal_line_exact(row: dict) -> Optional[float]:
+    """
+    Return the EXACT line as a single number if unambiguous and not an Asian split.
+    Accepts:
+      - handicap numeric
+      - text with a single distinct number (e.g., 'Over 2.5')
+    Rejects Asian split lines like '2.5, 3.0' (interprets as average != 2.5).
+    """
+    # Prefer numeric handicap if present and scalar
     h = row.get("handicap")
-    try:
-        if h is not None:
-            return float(h)
-    except Exception:
-        pass
+    if isinstance(h, (int, float)):
+        return float(h)
+
+    # Parse numbers from text
     nums = all_numbers_from(row.get("total"), row.get("label"), row.get("name"), row.get("original_label"))
-    return nums[0] if nums else None
+    # Unique numbers only
+    uniq = sorted(set(round(x, 2) for x in nums))
+    if not uniq:
+        return None
+
+    # Asian split like "2.5, 3.0" -> two distinct numbers: reject as not exact
+    if len(uniq) >= 2:
+        # If it's a duplicate representation like "2.5, 2.5", collapse to single
+        if len(uniq) == 2 and abs(uniq[0] - uniq[1]) < 1e-6:
+            return uniq[0]
+        return None
+
+    return float(uniq[0])
 
 def is_over_text(row: dict) -> bool:
     s = " ".join(str(row.get(k) or "") for k in ("label","total","name","original_label")).lower()
     return ("over" in s) and ("under" not in s)
 
-def contains_exact_line(row: dict, want: float) -> bool:
-    # Match if any token explicitly shows the exact number (e.g., "Over 2.5" or "2.5")
-    s = " ".join(str(row.get(k) or "") for k in ("label","total","name","original_label")).lower()
-    if re.search(rf"\b{want:.1f}\b", s):
-        return True
-    # Special case: Asian split lines like "2.5, 3.0" — accept if 'over 2.5' appears in label/name
-    if "," in s and "over" in s and re.search(rf"over[^0-9]*{want:.1f}", s):
-        return True
-    # Fallback to numeric parse equality
-    ln = row_line(row)
-    return (ln is not None) and (abs(ln - want) < 1e-6)
-
 def pick_over25(row: dict) -> bool:
-    return is_over_text(row) and contains_exact_line(row, 2.5)
+    if not is_full_time(row): 
+        return False
+    md = nmarket(row.get("market_description") or "")
+    if md not in OVER25_MD: 
+        return False
+    if not is_over_text(row):
+        return False
+    line = parse_goal_line_exact(row)
+    return (line is not None) and (abs(line - 2.5) < 1e-6)
 
 def pick_btts_yes(row: dict) -> bool:
+    if not is_full_time(row):
+        return False
+    if not is_btts_market(row):
+        return False
     s = " ".join(str(row.get(k) or "") for k in ("label","name","original_label")).lower()
     return ("yes" in s) and ("no" not in s)
 
@@ -206,12 +239,11 @@ def label_to_side(label: Optional[str]) -> Optional[str]:
 
 def pick_team_over15(row: dict) -> Tuple[bool, Optional[str]]:
     """
-    Return (is_over15, side) for Team Total Goals style rows.
-    Accepts:
-      - market_description in TEAM_TTG_MD
-      - label '1'/'2' (home/away) OR contains 'home'/'away'
-      - any of label/total/name mentioning Over 1.5
+    Return (is_over15, side) for Team Total Goals rows.
+    Enforce full-time; accept Over 1.5 only.
     """
+    if not is_full_time(row):
+        return (False, None)
     md = nmarket(row.get("market_description") or "")
     if md not in TEAM_TTG_MD:
         return (False, None)
@@ -224,12 +256,12 @@ def pick_team_over15(row: dict) -> Tuple[bool, Optional[str]]:
             side = "away"
     if side is None:
         return (False, None)
-    # Must be an "Over" selection and refer to 1.5 exactly
     if not is_over_text(row):
         return (False, None)
-    if not contains_exact_line(row, 1.5):
+    line = parse_goal_line_exact(row)
+    if line is None:
         return (False, None)
-    return (True, side)
+    return (abs(line - 1.5) < 1e-6, side)
 
 def price_of(row: dict) -> Optional[float]:
     v = row.get("value")
@@ -271,10 +303,12 @@ def main():
                 continue
 
             # match team records
-            h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
-            a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
-            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # away conceded vs home
-            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home, k)), None)  # home conceded vs away
+            ts_map = ts_idx
+            opp_map = opp_idx
+            h_rec = next((ts_map[k] for k in ts_map if team_names_match(home, k)), None)
+            a_rec = next((ts_map[k] for k in ts_map if team_names_match(away, k)), None)
+            h_opp = next((opp_map[k] for k in opp_map if team_names_match(away, k)), None)  # away conceded vs home
+            a_opp = next((opp_map[k] for k in opp_map if team_names_match(home, k)), None)  # home conceded vs away
             if not (h_rec and a_rec and h_opp and a_opp):
                 continue
 
@@ -284,7 +318,6 @@ def main():
             HogA = as_int_list(a_opp.get("opp_goals_last_n"))  # away conceded vs home
             AogH = as_int_list(h_opp.get("opp_goals_last_n"))  # home conceded vs away
 
-            # guards
             def ok_len(x): return len(x) >= MIN_GAMES
 
             # Over 2.5 per team
@@ -312,13 +345,10 @@ def main():
 
             rows = (odds_by_fixture.get(fid) or {}).get("odds") or []
 
-            # ---- OVER 2.5 ----
+            # ---- OVER 2.5 (FULL-TIME ONLY, EXACT LINE) ----
             if pass_over25:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in OVER25_MD: 
-                        continue
                     if not pick_over25(r): 
                         continue
                     p = price_of(r)
@@ -330,13 +360,10 @@ def main():
                     combo = (h_over25[2] + a_over25[2]) / 2.0
                     flags_over25.append((name, best, h_over25[2], a_over25[2], combo))
 
-            # ---- BTTS YES ----
+            # ---- BTTS YES (FULL-TIME) ----
             if pass_btts:
                 best = None
                 for r in rows:
-                    md = nmarket(r.get("market_description") or "")
-                    if md not in BTTS_MD: 
-                        continue
                     if not pick_btts_yes(r): 
                         continue
                     p = price_of(r)
@@ -348,9 +375,8 @@ def main():
                     combo = (h_btts[2] + a_btts[2]) / 2.0
                     flags_btts.append((name, best, h_btts[2], a_btts[2], combo))
 
-            # ---- TEAM OVER 1.5 (Team Total Goals market) ----
+            # ---- TEAM OVER 1.5 (FULL-TIME) ----
             if pass_h15 or pass_a15:
-                # We'll scan once and record the best per side
                 best_home = None
                 best_away = None
                 for r in rows:
