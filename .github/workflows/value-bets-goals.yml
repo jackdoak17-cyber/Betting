@@ -17,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Thresholds & settings (change here if you want)
+      # Thresholds & settings
       OVER25_MIN: "0.70"
       BTTS_MIN: "0.70"
       TEAM_OVER15_MIN: "0.70"
-      MIN_DEC_PRICE: "1.80"
+      MIN_DEC_PRICE: "1.30"      # <<< lowered from 1.80
       WINDOW_DAYS: "7"
       LAST_N: "10"
       MIN_SAMPLES: "6"
@@ -57,17 +57,12 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # Add value-bets text outputs
           git add data/value_bets/*.txt
-
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
-
           git commit -m "chore(value-bets-goals): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-
           BRANCH="${GITHUB_REF_NAME:-main}"
           git pull --rebase origin "$BRANCH" || true
           git push origin HEAD:"$BRANCH"
