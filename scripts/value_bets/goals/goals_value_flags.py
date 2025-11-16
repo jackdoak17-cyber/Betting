@@ -8,10 +8,10 @@ Flags a fixture/market when BOTH are true:
   • Form threshold hit (default 70% on last-10 window)
   • Bet365 best decimal price >= MIN_PRICE (default 1.30)
 
-Form signals computed from your series (latest -> older):
+Form signals (latest -> older):
   - Over 2.5 (team totals = goals + opp_goals)  [Non-Asian only; prefers 'Alternative Total Goals']
   - BTTS (goals >0 AND opp_goals >0)
-  - Team Over 1.5 (home team, away team separately)
+  - Team Over 1.5 (home team, away team separately) — ONLY if that team is **favourite** on Match Winner (strictly shorter price)
 
 Inputs:
   - data/fixtures/{league_id}.json
@@ -152,7 +152,6 @@ def price_of(row: dict) -> Optional[float]:
     except Exception: return None
 
 def numeric_line_from_row(row: dict) -> Optional[float]:
-    # Try explicit numeric fields first; then parse inside strings
     for field in ("handicap", "name", "total", "label", "original_label"):
         s = row.get(field)
         if s is None:
@@ -173,7 +172,6 @@ def is_full_time(market_desc_norm: str) -> bool:
 def nmarket(s: str) -> str:
     return norm(s)
 
-# --- Market whitelists / priorities ---
 # Over 2.5: prefer Alternative Total Goals > Total Goals > Goals Over/Under (full time only)
 O25_PRIORITY = [
     "alternative total goals",
@@ -181,7 +179,6 @@ O25_PRIORITY = [
     "goals over/under",
     "goals over under",
 ]
-# Explicitly exclude 'goal line' here to avoid Asian totals bleeding in.
 
 BTTS_STANDALONE_MDS = {
     "both teams to score", "both teams to score?",
@@ -235,7 +232,7 @@ def is_team_over15_row(row: dict, want_side: str) -> bool:
     return False
 
 def best_price_o25(rows: List[dict]) -> Optional[float]:
-    """Get Over 2.5 price with market priority; excludes 'Goal Line'."""
+    """Get Over 2.5 price with market priority; excludes 'Goal Line' (Asian)."""
     for md in O25_PRIORITY:
         best = None
         for r in rows:
@@ -272,6 +269,31 @@ def best_price(rows: List[dict], pred) -> Optional[float]:
         except Exception:
             continue
     return best
+
+# ---------- Match Winner (favourite detection) ----------
+MATCH_WINNER_ALIASES = {
+    "match winner", "match result", "full time result", "fulltime result",
+    "1x2", "result", "win/draw/win", "90 minutes", "3-way", "3 way", "regular time result"
+}
+def is_match_winner_row(row: dict) -> bool:
+    md = nmarket(row.get("market_description") or "")
+    return md in MATCH_WINNER_ALIASES
+
+def extract_ml(rows: List[dict]) -> Tuple[Optional[float], Optional[float]]:
+    """Return (home_ml, away_ml) decimal odds from Bet365 rows for this fixture."""
+    home_ml = None; away_ml = None
+    for r in rows:
+        if not is_match_winner_row(r): 
+            continue
+        side = side_from_label(r.get("label"))
+        price = price_of(r)
+        if price is None or side not in {"home","away"}:
+            continue
+        if side == "home":
+            home_ml = price if (home_ml is None or price < home_ml) else home_ml
+        else:
+            away_ml = price if (away_ml is None or price < away_ml) else away_ml
+    return home_ml, away_ml
 
 # ---------- Main ----------
 def main():
@@ -350,6 +372,11 @@ def main():
             odds_fx = odds_by_fixture.get(fid) or {}
             rows = odds_fx.get("odds") or []
 
+            # Favourite detection (strict)
+            home_ml, away_ml = extract_ml(rows)
+            is_home_fav = (home_ml is not None and away_ml is not None and home_ml < away_ml)
+            is_away_fav = (home_ml is not None and away_ml is not None and away_ml < home_ml)
+
             # ---- Over 2.5 (Non-Asian; prefer Alternative Total Goals) ----
             if pass_over25:
                 p = best_price_o25(rows)
@@ -368,57 +395,52 @@ def main():
                 elif p is not None:
                     near_btts += 1
 
-            # ---- Team Over 1.5 (Home) ----
-            if pass_h15:
+            # ---- Team Over 1.5 (Home) — ONLY if favourite ----
+            if pass_h15 and is_home_fav:
                 p = best_price(rows, lambda r: is_team_over15_row(r, "home"))
                 if p is not None and p >= MIN_PRICE:
                     flags_team15.append((name, "home", home, p, h_o15[2]))
                 elif p is not None:
                     near_t15 += 1
 
-            # ---- Team Over 1.5 (Away) ----
-            if pass_a15:
+            # ---- Team Over 1.5 (Away) — ONLY if favourite ----
+            if pass_a15 and is_away_fav:
                 p = best_price(rows, lambda r: is_team_over15_row(r, "away"))
                 if p is not None and p >= MIN_PRICE:
                     flags_team15.append((name, "away", away, p, a_o15[2]))
                 elif p is not None:
                     near_t15 += 1
 
-    # --------- Sort (by price desc then edge proxy) ----------
-    def edge_proxy(p, q):  # q = probability estimate (combo/team)
-        return (q * p) - 1.0
-
-    flags_over25.sort(key=lambda x: (-x[1], -edge_proxy(x[1], x[4]), x[0]))
-    flags_btts.sort(key=lambda x: (-x[1], -edge_proxy(x[1], x[4]), x[0]))
-    flags_team15.sort(key=lambda x: (-x[3], -edge_proxy(x[3], x[4]), x[0], x[1]))
+    # --------- Sort (no edge; by price then %s) ----------
+    flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))            # price desc, combo desc
+    flags_btts.sort(key=lambda x: (-x[1], -x[4], x[0]))              # price desc, combo desc
+    flags_team15.sort(key=lambda x: (-x[3], -x[4], x[0], x[1]))      # price desc, team% desc
 
     # --------- Render TEXT ---------
     now_iso = dt.datetime.utcnow().isoformat(timespec="seconds")
     lines = []
     lines.append(f"Generated at (UTC): {now_iso}")
     lines.append(f"Rules: MIN_PRICE>={MIN_PRICE:.2f}, MIN_GAMES>={MIN_GAMES}, thresholds: O2.5>={int(THRESH_OVER25*100)}%, BTTS>={int(THRESH_BTTS*100)}%, TeamO1.5>={int(THRESH_TEAM_O15*100)}%")
+    lines.append("Notes: Team Over 1.5 is only flagged if that team is favourite on Match Winner (strictly shorter price).")
     lines.append("")
     def pct(p): return f"{p*100:.1f}%"
 
     lines.append("=== Over 2.5 — value flags ===")
     if not flags_over25: lines.append("  (none)")
     for name, price, hp, ap, combo in flags_over25:
-        edge = edge_proxy(price, combo)
-        lines.append(f" • {name} — Over 2.5 @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)} | edge {edge*100:+.1f}%")
+        lines.append(f" • {name} — Over 2.5 @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)}")
 
     lines.append("")
     lines.append("=== BTTS (Yes) — value flags ===")
     if not flags_btts: lines.append("  (none)")
     for name, price, hp, ap, combo in flags_btts:
-        edge = edge_proxy(price, combo)
-        lines.append(f" • {name} — BTTS Yes @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)} | edge {edge*100:+.1f}%")
+        lines.append(f" • {name} — BTTS Yes @ {price:.2f} | H {pct(hp)} / A {pct(ap)} | combo {pct(combo)}")
 
     lines.append("")
-    lines.append("=== Team Over 1.5 — value flags ===")
+    lines.append("=== Team Over 1.5 — value flags (favourites only) ===")
     if not flags_team15: lines.append("  (none)")
     for name, side, team, price, tp in flags_team15:
-        edge = edge_proxy(price, tp)
-        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)} | edge {edge*100:+.1f}% | {name}")
+        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)} | {name}")
 
     # Near misses (passed form gates but below MIN_PRICE)
     nm_parts = []
@@ -433,9 +455,9 @@ def main():
 
     # --------- Render POST (Markdown) ---------
     md = []
-    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** where the market is pricing at the configured minimum or better.")
+    md.append("I’ve collated a high-probability goals shortlist from teams’ last 10 league games and flagged **potential value** at or above your configured minimum price.")
     md.append("")
-    md.append(f"_Form gates:_ Over 2.5 ≥ {int(THRESH_OVER25*100)}%, BTTS ≥ {int(THRESH_BTTS*100)}%, Team Over 1.5 ≥ {int(THRESH_TEAM_O15*100)}% (≥{MIN_GAMES} games). Min price = **{MIN_PRICE:.2f}**.")
+    md.append(f"_Form gates:_ Over 2.5 ≥ {int(THRESH_OVER25*100)}%, BTTS ≥ {int(THRESH_BTTS*100)}%, Team Over 1.5 ≥ {int(THRESH_TEAM_O15*100)}% (≥{MIN_GAMES} games). Min price = **{MIN_PRICE:.2f}**. Team O1.5 only when the team is **favourite** on the 1X2 market.")
     md.append("")
     md.append("### Over 2.5 — value flags")
     if not flags_over25: md.append("- (none)")
@@ -449,7 +471,7 @@ def main():
         md.append(f"- **{name}** — **BTTS Yes @ {price:.2f}** (H {pct(hp)} / A {pct(ap)}; combo {pct(combo)})")
 
     md.append("")
-    md.append("### Team Over 1.5 — value flags")
+    md.append("### Team Over 1.5 — value flags (favourites only)")
     if not flags_team15: md.append("- (none)")
     for name, side, team, price, tp in flags_team15:
         md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; {pct(tp)}) — {name}")
