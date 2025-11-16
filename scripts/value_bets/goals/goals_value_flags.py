@@ -10,7 +10,7 @@ Flags a fixture/market when BOTH are true:
 
 Form signals from your series:
   - Over 2.5 (team totals = goals + opp_goals)
-  - BTTS (goals >0 AND opp_goals >0)
+  - BTTS (goals > 0 AND opp_goals > 0)
   - Team Over 1.5 (home team, away team separately)
 
 Inputs (must already exist):
@@ -30,8 +30,9 @@ Env (optional):
   - THRESH_BTTS (default 0.70)
   - THRESH_TEAM_O15 (default 0.70)
   - WINDOW_DAYS (default 7; 0 = no limit)
-  - BET365_ID (default 2)  # safeguard if your odds file contains multiple bookmakers
-  - DEBUG_MARKETS (set to 1 to print per-fixture market tallies)
+  - BET365_ID (default 2)
+  - DEBUG_MARKETS=1 (print market-id tallies per fixture)
+  - DEBUG_UNDERPRICE=1 (log near-misses with found price)
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -58,22 +59,22 @@ THRESH_TEAM_O15  = float(os.getenv("THRESH_TEAM_O15","0.70"))
 WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))
 BET365_ID        = int(os.getenv("BET365_ID", "2"))
 DEBUG_MARKETS    = bool(int(os.getenv("DEBUG_MARKETS", "0")))
+DEBUG_UNDERPRICE = bool(int(os.getenv("DEBUG_UNDERPRICE", "0")))
 
-# Hard IDs (from Sportmonks odds markets)
-MID_BTTS = 14
-MID_OU_CANDIDATES = {80, 5}        # Goals Over/Under, Alternative Match Goals
-MID_HOME_GOALS = 20                # Home Team Goals
-MID_AWAY_GOALS = 21                # Away Team Goals
+# Hard market IDs (Sportmonks)
+MID_BTTS          = 14         # Both Teams To Score
+MID_OU_CANDIDATES = {80, 5}    # Goals O/U + Alternative Match Goals
+MID_HOME_GOALS    = 20         # Home Team Goals
+MID_AWAY_GOALS    = 21         # Away Team Goals
 
 # ---------- String utils ----------
 def strip_accents(s: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFD', s or '') if unicodedata.category(c) != 'Mn')
 
 def norm(s: str) -> str:
-    import re as _re
     s = strip_accents(s or "").lower()
-    s = _re.sub(r"[^a-z0-9\s\.-]", " ", s)
-    s = _re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"[^a-z0-9\s\.-]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
     return s
 
 GENERIC_TOK = {"fc","cf","afc","sc","cd","ud","ac","as","ss","ssc","us","uc","rc","rcd","ca",
@@ -157,77 +158,85 @@ def team_over_from(goals: List[int], thr: int) -> Tuple[int,int,float]:
     n = len(xs)
     return hits, n, (hits / n) if n else 0.0
 
-# ---------- Odds parsing ----------
+# ---------- Odds helpers ----------
 def f_price(v) -> Optional[float]:
+    try: return float(v)
+    except Exception: return None
+
+def f_total(row) -> Optional[float]:
+    """Return numeric line from handicap/total (supports 2.5, '2.5', '2.50')."""
+    # numeric handicap first
+    if row.get("handicap") is not None:
+        try: return float(row["handicap"])
+        except Exception: pass
+    # then string total
+    t = row.get("total")
+    if t is None: return None
     try:
-        return float(v)
+        return float(str(t).strip())
     except Exception:
-        return None
+        # last resort: dig first number
+        m = re.search(r"([-+]?\d+(?:\.\d+)?)", str(t))
+        if m:
+            try: return float(m.group(1))
+            except Exception: return None
+    return None
+
+def same_line(row, target: float, eps: float = 1e-6) -> bool:
+    x = f_total(row)
+    return (x is not None) and (abs(x - target) <= max(eps, 1e-3))
+
+def row_active(r: dict) -> bool:
+    # some rows are suspended/closed
+    return not bool(r.get("stopped"))
 
 def best_price_over25(rows: List[dict]) -> Optional[float]:
-    """Pick best O2.5 @ Bet365 from market ids {80,5} with label Over and total==2.5"""
+    """Best O2.5 @ Bet365 from market ids {80,5}, label Over, line ~ 2.5"""
     best = None
     for r in rows:
-        if r.get("bookmaker_id") != BET365_ID: 
-            continue
-        mid = r.get("market_id")
-        if mid not in MID_OU_CANDIDATES:
-            continue
+        if r.get("bookmaker_id") != BET365_ID: continue
+        if not row_active(r): continue
+        if r.get("market_id") not in MID_OU_CANDIDATES: continue
         label = norm(str(r.get("label") or ""))
-        if "over" not in label or "under" in label:
-            continue
-        total = str(r.get("total") or "").strip()
-        if total != "2.5":
-            continue
+        if ("over" not in label) or ("under" in label): continue
+        if not same_line(r, 2.5): continue
         p = f_price(r.get("value"))
-        if p is None:
-            continue
-        if (best is None) or (p > best):
-            best = p
+        if p is None: continue
+        if (best is None) or (p > best): best = p
     return best
 
 def best_price_btts_yes(rows: List[dict]) -> Optional[float]:
-    """Pick best BTTS Yes strictly from market id 14 (avoid 1st/2nd half variants)."""
+    """Best BTTS Yes strictly from market id 14 (avoid halves/variants)."""
     best = None
     for r in rows:
-        if r.get("bookmaker_id") != BET365_ID:
-            continue
-        if r.get("market_id") != MID_BTTS:
-            continue
+        if r.get("bookmaker_id") != BET365_ID: continue
+        if not row_active(r): continue
+        if r.get("market_id") != MID_BTTS: continue
         label = norm(str(r.get("label") or ""))
         name  = norm(str(r.get("name") or ""))
-        if ("yes" not in label and "yes" not in name):
-            continue
+        if ("yes" not in label) and ("yes" not in name): continue
         p = f_price(r.get("value"))
-        if p is None:
-            continue
-        if (best is None) or (p > best):
-            best = p
+        if p is None: continue
+        if (best is None) or (p > best): best = p
     return best
 
 def best_price_team_o15(rows: List[dict], home_side: bool) -> Optional[float]:
-    """Home uses market 20, away uses market 21 (label Over, total 1.5)"""
+    """Home uses market 20, away uses 21 (label Over, line ~1.5)."""
     want_mid = MID_HOME_GOALS if home_side else MID_AWAY_GOALS
     best = None
     for r in rows:
-        if r.get("bookmaker_id") != BET365_ID:
-            continue
-        if r.get("market_id") != want_mid:
-            continue
+        if r.get("bookmaker_id") != BET365_ID: continue
+        if not row_active(r): continue
+        if r.get("market_id") != want_mid: continue
         label = norm(str(r.get("label") or ""))
-        if "over" not in label or "under" in label:
-            continue
-        total = str(r.get("total") or "").strip()
-        if total != "1.5":
-            continue
+        if ("over" not in label) or ("under" in label): continue
+        if not same_line(r, 1.5): continue
         p = f_price(r.get("value"))
-        if p is None:
-            continue
-        if (best is None) or (p > best):
-            best = p
+        if p is None: continue
+        if (best is None) or (p > best): best = p
     return best
 
-# ---------- Debug: what markets are present? ----------
+# ---------- Debug ----------
 def tally_markets(rows: List[dict]) -> Dict[int, int]:
     d: Dict[int,int] = {}
     for r in rows:
@@ -272,7 +281,6 @@ def main():
             if not (home and away): 
                 continue
 
-            # find team records (overall last-10)
             h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
             a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
             h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # away conceded vs home
@@ -318,6 +326,8 @@ def main():
                     flags_over25.append((name, p, h_over25[2], a_over25[2], combo))
                 elif p:
                     near_o25 += 1
+                    if DEBUG_UNDERPRICE:
+                        print(f"[UNDER] O2.5 {name} best={p:.2f} < {MIN_PRICE:.2f}")
 
             # ---- BTTS YES ----
             if pass_btts:
@@ -327,6 +337,8 @@ def main():
                     flags_btts.append((name, p, h_btts[2], a_btts[2], combo))
                 elif p:
                     near_btts += 1
+                    if DEBUG_UNDERPRICE:
+                        print(f"[UNDER] BTTS {name} best={p:.2f} < {MIN_PRICE:.2f}")
 
             # ---- TEAM OVER 1.5 ----
             if pass_h15:
@@ -335,14 +347,18 @@ def main():
                     flags_team15.append((name, "home", home, p, h_o15[2]))
                 elif p:
                     near_t15 += 1
+                    if DEBUG_UNDERPRICE:
+                        print(f"[UNDER] TeamO1.5 {home} (home) {name} best={p:.2f} < {MIN_PRICE:.2f}")
             if pass_a15:
                 p = best_price_team_o15(rows, home_side=False)
                 if p and p >= MIN_PRICE:
                     flags_team15.append((name, "away", away, p, a_o15[2]))
                 elif p:
                     near_t15 += 1
+                    if DEBUG_UNDERPRICE:
+                        print(f"[UNDER] TeamO1.5 {away} (away) {name} best={p:.2f} < {MIN_PRICE:.2f}")
 
-    # --------- Sort (by price desc then edge proxy) ----------
+    # --------- Sort (by price desc then a simple edge proxy) ----------
     def edge_proxy(p, q):  # q = probability estimate (combo/team)
         return (q * p) - 1.0
 
@@ -378,7 +394,6 @@ def main():
         edge = edge_proxy(price, tp)
         lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)} | edge {edge*100:+.1f}% | {name}")
 
-    # near-misses
     nm = []
     if near_o25: nm.append(f"O2.5={near_o25}")
     if near_btts: nm.append(f"BTTS={near_btts}")
