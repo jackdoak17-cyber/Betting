@@ -12,6 +12,7 @@ Form signals (latest -> older):
   - Over 2.5 (team totals = goals + opp_goals)  [Non-Asian only; prefers 'Alternative Total Goals']
   - BTTS (goals >0 AND opp_goals >0)
   - Team Over 1.5 (home team, away team separately) — ONLY if that team is **favourite** on Match Winner (strictly shorter price)
+    • Now also displays that team’s **Win (1X2) price**.
 
 Inputs:
   - data/fixtures/{league_id}.json
@@ -270,7 +271,7 @@ def best_price(rows: List[dict], pred) -> Optional[float]:
             continue
     return best
 
-# ---------- Match Winner (favourite detection) ----------
+# ---------- Match Winner (favourite detection & display) ----------
 MATCH_WINNER_ALIASES = {
     "match winner", "match result", "full time result", "fulltime result",
     "1x2", "result", "win/draw/win", "90 minutes", "3-way", "3 way", "regular time result"
@@ -301,7 +302,8 @@ def main():
 
     flags_over25 = []  # (fixture, price, home%, away%, combo%)
     flags_btts   = []  # (fixture, price, home%, away%, combo%)
-    flags_team15 = []  # (fixture, side, team, price, team%)
+    # add ML price to Team O1.5 tuple
+    flags_team15 = []  # (fixture, side, team, price, team%, ml_price)
 
     near_o25 = 0
     near_btts = 0
@@ -372,7 +374,7 @@ def main():
             odds_fx = odds_by_fixture.get(fid) or {}
             rows = odds_fx.get("odds") or []
 
-            # Favourite detection (strict)
+            # Favourite detection (strict) + capture ML prices
             home_ml, away_ml = extract_ml(rows)
             is_home_fav = (home_ml is not None and away_ml is not None and home_ml < away_ml)
             is_away_fav = (home_ml is not None and away_ml is not None and away_ml < home_ml)
@@ -395,26 +397,28 @@ def main():
                 elif p is not None:
                     near_btts += 1
 
-            # ---- Team Over 1.5 (Home) — ONLY if favourite ----
+            # ---- Team Over 1.5 (Home) — ONLY if favourite; include Win price ----
             if pass_h15 and is_home_fav:
                 p = best_price(rows, lambda r: is_team_over15_row(r, "home"))
                 if p is not None and p >= MIN_PRICE:
-                    flags_team15.append((name, "home", home, p, h_o15[2]))
+                    ml_price = home_ml if home_ml is not None else None
+                    flags_team15.append((name, "home", home, p, h_o15[2], ml_price))
                 elif p is not None:
                     near_t15 += 1
 
-            # ---- Team Over 1.5 (Away) — ONLY if favourite ----
+            # ---- Team Over 1.5 (Away) — ONLY if favourite; include Win price ----
             if pass_a15 and is_away_fav:
                 p = best_price(rows, lambda r: is_team_over15_row(r, "away"))
                 if p is not None and p >= MIN_PRICE:
-                    flags_team15.append((name, "away", away, p, a_o15[2]))
+                    ml_price = away_ml if away_ml is not None else None
+                    flags_team15.append((name, "away", away, p, a_o15[2], ml_price))
                 elif p is not None:
                     near_t15 += 1
 
     # --------- Sort (no edge; by price then %s) ----------
-    flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))            # price desc, combo desc
-    flags_btts.sort(key=lambda x: (-x[1], -x[4], x[0]))              # price desc, combo desc
-    flags_team15.sort(key=lambda x: (-x[3], -x[4], x[0], x[1]))      # price desc, team% desc
+    flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))                  # price desc, combo desc
+    flags_btts.sort(key=lambda x: (-x[1], -x[4], x[0]))                    # price desc, combo desc
+    flags_team15.sort(key=lambda x: (-x[3], -x[4], x[0], x[1]))            # price desc, team% desc
 
     # --------- Render TEXT ---------
     now_iso = dt.datetime.utcnow().isoformat(timespec="seconds")
@@ -439,14 +443,15 @@ def main():
     lines.append("")
     lines.append("=== Team Over 1.5 — value flags (favourites only) ===")
     if not flags_team15: lines.append("  (none)")
-    for name, side, team, price, tp in flags_team15:
-        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)} | {name}")
+    for name, side, team, price, tp, ml in flags_team15:
+        ml_str = f" | Win @ {ml:.2f}" if isinstance(ml, float) else ""
+        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)}{ml_str} | {name}")
 
     # Near misses (passed form gates but below MIN_PRICE)
     nm_parts = []
-    if near_o25: nm_parts.append(f"O2.5={near_o25}")
-    if near_btts: nm_parts.append(f"BTTS={near_btts}")
-    if near_t15: nm_parts.append(f"TeamO1.5={near_t15}")
+    if 'near_o25' in locals() and near_o25: nm_parts.append(f"O2.5={near_o25}")
+    if 'near_btts' in locals() and near_btts: nm_parts.append(f"BTTS={near_btts}")
+    if 'near_t15' in locals() and near_t15: nm_parts.append(f"TeamO1.5={near_t15}")
     if nm_parts:
         lines.append("")
         lines.append(f"(near-misses: {', '.join(nm_parts)})  # passed form but below MIN_PRICE")
@@ -473,8 +478,9 @@ def main():
     md.append("")
     md.append("### Team Over 1.5 — value flags (favourites only)")
     if not flags_team15: md.append("- (none)")
-    for name, side, team, price, tp in flags_team15:
-        md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; {pct(tp)}) — {name}")
+    for name, side, team, price, tp, ml in flags_team15:
+        ml_md = f"; **Win @ {ml:.2f}**" if isinstance(ml, float) else ""
+        md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; {pct(tp)}{ml_md}) — {name}")
 
     OUT_MD.write_text("\n".join(md).rstrip() + "\n", encoding="utf-8")
 
