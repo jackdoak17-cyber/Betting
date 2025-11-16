@@ -1,12 +1,9 @@
-name: Value Bets — Goals (Over2.5, BTTS, Team O1.5)
+name: Value Bets — Goals (H2H + flags)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 minutes (UTC)
-
-permissions:
-  contents: write
+    - cron: "*/30 * * * *"  # every 30 mins (UTC)
 
 concurrency:
   group: value-bets-goals
@@ -15,27 +12,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      # Thresholds & settings
-      OVER25_MIN: "0.70"
-      BTTS_MIN: "0.70"
-      TEAM_OVER15_MIN: "0.70"
-      MIN_DEC_PRICE: "1.30"      # <<< lowered from 1.80
-      WINDOW_DAYS: "7"
-      LAST_N: "10"
-      MIN_SAMPLES: "6"
-      # Optionally restrict leagues:
-      # LEAGUE_IDS: "8,9,72,82,181,208,244,271,301,384,387,444,453,462,501,564,567,573,591,600"
-
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -48,21 +30,42 @@ jobs:
             pip install requests
           fi
 
-      - name: Run goals value flags
+      # 1) Prefetch last-2 H2H and cache locally (API call)
+      - name: Prefetch last-2 H2H (cache)
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          H2H_CACHE_HOURS: "24"
+          # Optional: restrict which leagues you refresh
+          # LEAGUE_IDS: "8,82,301,384,387,564,567,600,9"
+        run: |
+          python scripts/h2h_last2_fetch.py
+
+      # 2) Generate value flags (LOCAL files only)
+      - name: Generate value flags (goals)
+        env:
+          MIN_PRICE: "1.30"
+          MIN_GAMES: "6"
+          THRESH_OVER25: "0.70"
+          THRESH_BTTS: "0.70"
+          THRESH_TEAM_O15: "0.70"
+          WINDOW_DAYS: "7"
         run: |
           python scripts/value_bets/goals/goals_value_flags.py
 
-      - name: Commit & push output
+      - name: Commit & push results
         run: |
           set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/value_bets/*.txt
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # stage any updated caches + outputs
+          git add data/h2h/*.json 2>/dev/null || true
+          git add data/value_bets/goals_value_flags.txt posts/value_bets_goals.md 2>/dev/null || true
+
           if git diff --cached --quiet; then
             echo "No changes to commit."
-            exit 0
+          else
+            git commit -m "chore: update H2H caches and goals value flags"
+            git push
           fi
-          git commit -m "chore(value-bets-goals): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          BRANCH="${GITHUB_REF_NAME:-main}"
-          git pull --rebase origin "$BRANCH" || true
-          git push origin HEAD:"$BRANCH"
