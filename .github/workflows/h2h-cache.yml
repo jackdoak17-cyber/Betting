@@ -1,0 +1,49 @@
+name: H2H Cache — SportMonks
+
+on:
+  workflow_dispatch:
+  # Run twice an hour; adjust as you like (UTC times)
+  schedule:
+    - cron: "10,40 * * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: h2h-cache
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: python -m pip install --upgrade pip requests
+
+      - name: Fetch H2H caches
+        env:
+          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
+          # Optional tuning:
+          H2H_CACHE_HOURS: "24"
+          SM_SLEEP: "0.05"
+          SM_TIMEOUT: "20"
+        run: python scripts/h2h_last2_fetch.py
+
+      - name: Commit & push H2H cache updates
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore(h2h): refresh head-to-head caches"
+            git push
+          else
+            echo "No H2H changes to commit."
+          fi
