@@ -1,19 +1,15 @@
-name: H2H Cache — SportMonks
+name: H2H Cache — SportMonks (daily)
 
 on:
   workflow_dispatch:
-  # Run twice an hour; adjust as you like (UTC times)
   schedule:
-    - cron: "10,40 * * * *"
+    - cron: "55 7 * * *"  # 07:55 UTC daily
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: h2h-cache
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,7 +25,6 @@ jobs:
       - name: Fetch H2H caches
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          # Optional tuning:
           H2H_CACHE_HOURS: "24"
           SM_SLEEP: "0.05"
           SM_TIMEOUT: "20"
@@ -40,8 +35,8 @@ jobs:
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add -A
+          if ! git diff --quiet -- data/h2h; then
+            git add data/h2h
             git commit -m "chore(h2h): refresh head-to-head caches"
             git push
           else
