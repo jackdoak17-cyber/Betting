@@ -9,18 +9,14 @@ Leave a like if you find these useful.
 • M. Gibbs-White (Nottm Forest) = 3, 2, 2, 4, 2
 • E. Haaland (Man City) = 2, 6, 3, 5, 1
 • I. Thiago (Brentford) = 3, 0, 4, 6, 2
-• B. Fernandes (TBC) = 1, 2, 4, 2, 3
-• B. Saka (Arsenal) = 3, 2, 1, 2, 4
-• B. Mbeumo (TBC) = 2, 1, 3, 3, 2
 • J. Bowen (West Ham) = 3, 4, 2, 2, 0
-• L. Trossard (Arsenal) = 1, 2, 3, 3, 2
-• M. Cunha (TBC) = 1, 2, 2, 2, 4
+• F. Wirtz (Liverpool) = 2, 1, 2, 3, 2
 
 📊2+ Fouls Committed in ≥4/5📊
 
+• S. Lukić (Fulham) = 3, 4, 4, 3, 3
 • D. Burn (Newcastle) = 4, 2, 3, 2, 2
-• P. Sarr (Spurs) = 2, 3, 1, 6, 3
-• E. Ampadu (Leeds United) = 3, 2, 3, 1, 2
+• J. Gomes (Wolves) = 4, 2, 2, 3, 1
 • R. Sessegnon (Fulham) = 1, 2, 2, 4, 2
 • K. Schade (Brentford) = 2, 1, 3, 2, 2
 • R. Jiménez (Fulham) = 2, 2, 0, 4, 2
