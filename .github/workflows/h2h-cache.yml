@@ -37,6 +37,7 @@ jobs:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           H2H_MATCHES: 5
           H2H_CACHE_HOURS: 24
+          H2H_OVERWRITE_EMPTY: 0
           SM_SLEEP: 0.05
           SM_TIMEOUT: 20
         run: |
@@ -48,11 +49,9 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Force-add in case data/ is in .gitignore
-          git add -f data/h2h/summary.txt || true
           git add -f data/h2h/*.json 2>/dev/null || true
           git add -f data/h2h/by_league/*.json 2>/dev/null || true
-          git add -f posts/h2h_summary.md || true
+          git add -f data/h2h/summary.txt || true
 
           if git diff --cached --quiet; then
             echo "No staged changes to commit."
