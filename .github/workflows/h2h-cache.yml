@@ -26,25 +26,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Sanity — list by_league fixtures
-        run: |
-          echo "Listing data/fixtures/by_league:"
-          ls -la data/fixtures/by_league || true
-          echo "Preview a couple files:"
-          for f in $(ls data/fixtures/by_league/*.json 2>/dev/null | head -n 3); do
-            echo "== $f =="; head -n 5 "$f" || true; echo; 
-          done
-
       - name: Build H2H caches & league bundles
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           H2H_MATCHES: 5
           H2H_CACHE_HOURS: 24
           H2H_OVERWRITE_EMPTY: 0
+          H2H_FORCE_REFETCH_EMPTY: 1   # <- key fix: refetch any "empty" cache
           SM_SLEEP: 0.05
           SM_TIMEOUT: 20
-          # Optional: limit to certain leagues (comma separated) e.g. "8,82,301"
-          # LEAGUE_IDS: "8"
+          # LEAGUE_IDS: "8"  # optional limiter
         run: |
           python scripts/h2h_last2_fetch.py
 
@@ -54,10 +45,6 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # ensure paths exist (script should have created them)
-          mkdir -p data/h2h/by_league
-
-          # stage only what we write
           git add -f data/h2h/*.json 2>/dev/null || true
           git add -f data/h2h/by_league/*.json 2>/dev/null || true
           git add -f data/h2h/summary.txt 2>/dev/null || true
