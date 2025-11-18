@@ -4,7 +4,7 @@
 """
 H2H cache & summary builder — Sportmonks v3
 
-- Reads upcoming fixtures from data/fixtures/*.json (your existing fetcher).
+- Reads upcoming fixtures from data/fixtures/*.json (your existing fetcher output).
 - For each unique team pair in those fixtures, fetches last-N H2H fixtures
   with includes: participants;scores;statistics.type;events.type
 - Caches per-pair vectors (goals, shots, SOT, corners, fouls, offsides,
@@ -23,10 +23,10 @@ ENV:
   SM_SLEEP          (default 0.05)
   SM_TIMEOUT        (default 20)
 
-Notes on shots:
-- We DO NOT equate "Goal Attempts" with total shots.
-- Robust total shots is resolved in this precedence:
-    total_shots > (SOT+Off+Blocked) > (Attempts+Blocked) > Attempts > (SOT+Off)
+Shots rule (important):
+- DO NOT equate "Goal Attempts" with total shots.
+- Robust total shots precedence:
+    total_shots > (SOT + OffTarget + Blocked) > (Attempts + Blocked) > Attempts > (SOT + OffTarget)
 """
 
 from __future__ import annotations
@@ -164,7 +164,7 @@ ALIASES = {
     "fouls": "fouls",
     "offsides": "offsides", "offside": "offsides",
     "possession": "poss", "ball possession": "poss", "ball possession %": "poss", "possession %": "poss",
-    # sometimes card counts appear in statistics too
+    # sometimes cards appear in statistics too
     "yellow cards": "yellow", "yellow": "yellow",
     "red cards": "red", "red": "red",
 }
@@ -323,7 +323,7 @@ def build_pair_cache(a: int, b: int, lastN: int) -> dict:
         stats  = get_list_or_data(it, "statistics")
         events = get_list_or_data(it, "events")
 
-        # Try to identify fixture home/away ids for metadata (best-effort)
+        # Identify historical home/away ids for metadata (best-effort)
         hid = aid = None
         for p in parts:
             try:
@@ -362,7 +362,6 @@ def build_pair_cache(a: int, b: int, lastN: int) -> dict:
             seqs[tid]["red"].append(    r )
             seqs[tid]["poss"].append(   st.get("poss") )
 
-        # meta row (if we know home/away)
         meta_list.append({
             "starting_at": start,
             "home_goals": extract_ft_goals(scores, hid) if isinstance(hid, int) else None,
@@ -473,8 +472,9 @@ def build_summary_from_bundles() -> str:
 
     lines_txt: List[str] = []
     lines_md: List[str] = []
-    lines_txt.append(f"Generated at (UTC): {now_utc_iso()}\n")
-    lines_md.append(f"# H2H Summary (cached)\n_Generated at (UTC): {now_utc_iso()}_\n")
+    now = now_utc_iso()
+    lines_txt.append(f"Generated at (UTC): {now}\n")
+    lines_md.append(f"# H2H Summary (cached)\n_Generated at (UTC): {now}_\n")
 
     for bundle in bundles:
         lid = bundle.get("league_id")
@@ -578,11 +578,11 @@ def main():
     # 3) Build league bundles
     count = 0
     for lid in league_ids:
-        out = build_league_bundle(lid, fixtures_by_league[lid])
+        build_league_bundle(lid, fixtures_by_league[lid])
         count += 1
     print(f"Wrote league bundles: {count} -> data/h2h/by_league/<league_id>.json")
 
-    # 4) Build human summaries (always)
+    # 4) Build human summaries (always so there’s something to commit)
     msg = build_summary_from_bundles()
     print(msg)
 
