@@ -2,33 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """
-H2H cache & league bundle — Sportmonks v3
+H2H cache & league bundle — Sportmonks v3 (robust, no-blank-bundles)
 
-What it does
-------------
-1) Reads upcoming fixtures from: data/fixtures/by_league/{league_id}.json
-   (expects participants with meta.location "home"/"away")
-2) For each unique pair, fetches last N H2H fixtures using v3:
-      /v3/football/fixtures/head-to-head/{A}/{B}
-   Includes fallbacks so 'statistics.type' / 'events.type' 404s don’t kill it.
-3) Builds per-pair caches: data/h2h/{lo}_{hi}.json
-   - Stores lastN_meta (date + FT home/away goals)
-   - Stores sequences per team (goals, shots, sot, corners, fouls, offsides, yellow, red, poss)
-   - **Never writes an empty cache** if the API returned 0 rows.
-4) Builds per-league JSON bundles: data/h2h/by_league/{league_id}.json
-   - One object per upcoming fixture with `vectors.home` and `vectors.away`
-   - Uses the sequences from the pair cache
-5) Writes a human summary to data/h2h/summary.txt (optional quick check)
+- Reads upcoming fixtures from: data/fixtures/by_league/{league_id}.json
+- Builds/refreshes per-pair caches in: data/h2h/<lo>_<hi>.json
+- Writes per-league bundles to: data/h2h/by_league/{league_id}.json
+- Never leaves league bundles with empty vectors: if a cache is present but
+  effectively empty, we force a refetch (ignores TTL) and re-bundle.
 
 Env
 ---
 SPORTMONKS_TOKEN (required)
-H2H_MATCHES        default 5
-H2H_CACHE_HOURS    default 24 (don’t refetch fresh caches)
-H2H_OVERWRITE_EMPTY default 0 (ignore empty fetches if a cache exists)
-SM_SLEEP           default 0.05
-SM_TIMEOUT         default 20
-LEAGUE_IDS         optional "8,82,..." to limit which by_league files are read
+H2H_MATCHES          default 5
+H2H_CACHE_HOURS      default 24
+H2H_OVERWRITE_EMPTY  default 0   # do not overwrite with truly empty fetch results
+H2H_FORCE_REFETCH_EMPTY default 1 # if cache looks empty, refetch ignoring TTL
+SM_SLEEP             default 0.05
+SM_TIMEOUT           default 20
+LEAGUE_IDS           optional "8,82,..." to limit processed leagues
 """
 
 from __future__ import annotations
@@ -50,14 +41,15 @@ if not TOKEN:
     print("ERROR: SPORTMONKS_TOKEN not set.", file=sys.stderr)
     sys.exit(1)
 
-H2H_MATCHES       = int(os.getenv("H2H_MATCHES", "5"))
-CACHE_HOURS       = int(os.getenv("H2H_CACHE_HOURS", "24"))
-SM_SLEEP          = float(os.getenv("SM_SLEEP", "0.05"))
-SM_TIMEOUT        = int(os.getenv("SM_TIMEOUT", "20"))
-OVERWRITE_EMPTY   = os.getenv("H2H_OVERWRITE_EMPTY", "0") == "1"
+H2H_MATCHES            = int(os.getenv("H2H_MATCHES", "5"))
+CACHE_HOURS            = int(os.getenv("H2H_CACHE_HOURS", "24"))
+SM_SLEEP               = float(os.getenv("SM_SLEEP", "0.05"))
+SM_TIMEOUT             = int(os.getenv("SM_TIMEOUT", "20"))
+OVERWRITE_EMPTY        = os.getenv("H2H_OVERWRITE_EMPTY", "0") == "1"
+FORCE_REFETCH_EMPTY    = os.getenv("H2H_FORCE_REFETCH_EMPTY", "1") == "1"
 
 ROOT      = Path(".")
-FIX_DIR   = ROOT / "data" / "fixtures" / "by_league"   # <-- per your repo
+FIX_DIR   = ROOT / "data" / "fixtures" / "by_league"
 PAIR_DIR  = ROOT / "data" / "h2h"
 LG_DIR    = PAIR_DIR / "by_league"
 PAIR_DIR.mkdir(parents=True, exist_ok=True)
@@ -120,6 +112,23 @@ def cache_fresh(p: Path) -> bool:
     except Exception:
         return False
 
+# “Effectively empty” = no lastN_meta OR both teams vectors are missing/empty
+def cache_effectively_empty(j: dict, a: int, b: int) -> bool:
+    if not j: return True
+    if not (j.get("lastN_meta") or []):  # no rows captured
+        return True
+    teams = j.get("teams") or {}
+    def _empty_team(tid: int) -> bool:
+        obj = teams.get(str(tid)) or {}
+        keys = ["goals","shots","sot","corners","fouls","offsides","yellow","red","poss"]
+        if not obj: return True
+        for k in keys:
+            seq = obj.get(k) or []
+            if any(v is not None for v in seq):
+                return False
+        return True
+    return _empty_team(a) and _empty_team(b)
+
 # ---------- Fixture discovery ----------
 def discover_league_ids() -> List[int]:
     out = []
@@ -144,24 +153,19 @@ def extract_fixture_home_away(fx: dict) -> Tuple[Optional[int], Optional[str], O
             away_id = pid; away_name = p.get("name")
     return home_id, home_name, away_id, away_name
 
-# ---------- Stats parsing (identical logic to your local working script) ----------
+# ---------- Stats parsing (same as your local working script) ----------
 ALIASES = {
-    # explicit total shots
     "total shots": "shots_total", "shots total": "shots_total", "shots": "shots_total",
     "total shots (incl blocks)": "shots_total", "shots (total)": "shots_total",
-    # on target / off target
     "shots on target": "sot", "on target": "sot", "shots on": "sot", "shots on goal": "sot",
     "shots off target": "soff", "off target": "soff",
-    # blocked + attempts
     "blocked shots": "sblk", "shots blocked": "sblk", "blocked": "sblk",
     "goal attempts": "attempts", "attempts": "attempts", "attempts on goal": "attempts",
     "attempts at goal": "attempts", "shots attempts": "attempts", "shots attempted": "attempts",
-    # others
     "corners": "corners", "corner": "corners", "corner kicks": "corners",
     "fouls": "fouls",
     "offsides": "offsides", "offside": "offsides",
     "possession": "poss", "ball possession": "poss", "ball possession %": "poss", "possession %": "poss",
-    # sometimes in statistics
     "yellow cards": "yellow", "yellow": "yellow",
     "red cards": "red", "red": "red",
 }
@@ -194,7 +198,6 @@ def extract_stats_for_team(stats: List[dict], tid: int) -> Dict[str, Optional[in
         if val is not None:
             out[normkey] = int(val)
 
-    # Robust total shots synthesis (never equate attempts==shots)
     shots_total = out.get("shots_total")
     sot  = out.get("sot")
     soff = out.get("soff")
@@ -212,8 +215,7 @@ def extract_stats_for_team(stats: List[dict], tid: int) -> Dict[str, Optional[in
     elif (sot is not None) or (soff is not None):
         out["shots"] = (sot or 0) + (soff or 0)
 
-    if "poss" in out:
-        out["poss"] = to_int(out["poss"])
+    if "poss" in out: out["poss"] = to_int(out["poss"])
     return out
 
 def extract_ft_goals(scores: List[dict], tid: int) -> Optional[int]:
@@ -262,6 +264,7 @@ def _fetch_h2h_once(a: int, b: int, want: int, include: str) -> List[dict]:
     out = []
     while True:
         r = requests.get(url, params=params, timeout=SM_TIMEOUT)
+        # if include causes a 404 (unsupported include), try next include variant
         if r.status_code == 404 and "include" in (r.text or "").lower():
             return []
         if r.status_code != 200:
@@ -293,7 +296,8 @@ def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
         "participants;scores"
     ]
     collected: List[dict] = []
-    for x,y in ((a,b),(b,a)):  # both orders
+    # try both orders just in case one direction returns more rows
+    for x,y in ((a,b),(b,a)):
         got = []
         for inc in include_attempts:
             got = _fetch_h2h_once(x, y, want, inc)
@@ -303,6 +307,7 @@ def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
         if len(collected) >= want:
             break
 
+    # de-dup by fixture id
     seen = set()
     dedup: List[dict] = []
     for it in collected:
@@ -314,17 +319,23 @@ def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
     return dedup[:want]
 
 # ---------- Pair cache build ----------
-def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
-    """Fetch and write pair cache. Returns payload if written, None if skipped."""
+def build_pair_cache(a: int, b: int, lastN: int, force: bool=False) -> Optional[dict]:
+    """
+    Fetch and write pair cache.
+    - If force=True: ignore TTL and try to refresh.
+    - If fetch yields 0 items and OVERWRITE_EMPTY=0, do not overwrite existing cache.
+    """
+    p = cache_path_for_pair(a, b)
+    if (not force) and cache_fresh(p):
+        return None
+
     items = fetch_h2h(a, b, lastN)
 
-    # Never create/overwrite a cache with empty results
     if not items:
-        # If an old cache exists and OVERWRITE_EMPTY=0, keep it; otherwise do nothing
-        if cache_path_for_pair(a,b).exists() and not OVERWRITE_EMPTY:
+        if p.exists() and not OVERWRITE_EMPTY:
             return None
         else:
-            return None  # do not write empty files
+            return None  # never write empty caches
 
     seqs: Dict[int, Dict[str, List[Optional[int]]]] = {
         a: {"goals":[], "shots":[], "sot":[], "corners":[], "fouls":[], "offsides":[], "yellow":[], "red":[], "poss":[]},
@@ -334,20 +345,18 @@ def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
 
     for it in items:
         start = it.get("starting_at")
-
         parts  = get_list_or_data(it, "participants")
         scores = get_list_or_data(it, "scores")
         stats  = get_list_or_data(it, "statistics")
         events = get_list_or_data(it, "events")
 
-        # Identify fixture's home/away (for meta only)
         hid = aid = None
-        for p in parts:
+        for ppp in parts:
             try:
-                pid = int(p.get("id"))
+                pid = int(ppp.get("id"))
             except Exception:
                 continue
-            loc = ((p.get("meta") or {}).get("location") or "").lower()
+            loc = ((ppp.get("meta") or {}).get("location") or "").lower()
             if loc == "home": hid = pid
             elif loc == "away": aid = pid
 
@@ -359,16 +368,12 @@ def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
 
         Ay, Ar = count_cards_from_events(events, a)
         By, Br = count_cards_from_events(events, b)
-
         if Ay == 0 and Ar == 0 and (Astat.get("yellow") or Astat.get("red")):
             Ay = int(Astat.get("yellow") or 0); Ar = int(Astat.get("red") or 0)
         if By == 0 and Br == 0 and (Bstat.get("yellow") or Bstat.get("red")):
             By = int(Bstat.get("yellow") or 0); Br = int(Bstat.get("red") or 0)
 
-        for tid, g, st, y, r in [
-            (a, Ag, Astat, Ay, Ar),
-            (b, Bg, Bstat, By, Br),
-        ]:
+        for tid, g, st, y, r in [(a, Ag, Astat, Ay, Ar), (b, Bg, Bstat, By, Br)]:
             seqs[tid]["goals"].append( None if g is None else int(g) )
             seqs[tid]["shots"].append( st.get("shots") )
             seqs[tid]["sot"].append(   st.get("sot") )
@@ -382,7 +387,7 @@ def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
         meta_list.append({
             "starting_at": start,
             "home_goals": extract_ft_goals(scores, hid) if isinstance(hid, int) else None,
-            "away_goals": extract_ft_goals(scores, aid) if isinstance(aid, int) else None
+            "away_goals": extract_ft_goals(scores, aid) if isinstance(aid, int) else None,
         })
 
     lo, hi = (a, b) if a <= b else (b, a)
@@ -392,10 +397,7 @@ def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
         "fetched_at": now_utc_iso(),
         "lastN": lastN,
         "lastN_meta": meta_list,
-        "teams": {
-            str(a): seqs[a],
-            str(b): seqs[b],
-        }
+        "teams": { str(a): seqs[a], str(b): seqs[b] },
     }
     write_json(cache_path_for_pair(a, b), payload)
     return payload
@@ -411,9 +413,14 @@ def build_league_bundle(lid: int, fx_blob: dict) -> dict:
         if not (isinstance(hid, int) and isinstance(aid, int)):
             continue
 
-        pairp = cache_path_for_pair(hid, aid)
-        cache_present = pairp.exists()
-        cache = load_json(pairp) if cache_present else {}
+        # Ensure cache exists and is NOT effectively empty
+        p = cache_path_for_pair(hid, aid)
+        cache = load_json(p) if p.exists() else {}
+
+        if FORCE_REFETCH_EMPTY and cache_effectively_empty(cache, hid, aid):
+            # force a refresh (ignore TTL) and reload
+            build_pair_cache(hid, aid, H2H_MATCHES, force=True)
+            cache = load_json(p)
 
         home_vec = {
             "goals":      seq_for_team(cache, hid, "goals"),
@@ -447,7 +454,7 @@ def build_league_bundle(lid: int, fx_blob: dict) -> dict:
             "fetched_at": (cache.get("fetched_at") or None),
             "lastN_meta": cache.get("lastN_meta") or [],
             "vectors": {"home": home_vec, "away": away_vec},
-            "cache_present": bool(cache_present),
+            "cache_present": p.exists(),
         })
 
     out = {
@@ -467,31 +474,25 @@ def _pairwise_sum(a: List[Optional[int]], b: List[Optional[int]]) -> List[Option
     n = min(len(a or []), len(b or []))
     out: List[Optional[int]] = []
     for i in range(n):
-        if a[i] is None or b[i] is None:
-            out.append(None)
-        else:
-            out.append(int(a[i]) + int(b[i]))
+        if a[i] is None or b[i] is None: out.append(None)
+        else: out.append(int(a[i]) + int(b[i]))
     return out
 
 def build_summary_from_bundles() -> str:
     bundles = []
     for p in sorted(LG_DIR.glob("*.json")):
-        try:
-            bundles.append(json.loads(p.read_text(encoding="utf-8")))
-        except Exception:
-            pass
+        try: bundles.append(json.loads(p.read_text(encoding="utf-8")))
+        except Exception: pass
 
     if not bundles:
         msg = "No league bundles found in data/h2h/by_league/"
-        OUT_SUM_TXT.write_text(msg + "\n", encoding="utf-8")
-        return msg
+        OUT_SUM_TXT.write_text(msg + "\n", encoding="utf-8"); return msg
 
     lines: List[str] = [f"Generated at (UTC): {now_utc_iso()}\n"]
     for bundle in bundles:
         lid = bundle.get("league_id")
         fixtures = bundle.get("fixtures") or []
-        if not fixtures:
-            continue
+        if not fixtures: continue
 
         lines.append(f"===== League {lid} =====")
         for fx in fixtures:
@@ -547,7 +548,7 @@ def main():
         print("No leagues discovered under data/fixtures/by_league/*.json", file=sys.stderr)
         sys.exit(1)
 
-    # read fixtures & pairs
+    # collect pairs from fixtures
     pairs: List[Tuple[int,int]] = []
     fixtures_by_league: Dict[int, dict] = {}
     for lid in league_ids:
@@ -558,24 +559,23 @@ def main():
             if isinstance(hid, int) and isinstance(aid, int):
                 pairs.append((hid, aid))
 
-    # unique pairs (order-insensitive)
-    seen = set()
-    uniq_pairs: List[Tuple[int,int]] = []
+    # unique pairs
+    seen = set(); uniq_pairs: List[Tuple[int,int]] = []
     for a, b in pairs:
         key = (a, b) if a < b else (b, a)
         if key not in seen:
-            seen.add(key)
-            uniq_pairs.append((a, b))
+            seen.add(key); uniq_pairs.append((a, b))
 
-    # update caches (respect TTL; never write empty)
+    # refresh caches that are stale OR effectively empty
     updated = 0
     for a, b in uniq_pairs:
         p = cache_path_for_pair(a, b)
-        if cache_fresh(p):
-            continue
-        res = build_pair_cache(a, b, H2H_MATCHES)
-        if res is not None:
-            updated += 1
+        existing = load_json(p) if p.exists() else {}
+        need_refetch = (not cache_fresh(p)) or (FORCE_REFETCH_EMPTY and cache_effectively_empty(existing, a, b))
+        if need_refetch:
+            res = build_pair_cache(a, b, H2H_MATCHES, force=True)
+            if res is not None:
+                updated += 1
         time.sleep(SM_SLEEP)
 
     print(f"Pairs discovered: {len(uniq_pairs)}")
@@ -588,7 +588,6 @@ def main():
         count += 1
     print(f"Wrote league bundles: {count} -> data/h2h/by_league/<league_id>.json")
 
-    # summary
     msg = build_summary_from_bundles()
     print(msg)
 
