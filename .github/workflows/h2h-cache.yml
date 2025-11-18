@@ -3,42 +3,56 @@ name: H2H Cache — SportMonks (daily)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 8 * * *" # daily at 08:00 UTC
-
-permissions:
-  contents: write
+    - cron: "0 8 * * *"   # 08:00 UTC daily
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    permissions:
+      contents: write
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install deps
         run: python -m pip install --upgrade pip requests
 
-      - name: Build H2H caches
+      - name: Run H2H fetcher
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          H2H_MATCHES: "5"          # change if you want more/less history
-          H2H_CACHE_HOURS: "24"     # refresh window
-          SM_TIMEOUT: "20"
+          H2H_MATCHES: 5
+          H2H_CACHE_HOURS: 24
           SM_SLEEP: "0.05"
-        run: python scripts/h2h_last2_fetch.py
+          SM_TIMEOUT: "20"
+        run: |
+          python scripts/h2h_last2_fetch.py
+          echo "----- DEBUG FILE LISTS -----"
+          ls -lah data/h2h || true
+          ls -lah data/h2h/by_league || true
+          echo "----------------------------"
 
-      - name: Commit & push if changed
+      - name: Commit & push (force-add data/h2h)
         run: |
           set -euo pipefail
-          if git diff --quiet --exit-code data/h2h; then
-            echo "No changes in data/h2h to commit."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/h2h
-          git commit -m "chore: refresh H2H caches"
-          git push
+          # stage everything under data/h2h, even if .gitignore tries to block it
+          git add -A data/h2h || true
+          git add -f data/h2h/* data/h2h/by_league/* || true
+          echo "----- GIT STATUS (staged) -----"
+          git status --porcelain
+          echo "--------------------------------"
+          if git diff --cached --quiet; then
+            echo "No staged changes to commit."
+          else
+            git commit -m "chore(h2h): refresh pair caches and per-league bundles"
+            git push
+          fi
