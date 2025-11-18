@@ -3,17 +3,16 @@ name: H2H Cache — SportMonks (daily)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "55 7 * * *"  # 07:55 UTC daily
+    - cron: "0 8 * * *" # daily at 08:00 UTC
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -22,24 +21,24 @@ jobs:
       - name: Install deps
         run: python -m pip install --upgrade pip requests
 
-      - name: Fetch H2H caches (from upcoming fixtures only)
+      - name: Build H2H caches
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          H2H_CACHE_HOURS: "24"     # refresh threshold
-          H2H_MATCHES: "5"          # last N to keep
-          SM_SLEEP: "0.05"
+          H2H_MATCHES: "5"          # change if you want more/less history
+          H2H_CACHE_HOURS: "24"     # refresh window
           SM_TIMEOUT: "20"
+          SM_SLEEP: "0.05"
         run: python scripts/h2h_last2_fetch.py
 
-      - name: Commit & push only if H2H changed
+      - name: Commit & push if changed
         run: |
           set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet -- data/h2h; then
-            git add data/h2h
-            git commit -m "chore(h2h): refresh head-to-head caches (N=${H2H_MATCHES})"
-            git push
-          else
+          if git diff --quiet --exit-code data/h2h; then
             echo "No changes in data/h2h to commit."
+            exit 0
           fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/h2h
+          git commit -m "chore: refresh H2H caches"
+          git push
