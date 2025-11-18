@@ -3,56 +3,60 @@ name: H2H Cache — SportMonks (daily)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 8 * * *"   # 08:00 UTC daily
+    - cron: "0 8 * * *"  # 08:00 UTC daily
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install deps
-        run: python -m pip install --upgrade pip requests
+        run: |
+          python -m pip install --upgrade pip requests
 
-      - name: Run H2H fetcher
+      - name: Sanity — list fixture files
+        run: |
+          echo "Listing data/fixtures/*.json"
+          ls -la data/fixtures || true
+          ls -la data/fixtures/*.json || true
+
+      - name: Build H2H caches, league bundles, and summary
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           H2H_MATCHES: 5
           H2H_CACHE_HOURS: 24
-          SM_SLEEP: "0.05"
-          SM_TIMEOUT: "20"
+          SM_SLEEP: 0.05
+          SM_TIMEOUT: 20
         run: |
           python scripts/h2h_last2_fetch.py
-          echo "----- DEBUG FILE LISTS -----"
-          ls -lah data/h2h || true
-          ls -lah data/h2h/by_league || true
-          echo "----------------------------"
 
-      - name: Commit & push (force-add data/h2h)
+      - name: Commit & push H2H outputs
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # stage everything under data/h2h, even if .gitignore tries to block it
-          git add -A data/h2h || true
-          git add -f data/h2h/* data/h2h/by_league/* || true
-          echo "----- GIT STATUS (staged) -----"
-          git status --porcelain
-          echo "--------------------------------"
+
+          # Force-add in case data/ is in .gitignore
+          git add -f data/h2h/summary.txt || true
+          git add -f data/h2h/*.json 2>/dev/null || true
+          git add -f data/h2h/by_league/*.json 2>/dev/null || true
+          git add -f posts/h2h_summary.md || true
+
           if git diff --cached --quiet; then
             echo "No staged changes to commit."
           else
-            git commit -m "chore(h2h): refresh pair caches and per-league bundles"
+            git commit -m "chore(h2h): refresh caches, league bundles, and summary"
             git push
           fi
