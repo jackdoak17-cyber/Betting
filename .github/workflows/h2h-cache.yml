@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -26,13 +26,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip requests
 
-      - name: Sanity — list fixture files
+      - name: Sanity — list by_league fixtures
         run: |
-          echo "Listing data/fixtures/*.json"
-          ls -la data/fixtures || true
-          ls -la data/fixtures/*.json || true
+          echo "Listing data/fixtures/by_league:"
+          ls -la data/fixtures/by_league || true
+          echo "Preview a couple files:"
+          for f in $(ls data/fixtures/by_league/*.json 2>/dev/null | head -n 3); do
+            echo "== $f =="; head -n 5 "$f" || true; echo; 
+          done
 
-      - name: Build H2H caches, league bundles, and summary
+      - name: Build H2H caches & league bundles
         env:
           SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
           H2H_MATCHES: 5
@@ -40,6 +43,8 @@ jobs:
           H2H_OVERWRITE_EMPTY: 0
           SM_SLEEP: 0.05
           SM_TIMEOUT: 20
+          # Optional: limit to certain leagues (comma separated) e.g. "8,82,301"
+          # LEAGUE_IDS: "8"
         run: |
           python scripts/h2h_last2_fetch.py
 
@@ -49,13 +54,17 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # ensure paths exist (script should have created them)
+          mkdir -p data/h2h/by_league
+
+          # stage only what we write
           git add -f data/h2h/*.json 2>/dev/null || true
           git add -f data/h2h/by_league/*.json 2>/dev/null || true
-          git add -f data/h2h/summary.txt || true
+          git add -f data/h2h/summary.txt 2>/dev/null || true
 
           if git diff --cached --quiet; then
-            echo "No staged changes to commit."
+            echo "No changes in data/h2h to commit."
           else
-            git commit -m "chore(h2h): refresh caches, league bundles, and summary"
+            git commit -m "chore(h2h): refresh pair caches and by-league bundles"
             git push
           fi
