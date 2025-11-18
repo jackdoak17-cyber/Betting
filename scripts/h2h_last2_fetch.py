@@ -2,141 +2,68 @@
 # -*- coding: utf-8 -*-
 
 """
-Fetch and cache last-N head-to-head results for *upcoming fixtures only*.
+H2H cache builder (Sportmonks v3) — API-only script, repo-friendly.
 
-- Discovers pairs from data/fixtures/*.json
-- Calls: GET /v3/football/fixtures/head-to-head/{A}/{B}?include=scores
-- Stores *order-independent* caches at: data/h2h/{minId}_{maxId}.json
-- Default N = 5 (override with env H2H_MATCHES)
+Reads upcoming fixtures from:
+  - data/fixtures/latest.json    (preferred)
+  - otherwise, every data/fixtures/*.json (union of fixtures arrays)
 
-Cache TTL:
-- Skip re-fetch if file is newer than H2H_CACHE_HOURS (default 24)
+For each unique pair (home_id, away_id) found in fixtures, fetch the last N
+head-to-head fixtures and cache them in:
+  data/h2h/{minId}_{maxId}.json
 
-Output schema (example):
-{
-  "pair": [home_id, away_id],             # unsorted, as found in the upcoming fixture
-  "sorted_key": "min_max",
-  "fetched_at": "2025-11-16T20:00:00Z",
-  "match_count": 5,
-  "teams": {
-    "home_id": 123, "home_name": "Team A",
-    "away_id": 456, "away_name": "Team B"
-  },
-  "lastN": [
-    {
-      "fixture_id": 18535605,
-      "starting_at": "YYYY-MM-DD HH:MM:SS",
-      "home_id": 123, "home_name": "Team A",
-      "away_id": 456, "away_name": "Team B",
-      "home_goals": 2, "away_goals": 2,
-      "o25": true, "btts": true
-    },
-    ...
-  ],
-  "summary": {
-    "o25_hits": 3, "o25_n": 5,
-    "btts_hits": 4, "btts_n": 5
-  },
-  "last2_summary": {
-    "o25_hits": 1, "o25_n": 2,
-    "btts_hits": 2, "btts_n": 2
-  }
-}
+Each cache contains per-game metrics:
+  - goals (home/away), total goals
+  - shots, shots on target, corners, fouls, offsides
+  - yellow cards, red cards, possession %
+
+Robust includes:
+  Tries include tiers in order, downgrading on include errors:
+    1) scores;statistics.type;participants
+    2) scores;statistics.type
+    3) scores
+    4) (no include)
+Works even if your plan does not allow certain includes.
 
 Env:
-  SPORTMONKS_TOKEN  (required)
-  H2H_CACHE_HOURS   (default 24)
-  H2H_MATCHES       (default 5)
-  LEAGUE_IDS        (optional CSV; default discovers from data/fixtures/*.json)
-  SM_SLEEP          (default 0.05)
-  SM_TIMEOUT        (default 20)
+  SPORTMONKS_TOKEN   (required)
+  H2H_MATCHES        (default 5)
+  H2H_CACHE_HOURS    (default 24)
+  SM_TIMEOUT         (default 20)
+  SM_SLEEP           (default 0.05)
 """
 
-import os, sys, json, time, datetime as dt, re
+import os, sys, json, time, re
+import datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import requests
 
-# ---------- Config ----------
 ROOT = Path(".")
-FIX_DIR  = ROOT / "data" / "fixtures"
-OUT_DIR  = ROOT / "data" / "h2h"; OUT_DIR.mkdir(parents=True, exist_ok=True)
+FIX_DIR = ROOT / "data" / "fixtures"
+H2H_DIR = ROOT / "data" / "h2h"
+H2H_DIR.mkdir(parents=True, exist_ok=True)
 
-API_BASE = "https://api.sportmonks.com/v3"
-SPORT = "football"
+API_BASE = "https://api.sportmonks.com/v3/football"
 TOKEN = os.getenv("SPORTMONKS_TOKEN")
-CACHE_HOURS = int(os.getenv("H2H_CACHE_HOURS", "24"))
-H2H_MATCHES = int(os.getenv("H2H_MATCHES", "5"))
-SLEEP = float(os.getenv("SM_SLEEP", "0.05"))
-TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
-
 if not TOKEN:
-    print("ERROR: SPORTMONKS_TOKEN not set.", file=sys.stderr)
+    print("ERROR: SPORTMONKS_TOKEN not set", file=sys.stderr)
     sys.exit(1)
 
-# ---------- Utils ----------
-def now_utc_iso() -> str:
+LAST_N = int(os.getenv("H2H_MATCHES", "5"))
+CACHE_HOURS = int(os.getenv("H2H_CACHE_HOURS", "24"))
+TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
+SLEEP = float(os.getenv("SM_SLEEP", "0.05"))
+
+# ---------- helpers ----------
+def now_iso():
     return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00","Z")
 
-def load_json(p: Path) -> dict:
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def cache_path(a: int, b: int) -> Path:
+    lo, hi = (a, b) if a <= b else (b, a)
+    return H2H_DIR / f"{lo}_{hi}.json"
 
-def write_json(path: Path, obj: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(obj, ensure_ascii=False, separators=(",",":"), sort_keys=True), encoding="utf-8")
-    tmp.replace(path)
-
-def discover_league_ids() -> List[int]:
-    out = []
-    for p in FIX_DIR.glob("*.json"):
-        try: out.append(int(p.stem))
-        except: pass
-    return sorted(set(out))
-
-def extract_team_ids_and_names(fx: dict) -> Tuple[Optional[int], Optional[int], Optional[str], Optional[str]]:
-    """
-    Pull team IDs from fixture. Prefer participants meta (with location home/away).
-    Return (home_id, away_id, home_name, away_name)
-    """
-    home_id = away_id = None
-    home_name = away_name = None
-
-    parts = fx.get("participants") or []
-    for p in parts:
-        try:
-            tid = int(p.get("id"))
-        except Exception:
-            continue
-        loc = ((p.get("meta") or {}).get("location") or (p.get("meta") or {}).get("venue") or "").lower()
-        nm = (p.get("name") or p.get("short_code") or p.get("display_name") or None)
-        if loc == "home":
-            home_id, home_name = tid, nm
-        elif loc == "away":
-            away_id, away_name = tid, nm
-
-    # Fallback IDs
-    if home_id is None:
-        for k in ("home_team_id","localteam_id","home_id","localteamid"):
-            v = fx.get(k)
-            if isinstance(v,(int,str)) and str(v).isdigit():
-                home_id = int(v); break
-    if away_id is None:
-        for k in ("away_team_id","visitorteam_id","away_id","visitorteamid"):
-            v = fx.get(k)
-            if isinstance(v,(int,str)) and str(v).isdigit():
-                away_id = int(v); break
-
-    return home_id, away_id, home_name, away_name
-
-def h2h_cache_path(a: int, b: int) -> Path:
-    lo, hi = (a,b) if a <= b else (b,a)
-    return OUT_DIR / f"{lo}_{hi}.json"
-
-def cache_is_fresh(p: Path) -> bool:
+def cache_fresh(p: Path) -> bool:
     if not p.exists(): return False
     try:
         j = json.loads(p.read_text(encoding="utf-8"))
@@ -147,227 +74,330 @@ def cache_is_fresh(p: Path) -> bool:
     except Exception:
         return False
 
-def _parse_score_str(s: str) -> Tuple[Optional[int], Optional[int]]:
-    if not isinstance(s, str): return None, None
-    m = re.search(r"^\s*(\d+)\s*[-:x]\s*(\d+)\s*$", s)
-    if not m: return None, None
-    return int(m.group(1)), int(m.group(2))
+def write_json(path: Path, obj: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":"), sort_keys=True), encoding="utf-8")
+    tmp.replace(path)
 
-# Descriptions to *exclude* from our 90-min tally
-EXCLUDE_DESC = {"penalty", "penalties", "penalty_shootout", "shootout", "ps", "psos", "pen"}
-# Accept only regular-time-ish segments; if description absent, we accept it
-ALLOW_DESC = {"1st_half","first_half","2nd_half","second_half","regular_time","full_time","ft","90","full time","full-time"}
-
-def extract_ft_scores(item: dict) -> Tuple[Optional[int], Optional[int]]:
-    """
-    Robust FT extractor:
-      1) use dict-like scores: *_score or ft_score
-      2) use list-like scores with {score:{goals,participant}}; sum only regular-time segments
-      3) fallback to top-level *_score lookups
-    """
-    scores = item.get("scores")
-
-    # Case 1: dict-like scores
-    if isinstance(scores, dict):
-        for hk, ak in [
-            ("localteam_score","visitorteam_score"),
-            ("home_score","away_score"),
-            ("ft_home_goals","ft_away_goals"),
-        ]:
-            if (hk in scores) or (ak in scores):
-                try:
-                    return int(scores.get(hk)), int(scores.get(ak))
-                except Exception:
-                    pass
-        h, a = _parse_score_str(scores.get("ft_score") or "")
-        if h is not None: return h, a
-
-    # Case 2: list-like scores (common in v3 when include=scores)
-    if isinstance(scores, list):
-        home_g = away_g = 0
-        for obj in scores:
-            desc = str(obj.get("description") or obj.get("type") or "").strip().lower()
-            # If description is present and obviously about penalties/shootout, skip
-            if any(bad in desc for bad in EXCLUDE_DESC):
-                continue
-            if desc and not any(ok in desc for ok in ALLOW_DESC):
-                # Unknown segment; ignore rather than risk double-counting
-                continue
-
-            sc = obj.get("score")
-            if isinstance(sc, dict):
-                g = sc.get("goals")
-                part = str(sc.get("participant") or "").lower()
-                try:
-                    g = int(g)
-                except Exception:
-                    continue
-                if part in {"home", "localteam"}:
-                    home_g += g
-                elif part in {"away", "visitorteam"}:
-                    away_g += g
-        # If we collected anything, return it
-        if (home_g + away_g) > 0:
-            return home_g, away_g
-
-        # Sometimes list items carry a string "score": "2-1"
-        for obj in reversed(scores):
-            h, a = _parse_score_str(obj.get("score") or obj.get("ft_score") or "")
-            if h is not None:
-                return h, a
-
-    # Case 3: top-level fallbacks
-    for hk, ak in [("home_score","away_score"),
-                   ("localteam_score","visitorteam_score")]:
-        if hk in item or ak in item:
-            try:
-                return int(item.get(hk)), int(item.get(ak))
-            except Exception:
-                pass
-
-    # Last resort: an ft_score string on item
-    h, a = _parse_score_str(item.get("ft_score") or "")
-    return (h, a)
-
-def h2h_api(team_a: int, team_b: int, n: int) -> List[dict]:
-    """
-    Pull head-to-head list (most-recent first).
-    We request include=scores for robust FT parsing.
-    """
-    url = f"{API_BASE}/{SPORT}/fixtures/head-to-head/{team_a}/{team_b}"
-    params = {
-        "api_token": TOKEN,
-        "per_page": max(10, n),   # request at least n (use 10 to be safe)
-        "sort": "-starting_at",
-        "include": "scores,participants"
-    }
+def load_json(path: Path) -> dict:
     try:
-        r = requests.get(url, params=params, timeout=TIMEOUT)
-    except requests.RequestException as e:
-        print(f"WARN: request error for {team_a}-{team_b}: {e}")
-        return []
-    if r.status_code != 200:
-        print(f"WARN: HTTP {r.status_code} for {team_a}-{team_b}: {r.text[:160]}")
-        return []
-    try:
-        j = r.json()
+        return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return []
-    data = j.get("data") or []
-    # Some payloads nest under 'data.h2h'
-    if isinstance(data, dict) and "h2h" in data:
-        data = data.get("h2h") or []
-    data.sort(key=lambda x: (x.get("starting_at") or ""), reverse=True)
-    return data[:n]
+        return {}
 
-def main():
-    # Discover league IDs to read upcoming fixtures from
-    if os.getenv("LEAGUE_IDS"):
-        lids = [int(x) for x in os.getenv("LEAGUE_IDS").split(",") if x.strip()]
-    else:
-        lids = discover_league_ids()
+def discover_fixtures() -> List[dict]:
+    latest = FIX_DIR / "latest.json"
+    fixtures: List[dict] = []
+    if latest.exists():
+        fx = load_json(latest).get("fixtures") or []
+        if fx: return fx
+    # Fallback: union of all fixtures arrays
+    for p in FIX_DIR.glob("*.json"):
+        if p.name == "latest.json": continue
+        blob = load_json(p)
+        fixtures.extend(blob.get("fixtures") or [])
+    return fixtures
 
-    # Build unique H/A pairs (order-independent) from upcoming fixtures
-    pairs = []
-    id_to_name: Dict[int, str] = {}
+def extract_home_away_ids(fx: dict) -> Tuple[Optional[int], Optional[int]]:
+    # Prefer participants include
+    parts = fx.get("participants") or []
+    home_id = away_id = None
+    for p in parts:
+        try:
+            tid = int(p.get("id"))
+        except Exception:
+            continue
+        loc = ((p.get("meta") or {}).get("location") or "").lower()
+        if loc == "home": home_id = tid
+        elif loc == "away": away_id = tid
+    # Fallback common keys
+    if home_id is None:
+        for k in ("home_team_id","localteam_id","home_id","localteamid"):
+            v = fx.get(k)
+            if isinstance(v,(int,str)) and str(v).isdigit():
+                home_id = int(v); break
+    if away_id is None:
+        for k in ("away_team_id","visitorteam_id","away_id","visitorteamid"):
+            v = fx.get(k)
+            if isinstance(v,(int,str)) and str(v).isdigit():
+                away_id = int(v); break
+    return home_id, away_id
 
-    for lid in lids:
-        blob = load_json(FIX_DIR / f"{lid}.json")
-        for fx in (blob.get("fixtures") or []):
-            hid, aid, hname, aname = extract_team_ids_and_names(fx)
-            if not (isinstance(hid,int) and isinstance(aid,int)): 
+# ---------- API ----------
+INCLUDE_TIERS = [
+    "scores;statistics.type;participants",
+    "scores;statistics.type",
+    "scores",
+    "",  # no include
+]
+
+def _include_error(j: dict) -> bool:
+    # Detect include errors like: {"message":"The requested include 'X' does not exist", ...}
+    msg = (j or {}).get("message") or ""
+    return "include" in msg.lower() and "does not exist" in msg.lower()
+
+def h2h_fetch(team_a: int, team_b: int, last_n: int) -> List[dict]:
+    """
+    Try both orders and include tiers. Returns normalized fixtures list (newest first).
+    """
+    orders = [(team_a, team_b), (team_b, team_a)]
+    for a, b in orders:
+        for inc in INCLUDE_TIERS:
+            params = {"api_token": TOKEN, "per_page": 25, "sort": "-starting_at"}
+            if inc: params["include"] = inc
+            url = f"{API_BASE}/fixtures/head-to-head/{a}/{b}"
+            try:
+                r = requests.get(url, params=params, timeout=TIMEOUT)
+            except requests.RequestException:
                 continue
-            pairs.append((hid, aid))
-            if hname: id_to_name.setdefault(hid, hname)
-            if aname: id_to_name.setdefault(aid, aname)
+            if r.status_code != 200:
+                # Try downgrading on include error payloads
+                try:
+                    j = r.json()
+                except Exception:
+                    j = {}
+                if _include_error(j):
+                    # downgrade includes
+                    continue
+                else:
+                    # other error
+                    continue
+            try:
+                j = r.json()
+            except Exception:
+                continue
+            rows = j.get("data") or []
+            if not isinstance(rows, list): rows = []
+            # Sort newest first (defensive)
+            rows.sort(key=lambda x: (x.get("starting_at") or ""), reverse=True)
+            if rows:
+                return rows[:last_n]
+            time.sleep(SLEEP)
+    return []
 
-    # Unique sorted pairs
-    seen = set()
-    uniq = []
-    for a,b in pairs:
-        key = (a,b) if a<b else (b,a)
-        if key not in seen:
-            seen.add(key)
-            uniq.append((a,b))
+# ---------- parsing ----------
+def _int(v) -> Optional[int]:
+    try:
+        return int(v)
+    except Exception:
+        try:
+            return int(float(str(v).replace("%","").strip()))
+        except Exception:
+            return None
+
+def parse_ft_goals(item: dict) -> Tuple[Optional[int], Optional[int]]:
+    """Use 'scores' include if present. Prefer items with description 'CURRENT'."""
+    scores = item.get("scores") or []
+    if isinstance(scores, list) and scores:
+        # Try CURRENT records first
+        curr = [s for s in scores if (s.get("description") or "").upper() == "CURRENT"]
+        use = curr if curr else scores
+        home_g = away_g = None
+        # Prefer explicit participant markers
+        for s in use:
+            sc = s.get("score") or {}
+            goals = _int((sc.get("goals")))
+            part = (sc.get("participant") or "").lower()
+            pid = s.get("participant_id")
+            if part == "home":
+                home_g = goals if goals is not None else home_g
+            elif part == "away":
+                away_g = goals if goals is not None else away_g
+            # Fallback via ids when available in base object
+        # Final fallback: look for any two distinct CURRENT entries by participant_id matching locals
+        if home_g is not None or away_g is not None:
+            return home_g, away_g
+    # Fallbacks using any embedded ft_score-like fields (rare on v3 responses)
+    s = item.get("scores") or {}
+    if isinstance(s, dict):
+        for hk, ak in [("home_score","away_score"), ("localteam_score","visitorteam_score")]:
+            if hk in s or ak in s:
+                return _int(s.get(hk)), _int(s.get(ak))
+    return None, None
+
+# map many label variants -> canonical key
+STAT_NAME_MAP: Dict[str, str] = {
+    # shots
+    "shots": "shots",
+    "total shots": "shots",
+    "shots total": "shots",
+    "shots on target": "sot",
+    "shots on goal": "sot",
+    "on target": "sot",
+    # corners
+    "corners": "corners",
+    "corner kicks": "corners",
+    "corner kick": "corners",
+    # fouls
+    "fouls": "fouls",
+    "fouls committed": "fouls",
+    # offsides
+    "offsides": "offsides",
+    "offside": "offsides",
+    # cards
+    "yellow cards": "yellow",
+    "yellow card": "yellow",
+    "red cards": "red",
+    "red card": "red",
+    "yellowredcards": "red",  # count second yellows as red too
+    # possession
+    "ball possession": "possession",
+    "possession": "possession",
+    "possession %": "possession",
+}
+
+WANT_KEYS = ["shots","sot","corners","fouls","offsides","yellow","red","possession"]
+
+def normalize_stat_name(s: str) -> Optional[str]:
+    key = (s or "").strip().lower()
+    return STAT_NAME_MAP.get(key)
+
+def extract_stats(item: dict, home_id: Optional[int], away_id: Optional[int]) -> Tuple[Dict[str, Optional[int]], Dict[str, Optional[int]]]:
+    """
+    Returns (home_stats, away_stats) dicts for WANT_KEYS.
+    """
+    home = {k: None for k in WANT_KEYS}
+    away = {k: None for k in WANT_KEYS}
+
+    # statistics include
+    stats = item.get("statistics") or []
+    if isinstance(stats, list):
+        # Build per-team aggregations
+        by_team: Dict[int, Dict[str, int]] = {}
+        for st in stats:
+            tname = ((st.get("type") or {}).get("name") or "").strip()
+            canon = normalize_stat_name(tname)
+            if not canon:  # skip unknown
+                continue
+            pid = st.get("participant_id")
+            data = st.get("data") or {}
+            # Prefer explicit integer 'value'; if only percentage (possession), handle gracefully
+            if canon == "possession":
+                v = _int(data.get("value") if "value" in data else data.get("percentage"))
+            else:
+                v = _int(data.get("value"))
+            if v is None:
+                continue
+            if pid not in by_team: by_team[pid] = {}
+            # Sum yellowredcards into red
+            if canon == "red" and "YellowRed" in (tname.replace(" ","")):
+                by_team[pid]["red"] = by_team[pid].get("red", 0) + v
+            else:
+                by_team[pid][canon] = by_team[pid].get(canon, 0) + v
+
+        # assign to home/away by ids
+        if home_id in by_team:
+            for k in WANT_KEYS:
+                if k in by_team[home_id]:
+                    home[k] = by_team[home_id][k]
+        if away_id in by_team:
+            for k in WANT_KEYS:
+                if k in by_team[away_id]:
+                    away[k] = by_team[away_id][k]
+
+    return home, away
+
+def parse_participants(item: dict) -> Tuple[Optional[int], Optional[int]]:
+    # Prefer base fields if present
+    hid = item.get("localteam_id") or item.get("home_team_id")
+    aid = item.get("visitorteam_id") or item.get("away_team_id")
+    hid = _int(hid); aid = _int(aid)
+    if hid and aid: return hid, aid
+    # Try includes
+    parts = item.get("participants") or []
+    home = away = None
+    for p in parts:
+        tid = _int(p.get("id"))
+        loc = ((p.get("meta") or {}).get("location") or "").lower()
+        if loc == "home": home = tid
+        elif loc == "away": away = tid
+    return home, away
+
+# ---------- main ----------
+def main():
+    fixtures = discover_fixtures()
+    pairs: List[Tuple[int,int]] = []
+    for fx in fixtures:
+        hid, aid = extract_home_away_ids(fx)
+        if isinstance(hid,int) and isinstance(aid,int):
+            lo, hi = (hid,aid) if hid <= aid else (aid,hid)
+            pairs.append((lo, hi))
+    # uniq
+    pairs = sorted(set(pairs))
+    print(f"Pairs discovered: {len(pairs)}")
+    if not pairs:
+        print("No pairs found in data/fixtures. Exiting.")
+        return
 
     updated = 0
-    for a,b in uniq:
-        outp = h2h_cache_path(a,b)
-        if cache_is_fresh(outp):
+    for lo, hi in pairs:
+        outp = cache_path(lo, hi)
+        if cache_fresh(outp):
             continue
 
-        lst = h2h_api(a,b, H2H_MATCHES)
-        lastN = []
-        o25_hits = btts_hits = n = 0
-
-        for it in lst:
-            h, aw = extract_ft_scores(it)
-            if h is None or aw is None:
+        rows = h2h_fetch(lo, hi, LAST_N)
+        last = []
+        for it in rows:
+            hid, aid = parse_participants(it)
+            # If still None, skip this record
+            if not (isinstance(hid,int) and isinstance(aid,int)):
                 continue
-            n += 1
-            o25 = (h + aw) >= 3
-            btts = (h > 0 and aw > 0)
 
-            # Try names for readability (participants if present)
-            home_id = it.get("localteam_id") or it.get("home_team_id")
-            away_id = it.get("visitorteam_id") or it.get("away_team_id")
-            home_name = None
-            away_name = None
-            for p in (it.get("participants") or []):
-                loc = ((p.get("meta") or {}).get("location") or "").lower()
-                if loc == "home":
-                    home_name = p.get("name") or p.get("short_code") or home_name
-                elif loc == "away":
-                    away_name = p.get("name") or p.get("short_code") or away_name
+            hg, ag = parse_ft_goals(it)
+            home_stats, away_stats = extract_stats(it, hid, aid)
 
-            # Fallback to global mapping if still missing
-            if isinstance(home_id, int):
-                home_name = home_name or id_to_name.get(home_id)
-            if isinstance(away_id, int):
-                away_name = away_name or id_to_name.get(away_id)
-
-            lastN.append({
-                "fixture_id": it.get("id"),
+            rec = {
+                "fixture_id": _int(it.get("id")),
                 "starting_at": it.get("starting_at"),
-                "home_id": home_id, "home_name": home_name,
-                "away_id": away_id, "away_name": away_name,
-                "home_goals": h, "away_goals": aw,
-                "o25": bool(o25), "btts": bool(btts),
-            })
-            o25_hits += 1 if o25 else 0
-            btts_hits += 1 if btts else 0
+                "home_id": hid, "away_id": aid,
+                "home_goals": hg, "away_goals": ag,
+                "total_goals": (hg + ag) if (hg is not None and ag is not None) else None,
+                "home": home_stats,
+                "away": away_stats,
+            }
+            last.append(rec)
 
-        # Also compute "last2" summary for quick display elsewhere
-        o25_2 = btts_2 = n2 = 0
-        for it in lastN[:2]:
-            n2 += 1
-            o25_2 += 1 if it["o25"] else 0
-            btts_2 += 1 if it["btts"] else 0
+        # build vectors (latest -> older) for easy post-processing
+        def vec(side: str, key: str) -> List[Optional[int]]:
+            return [ (r[side] or {}).get(key) for r in last ]
 
         payload = {
-            "pair": [a,b],
-            "sorted_key": f"{min(a,b)}_{max(a,b)}",
-            "fetched_at": now_utc_iso(),
-            "match_count": len(lastN),
-            "teams": {
-                "home_id": a, "home_name": id_to_name.get(a),
-                "away_id": b, "away_name": id_to_name.get(b),
-            },
-            "lastN": lastN,
-            "summary": {
-                "o25_hits": o25_hits, "o25_n": n,
-                "btts_hits": btts_hits, "btts_n": n
-            },
-            "last2_summary": {
-                "o25_hits": o25_2, "o25_n": n2,
-                "btts_hits": btts_2, "btts_n": n2
+            "pair": [lo, hi],
+            "sorted_key": f"{lo}_{hi}",
+            "fetched_at": now_iso(),
+            "lastN": last,
+            "vectors": {
+                "home": {
+                    "goals":        [r["home_goals"] for r in last],
+                    "shots":        vec("home","shots"),
+                    "sot":          vec("home","sot"),
+                    "corners":      vec("home","corners"),
+                    "fouls":        vec("home","fouls"),
+                    "offsides":     vec("home","offsides"),
+                    "yellow":       vec("home","yellow"),
+                    "red":          vec("home","red"),
+                    "possession":   vec("home","possession"),
+                },
+                "away": {
+                    "goals":        [r["away_goals"] for r in last],
+                    "shots":        vec("away","shots"),
+                    "sot":          vec("away","sot"),
+                    "corners":      vec("away","corners"),
+                    "fouls":        vec("away","fouls"),
+                    "offsides":     vec("away","offsides"),
+                    "yellow":       vec("away","yellow"),
+                    "red":          vec("away","red"),
+                    "possession":   vec("away","possession"),
+                }
             }
         }
+
         write_json(outp, payload)
         updated += 1
         time.sleep(SLEEP)
 
-    print(f"Pairs: {len(uniq)} | Updated caches: {updated} (TTL={CACHE_HOURS}h, N={H2H_MATCHES})")
+    print(f"Updated caches: {updated}/{len(pairs)} (TTL={CACHE_HOURS}h, N={LAST_N})")
 
 if __name__ == "__main__":
     main()
