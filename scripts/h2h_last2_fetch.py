@@ -4,29 +4,15 @@
 """
 H2H cache & summary builder — Sportmonks v3
 
-- Reads upcoming fixtures from data/fixtures/*.json (your existing fetcher output).
-- For each unique team pair in those fixtures, fetches last-N H2H fixtures
-  with includes: participants;scores;statistics.type;events.type
-- Caches per-pair vectors (goals, shots, SOT, corners, fouls, offsides,
-  yellow, red, possession) in:   data/h2h/{lo}_{hi}.json
-- Builds per-league bundles from those caches in:
-  data/h2h/by_league/{league_id}.json
-- Builds human-readable summary files so you can audit values:
-  data/h2h/summary.txt
-  posts/h2h_summary.md
+- Tries BOTH pair orders (A/B and B/A).
+- Falls back across include variants if one is rejected by the API.
+- Will NOT overwrite an existing non-empty cache if the fetch returns 0 rows
+  (toggle with H2H_OVERWRITE_EMPTY=1).
 
-ENV:
-  SPORTMONKS_TOKEN (required)
-  H2H_MATCHES       (default 5)
-  H2H_CACHE_HOURS   (default 24)
-  LEAGUE_IDS        (optional CSV of league ids; if not set, discover from data/fixtures/*.json)
-  SM_SLEEP          (default 0.05)
-  SM_TIMEOUT        (default 20)
-
-Shots rule (important):
-- DO NOT equate "Goal Attempts" with total shots.
-- Robust total shots precedence:
-    total_shots > (SOT + OffTarget + Blocked) > (Attempts + Blocked) > Attempts > (SOT + OffTarget)
+Reads upcoming fixtures from: data/fixtures/*.json
+Writes per-pair caches to:    data/h2h/{lo}_{hi}.json
+Writes per-league bundles to: data/h2h/by_league/{league_id}.json
+Writes summary to:            data/h2h/summary.txt
 """
 
 from __future__ import annotations
@@ -52,17 +38,16 @@ H2H_MATCHES = int(os.getenv("H2H_MATCHES", "5"))
 CACHE_HOURS = int(os.getenv("H2H_CACHE_HOURS", "24"))
 SM_SLEEP = float(os.getenv("SM_SLEEP", "0.05"))
 SM_TIMEOUT = int(os.getenv("SM_TIMEOUT", "20"))
+OVERWRITE_EMPTY = os.getenv("H2H_OVERWRITE_EMPTY", "0") == "1"
 
 ROOT = Path(".")
 FIX_DIR  = ROOT / "data" / "fixtures"
-PAIR_DIR = ROOT / "data" / "h2h"        # pair caches live directly here
-LG_DIR   = PAIR_DIR / "by_league"       # league bundles
+PAIR_DIR = ROOT / "data" / "h2h"
+LG_DIR   = PAIR_DIR / "by_league"
 PAIR_DIR.mkdir(parents=True, exist_ok=True)
 LG_DIR.mkdir(parents=True, exist_ok=True)
 
 OUT_SUM_TXT = PAIR_DIR / "summary.txt"
-OUT_SUM_MD  = ROOT / "posts" / "h2h_summary.md"
-OUT_SUM_MD.parent.mkdir(parents=True, exist_ok=True)
 
 # ---------- Utils ----------
 def now_utc_iso():
@@ -152,7 +137,7 @@ ALIASES = {
     # totals
     "total shots": "shots_total", "shots total": "shots_total", "shots": "shots_total",
     "total shots (incl blocks)": "shots_total", "shots (total)": "shots_total",
-    # on target / off target
+    # on/off target
     "shots on target": "sot", "on target": "sot", "shots on": "sot", "shots on goal": "sot",
     "shots off target": "soff", "off target": "soff",
     # blocked & attempts
@@ -164,7 +149,7 @@ ALIASES = {
     "fouls": "fouls",
     "offsides": "offsides", "offside": "offsides",
     "possession": "poss", "ball possession": "poss", "ball possession %": "poss", "possession %": "poss",
-    # sometimes cards appear in statistics too
+    # sometimes cards appear in statistics
     "yellow cards": "yellow", "yellow": "yellow",
     "red cards": "red", "red": "red",
 }
@@ -199,7 +184,7 @@ def extract_stats_for_team(stats: List[dict], tid: int) -> Dict[str, Optional[in
         if val is not None:
             out[normkey] = int(val)
 
-    # Robust total shots synthesis
+    # Robust shots synthesis (do NOT equate attempts with total)
     shots_total = out.get("shots_total")
     sot  = out.get("sot")
     soff = out.get("soff")
@@ -216,16 +201,14 @@ def extract_stats_for_team(stats: List[dict], tid: int) -> Dict[str, Optional[in
     elif (sot is not None) or (soff is not None):
         out["shots"] = (sot or 0) + (soff or 0)
 
-    # Normalize possession %
     if "poss" in out:
         out["poss"] = to_int(out["poss"])
-
     return out
 
 def extract_ft_goals(scores: List[dict], tid: int) -> Optional[int]:
     val = None
     for s in scores:
-        if not is_final_score_desc(s.get("description")): 
+        if not is_final_score_desc(s.get("description")):
             continue
         try:
             if int(s.get("participant_id") or -1) != tid:
@@ -256,11 +239,11 @@ def count_cards_from_events(events: List[dict], tid: int) -> Tuple[int, int]:
     return y_count, r_count
 
 # ---------- API ----------
-def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
+def _fetch_h2h_once(a: int, b: int, want: int, include: str) -> List[dict]:
     url = f"{API_BASE}/{SPORT}/fixtures/head-to-head/{a}/{b}"
     params = {
         "api_token": TOKEN,
-        "include": "participants;scores;statistics.type;events.type",
+        "include": include,
         "per_page": 30,
         "sort": "-starting_at",
         "page": 1,
@@ -268,9 +251,10 @@ def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
     out = []
     while True:
         r = requests.get(url, params=params, timeout=SM_TIMEOUT)
+        if r.status_code == 404 and "include" in (r.text or "").lower():
+            return []
         if r.status_code != 200:
-            print(f"[WARN] HTTP {r.status_code} for {a}-{b}: {r.text[:160].replace(chr(10),' ')}", file=sys.stderr)
-            break
+            return []
         j = r.json(); rows = j.get("data") or []
         out.extend(rows)
         if len(out) >= want: break
@@ -288,28 +272,46 @@ def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
             if len(rows) < params["per_page"]: break
         params["page"] += 1
         time.sleep(SM_SLEEP)
+    return out
 
-    out.sort(key=lambda x: (x.get("starting_at") or ""), reverse=True)
-    return out[:want]
+def fetch_h2h(a: int, b: int, want: int) -> List[dict]:
+    include_attempts = [
+        "participants;scores;statistics.type;events.type",
+        "participants;scores;statistics;events.type",
+        "participants;scores;statistics;events",
+        "participants;scores"
+    ]
+    collected: List[dict] = []
+    for x,y in ((a,b),(b,a)):
+        got = []
+        for inc in include_attempts:
+            got = _fetch_h2h_once(x, y, want, inc)
+            if got:
+                break
+        collected.extend(got)
+        if len(collected) >= want:
+            break
+
+    seen = set()
+    dedup: List[dict] = []
+    for it in collected:
+        fid = it.get("id")
+        if fid in seen: continue
+        seen.add(fid); dedup.append(it)
+
+    dedup.sort(key=lambda x: (x.get("starting_at") or ""), reverse=True)
+    return dedup[:want]
 
 # ---------- Pair cache build ----------
-def build_pair_cache(a: int, b: int, lastN: int) -> dict:
-    """
-    Returns the pair cache payload (and writes it).
-    Shape:
-      {
-        "pair": [a,b], "sorted_key": "lo_hi", "fetched_at": "...", "lastN": N,
-        "lastN_meta": [{starting_at, home_goals, away_goals}, ...],
-        "teams": {
-          "<a>": {"goals":[...], "shots":[...], "sot":[...], "corners":[...], "fouls":[...],
-                  "offsides":[...], "yellow":[...], "red":[...], "poss":[...]},
-          "<b>": { ... }
-        }
-      }
-    """
+def build_pair_cache(a: int, b: int, lastN: int) -> Optional[dict]:
     items = fetch_h2h(a, b, lastN)
+    pth = cache_path_for_pair(a, b)
+    existing = load_json(pth) if pth.exists() else None
 
-    # sequences per team id
+    if not items:
+        if existing and not OVERWRITE_EMPTY:
+            return None
+
     seqs: Dict[int, Dict[str, List[Optional[int]]]] = {
         a: {"goals":[], "shots":[], "sot":[], "corners":[], "fouls":[], "offsides":[], "yellow":[], "red":[], "poss":[]},
         b: {"goals":[], "shots":[], "sot":[], "corners":[], "fouls":[], "offsides":[], "yellow":[], "red":[], "poss":[]},
@@ -323,7 +325,6 @@ def build_pair_cache(a: int, b: int, lastN: int) -> dict:
         stats  = get_list_or_data(it, "statistics")
         events = get_list_or_data(it, "events")
 
-        # Identify historical home/away ids for metadata (best-effort)
         hid = aid = None
         for p in parts:
             try:
@@ -347,7 +348,6 @@ def build_pair_cache(a: int, b: int, lastN: int) -> dict:
         if By == 0 and Br == 0 and (Bstat.get("yellow") or Bstat.get("red")):
             By = int(Bstat.get("yellow") or 0); Br = int(Bstat.get("red") or 0)
 
-        # append sequences
         for tid, g, st, y, r in [
             (a, Ag, Astat, Ay, Ar),
             (b, Bg, Bstat, By, Br),
@@ -380,7 +380,7 @@ def build_pair_cache(a: int, b: int, lastN: int) -> dict:
             str(b): seqs[b],
         }
     }
-    write_json(cache_path_for_pair(a, b), payload)
+    write_json(pth, payload)
     return payload
 
 # ---------- League bundle build ----------
@@ -442,7 +442,7 @@ def build_league_bundle(lid: int, fx_blob: dict) -> dict:
     write_json(LG_DIR / f"{lid}.json", out)
     return out
 
-# ---------- Summary from league bundles ----------
+# ---------- Summary from league bundles (TXT only) ----------
 def _seq_str(seq: List[Optional[int]]) -> str:
     return ",".join("—" if v is None else str(int(v)) for v in (seq or []))
 
@@ -467,24 +467,19 @@ def build_summary_from_bundles() -> str:
     if not bundles:
         msg = "No league bundles found in data/h2h/by_league/"
         OUT_SUM_TXT.write_text(msg + "\n", encoding="utf-8")
-        OUT_SUM_MD.write_text("# H2H Summary (cached)\n\n" + msg + "\n", encoding="utf-8")
         return msg
 
     lines_txt: List[str] = []
-    lines_md: List[str] = []
     now = now_utc_iso()
     lines_txt.append(f"Generated at (UTC): {now}\n")
-    lines_md.append(f"# H2H Summary (cached)\n_Generated at (UTC): {now}_\n")
 
     for bundle in bundles:
         lid = bundle.get("league_id")
         fixtures = bundle.get("fixtures") or []
-        if not fixtures: 
+        if not fixtures:
             continue
 
         lines_txt.append(f"===== League {lid} =====")
-        lines_md.append(f"## League {lid}\n")
-
         for fx in fixtures:
             hn = fx.get("home_name") or f"H{fx.get('home_id')}"
             an = fx.get("away_name") or f"A{fx.get('away_id')}"
@@ -500,7 +495,6 @@ def build_summary_from_bundles() -> str:
                 lines_txt.append(f" {i}) {d} | {hn} {hg}–{ag} {an}")
             if meta: lines_txt.append("")
 
-            # Goals + total
             Hg = vecH.get("goals") or []
             Ag = vecA.get("goals") or []
             lines_txt.append(f"{hn} Goals = {_seq_str(Hg)}")
@@ -524,12 +518,10 @@ def build_summary_from_bundles() -> str:
             dump("possession","possession","Possession%")
 
             lines_txt.append("")
-
         lines_txt.append("")
 
     OUT_SUM_TXT.write_text("\n".join(lines_txt).rstrip() + "\n", encoding="utf-8")
-    OUT_SUM_MD.write_text("\n".join(lines_md).rstrip() + "\n", encoding="utf-8")
-    return f"Wrote:\n  - {OUT_SUM_TXT}\n  - {OUT_SUM_MD}"
+    return f"Wrote: {OUT_SUM_TXT}"
 
 # ---------- Main ----------
 def main():
@@ -542,7 +534,6 @@ def main():
         print("No leagues discovered under data/fixtures/*.json", file=sys.stderr)
         sys.exit(1)
 
-    # Gather upcoming pairs from fixtures
     pairs: List[Tuple[int,int]] = []
     fixtures_by_league: Dict[int, dict] = {}
     for lid in league_ids:
@@ -553,7 +544,6 @@ def main():
             if isinstance(hid, int) and isinstance(aid, int):
                 pairs.append((hid, aid))
 
-    # unique pairs by sorted key
     seen = set()
     uniq_pairs: List[Tuple[int,int]] = []
     for a, b in pairs:
@@ -564,16 +554,20 @@ def main():
 
     # 2) Build/update pair caches
     updated = 0
+    skipped_empty = 0
     for a, b in uniq_pairs:
         p = cache_path_for_pair(a, b)
         if cache_fresh(p):
             continue
-        build_pair_cache(a, b, H2H_MATCHES)
-        updated += 1
+        res = build_pair_cache(a, b, H2H_MATCHES)
+        if res is None:
+            skipped_empty += 1
+        else:
+            updated += 1
         time.sleep(SM_SLEEP)
 
     print(f"Pairs discovered: {len(uniq_pairs)}")
-    print(f"Updated caches: {updated}/{len(uniq_pairs)} (TTL={CACHE_HOURS}h, N={H2H_MATCHES})")
+    print(f"Updated caches: {updated}/{len(uniq_pairs)} (TTL={CACHE_HOURS}h, N={H2H_MATCHES}) | skipped_empty_overwrite={skipped_empty}")
 
     # 3) Build league bundles
     count = 0
@@ -582,7 +576,7 @@ def main():
         count += 1
     print(f"Wrote league bundles: {count} -> data/h2h/by_league/<league_id>.json")
 
-    # 4) Build human summaries (always so there’s something to commit)
+    # 4) Summary (TXT only)
     msg = build_summary_from_bundles()
     print(msg)
 
