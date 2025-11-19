@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-11-18T18:36:34
+Generated at (UTC): 2025-11-19T19:24:05
 Rules: MIN_PRICE>=1.30, MIN_GAMES>=6, thresholds: O2.5>=70%, BTTS>=70%, TeamO1.5>=70%
 Notes: Team Over 1.5 is only flagged if that team is favourite on Match Winner (strictly shorter price).
 
@@ -8,11 +8,13 @@ Notes: Team Over 1.5 is only flagged if that team is favourite on Match Winner (
 === BTTS (Yes) — value flags ===
  • NAC Breda vs PSV — BTTS Yes @ 12.00 | H 70.0% / A 80.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • KFUM vs Bodø / Glimt — BTTS Yes @ 11.00 | H 90.0% / A 70.0% | combo 80.0% | H2H last2: O2.5 0/0, BTTS 0/0
+ • Slaven Koprivnica vs Vukovar — BTTS Yes @ 10.00 | H 90.0% / A 70.0% | combo 80.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Genk vs Mechelen — BTTS Yes @ 9.00 | H 80.0% / A 80.0% | combo 80.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Vålerenga vs Kristiansund — BTTS Yes @ 9.00 | H 80.0% / A 70.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Salzburg vs WSG Tirol — BTTS Yes @ 9.00 | H 70.0% / A 70.0% | combo 70.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • FC Volendam vs FC Twente — BTTS Yes @ 8.50 | H 70.0% / A 80.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Lech Poznań vs Radomiak Radom — BTTS Yes @ 8.50 | H 70.0% / A 80.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
+ • Carrarese vs Reggiana — BTTS Yes @ 8.50 | H 70.0% / A 70.0% | combo 70.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • SC Heerenveen vs AZ — BTTS Yes @ 8.00 | H 80.0% / A 70.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Silkeborg IF vs AGF — BTTS Yes @ 7.50 | H 80.0% / A 70.0% | combo 75.0% | H2H last2: O2.5 0/0, BTTS 0/0
  • Beşiktaş vs Samsunspor — BTTS Yes @ 7.50 | H 70.0% / A 70.0% | combo 70.0% | H2H last2: O2.5 0/0, BTTS 0/0
@@ -23,4 +25,4 @@ Notes: Team Over 1.5 is only flagged if that team is favourite on Match Winner (
 === Team Over 1.5 — value flags (favourites only) ===
   (none)
 
-(near-misses: O2.5=12, BTTS=2, TeamO1.5=19)  # passed form but below MIN_PRICE
+(near-misses: O2.5=13, BTTS=2, TeamO1.5=19)  # passed form but below MIN_PRICE
