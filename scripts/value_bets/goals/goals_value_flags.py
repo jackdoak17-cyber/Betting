@@ -7,8 +7,9 @@ Goals markets — value flags (LOCAL files only; no API calls)
 Selection rules:
   • Form threshold hit (team offense vs opponent-allowed, default 70%)
   • Bet365 best decimal price >= MIN_PRICE (default 1.30)
-  • H2H gate: market landed in ≥1 of the last 2 H2Hs (if available)
+  • H2H gate: market must have LANDED in BOTH of the last 2 H2Hs (strict)
   • Team Over 1.5: show ONLY if that team is the favourite (1X2/Match Result)
+    and display team % + opponent conceded % + combined %
 
 Markets:
   - Over 2.5: Alternative Total Goals > Total Goals > Goals Over/Under (FT only)
@@ -32,7 +33,7 @@ Env:
   - MIN_GAMES (default 6)
   - THRESH_OVER25 / THRESH_BTTS / THRESH_TEAM_O15 (default 0.70)
   - WINDOW_DAYS (default 7; 0 = no date filter)
-  - H2H_LAST2_REQUIRED (default "1")
+  - H2H_LAST2_REQUIRED (default "1")  # if "0", disables the H2H gate
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -300,8 +301,7 @@ def favourite_side(rows: List[dict]) -> Optional[str]:
         elif lbl in {"2","away","visitor","visitorteam","away team"}:
             away_p = p if away_p is None else min(away_p, p)
         else:
-            # ignore draw for favourite decision
-            pass
+            pass  # ignore draw
     if home_p is None and away_p is None:
         return None
     if home_p is None: return "away"
@@ -343,11 +343,15 @@ def h2h_last2_str(fx_h2h: Optional[dict]) -> str:
 def _clean_last2_ints(ints: List[Optional[int]]) -> List[Optional[int]]:
     return (ints or [])[:2]
 
-def h2h_gate_pass(fx_h2h: Optional[dict], market: str, side: Optional[str]) -> bool:
+def h2h_gate_pass_strict(fx_h2h: Optional[dict], market: str, side: Optional[str]) -> bool:
+    """
+    STRICT: require BOTH of the last two H2Hs (if two exist) to satisfy the market.
+    If fewer than 2 known, FAIL the gate (strict as requested).
+    """
     if not H2H_LAST2_REQUIRED:
         return True
     if not fx_h2h:
-        return True
+        return False  # strict
 
     Vh = ((fx_h2h.get("vectors") or {}).get("home") or {})
     Va = ((fx_h2h.get("vectors") or {}).get("away") or {})
@@ -360,34 +364,38 @@ def h2h_gate_pass(fx_h2h: Optional[dict], market: str, side: Optional[str]) -> b
         if isinstance(h, int) and isinstance(a, int):
             pairs.append((h, a))
 
+    if len(pairs) < 2:
+        return False  # strict: need 2 known
+
     if market == "o25":
-        known = len(pairs)
-        hit = sum(1 for h,a in pairs if (h + a) >= 3)
-        return (known < 2) or (hit >= 1)
+        return all((h + a) >= 3 for h,a in pairs)
 
     if market == "btts":
-        known = len(pairs)
-        hit = sum(1 for h,a in pairs if (h > 0 and a > 0))
-        return (known < 2) or (hit >= 1)
+        return all((h > 0 and a > 0) for h,a in pairs)
 
     if market == "team_o15":
         if side == "home":
             g2 = [g for g in Hg2 if isinstance(g, int)]
-            return (len(g2) < 2) or any(g >= 2 for g in g2[:2])
+            if len(g2) < 2: return False
+            return all(g >= 2 for g in g2[:2])
         if side == "away":
             g2 = [g for g in Ag2 if isinstance(g, int)]
-            return (len(g2) < 2) or any(g >= 2 for g in g2[:2])
-        return True
+            if len(g2) < 2: return False
+            return all(g >= 2 for g in g2[:2])
+        return False
 
-    return True
+    return False
 
 # ---------- Main ----------
 def main():
     league_ids = discover_league_ids()
 
-    flags_over25 = []  # (fixture, price, home%, away%, combo%, h2h_last2)
-    flags_btts   = []  # (fixture, price, home%, away%, combo%, h2h_last2)
-    flags_team15 = []  # (fixture, side, team, price, team%, h2h_last2)
+    # Over 2.5: (fixture, price, home%, away%, combo%, h2h_last2)
+    flags_over25 = []
+    # BTTS: (fixture, price, home%, away%, combo%, h2h_last2)
+    flags_btts   = []
+    # Team O1.5: (fixture, side, team, price, team%, opp_conc%, combo%, h2h_last2)
+    flags_team15 = []
 
     near_o25 = 0
     near_btts = 0
@@ -429,10 +437,10 @@ def main():
             if not (h_rec and a_rec and h_opp and a_opp):
                 continue
 
-            H_g  = as_int_list(h_rec.get("goals_last_n"))
-            A_g  = as_int_list(a_rec.get("goals_last_n"))
-            HogA = as_int_list(a_opp.get("opp_goals_last_n"))  # away conceded (for home)
-            AogH = as_int_list(h_opp.get("opp_goals_last_n"))  # home conceded (for away)
+            H_g   = as_int_list(h_rec.get("goals_last_n"))
+            A_g   = as_int_list(a_rec.get("goals_last_n"))
+            HogA  = as_int_list(h_opp.get("opp_goals_last_n"))  # AWAY conceded series (used vs home attack)
+            AogH  = as_int_list(a_opp.get("opp_goals_last_n"))  # HOME conceded series (used vs away attack)
 
             def ok_len(x): return len(x) >= MIN_GAMES
 
@@ -443,15 +451,18 @@ def main():
             h_btts = btts_from(H_g, HogA) if ok_len(H_g) and ok_len(HogA) else (0,0,0.0)
             a_btts = btts_from(A_g, AogH) if ok_len(A_g) and ok_len(AogH) else (0,0,0.0)
 
-            h_o15 = team_over_from(H_g, 2) if ok_len(H_g) else (0,0,0.0)
-            a_o15 = team_over_from(A_g, 2) if ok_len(A_g) else (0,0,0.0)
+            h_o15_team = team_over_from(H_g, 2) if ok_len(H_g) else (0,0,0.0)
+            a_o15_team = team_over_from(A_g, 2) if ok_len(A_g) else (0,0,0.0)
+            # Opponent conceded >=2 (might have fewer than MIN_GAMES; still report)
+            h_o15_opp  = team_over_from(HogA, 2) if HogA else (0,0,0.0)
+            a_o15_opp  = team_over_from(AogH, 2) if AogH else (0,0,0.0)
 
             pass_over25 = (h_over25[1] >= MIN_GAMES and a_over25[1] >= MIN_GAMES and
                            h_over25[2] >= THRESH_OVER25 and a_over25[2] >= THRESH_OVER25)
             pass_btts   = (h_btts[1]   >= MIN_GAMES and a_btts[1]   >= MIN_GAMES and
                            h_btts[2]   >= THRESH_BTTS   and a_btts[2]   >= THRESH_BTTS)
-            pass_h15    = (h_o15[1]    >= MIN_GAMES and h_o15[2]    >= THRESH_TEAM_O15)
-            pass_a15    = (a_o15[1]    >= MIN_GAMES and a_o15[2]    >= THRESH_TEAM_O15)
+            pass_h15    = (h_o15_team[1] >= MIN_GAMES and h_o15_team[2] >= THRESH_TEAM_O15)
+            pass_a15    = (a_o15_team[1] >= MIN_GAMES and a_o15_team[2] >= THRESH_TEAM_O15)
 
             odds_fx = odds_by_fixture.get(fid) or {}
             rows = odds_fx.get("odds") or []
@@ -461,7 +472,7 @@ def main():
             # ---- Over 2.5 ----
             if pass_over25:
                 p = best_price_o25(rows)
-                if p is not None and p >= MIN_PRICE and h2h_gate_pass(fx_h2h, "o25", None):
+                if p is not None and p >= MIN_PRICE and h2h_gate_pass_strict(fx_h2h, "o25", None):
                     combo = (h_over25[2] + a_over25[2]) / 2.0
                     flags_over25.append((name, p, h_over25[2], a_over25[2], combo, h2h_tail))
                 elif p is not None:
@@ -470,7 +481,7 @@ def main():
             # ---- BTTS Yes ----
             if pass_btts:
                 p = best_price(rows, is_btts_yes_row)
-                if p is not None and p >= MIN_PRICE and h2h_gate_pass(fx_h2h, "btts", None):
+                if p is not None and p >= MIN_PRICE and h2h_gate_pass_strict(fx_h2h, "btts", None):
                     combo = (h_btts[2] + a_btts[2]) / 2.0
                     flags_btts.append((name, p, h_btts[2], a_btts[2], combo, h2h_tail))
                 elif p is not None:
@@ -480,23 +491,29 @@ def main():
             fav = favourite_side(rows)
             if pass_h15 and fav == "home":
                 p = best_price(rows, lambda r: is_team_over15_row(r, "home"))
-                if p is not None and p >= MIN_PRICE and h2h_gate_pass(fx_h2h, "team_o15", "home"):
-                    flags_team15.append((name, "home", home, p, h_o15[2], h2h_tail))
+                if p is not None and p >= MIN_PRICE and h2h_gate_pass_strict(fx_h2h, "team_o15", "home"):
+                    team_p = h_o15_team[2]
+                    opp_p  = h_o15_opp[2]
+                    combo  = (team_p + opp_p) / 2.0
+                    flags_team15.append((name, "home", home, p, team_p, opp_p, combo, h2h_tail))
                 elif p is not None:
                     near_t15 += 1
 
             # ---- Team Over 1.5 (Away) — only if favourite ----
             if pass_a15 and fav == "away":
                 p = best_price(rows, lambda r: is_team_over15_row(r, "away"))
-                if p is not None and p >= MIN_PRICE and h2h_gate_pass(fx_h2h, "team_o15", "away"):
-                    flags_team15.append((name, "away", away, p, a_o15[2], h2h_tail))
+                if p is not None and p >= MIN_PRICE and h2h_gate_pass_strict(fx_h2h, "team_o15", "away"):
+                    team_p = a_o15_team[2]
+                    opp_p  = a_o15_opp[2]
+                    combo  = (team_p + opp_p) / 2.0
+                    flags_team15.append((name, "away", away, p, team_p, opp_p, combo, h2h_tail))
                 elif p is not None:
                     near_t15 += 1
 
     # --------- Sort (price desc then probability desc, then name) ----------
     flags_over25.sort(key=lambda x: (-x[1], -x[4], x[0]))
     flags_btts.sort(key=lambda x: (-x[1], -x[4], x[0]))
-    flags_team15.sort(key=lambda x: (-x[3], -x[4], x[0], x[1]))
+    flags_team15.sort(key=lambda x: (-x[3], -x[6], x[0], x[1]))
 
     # --------- Render TEXT ---------
     now_iso = dt.datetime.utcnow().isoformat(timespec="seconds")
@@ -506,7 +523,7 @@ def main():
     lines.append(f"Generated at (UTC): {now_iso}")
     lines.append(f"Rules: MIN_PRICE>={MIN_PRICE:.2f}, MIN_GAMES>={MIN_GAMES}, thresholds: O2.5>={int(THRESH_OVER25*100)}%, BTTS>={int(THRESH_BTTS*100)}%, TeamO1.5>={int(THRESH_TEAM_O15*100)}%")
     if H2H_LAST2_REQUIRED:
-        lines.append("H2H gate: keep only if market landed in ≥1 of the last 2 H2Hs.")
+        lines.append("H2H gate: must land in BOTH of the last 2 H2Hs.")
     lines.append("")
 
     lines.append("=== Over 2.5 — value flags ===")
@@ -523,10 +540,10 @@ def main():
     lines.append("")
     lines.append("=== Team Over 1.5 — value flags (only favourites) ===")
     if not flags_team15: lines.append("  (none)")
-    for name, side, team, price, tp, h2h_tail in flags_team15:
-        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(tp)} | {name} | H2H last2: {h2h_tail}")
+    for name, side, team, price, team_p, opp_p, combo, h2h_tail in flags_team15:
+        lines.append(f" • {team} — Team Over 1.5 ({side}) @ {price:.2f} | team {pct(team_p)} / opp conceded {pct(opp_p)} | combo {pct(combo)} | {name} | H2H last2: {h2h_tail}")
 
-    # Near misses (kept; no edges shown)
+    # Near misses (passed form gates but below MIN_PRICE)
     nm_parts = []
     if near_o25: nm_parts.append(f"O2.5={near_o25}")
     if near_btts: nm_parts.append(f"BTTS={near_btts}")
@@ -541,7 +558,7 @@ def main():
     md = []
     md.append("Shortlist from recent team form (offense vs conceded), priced at or above the configured minimum.")
     if H2H_LAST2_REQUIRED:
-        md.append("\n_H2H gate: kept only if the market landed in ≥1 of the last 2 H2Hs._\n")
+        md.append("\n_Strict H2H gate: market must have landed in **both** of the last 2 H2Hs._\n")
     md.append(f"_Form gates:_ Over 2.5 ≥ {int(THRESH_OVER25*100)}%, BTTS ≥ {int(THRESH_BTTS*100)}%, Team Over 1.5 ≥ {int(THRESH_TEAM_O15*100)}% (≥{MIN_GAMES} games). Min price = **{MIN_PRICE:.2f}**.\n")
     def pcts(p): return f"{p*100:.1f}%"
 
@@ -557,8 +574,8 @@ def main():
 
     md.append("\n### Team Over 1.5 — value flags (only favourites)")
     if not flags_team15: md.append("- (none)")
-    for name, side, team, price, tp, h2h_tail in flags_team15:
-        md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; {pcts(tp)}; H2H: {h2h_tail}) — {name}")
+    for name, side, team, price, team_p, opp_p, combo, h2h_tail in flags_team15:
+        md.append(f"- **{team}** — **Team Over 1.5 @ {price:.2f}** ({side}; team {pcts(team_p)} / opp conceded {pcts(opp_p)}; combo {pcts(combo)}; H2H: {h2h_tail}) — {name}")
 
     OUT_MD.write_text("\n".join(md).rstrip() + "\n", encoding="utf-8")
 
