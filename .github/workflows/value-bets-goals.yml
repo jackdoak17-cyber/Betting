@@ -1,10 +1,9 @@
-name: Value Bets — Goals (H2H)
+name: Value Bets — Goals (form + H2H gate)
 
 on:
   workflow_dispatch:
   schedule:
-    # every 4 hours (tweak if you want fewer runs to conserve minutes)
-    - cron: "0 */4 * * *"
+    - cron: "0 */4 * * *"  # every 4 hours
 
 jobs:
   build:
@@ -19,38 +18,32 @@ jobs:
         with:
           python-version: "3.11"
 
-      # No external deps needed, but keep a pip upgrade fast + stable
-      - name: Install deps (none strictly required)
+      - name: Install deps
         run: python -m pip install --upgrade pip
 
-      - name: Generate goals value flags from H2H cache
+      - name: Generate value bets (form + H2H last-2 gate)
         env:
-          # Optional tuning knobs; defaults are sensible.
-          VB_LASTN: "5"
-          VB_MIN_SAMPLES: "3"
-          VB_O25_MIN_RATE: "0.60"
-          VB_BTTS_MIN_RATE: "0.60"
-          VB_O35_MIN_RATE: "0.40"
-          VB_U25_MAX_RATE: "0.20"
-          VB_SOT_BOOST: "0.5"
-          VB_SOT_SUPPRESS: "0.5"
-          # VB_INCLUDE_LEAGUES: "8,9,82"   # uncomment to restrict
+          MIN_PRICE: "1.30"
+          MIN_GAMES: "6"
+          THRESH_OVER25: "0.70"
+          THRESH_BTTS: "0.70"
+          THRESH_TEAM_O15: "0.70"
+          WINDOW_DAYS: "7"            # set "0" to scan all future fixtures
+          H2H_LAST2_REQUIRED: "1"     # set "0" to disable the last-2 gate
         run: |
           python scripts/value_bets/goals/goals_value_flags.py
           echo "---- summary preview ----"
-          sed -n '1,120p' data/value_bets/goals/summary.txt || true
+          sed -n '1,160p' data/value_bets/goals_value_flags.txt || true
 
       - name: Commit & push outputs
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/value_bets/goals/by_league/*.json \
-                  data/value_bets/goals/combined.json \
-                  data/value_bets/goals/summary.txt || true
+          git add data/value_bets/goals_value_flags.txt posts/value_bets_goals.md || true
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(value-bets-goals): refresh flags from H2H cache"
+            git commit -m "chore(value-bets-goals): refresh shortlist (form + H2H last-2 gate)"
             git push
           fi
