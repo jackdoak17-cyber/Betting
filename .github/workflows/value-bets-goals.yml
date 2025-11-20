@@ -1,4 +1,4 @@
-name: Value Bets — Goals (form + H2H gate)
+name: Value Bets — Goals (form + H2H + favourites)
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       - name: Install deps
         run: python -m pip install --upgrade pip
 
-      - name: Generate value bets (form + H2H last-2 gate)
+      - name: Generate value bets (form + H2H last-2 + favourite filter)
         env:
           MIN_PRICE: "1.30"
           MIN_GAMES: "6"
@@ -29,11 +29,11 @@ jobs:
           THRESH_BTTS: "0.70"
           THRESH_TEAM_O15: "0.70"
           WINDOW_DAYS: "7"            # set "0" to scan all future fixtures
-          H2H_LAST2_REQUIRED: "1"     # set "0" to disable the last-2 gate
+          H2H_LAST2_REQUIRED: "1"
         run: |
           python scripts/value_bets/goals/goals_value_flags.py
-          echo "---- summary preview ----"
-          sed -n '1,160p' data/value_bets/goals_value_flags.txt || true
+          echo "---- preview ----"
+          sed -n '1,200p' data/value_bets/goals_value_flags.txt || true
 
       - name: Commit & push outputs
         run: |
@@ -44,6 +44,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(value-bets-goals): refresh shortlist (form + H2H last-2 gate)"
+            git commit -m "chore(value-bets-goals): refresh shortlist (no edge, H2H shown, O1.5 only favourites)"
             git push
           fi
