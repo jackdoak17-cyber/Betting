@@ -1,19 +1,17 @@
-name: Value Bets — Goals (H2H + flags)
+name: Value Bets — Goals (H2H)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"  # every 30 mins (UTC)
-
-concurrency:
-  group: value-bets-goals
-  cancel-in-progress: true
+    # every 4 hours (tweak if you want fewer runs to conserve minutes)
+    - cron: "0 */4 * * *"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,51 +19,38 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            pip install requests
-          fi
+      # No external deps needed, but keep a pip upgrade fast + stable
+      - name: Install deps (none strictly required)
+        run: python -m pip install --upgrade pip
 
-      # 1) Prefetch last-2 H2H and cache locally (API call)
-      - name: Prefetch last-2 H2H (cache)
+      - name: Generate goals value flags from H2H cache
         env:
-          SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-          H2H_CACHE_HOURS: "24"
-          # Optional: restrict which leagues you refresh
-          # LEAGUE_IDS: "8,82,301,384,387,564,567,600,9"
-        run: |
-          python scripts/h2h_last2_fetch.py
-
-      # 2) Generate value flags (LOCAL files only)
-      - name: Generate value flags (goals)
-        env:
-          MIN_PRICE: "1.30"
-          MIN_GAMES: "6"
-          THRESH_OVER25: "0.70"
-          THRESH_BTTS: "0.70"
-          THRESH_TEAM_O15: "0.70"
-          WINDOW_DAYS: "7"
+          # Optional tuning knobs; defaults are sensible.
+          VB_LASTN: "5"
+          VB_MIN_SAMPLES: "3"
+          VB_O25_MIN_RATE: "0.60"
+          VB_BTTS_MIN_RATE: "0.60"
+          VB_O35_MIN_RATE: "0.40"
+          VB_U25_MAX_RATE: "0.20"
+          VB_SOT_BOOST: "0.5"
+          VB_SOT_SUPPRESS: "0.5"
+          # VB_INCLUDE_LEAGUES: "8,9,82"   # uncomment to restrict
         run: |
           python scripts/value_bets/goals/goals_value_flags.py
+          echo "---- summary preview ----"
+          sed -n '1,120p' data/value_bets/goals/summary.txt || true
 
-      - name: Commit & push results
+      - name: Commit & push outputs
         run: |
           set -euo pipefail
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # stage any updated caches + outputs
-          git add data/h2h/*.json 2>/dev/null || true
-          git add data/value_bets/goals_value_flags.txt posts/value_bets_goals.md 2>/dev/null || true
-
+          git add data/value_bets/goals/by_league/*.json \
+                  data/value_bets/goals/combined.json \
+                  data/value_bets/goals/summary.txt || true
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore: update H2H caches and goals value flags"
+            git commit -m "chore(value-bets-goals): refresh flags from H2H cache"
             git push
           fi
