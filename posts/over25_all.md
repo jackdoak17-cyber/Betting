@@ -16,6 +16,7 @@ Molde (70%) vs Brann (80%)
 Feyenoord (70%) vs NEC Nijmegen (70%)
 Hull City (70%) vs Ipswich Town (70%)
 Lech Poznań (70%) vs Radomiak Radom (70%)
+PEC Zwolle (70%) vs SC Heerenveen (70%)
 Rennes (70%) vs Monaco (70%)
 SC Heerenveen (70%) vs AZ (70%)
 
@@ -38,6 +39,7 @@ Beşiktaş (70%) vs Samsunspor (70%)
 Carrarese (70%) vs Reggiana (70%)
 FC Köln (70%) vs Eintracht Frankfurt (70%)
 Molde (70%) vs Brann (70%)
+Piast Gliwice (70%) vs Widzew Lodz (70%)
 Salzburg (70%) vs WSG Tirol (70%)
 
 📈 Single-team over 1.5 ≥70%📈
