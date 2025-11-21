@@ -20,8 +20,8 @@ _Form gates:_ Over 2.5 ≥ 70%, BTTS ≥ 70%, Team Over 1.5 ≥ 70% (≥6 games)
 ### Team Over 1.5 — value flags (only favourites)
 - **Luzern** — **Team Over 1.5 @ 1.90** (home; team 70.0% / opp conceded 50.0%; combo 60.0%; H2H: 2025-08-31 2–2, 2025-05-18 3–4) — Luzern vs Servette
 - **Fenerbahçe** — **Team Over 1.5 @ 1.57** (away; team 70.0% / opp conceded 50.0%; combo 60.0%; H2H: 2025-02-02 2–3, 2024-08-25 0–5) — Rizespor vs Fenerbahçe
+- **Viking** — **Team Over 1.5 @ 1.57** (away; team 90.0% / opp conceded 20.0%; combo 55.0%; H2H: 2025-06-22 0–3, 2024-09-22 3–2) — Fredrikstad vs Viking
 - **FC Twente** — **Team Over 1.5 @ 1.53** (away; team 70.0% / opp conceded 50.0%; combo 60.0%; H2H: 2024-05-12 2–7, 2023-09-03 0–2) — FC Volendam vs FC Twente
-- **Viking** — **Team Over 1.5 @ 1.53** (away; team 90.0% / opp conceded 20.0%; combo 55.0%; H2H: 2025-06-22 0–3, 2024-09-22 3–2) — Fredrikstad vs Viking
 - **FC Midtjylland** — **Team Over 1.5 @ 1.50** (away; team 70.0% / opp conceded 30.0%; combo 50.0%; H2H: 2025-07-28 2–6, 2024-10-20 3–2) — Sønderjyske Fodbold vs FC Midtjylland
 - **FC Barcelona** — **Team Over 1.5 @ 1.40** (home; team 70.0% / opp conceded 20.0%; combo 45.0%; H2H: 2025-05-25 3–0, 2024-08-24 2–1) — FC Barcelona vs Athletic Club
 - **Real Madrid** — **Team Over 1.5 @ 1.36** (away; team 80.0% / opp conceded 30.0%; combo 55.0%; H2H: 2023-02-15 0–4, 2022-10-19 0–3) — Elche vs Real Madrid
