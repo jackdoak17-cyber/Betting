@@ -13,7 +13,7 @@ _Form gates:_ Over 2.5 ≥ 70%, BTTS ≥ 70%, Team Over 1.5 ≥ 70% (≥6 games)
 ### BTTS (Yes) — value flags
 - **Lech Poznań vs Radomiak Radom** — **BTTS Yes @ 1.70** (H 70.0% / A 70.0%; combo 70.0%; H2H: 2025-04-27 2–2, 2024-10-26 2–1)
 - **Ajax vs Excelsior** — **BTTS Yes @ 1.66** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2024-04-24 2–2, 2023-08-19 2–2)
-- **Genk vs Mechelen** — **BTTS Yes @ 1.61** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-01-18 2–1, 2024-09-28 2–1)
+- **Genk vs Mechelen** — **BTTS Yes @ 1.66** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-01-18 2–1, 2024-09-28 2–1)
 - **Rennes vs Monaco** — **BTTS Yes @ 1.44** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2025-01-25 2–3, 2024-10-05 1–2)
 - **Strømsgodset vs Sandefjord** — **BTTS Yes @ 1.44** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-05-25 2–3, 2024-08-09 2–2)
 
