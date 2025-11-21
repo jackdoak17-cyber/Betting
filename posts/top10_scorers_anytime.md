@@ -9,6 +9,6 @@ Top 10 Scorers — Bet365 Anytime
 | 5 | E. Lepaul — Rennes (L1) | 8 | @ 2.40 | v Monaco |
 | 6 | I. Thiago — Brentford (PL) | 8 | @ 2.87 | v Brighton |
 | 7 | M. Greenwood — Marseille (L1) | 8 | @ 2.10 | v Nice |
-| 8 | J. Alvarez — Atleti (LAL) | 7 | @ 2.75 | v Getafe |
+| 8 | J. Alvarez — Atleti (LAL) | 7 | @ 2.60 | v Getafe |
 | 9 | R. Lewandowski — Barcelona (LAL) | 7 | @ 1.80 | v Athletic Club |
 | 10 | A. Semenyo — Bournemouth (PL) | 6 | @ 2.25 | v West Ham |
