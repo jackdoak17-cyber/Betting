@@ -15,7 +15,7 @@ _Form gates:_ Over 2.5 ≥ 70%, BTTS ≥ 70%, Team Over 1.5 ≥ 70% (≥6 games)
 - **Ajax vs Excelsior** — **BTTS Yes @ 1.66** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2024-04-24 2–2, 2023-08-19 2–2)
 - **Genk vs Mechelen** — **BTTS Yes @ 1.57** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-01-18 2–1, 2024-09-28 2–1)
 - **PEC Zwolle vs SC Heerenveen** — **BTTS Yes @ 1.50** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-02-16 1–1, 2024-10-06 1–1)
-- **Rennes vs Monaco** — **BTTS Yes @ 1.44** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2025-01-25 2–3, 2024-10-05 1–2)
+- **Rennes vs Monaco** — **BTTS Yes @ 1.50** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2025-01-25 2–3, 2024-10-05 1–2)
 - **Strømsgodset vs Sandefjord** — **BTTS Yes @ 1.44** (H 70.0% / A 80.0%; combo 75.0%; H2H: 2025-05-25 2–3, 2024-08-09 2–2)
 
 ### Team Over 1.5 — value flags (only favourites)
