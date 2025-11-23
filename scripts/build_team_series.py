@@ -81,7 +81,7 @@
  BACKOFF = 1.6
  GLOBAL_MIN_DELAY = 0.18
  
-@@ -102,50 +106,51 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
+@@ -102,81 +106,92 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
              r.raise_for_status()
              return r.json()
          except Exception as e:
@@ -133,7 +133,48 @@
      path.parent.mkdir(parents=True, exist_ok=True)
  
  # ----------------- Helpers -----------------
-@@ -258,107 +263,108 @@ def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, leagu
+ def today_utc_date() -> dt.date:
+     return dt.datetime.now(dt.timezone.utc).date()
+ 
+ def dstr(d: dt.date) -> str:
+     return d.strftime("%Y-%m-%d")
+ 
++
++def _to_int(val) -> Optional[int]:
++    """Robustly coerce a stat value to int, tolerating percentage strings."""
++    try:
++        if isinstance(val, str):
++            val = val.strip().replace("%", "")
++        return int(float(val))
++    except Exception:
++        return None
++
+ def load_target_teams() -> Dict[Tuple[int, int], Dict[int, str]]:
+     """
+     Returns teams_by_league_season[(league_id, season_id)] = {team_id: team_name}
+     using predicted_xi inputs to keep scope aligned with other pipelines.
+     """
+     teams: Dict[Tuple[int, int], Dict[int, str]] = {}
+     if not PX_DIR.exists():
+         return teams
+ 
+     for f in PX_DIR.glob("*.json"):
+         try:
+             blob = json.loads(f.read_text(encoding="utf-8"))
+         except Exception:
+             continue
+         lid = int(blob.get("league_id") or 0)
+         for row in (blob.get("fixtures") or []):
+             fid = row.get("fixture_id")
+             season_id = row.get("season_id") or None
+             if season_id is None and isinstance(fid, int):
+                 try:
+                     fx = api_get(f"fixtures/{fid}").get("data") or {}
+                     season_id = int(fx.get("season_id") or 0) or None
+                 except Exception:
+                     pass
+             if not (lid and season_id):
+@@ -258,107 +273,109 @@ def fetch_team_fixtures_window(team_id: int, start: dt.date, end: dt.date, leagu
      GET fixtures for team in [start,end] with league & statistic type filters, ordered desc.
      Includes participants to infer home/away.
      """
@@ -201,9 +242,12 @@
                          t = int(s.get("type_id") or 0)
                          vobj = s.get("data") or s.get("value") or {}
                          val = vobj.get("value") if isinstance(vobj, dict) else None
-                         if val is None:
+-                        if val is None:
++                        parsed = _to_int(val)
++                        if parsed is None:
                              continue
-                         by_type[t] = int(float(val))
+-                        by_type[t] = int(float(val))
++                        by_type[t] = parsed
                      except Exception:
                          continue
  
@@ -244,7 +288,7 @@
          if isinstance(ts, (int, float)):
              return int(ts)
          dt_str = st.get("date_time") or st.get("date") or st.get("starting_at")
-@@ -379,51 +385,51 @@ def _parse_start_ts(fx: dict) -> int:
+@@ -379,144 +396,147 @@ def _parse_start_ts(fx: dict) -> int:
                  s = dt_str.replace("Z", "").replace("T", " ")
                  return int(dt.datetime.strptime(s[:19], "%Y-%m-%d %H:%M:%S").timestamp())
              except Exception:
@@ -297,7 +341,36 @@
              page += 1
  
              for fx in data:
-@@ -457,66 +463,68 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
+                 if int(fx.get("league_id") or 0) != league_id:  continue
+                 if int(fx.get("season_id") or 0) != season_id:  continue
+                 if int(fx.get("state_id") or 0) not in (5,):    continue
+ 
+                 fid = int(fx.get("id") or 0)
+                 if fid in seen_fids:
+                     continue
+ 
+                 opp_id = _opponent_id_from_fixture(fx, team_id)
+                 if opp_id is None:
+                     continue
+ 
+                 by_type_opp: Dict[int, int] = {}
+                 for s in (fx.get("statistics") or []):
+                     try:
+                         if int(s.get("participant_id") or 0) != opp_id:
+                             continue
+                         t = int(s.get("type_id") or 0)
+                         vobj = s.get("data") or s.get("value") or {}
+                         val = vobj.get("value") if isinstance(vobj, dict) else None
+-                        if val is None:
++                        parsed = _to_int(val)
++                        if parsed is None:
+                             continue
+-                        by_type_opp[t] = int(float(str(val).strip().replace("%","")))
++                        by_type_opp[t] = parsed
+                     except Exception:
+                         continue
+ 
+                 start_ts = _parse_start_ts(fx)
                  loc = infer_location(fx, team_id) or "unknown"
                  recs.append({"fid": fid, "ts": start_ts, "by_type": by_type_opp, "loc": loc})
                  seen_fids.add(fid)
@@ -366,3 +439,6 @@
          for tid, tname in tm.items():
              items.append((lid, sid, tid, tname))
      items.sort()
+ 
+EOF
+)
