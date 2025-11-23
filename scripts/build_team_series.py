@@ -440,7 +440,7 @@ def main():
         for tid, tname in tm.items():
             items.append((lid, sid, tid, tname))
     items.sort()
-@@ -544,84 +564,84 @@ def main():
+@@ -544,83 +564,85 @@ def main():
             coll_o = collect_opponent_series(lid, sid, tid, LAST_N_OPP)
             entry_o = {
                 "league_id": lid,
@@ -466,8 +466,8 @@ def main():
                 "count": len(rows),
                 "teams": rows,
             }
+            # Compose per-league output path (explicit string to avoid template artifacts)
             out = OUT_TEAM_BY / f"{lid}.json"
-            out = OUT_TEAM_BY / (str(lid) + ".json")
             ensure_dir(out)
             tmp = out.with_suffix(".json.tmp")
             tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -500,8 +500,8 @@ def main():
                 "count": len(rows),
                 "teams": rows,
             }
+            # Compose per-league opponent output path (explicit string to avoid template artifacts)
             out = OUT_OPP_BY / f"{lid}.json"
-            out = OUT_OPP_BY / (str(lid) + ".json")
             ensure_dir(out)
             tmp = out.with_suffix(".json.tmp")
             tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -525,5 +525,3 @@ def main():
         (OUT_OPP_ROOT / "summary.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print("Done.")
-
-if __name__ == "__main__":
