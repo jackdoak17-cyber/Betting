@@ -4,25 +4,25 @@ Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
-• E. Anderson (Nottm Forest) = 1, 3, 2, 4, 5
 • L. Paquetá (West Ham) = 3, 2, 4, 1, 4
-• D. Ouattara (Brentford) = 3, 3, 2, 1, 3
-• R. Mandava (Sunderland) = 2, 1, 4, 1, 4
+• I. Sarr (Crystal Palace) = 1, 4, 3, 1, 3
+• D. Ouattara (Brentford) = 2, 3, 3, 2, 1
+• L. Ugochukwu (Burnley) = 2, 4, 1, 2, 2
 • B. Kamara (Aston Villa) = 2, 1, 1, 4, 2
+• J. Pedro (Chelsea) = 2, 2, 2, 1, 3
+• R. Mandava (Sunderland) = 2, 2, 1, 4, 1
 • C. Summerville (West Ham) = 1, 1, 1, 2, 4
 • G. Gudmundsson (Leeds United) = 1, 1, 2, 2, 3
-• J. Pedro (Chelsea) = 2, 2, 1, 3, 1
-• R. Gravenberch (Liverpool) = 1, 2, 1, 1, 4
-• B. Traoré (Sunderland) = 1, 1, 3, 1, 2
+• D. Ballard (Sunderland) = 1, 1, 3, 1, 2
 • P. Foden (Man City) = 1, 3, 2, 1, 1
 • S. Longstaff (Leeds United) = 2, 2, 1, 2, 1
 • A. Garnacho (Chelsea) = 1, 1, 1, 2, 2
-• J. Anthony (Burnley) = 1, 1, 1, 3, 1
-• K. Walker (Burnley) = 1, 2, 1, 1, 2
 • L. Trossard (Arsenal) = 1, 2, 1, 2, 1
 • M. Rogers (Aston Villa) = 1, 2, 2, 1, 1
+• E. Diouf (West Ham) = 1, 1, 1, 1, 2
+• L. Tchaouna (Burnley) = 2, 1, 1, 1, 1
 • R. Richarlison (Spurs) = 1, 1, 1, 1, 2
-• L. Tchaouna (Burnley) = 1, 1, 1, 1, 1
+• J. Larsen (Wolves) = 1, 1, 1, 1, 1
 
 📊1+ Foul in 5/5 (100%)📊
 
@@ -54,9 +54,9 @@ Leave a like if you find these useful.
 
 📊1+ SOT in 5/5 (100%)📊
 
-• E. Haaland (Man City) = 2, 4, 3, 4, 1
-• E. Fernández (Chelsea) = 2, 1, 3, 1, 2
+• E. Haaland (Man City) = 2, 2, 4, 3, 4
 • A. Semenyo (Bournemouth) = 1, 2, 1, 1, 3
+• E. Fernández (Chelsea) = 1, 2, 1, 3, 1
 
 
 Good luck with your bets today. Any value here?
