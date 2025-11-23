@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-22T07:39:20",
+  "generated_at": "2025-11-23T07:40:04",
   "league_id": 600,
   "last_n": 10,
   "red_weight": 1.0,
@@ -450,6 +450,7 @@
         "corners": {
           "sequence": [
             "L",
+            "L",
             "W",
             "L",
             "L",
@@ -457,7 +458,6 @@
             "W",
             "W",
             "D",
-            "L",
             "L"
           ],
           "rates": {
@@ -470,11 +470,11 @@
         },
         "corners_home": {
           "sequence": [
+            "L",
             "W",
             "L",
             "W",
-            "D",
-            "L"
+            "D"
           ],
           "rates": {
             "wins": 2,
@@ -502,39 +502,39 @@
         },
         "shots_total": {
           "sequence": [
-            "L",
-            "W",
-            "L",
-            "W",
             "W",
             "L",
             "W",
             "L",
             "W",
-            "L"
+            "W",
+            "L",
+            "W",
+            "L",
+            "W"
           ],
           "rates": {
-            "wins": 5,
-            "losses": 5,
+            "wins": 6,
+            "losses": 4,
             "draws": 0,
             "n": 10,
-            "win_rate": 0.5
+            "win_rate": 0.6
           }
         },
         "shots_total_home": {
           "sequence": [
             "W",
             "W",
-            "L",
+            "W",
             "L",
             "L"
           ],
           "rates": {
-            "wins": 2,
-            "losses": 3,
+            "wins": 3,
+            "losses": 2,
             "draws": 0,
             "n": 5,
-            "win_rate": 0.4
+            "win_rate": 0.6
           }
         },
         "shots_total_away": {
@@ -555,6 +555,7 @@
         },
         "shots_on_target": {
           "sequence": [
+            "W",
             "L",
             "W",
             "L",
@@ -563,8 +564,7 @@
             "D",
             "L",
             "L",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
             "wins": 4,
@@ -578,9 +578,9 @@
           "sequence": [
             "W",
             "W",
+            "W",
             "D",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
             "wins": 3,
@@ -608,6 +608,7 @@
         },
         "cards_total": {
           "sequence": [
+            "L",
             "W",
             "D",
             "L",
@@ -616,31 +617,30 @@
             "W",
             "L",
             "W",
-            "W",
-            "D"
+            "W"
           ],
           "rates": {
             "wins": 4,
-            "losses": 2,
-            "draws": 4,
-            "n": 6,
-            "win_rate": 0.6667
+            "losses": 3,
+            "draws": 3,
+            "n": 7,
+            "win_rate": 0.5714
           }
         },
         "cards_total_home": {
           "sequence": [
+            "L",
             "D",
             "D",
             "W",
-            "W",
-            "D"
+            "W"
           ],
           "rates": {
             "wins": 2,
-            "losses": 0,
-            "draws": 3,
-            "n": 2,
-            "win_rate": 1.0
+            "losses": 1,
+            "draws": 2,
+            "n": 3,
+            "win_rate": 0.6667
           }
         },
         "cards_total_away": {
@@ -668,6 +668,7 @@
       "categories": {
         "corners": {
           "sequence": [
+            "W",
             "L",
             "D",
             "L",
@@ -676,15 +677,14 @@
             "L",
             "L",
             "L",
-            "W",
-            "L"
+            "W"
           ],
           "rates": {
-            "wins": 2,
-            "losses": 6,
+            "wins": 3,
+            "losses": 5,
             "draws": 2,
             "n": 8,
-            "win_rate": 0.25
+            "win_rate": 0.375
           }
         },
         "corners_home": {
@@ -706,38 +706,38 @@
         },
         "corners_away": {
           "sequence": [
+            "W",
             "D",
             "D",
-            "L",
             "L"
           ],
           "rates": {
-            "wins": 0,
-            "losses": 2,
+            "wins": 1,
+            "losses": 1,
             "draws": 2,
             "n": 2,
-            "win_rate": 0.0
+            "win_rate": 0.5
           }
         },
         "shots_total": {
           "sequence": [
             "L",
-            "W",
-            "L",
-            "L",
-            "L",
-            "L",
             "L",
             "W",
+            "L",
+            "L",
+            "L",
+            "L",
+            "L",
             "W",
             "W"
           ],
           "rates": {
-            "wins": 4,
-            "losses": 6,
+            "wins": 3,
+            "losses": 7,
             "draws": 0,
             "n": 10,
-            "win_rate": 0.4
+            "win_rate": 0.3
           }
         },
         "shots_total_home": {
@@ -759,38 +759,38 @@
         },
         "shots_total_away": {
           "sequence": [
+            "L",
             "W",
             "L",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 2,
-            "losses": 2,
+            "wins": 1,
+            "losses": 3,
             "draws": 0,
             "n": 4,
-            "win_rate": 0.5
+            "win_rate": 0.25
           }
         },
         "shots_on_target": {
           "sequence": [
-            "W",
-            "L",
-            "L",
-            "L",
-            "L",
-            "L",
             "L",
             "W",
+            "L",
+            "L",
+            "L",
+            "L",
+            "L",
+            "L",
             "W",
             "W"
           ],
           "rates": {
-            "wins": 4,
-            "losses": 6,
+            "wins": 3,
+            "losses": 7,
             "draws": 0,
             "n": 10,
-            "win_rate": 0.4
+            "win_rate": 0.3
           }
         },
         "shots_on_target_home": {
@@ -815,18 +815,19 @@
             "L",
             "L",
             "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 1,
-            "losses": 3,
+            "wins": 0,
+            "losses": 4,
             "draws": 0,
             "n": 4,
-            "win_rate": 0.25
+            "win_rate": 0.0
           }
         },
         "cards_total": {
           "sequence": [
+            "W",
             "D",
             "D",
             "L",
@@ -835,8 +836,7 @@
             "W",
             "D",
             "D",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
             "wins": 3,
@@ -865,10 +865,10 @@
         },
         "cards_total_away": {
           "sequence": [
-            "D",
             "W",
             "D",
-            "W"
+            "W",
+            "D"
           ],
           "rates": {
             "wins": 2,
@@ -1110,23 +1110,24 @@
             "W",
             "W",
             "W",
+            "W",
             "L",
             "L",
             "L",
             "D",
-            "W",
-            "L"
+            "W"
           ],
           "rates": {
-            "wins": 5,
-            "losses": 4,
+            "wins": 6,
+            "losses": 3,
             "draws": 1,
             "n": 9,
-            "win_rate": 0.5556
+            "win_rate": 0.6667
           }
         },
         "corners_home": {
           "sequence": [
+            "W",
             "W",
             "W",
             "L",
@@ -1134,11 +1135,11 @@
             "W"
           ],
           "rates": {
-            "wins": 3,
+            "wins": 4,
             "losses": 2,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.6
+            "n": 6,
+            "win_rate": 0.6667
           }
         },
         "corners_away": {
@@ -1146,15 +1147,14 @@
             "W",
             "W",
             "L",
-            "D",
-            "L"
+            "D"
           ],
           "rates": {
             "wins": 2,
-            "losses": 2,
+            "losses": 1,
             "draws": 1,
-            "n": 4,
-            "win_rate": 0.5
+            "n": 3,
+            "win_rate": 0.6667
           }
         },
         "shots_total": {
@@ -1164,9 +1164,9 @@
             "W",
             "W",
             "W",
-            "L",
-            "L",
             "W",
+            "L",
+            "L",
             "W",
             "W"
           ],
@@ -1183,15 +1183,16 @@
             "W",
             "W",
             "W",
+            "W",
             "L",
             "W"
           ],
           "rates": {
-            "wins": 4,
+            "wins": 5,
             "losses": 1,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.8
+            "n": 6,
+            "win_rate": 0.8333
           }
         },
         "shots_total_away": {
@@ -1199,26 +1200,25 @@
             "W",
             "W",
             "L",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 4,
+            "wins": 3,
             "losses": 1,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.8
+            "n": 4,
+            "win_rate": 0.75
           }
         },
         "shots_on_target": {
           "sequence": [
+            "W",
             "D",
             "W",
             "W",
             "W",
             "L",
             "L",
-            "W",
             "W",
             "W",
             "W"
@@ -1235,16 +1235,17 @@
           "sequence": [
             "W",
             "W",
+            "W",
             "L",
             "W",
             "W"
           ],
           "rates": {
-            "wins": 4,
+            "wins": 5,
             "losses": 1,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.8
+            "n": 6,
+            "win_rate": 0.8333
           }
         },
         "shots_on_target_away": {
@@ -1252,19 +1253,19 @@
             "D",
             "W",
             "L",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 3,
+            "wins": 2,
             "losses": 1,
             "draws": 1,
-            "n": 4,
-            "win_rate": 0.75
+            "n": 3,
+            "win_rate": 0.6667
           }
         },
         "cards_total": {
           "sequence": [
+            "D",
             "L",
             "L",
             "L",
@@ -1273,8 +1274,7 @@
             "L",
             "W",
             "L",
-            "L",
-            "D"
+            "L"
           ],
           "rates": {
             "wins": 2,
@@ -1286,6 +1286,7 @@
         },
         "cards_total_home": {
           "sequence": [
+            "D",
             "L",
             "L",
             "L",
@@ -1295,7 +1296,7 @@
           "rates": {
             "wins": 1,
             "losses": 4,
-            "draws": 0,
+            "draws": 1,
             "n": 5,
             "win_rate": 0.2
           }
@@ -1305,13 +1306,12 @@
             "L",
             "W",
             "L",
-            "L",
-            "D"
+            "L"
           ],
           "rates": {
             "wins": 1,
             "losses": 3,
-            "draws": 1,
+            "draws": 0,
             "n": 4,
             "win_rate": 0.25
           }
@@ -1325,6 +1325,7 @@
       "categories": {
         "corners": {
           "sequence": [
+            "L",
             "W",
             "D",
             "W",
@@ -1333,15 +1334,14 @@
             "W",
             "W",
             "L",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 7,
-            "losses": 2,
+            "wins": 6,
+            "losses": 3,
             "draws": 1,
             "n": 9,
-            "win_rate": 0.7778
+            "win_rate": 0.6667
           }
         },
         "corners_home": {
@@ -1350,19 +1350,19 @@
             "W",
             "W",
             "W",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 5,
+            "wins": 4,
             "losses": 1,
             "draws": 0,
-            "n": 6,
-            "win_rate": 0.8333
+            "n": 5,
+            "win_rate": 0.8
           }
         },
         "corners_away": {
           "sequence": [
+            "L",
             "D",
             "L",
             "W",
@@ -1370,14 +1370,15 @@
           ],
           "rates": {
             "wins": 2,
-            "losses": 1,
+            "losses": 2,
             "draws": 1,
-            "n": 3,
-            "win_rate": 0.6667
+            "n": 4,
+            "win_rate": 0.5
           }
         },
         "shots_total": {
           "sequence": [
+            "L",
             "W",
             "W",
             "L",
@@ -1386,15 +1387,14 @@
             "W",
             "L",
             "W",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 7,
-            "losses": 3,
+            "wins": 6,
+            "losses": 4,
             "draws": 0,
             "n": 10,
-            "win_rate": 0.7
+            "win_rate": 0.6
           }
         },
         "shots_total_home": {
@@ -1403,19 +1403,19 @@
             "L",
             "W",
             "W",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 5,
+            "wins": 4,
             "losses": 1,
             "draws": 0,
-            "n": 6,
-            "win_rate": 0.8333
+            "n": 5,
+            "win_rate": 0.8
           }
         },
         "shots_total_away": {
           "sequence": [
+            "L",
             "W",
             "W",
             "L",
@@ -1423,15 +1423,16 @@
           ],
           "rates": {
             "wins": 2,
-            "losses": 2,
+            "losses": 3,
             "draws": 0,
-            "n": 4,
-            "win_rate": 0.5
+            "n": 5,
+            "win_rate": 0.4
           }
         },
         "shots_on_target": {
           "sequence": [
             "W",
+            "W",
             "D",
             "L",
             "W",
@@ -1439,8 +1440,7 @@
             "W",
             "L",
             "W",
-            "D",
-            "W"
+            "D"
           ],
           "rates": {
             "wins": 6,
@@ -1456,51 +1456,51 @@
             "L",
             "W",
             "W",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 5,
+            "wins": 4,
             "losses": 1,
             "draws": 0,
-            "n": 6,
-            "win_rate": 0.8333
+            "n": 5,
+            "win_rate": 0.8
           }
         },
         "shots_on_target_away": {
           "sequence": [
+            "W",
             "D",
             "W",
             "L",
             "D"
           ],
           "rates": {
-            "wins": 1,
+            "wins": 2,
             "losses": 1,
             "draws": 2,
-            "n": 2,
-            "win_rate": 0.5
+            "n": 3,
+            "win_rate": 0.6667
           }
         },
         "cards_total": {
           "sequence": [
             "D",
-            "L",
-            "L",
-            "L",
-            "W",
-            "L",
-            "W",
-            "W",
             "D",
-            "L"
+            "L",
+            "L",
+            "L",
+            "W",
+            "L",
+            "W",
+            "W",
+            "D"
           ],
           "rates": {
             "wins": 3,
-            "losses": 5,
-            "draws": 2,
-            "n": 8,
-            "win_rate": 0.375
+            "losses": 4,
+            "draws": 3,
+            "n": 7,
+            "win_rate": 0.4286
           }
         },
         "cards_total_home": {
@@ -1509,19 +1509,19 @@
             "L",
             "L",
             "L",
-            "W",
-            "L"
+            "W"
           ],
           "rates": {
             "wins": 1,
-            "losses": 4,
+            "losses": 3,
             "draws": 1,
-            "n": 5,
-            "win_rate": 0.2
+            "n": 4,
+            "win_rate": 0.25
           }
         },
         "cards_total_away": {
           "sequence": [
+            "D",
             "L",
             "W",
             "W",
@@ -1530,7 +1530,7 @@
           "rates": {
             "wins": 2,
             "losses": 1,
-            "draws": 1,
+            "draws": 2,
             "n": 3,
             "win_rate": 0.6667
           }
@@ -1546,14 +1546,14 @@
           "sequence": [
             "L",
             "L",
-            "W",
             "L",
             "W",
             "L",
+            "W",
+            "L",
             "L",
             "W",
-            "D",
-            "L"
+            "D"
           ],
           "rates": {
             "wins": 3,
@@ -1584,8 +1584,8 @@
             "L",
             "L",
             "L",
-            "W",
-            "L"
+            "L",
+            "W"
           ],
           "rates": {
             "wins": 1,
@@ -1604,8 +1604,8 @@
             "L",
             "L",
             "L",
-            "D",
             "L",
+            "D",
             "L"
           ],
           "rates": {
@@ -1637,8 +1637,8 @@
             "L",
             "L",
             "L",
-            "D",
-            "L"
+            "L",
+            "D"
           ],
           "rates": {
             "wins": 0,
@@ -1650,6 +1650,7 @@
         },
         "shots_on_target": {
           "sequence": [
+            "L",
             "W",
             "D",
             "L",
@@ -1658,8 +1659,7 @@
             "L",
             "W",
             "L",
-            "D",
-            "L"
+            "D"
           ],
           "rates": {
             "wins": 3,
@@ -1687,8 +1687,8 @@
         },
         "shots_on_target_away": {
           "sequence": [
-            "D",
             "L",
+            "D",
             "L",
             "L",
             "L"
@@ -1703,6 +1703,7 @@
         },
         "cards_total": {
           "sequence": [
+            "D",
             "L",
             "W",
             "W",
@@ -1711,15 +1712,14 @@
             "D",
             "W",
             "L",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 6,
+            "wins": 5,
             "losses": 3,
-            "draws": 1,
-            "n": 9,
-            "win_rate": 0.6667
+            "draws": 2,
+            "n": 8,
+            "win_rate": 0.625
           }
         },
         "cards_total_home": {
@@ -1740,18 +1740,18 @@
         },
         "cards_total_away": {
           "sequence": [
+            "D",
             "W",
             "W",
             "D",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 3,
+            "wins": 2,
             "losses": 1,
-            "draws": 1,
-            "n": 4,
-            "win_rate": 0.75
+            "draws": 2,
+            "n": 3,
+            "win_rate": 0.6667
           }
         }
       }
@@ -2201,6 +2201,7 @@
       "categories": {
         "corners": {
           "sequence": [
+            "W",
             "L",
             "L",
             "W",
@@ -2209,8 +2210,7 @@
             "W",
             "L",
             "L",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
             "wins": 4,
@@ -2222,6 +2222,7 @@
         },
         "corners_home": {
           "sequence": [
+            "W",
             "L",
             "W",
             "W",
@@ -2229,11 +2230,11 @@
             "L"
           ],
           "rates": {
-            "wins": 2,
+            "wins": 3,
             "losses": 3,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.4
+            "n": 6,
+            "win_rate": 0.5
           }
         },
         "corners_away": {
@@ -2241,19 +2242,19 @@
             "L",
             "W",
             "L",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
-            "wins": 2,
+            "wins": 1,
             "losses": 3,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.4
+            "n": 4,
+            "win_rate": 0.25
           }
         },
         "shots_total": {
           "sequence": [
+            "W",
             "L",
             "D",
             "W",
@@ -2262,8 +2263,7 @@
             "W",
             "L",
             "W",
-            "L",
-            "W"
+            "L"
           ],
           "rates": {
             "wins": 5,
@@ -2275,6 +2275,7 @@
         },
         "shots_total_home": {
           "sequence": [
+            "W",
             "D",
             "W",
             "W",
@@ -2282,11 +2283,11 @@
             "L"
           ],
           "rates": {
-            "wins": 2,
+            "wins": 3,
             "losses": 2,
             "draws": 1,
-            "n": 4,
-            "win_rate": 0.5
+            "n": 5,
+            "win_rate": 0.6
           }
         },
         "shots_total_away": {
@@ -2294,26 +2295,25 @@
             "L",
             "W",
             "L",
-            "W",
             "W"
           ],
           "rates": {
-            "wins": 3,
+            "wins": 2,
             "losses": 2,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.6
+            "n": 4,
+            "win_rate": 0.5
           }
         },
         "shots_on_target": {
           "sequence": [
             "L",
             "L",
-            "W",
-            "L",
             "L",
             "W",
             "L",
+            "L",
+            "W",
             "L",
             "L",
             "L"
@@ -2330,16 +2330,17 @@
           "sequence": [
             "L",
             "L",
+            "L",
             "W",
             "L",
             "L"
           ],
           "rates": {
             "wins": 1,
-            "losses": 4,
+            "losses": 5,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.2
+            "n": 6,
+            "win_rate": 0.1667
           }
         },
         "shots_on_target_away": {
@@ -2347,19 +2348,19 @@
             "L",
             "W",
             "L",
-            "L",
             "L"
           ],
           "rates": {
             "wins": 1,
-            "losses": 4,
+            "losses": 3,
             "draws": 0,
-            "n": 5,
-            "win_rate": 0.2
+            "n": 4,
+            "win_rate": 0.25
           }
         },
         "cards_total": {
           "sequence": [
+            "D",
             "W",
             "W",
             "W",
@@ -2368,19 +2369,19 @@
             "D",
             "W",
             "D",
-            "W",
-            "L"
+            "W"
           ],
           "rates": {
             "wins": 6,
-            "losses": 2,
-            "draws": 2,
-            "n": 8,
-            "win_rate": 0.75
+            "losses": 1,
+            "draws": 3,
+            "n": 7,
+            "win_rate": 0.8571
           }
         },
         "cards_total_home": {
           "sequence": [
+            "D",
             "W",
             "L",
             "D",
@@ -2390,7 +2391,7 @@
           "rates": {
             "wins": 3,
             "losses": 1,
-            "draws": 1,
+            "draws": 2,
             "n": 4,
             "win_rate": 0.75
           }
@@ -2400,15 +2401,14 @@
             "W",
             "W",
             "W",
-            "D",
-            "L"
+            "D"
           ],
           "rates": {
             "wins": 3,
-            "losses": 1,
+            "losses": 0,
             "draws": 1,
-            "n": 4,
-            "win_rate": 0.75
+            "n": 3,
+            "win_rate": 1.0
           }
         }
       }
