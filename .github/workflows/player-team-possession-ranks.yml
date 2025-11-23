@@ -1,0 +1,63 @@
+name: Build V2 team possession ranks
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # daily at 03:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-team-possession-ranks
+  cancel-in-progress: false
+
+jobs:
+  build-possession-ranks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONUNBUFFERED: "1"
+      MIN_SAMPLE: "3"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Compute team possession ranks (V2)
+        run: |
+          python scripts/value_bets/Player_value_bets_V2/compute_team_possession_ranks.py
+
+      - name: Commit & push outputs
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/value_bets/Player_value_bets_V2/team_possession_ranks
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore(player-possession-ranks): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          git pull --rebase origin "$BRANCH" || true
+          git push origin HEAD:"$BRANCH"
