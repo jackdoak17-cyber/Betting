@@ -45,6 +45,7 @@ ROOT = Path(".")
 PP_DIR = ROOT / "data" / "player_passes" / "by_league"
 FIX_DIR = ROOT / "data" / "fixtures"
 ODDS_DIR = ROOT / "data" / "odds" / "b365"
+ODDS_FIXTURE_DIR = ODDS_DIR / "fixtures"
 RANK_DIR = ROOT / "data" / "value_bets" / "Player_value_bets_V2" / "team_possession_ranks"
 OUT_DIR = ROOT / "data" / "value_bets" / "Player_value_bets_V2"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -306,6 +307,42 @@ def filter_series_vs_top5(series: List[int], fixture_ids: List[int], fixture_map
 
 # ---------- Odds helpers ----------
 
+def fixture_odds_rows(fixture_payload: dict) -> List[dict]:
+    rows = fixture_payload.get("odds")
+    return rows if isinstance(rows, list) else []
+
+
+def merged_odds_rows(fixture_id: Optional[int], league_row: dict) -> List[dict]:
+    """
+    Some feeds occasionally drop alternate player lines in the league blob.
+    Pull any per-fixture odds dump we have on disk and union them with the
+    league-level rows so we don't miss higher pass lines.
+    """
+
+    odds: List[dict] = []
+
+    league_rows = fixture_odds_rows(league_row)
+    odds.extend(league_rows)
+
+    if fixture_id is not None:
+        fix_path = ODDS_FIXTURE_DIR / f"{fixture_id}.json"
+        if fix_path.exists():
+            fix_rows = fixture_odds_rows(_load_json(fix_path) or {})
+            odds.extend(fix_rows)
+
+    seen_ids = set()
+    deduped: List[dict] = []
+    for r in odds:
+        rid = r.get("id")
+        if rid is not None and rid in seen_ids:
+            continue
+        if rid is not None:
+            seen_ids.add(rid)
+        deduped.append(r)
+
+    return deduped
+
+
 def over_rows_for_player(odds_rows: List[dict], player_rec: dict) -> List[dict]:
     aliases = aliases_from_record(player_rec)
     out: List[dict] = []
@@ -372,6 +409,8 @@ def main() -> None:
 
     picks: List[dict] = []
 
+    league_pass_rows = []
+
     for lid in LEAGUE_IDS:
         pp_blob = _load_json(PP_DIR / f"{lid}.json") or {}
         players = pp_blob.get("players") or pp_blob.get("rows") or pp_blob.get("data") or []
@@ -380,10 +419,40 @@ def main() -> None:
         fx_map = fixture_map_for_league(lid)
         top5_ids, top10_ids = possession_ranks(lid)
 
+        # Diagnostic: capture pass-line availability per league regardless of picks
+        pass_rows_all = []
+        pass_rows_priced = []
+        for fx in fixtures:
+            odds_rows_full = merged_odds_rows(fx.get("fixture_id"), fx)
+            for r in odds_rows_full:
+                try:
+                    if int(r.get("market_id", 0)) != int(MARKET_PASSES):
+                        continue
+                except Exception:
+                    continue
+                lab = (r.get("label") or r.get("outcome") or "").strip().lower()
+                if lab != "over":
+                    continue
+                price = _as_float(r.get("value"))
+                if price is None:
+                    continue
+                pass_rows_all.append(r)
+                if price >= MIN_PRICE:
+                    pass_rows_priced.append(r)
+
+        league_pass_rows.append(
+            {
+                "league_id": lid,
+                "fixtures": len(fixtures),
+                "pass_over_rows": len(pass_rows_all),
+                "pass_over_rows_ge": len(pass_rows_priced),
+            }
+        )
+
         for fx in fixtures:
             fname = fx.get("name") or ""
             fixture_id = fx.get("fixture_id")
-            odds_rows = fx.get("odds") or []
+            odds_rows = merged_odds_rows(fixture_id, fx)
 
             fx_info = fx_map.get(fixture_id) or {}
             home_id = fx_info.get("home_id")
@@ -468,6 +537,14 @@ def main() -> None:
     lines: List[str] = header
     if not picks:
         lines.append("No qualifying picks found.")
+        lines.append("")
+        lines.append("Pass market availability (Bet365, Over lines):")
+        for row in league_pass_rows:
+            lines.append(
+                "  L{league_id}: fixtures={fixtures} rows={pass_over_rows} rows_price≥{min_price:.2f}={pass_over_rows_ge}".format(
+                    min_price=MIN_PRICE, **row
+                )
+            )
     else:
         for p in picks:
             lines.append(
