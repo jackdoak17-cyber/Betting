@@ -1,9 +1,9 @@
 {
   "by_league": {
     "8": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 198,
+      "predicted_total": 220,
+      "found": 220,
+      "non_empty": 220,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
@@ -55,18 +55,18 @@
       "empty_list": []
     },
     "244": {
-      "predicted_total": 110,
-      "found": 110,
-      "non_empty": 110,
+      "predicted_total": 99,
+      "found": 99,
+      "non_empty": 99,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
       "empty_list": []
     },
     "271": {
-      "predicted_total": 110,
-      "found": 110,
-      "non_empty": 110,
+      "predicted_total": 132,
+      "found": 132,
+      "non_empty": 132,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
@@ -82,6 +82,24 @@
       "empty_list": []
     },
     "384": {
+      "predicted_total": 209,
+      "found": 209,
+      "non_empty": 209,
+      "empty": 0,
+      "missing": 0,
+      "missing_list": [],
+      "empty_list": []
+    },
+    "387": {
+      "predicted_total": 220,
+      "found": 220,
+      "non_empty": 220,
+      "empty": 0,
+      "missing": 0,
+      "missing_list": [],
+      "empty_list": []
+    },
+    "444": {
       "predicted_total": 176,
       "found": 176,
       "non_empty": 176,
@@ -90,92 +108,16 @@
       "missing_list": [],
       "empty_list": []
     },
-    "387": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 198,
+    "453": {
+      "predicted_total": 176,
+      "found": 176,
+      "non_empty": 176,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
       "empty_list": []
     },
-    "444": {
-      "predicted_total": 187,
-      "found": 187,
-      "non_empty": 176,
-      "empty": 11,
-      "missing": 0,
-      "missing_list": [],
-      "empty_list": [
-        {
-          "player_id": 150458,
-          "name": "Even Barli",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 765842,
-          "name": "Ø. Alseth",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 538449,
-          "name": "Torbjörn Heggem",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 118814,
-          "name": "Ivar Furu",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 5786,
-          "name": "Erik Tönne",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 153338,
-          "name": "Adria Mateo Lopez",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 368944,
-          "name": "Eirik Valla Donnem",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 150150,
-          "name": "Mads Reginiussen",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 477009,
-          "name": "Ola Solbakken",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 34519,
-          "name": "M. Bakenga",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        },
-        {
-          "player_id": 477002,
-          "name": "Vegard Erlien",
-          "team_id": 994,
-          "team_name": "Ranheim"
-        }
-      ]
-    },
-    "453": {
+    "462": {
       "predicted_total": 176,
       "found": 176,
       "non_empty": 176,
@@ -194,18 +136,18 @@
       "empty_list": []
     },
     "564": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 198,
+      "predicted_total": 209,
+      "found": 209,
+      "non_empty": 209,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
       "empty_list": []
     },
     "567": {
-      "predicted_total": 220,
-      "found": 220,
-      "non_empty": 220,
+      "predicted_total": 242,
+      "found": 242,
+      "non_empty": 242,
       "empty": 0,
       "missing": 0,
       "missing_list": [],
@@ -230,13 +172,20 @@
       "empty_list": []
     },
     "600": {
-      "predicted_total": 154,
-      "found": 154,
-      "non_empty": 154,
-      "empty": 0,
+      "predicted_total": 187,
+      "found": 187,
+      "non_empty": 186,
+      "empty": 1,
       "missing": 0,
       "missing_list": [],
-      "empty_list": []
+      "empty_list": [
+        {
+          "player_id": 201604,
+          "name": "E. Taşdemir",
+          "team_id": 1071,
+          "team_name": "Kasımpaşa"
+        }
+      ]
     }
   }
 }
