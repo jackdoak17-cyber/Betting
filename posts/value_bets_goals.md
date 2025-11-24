@@ -7,13 +7,14 @@ _Form gates:_ Over 2.5 ≥ 70%, BTTS ≥ 70%, Team Over 1.5 ≥ 70% (≥6 games)
 ### Over 2.5 — value flags
 - **Radomiak Radom vs Górnik Zabrze** — **Over 2.5 @ 1.90** (H 70.0% / A 90.0%; combo 80.0%; H2H: 2025-02-15 2–3, 2024-08-09 1–2)
 - **FC Twente vs AZ** — **Over 2.5 @ 1.60** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2025-05-25 2–3, 2025-05-14 2–3)
+- **Odense BK vs Vejle Boldklub** — **Over 2.5 @ 1.57** (H 90.0% / A 70.0%; combo 80.0%; H2H: 2025-08-01 0–4, 2024-05-06 2–3)
 
 ### BTTS (Yes) — value flags
 - **PSV vs FC Volendam** — **BTTS Yes @ 1.75** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2024-02-11 5–1, 2023-09-30 3–1)
 - **Radomiak Radom vs Górnik Zabrze** — **BTTS Yes @ 1.70** (H 90.0% / A 70.0%; combo 80.0%; H2H: 2025-02-15 2–3, 2024-08-09 1–2)
-- **Monaco vs Paris Saint Germain** — **BTTS Yes @ 1.53** (H 80.0% / A 80.0%; combo 80.0%; H2H: 2025-02-07 1–4, 2024-12-18 2–4)
 - **PEC Zwolle vs SC Heerenveen** — **BTTS Yes @ 1.53** (H 80.0% / A 80.0%; combo 80.0%; H2H: 2025-02-16 1–1, 2024-10-06 1–1)
 - **Go Ahead Eagles vs FC Utrecht** — **BTTS Yes @ 1.53** (H 80.0% / A 70.0%; combo 75.0%; H2H: 2025-04-06 2–2, 2024-12-15 3–3)
+- **Monaco vs Paris Saint Germain** — **BTTS Yes @ 1.50** (H 80.0% / A 80.0%; combo 80.0%; H2H: 2025-02-07 1–4, 2024-12-18 2–4)
 
 ### Team Over 1.5 — value flags (only favourites)
 - **Hibernian** — **Team Over 1.5 @ 2.25** (away; team 70.0% / opp conceded 40.0%; combo 55.0%; H2H: 2025-01-11 1–3, 2024-11-30 0–3) — Motherwell vs Hibernian
