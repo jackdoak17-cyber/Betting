@@ -28,14 +28,14 @@ Leave a like if you find these useful.
 
 📊2+ Fouls Drawn in ≥4/5📊
 
-• E. Anderson (Nottm Forest) = 1, 3, 2, 4, 5
+• B. Saka (Arsenal) = 4, 3, 0, 2, 5
 • L. Paquetá (West Ham) = 3, 2, 4, 1, 4
-• B. Saka (Arsenal) = 3, 0, 2, 5, 3
-• D. Ouattara (Brentford) = 3, 3, 2, 1, 3
-• B. Aaronson (Leeds United) = 4, 2, 2, 0, 3
-• J. Doku (Man City) = 4, 0, 2, 2, 3
-• A. Scott (Bournemouth) = 2, 2, 0, 2, 2
-• J. Palhinha (Spurs) = 2, 2, 2, 0, 2
+• D. Ouattara (Brentford) = 2, 3, 3, 2, 1
+• J. Doku (Man City) = 3, 4, 0, 2, 2
+• L. Ugochukwu (Burnley) = 2, 4, 1, 2, 2
+• J. Pedro (Chelsea) = 2, 2, 2, 1, 3
+• S. Longstaff (Leeds United) = 2, 2, 2, 1, 2
+• J. Palhinha (Spurs) = 2, 2, 2, 2, 0
 
 
 Good luck with your bets today. Any value here?
