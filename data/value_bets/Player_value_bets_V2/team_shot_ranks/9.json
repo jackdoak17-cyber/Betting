@@ -1,11 +1,17 @@
 {
   "league_id": 9,
-  "generated_at": "2025-11-22T17:34:58.749511+00:00",
+  "generated_at": "2025-11-24T09:17:58.138550+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 12,
       "team_name": "Birmingham City",
-      "avg_shots_conceded": 9.3,
+      "avg_shots_conceded": 9.9,
+      "sample_size": 10
+    },
+    {
+      "team_id": 116,
+      "team_name": "Ipswich Town",
+      "avg_shots_conceded": 9.9,
       "sample_size": 10
     },
     {
@@ -15,21 +21,27 @@
       "sample_size": 10
     },
     {
-      "team_id": 116,
-      "team_name": "Ipswich Town",
-      "avg_shots_conceded": 10.7,
+      "team_id": 7,
+      "team_name": "Middlesbrough",
+      "avg_shots_conceded": 11,
       "sample_size": 10
     },
     {
       "team_id": 47,
       "team_name": "Queens Park Rangers",
-      "avg_shots_conceded": 11,
+      "avg_shots_conceded": 11.1,
+      "sample_size": 10
+    },
+    {
+      "team_id": 117,
+      "team_name": "Coventry City",
+      "avg_shots_conceded": 11.3,
       "sample_size": 10
     },
     {
       "team_id": 65,
       "team_name": "Southampton",
-      "avg_shots_conceded": 11.3,
+      "avg_shots_conceded": 11.4,
       "sample_size": 10
     },
     {
@@ -39,51 +51,45 @@
       "sample_size": 10
     },
     {
-      "team_id": 7,
-      "team_name": "Middlesbrough",
-      "avg_shots_conceded": 11.6,
+      "team_id": 21,
+      "team_name": "Sheffield United",
+      "avg_shots_conceded": 11.8,
       "sample_size": 10
     },
     {
       "team_id": 24,
       "team_name": "Derby County",
-      "avg_shots_conceded": 11.7,
+      "avg_shots_conceded": 12.1,
       "sample_size": 10
     },
     {
-      "team_id": 117,
-      "team_name": "Coventry City",
-      "avg_shots_conceded": 12.3,
+      "team_id": 26,
+      "team_name": "Stoke City",
+      "avg_shots_conceded": 12.4,
+      "sample_size": 10
+    },
+    {
+      "team_id": 30,
+      "team_name": "Swansea City",
+      "avg_shots_conceded": 12.6,
       "sample_size": 10
     },
     {
       "team_id": 64,
       "team_name": "Millwall",
-      "avg_shots_conceded": 12.3,
-      "sample_size": 10
-    },
-    {
-      "team_id": 283,
-      "team_name": "Wrexham",
-      "avg_shots_conceded": 12.3,
-      "sample_size": 10
-    },
-    {
-      "team_id": 10,
-      "team_name": "West Bromwich Albion",
-      "avg_shots_conceded": 12.4,
-      "sample_size": 10
-    },
-    {
-      "team_id": 21,
-      "team_name": "Sheffield United",
-      "avg_shots_conceded": 12.6,
+      "avg_shots_conceded": 12.7,
       "sample_size": 10
     },
     {
       "team_id": 99,
       "team_name": "Preston North End",
       "avg_shots_conceded": 12.7,
+      "sample_size": 10
+    },
+    {
+      "team_id": 283,
+      "team_name": "Wrexham",
+      "avg_shots_conceded": 12.8,
       "sample_size": 10
     },
     {
@@ -95,92 +101,110 @@
     {
       "team_id": 122,
       "team_name": "Bristol City",
-      "avg_shots_conceded": 13.1,
-      "sample_size": 10
-    },
-    {
-      "team_id": 26,
-      "team_name": "Stoke City",
-      "avg_shots_conceded": 13.2,
-      "sample_size": 10
-    },
-    {
-      "team_id": 33,
-      "team_name": "Norwich City",
-      "avg_shots_conceded": 13.4,
-      "sample_size": 10
-    },
-    {
-      "team_id": 30,
-      "team_name": "Swansea City",
-      "avg_shots_conceded": 13.4,
+      "avg_shots_conceded": 13,
       "sample_size": 10
     },
     {
       "team_id": 5,
       "team_name": "Portsmouth",
-      "avg_shots_conceded": 14,
+      "avg_shots_conceded": 13.4,
       "sample_size": 10
     },
     {
-      "team_id": 297,
-      "team_name": "Oxford United",
-      "avg_shots_conceded": 14.3,
+      "team_id": 33,
+      "team_name": "Norwich City",
+      "avg_shots_conceded": 13.9,
       "sample_size": 10
     },
     {
-      "team_id": 4,
-      "team_name": "Charlton Athletic",
-      "avg_shots_conceded": 15.5,
-      "sample_size": 10
-    },
-    {
-      "team_id": 22,
-      "team_name": "Hull City",
-      "avg_shots_conceded": 15.6,
+      "team_id": 10,
+      "team_name": "West Bromwich Albion",
+      "avg_shots_conceded": 13.9,
       "sample_size": 10
     },
     {
       "team_id": 56,
       "team_name": "Sheffield Wednesday",
-      "avg_shots_conceded": 16,
+      "avg_shots_conceded": 14.6,
+      "sample_size": 10
+    },
+    {
+      "team_id": 297,
+      "team_name": "Oxford United",
+      "avg_shots_conceded": 15,
+      "sample_size": 10
+    },
+    {
+      "team_id": 4,
+      "team_name": "Charlton Athletic",
+      "avg_shots_conceded": 16.5,
+      "sample_size": 10
+    },
+    {
+      "team_id": 22,
+      "team_name": "Hull City",
+      "avg_shots_conceded": 16.8,
       "sample_size": 10
     }
   ],
   "shots_for_rank": [
     {
-      "team_id": 116,
-      "team_name": "Ipswich Town",
-      "avg_shots_for": 17.1,
-      "sample_size": 10
-    },
-    {
       "team_id": 117,
       "team_name": "Coventry City",
-      "avg_shots_for": 15.6,
+      "avg_shots_for": 16.9,
       "sample_size": 10
     },
     {
-      "team_id": 12,
-      "team_name": "Birmingham City",
-      "avg_shots_for": 15.1,
-      "sample_size": 10
-    },
-    {
-      "team_id": 42,
-      "team_name": "Leicester City",
-      "avg_shots_for": 14.4,
+      "team_id": 116,
+      "team_name": "Ipswich Town",
+      "avg_shots_for": 16.9,
       "sample_size": 10
     },
     {
       "team_id": 25,
       "team_name": "Watford",
-      "avg_shots_for": 14.3,
+      "avg_shots_for": 14.6,
       "sample_size": 10
     },
     {
       "team_id": 47,
       "team_name": "Queens Park Rangers",
+      "avg_shots_for": 14.5,
+      "sample_size": 10
+    },
+    {
+      "team_id": 12,
+      "team_name": "Birmingham City",
+      "avg_shots_for": 14.4,
+      "sample_size": 10
+    },
+    {
+      "team_id": 65,
+      "team_name": "Southampton",
+      "avg_shots_for": 14,
+      "sample_size": 10
+    },
+    {
+      "team_id": 7,
+      "team_name": "Middlesbrough",
+      "avg_shots_for": 13.7,
+      "sample_size": 10
+    },
+    {
+      "team_id": 122,
+      "team_name": "Bristol City",
+      "avg_shots_for": 13.5,
+      "sample_size": 10
+    },
+    {
+      "team_id": 42,
+      "team_name": "Leicester City",
+      "avg_shots_for": 13.3,
+      "sample_size": 10
+    },
+    {
+      "team_id": 26,
+      "team_name": "Stoke City",
       "avg_shots_for": 13.3,
       "sample_size": 10
     },
@@ -191,51 +215,9 @@
       "sample_size": 10
     },
     {
-      "team_id": 122,
-      "team_name": "Bristol City",
-      "avg_shots_for": 13.2,
-      "sample_size": 10
-    },
-    {
-      "team_id": 297,
-      "team_name": "Oxford United",
-      "avg_shots_for": 13.1,
-      "sample_size": 10
-    },
-    {
-      "team_id": 65,
-      "team_name": "Southampton",
-      "avg_shots_for": 13.1,
-      "sample_size": 10
-    },
-    {
-      "team_id": 5,
-      "team_name": "Portsmouth",
-      "avg_shots_for": 12.9,
-      "sample_size": 10
-    },
-    {
-      "team_id": 26,
-      "team_name": "Stoke City",
-      "avg_shots_for": 12.9,
-      "sample_size": 10
-    },
-    {
-      "team_id": 10,
-      "team_name": "West Bromwich Albion",
-      "avg_shots_for": 12.8,
-      "sample_size": 10
-    },
-    {
-      "team_id": 7,
-      "team_name": "Middlesbrough",
-      "avg_shots_for": 12.7,
-      "sample_size": 10
-    },
-    {
       "team_id": 21,
       "team_name": "Sheffield United",
-      "avg_shots_for": 12.6,
+      "avg_shots_for": 12.4,
       "sample_size": 10
     },
     {
@@ -245,51 +227,69 @@
       "sample_size": 10
     },
     {
-      "team_id": 4,
-      "team_name": "Charlton Athletic",
-      "avg_shots_for": 11.9,
+      "team_id": 297,
+      "team_name": "Oxford United",
+      "avg_shots_for": 12.2,
       "sample_size": 10
     },
     {
       "team_id": 33,
       "team_name": "Norwich City",
+      "avg_shots_for": 12,
+      "sample_size": 10
+    },
+    {
+      "team_id": 10,
+      "team_name": "West Bromwich Albion",
+      "avg_shots_for": 12,
+      "sample_size": 10
+    },
+    {
+      "team_id": 5,
+      "team_name": "Portsmouth",
       "avg_shots_for": 11.9,
       "sample_size": 10
     },
     {
-      "team_id": 56,
-      "team_name": "Sheffield Wednesday",
-      "avg_shots_for": 11.2,
+      "team_id": 4,
+      "team_name": "Charlton Athletic",
+      "avg_shots_for": 11.8,
       "sample_size": 10
     },
     {
       "team_id": 30,
       "team_name": "Swansea City",
-      "avg_shots_for": 10.6,
+      "avg_shots_for": 11.4,
+      "sample_size": 10
+    },
+    {
+      "team_id": 56,
+      "team_name": "Sheffield Wednesday",
+      "avg_shots_for": 10.4,
       "sample_size": 10
     },
     {
       "team_id": 22,
       "team_name": "Hull City",
-      "avg_shots_for": 10.5,
-      "sample_size": 10
-    },
-    {
-      "team_id": 283,
-      "team_name": "Wrexham",
-      "avg_shots_for": 10.3,
+      "avg_shots_for": 10.2,
       "sample_size": 10
     },
     {
       "team_id": 64,
       "team_name": "Millwall",
-      "avg_shots_for": 10.2,
+      "avg_shots_for": 10,
       "sample_size": 10
     },
     {
       "team_id": 24,
       "team_name": "Derby County",
-      "avg_shots_for": 9.2,
+      "avg_shots_for": 9.4,
+      "sample_size": 10
+    },
+    {
+      "team_id": 283,
+      "team_name": "Wrexham",
+      "avg_shots_for": 9.4,
       "sample_size": 10
     }
   ],
