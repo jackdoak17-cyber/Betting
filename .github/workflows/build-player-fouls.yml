@@ -24,10 +24,10 @@ jobs:
     timeout-minutes: 240
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout (shallow)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1  # no full history
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -58,10 +58,10 @@ jobs:
       - name: Fouls coverage/summaries (if present)
         run: |
           [ -f scripts/check_player_fouls_coverage.py ] && python scripts/check_player_fouls_coverage.py || true
-          [ -f scripts/render_player_fouls_summary.py ] && python scripts/render_player_fouls_summary.py || true
+          [ - f scripts/render_player_fouls_summary.py ] && python scripts/render_player_fouls_summary.py || true
 
       # ---------- Commit & push ----------
-      - name: Commit & push fouls data (robust rebase)
+      - name: Commit & push fouls data
         env:
           GIT_AUTHOR_NAME: github-actions[bot]
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
@@ -70,14 +70,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          git config --global user.name  "${GIT_COMMITTER_NAME}"
-          git config --global user.email "${GIT_COMMITTER_EMAIL}"
-
-          git fetch origin main
-          git checkout -B main origin/main
+          git config user.name  "${GIT_COMMITTER_NAME}"
+          git config user.email "${GIT_COMMITTER_EMAIL}"
 
           git add -A data/player_fouls || true
-          # Catch any other player_* outputs (harmless if unchanged)
           git add -A data/player_* || true
 
           if git diff --staged --quiet; then
@@ -88,19 +84,5 @@ jobs:
           ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           git commit -m "chore(player-fouls): update ${ts}"
 
-          for attempt in 1 2 3; do
-            git rebase --abort || true
-            git pull --rebase --autostash origin main || true
-            if git push --force-with-lease origin HEAD:main; then
-              echo "Push succeeded on attempt $attempt"
-              exit 0
-            fi
-            echo "Push failed on attempt $attempt — retrying..."
-            sleep 2
-          done
-
-          echo "Final attempt after fresh fetch..."
-          git rebase --abort || true
-          git fetch origin main
-          git pull --rebase --autostash origin main
-          git push --force-with-lease origin HEAD:main
+          # simple push, no history gymnastics
+          git push origin HEAD:main
