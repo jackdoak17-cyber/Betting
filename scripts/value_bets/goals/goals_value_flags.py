@@ -6,7 +6,7 @@
 Goals markets — value flags (LOCAL files only; no API calls)
 
 Selection rules:
-  • Form threshold hit (team offense vs opponent-allowed, default 70%)
+  • Form threshold hit (team offense vs opponent-allowed, fixed 70%)
   • Bet365 best decimal price >= MIN_PRICE (default 1.30)
   • H2H gate: market must have LANDED in BOTH of the last 2 H2Hs (strict)
 
@@ -28,11 +28,7 @@ Outputs:
 
 Env:
   - MIN_PRICE (default 1.30)
-  - LAST_N (default 10)        # truncate recent form to last N matches
-  - MIN_GAMES (default 10)     # recommend keeping equal to LAST_N
-  - THRESH_OVER25 / THRESH_BTTS (default 0.70)
   - WINDOW_DAYS (default 7; 0 = no date filter)
-  - H2H_LAST2_REQUIRED (default "1")  # if "0", disables the H2H gate
 """
 
 import os, re, json, math, datetime as dt, unicodedata
@@ -53,13 +49,15 @@ OUT_TXT   = OUT_DIR / "goals_value_flags.txt"
 POSTS_DIR = ROOT / "posts"; POSTS_DIR.mkdir(parents=True, exist_ok=True)
 OUT_MD    = POSTS_DIR / "BTTS&O2.5_1.md"
 
-MIN_PRICE        = float(os.getenv("MIN_PRICE", "1.30"))
-LAST_N           = int(os.getenv("LAST_N", "10"))
-MIN_GAMES        = int(os.getenv("MIN_GAMES", str(LAST_N)))
-THRESH_OVER25    = float(os.getenv("THRESH_OVER25", "0.70"))
-THRESH_BTTS      = float(os.getenv("THRESH_BTTS",   "0.70"))
-WINDOW_DAYS      = int(os.getenv("WINDOW_DAYS", "7"))  # 0 = no date filter
-H2H_LAST2_REQUIRED = (os.getenv("H2H_LAST2_REQUIRED", "1").strip() != "0")
+MIN_PRICE          = float(os.getenv("MIN_PRICE", "1.30"))
+WINDOW_DAYS        = int(os.getenv("WINDOW_DAYS", "7"))  # 0 = no date filter
+
+# Fixed criteria per request
+LAST_N             = 10
+MIN_GAMES          = LAST_N
+THRESH_OVER25      = 0.70
+THRESH_BTTS        = 0.70
+H2H_LAST2_REQUIRED = True
 
 # ---------- String / name utils ----------
 def strip_accents(s: str) -> str:
