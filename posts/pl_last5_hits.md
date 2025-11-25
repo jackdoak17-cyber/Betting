@@ -28,36 +28,32 @@ Leave a like if you find these useful.
 
 📊1+ Foul in 5/5 (100%)📊
 
-• S. Lukić (Fulham) = 3, 4, 4, 3, 3
-• P. Sarr (Spurs) = 2, 3, 1, 6, 3
-• D. Burn (Newcastle) = 4, 2, 3, 2, 2
-• J. Gomes (Wolves) = 4, 2, 2, 3, 1
-• E. Ampadu (Leeds United) = 3, 2, 3, 1, 2
-• R. Sessegnon (Fulham) = 1, 2, 2, 4, 2
-• K. Schade (Brentford) = 2, 1, 3, 2, 2
-• M. Tavernier (Bournemouth) = 4, 1, 1, 2, 2
-• B. Guimarães (Newcastle) = 1, 1, 2, 2, 3
-• C. Summerville (West Ham) = 2, 1, 2, 2, 2
-• D. Ndoye (Nottm Forest) = 1, 3, 2, 2, 1
-• M. Caicedo (Chelsea) = 4, 1, 1, 1, 2
-• T. Adams (Bournemouth) = 3, 1, 3, 1, 1
-• B. Kamara (Aston Villa) = 1, 2, 3, 1, 1
-• E. Anderson (Nottm Forest) = 2, 2, 1, 1, 2
-• F. Florentino (Burnley) = 1, 1, 3, 1, 2
-• A. Onana (Aston Villa) = 3, 1, 1, 1, 1
-• D. Kamada (Crystal Palace) = 1, 1, 1, 2, 2
-• N. Woltemade (Newcastle) = 2, 1, 1, 2, 1
-• C. Baleba (Brighton) = 1, 2, 1, 1, 1
-• J. Timber (Arsenal) = 1, 1, 1, 1, 2
-• S. Bueno (Wolves) = 2, 1, 1, 1, 1
-• J. Cullen (Burnley) = 1, 1, 1, 1, 1
-• M. Zubimendi (Arsenal) = 1, 1, 1, 1, 1
+• J. Gomes (Wolves) = 2, 4, 1, 2, 2
+• E. Ampadu (Leeds United) = 1, 3, 2, 3, 1
+• T. Adams (Bournemouth) = 2, 3, 1, 3, 1
+• D. Ndoye (Nottm Forest) = 1, 1, 3, 2, 2
+• I. Thiago (Brentford) = 2, 2, 3, 1, 1
+• T. Barry (Everton) = 1, 3, 3, 1, 1
+• B. Guimarães (Newcastle) = 2, 1, 1, 2, 2
+• F. Florentino (Burnley) = 2, 1, 1, 3, 1
+• M. Kudus (Spurs) = 1, 1, 1, 2, 3
+• C. Romero (Spurs) = 1, 2, 1, 1, 2
+• E. Anderson (Nottm Forest) = 1, 2, 2, 1, 1
+• J. Cullen (Burnley) = 3, 1, 1, 1, 1
+• J. Doku (Man City) = 1, 1, 2, 2, 1
+• N. Woltemade (Newcastle) = 1, 2, 1, 1, 2
+• N. González (Man City) = 3, 1, 1, 1, 1
+• C. Baleba (Brighton) = 1, 1, 2, 1, 1
+• D. Kamada (Crystal Palace) = 1, 1, 1, 1, 2
+• E. Fernández (Chelsea) = 1, 1, 1, 1, 2
+• M. Zubimendi (Arsenal) = 2, 1, 1, 1, 1
+• J. Timber (Arsenal) = 1, 1, 1, 1, 1
 • P. Foden (Man City) = 1, 1, 1, 1, 1
 
 📊1+ SOT in 5/5 (100%)📊
 
 • E. Haaland (Man City) = 2, 2, 4, 3, 4
-• A. Semenyo (Bournemouth) = 1, 2, 1, 1, 3
+• B. Mbeumo (Man Utd) = 1, 1, 1, 3, 2
 • E. Fernández (Chelsea) = 1, 2, 1, 3, 1
 • L. Trossard (Arsenal) = 1, 1, 2, 1, 1
 
