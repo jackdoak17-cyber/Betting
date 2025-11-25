@@ -10,5 +10,5 @@ Top 10 Scorers — Bet365 Anytime
 | 6 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.20 | v Brest |
 | 7 | E. Lepaul — Rennes (L1) | 8 | @ 2.30 | v Metz |
 | 8 | J. Burkardt — Frankfurt (BUN) | 8 | @ 1.83 | v VfL Wolfsburg |
-| 9 | R. Lewandowski — Barcelona (LAL) | 8 | @ 1.61 | v Alaves |
+| 9 | R. Lewandowski — Barcelona (LAL) | 8 | @ 1.57 | v Alaves |
 | 10 | D. Welbeck — Brighton (PL) | 7 | @ 2.87 | v Nottm Forest |
