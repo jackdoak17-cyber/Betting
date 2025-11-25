@@ -1,6 +1,6 @@
 {
   "league_id": 567,
-  "generated_at": "2025-11-24T04:00:21.225288+00:00",
+  "generated_at": "2025-11-25T03:52:33.061390+00:00",
   "possession_rank": [
     {
       "team_id": 238115,
@@ -12,6 +12,18 @@
       "team_id": 2921,
       "team_name": "Las Palmas",
       "avg_possession": 57.3,
+      "sample_size": 10
+    },
+    {
+      "team_id": 361,
+      "team_name": "Real Valladolid",
+      "avg_possession": 55.9,
+      "sample_size": 10
+    },
+    {
+      "team_id": 126,
+      "team_name": "Málaga",
+      "avg_possession": 53.9,
       "sample_size": 10
     },
     {
@@ -33,26 +45,20 @@
       "sample_size": 10
     },
     {
-      "team_id": 9818,
-      "team_name": "Racing Santander",
-      "avg_possession": 53.1,
-      "sample_size": 10
-    },
-    {
-      "team_id": 126,
-      "team_name": "Málaga",
-      "avg_possession": 53,
-      "sample_size": 10
-    },
-    {
       "team_id": 12330,
       "team_name": "Ceuta",
-      "avg_possession": 52.2,
+      "avg_possession": 52.1,
       "sample_size": 10
     },
     {
       "team_id": 618,
       "team_name": "Almería",
+      "avg_possession": 52,
+      "sample_size": 10
+    },
+    {
+      "team_id": 9818,
+      "team_name": "Racing Santander",
       "avg_possession": 52,
       "sample_size": 10
     },
@@ -65,19 +71,19 @@
     {
       "team_id": 11354,
       "team_name": "Cultural Leonesa",
-      "avg_possession": 48.5,
+      "avg_possession": 49.3,
       "sample_size": 10
     },
     {
       "team_id": 429,
       "team_name": "Deportivo La Coruña",
-      "avg_possession": 48.2,
+      "avg_possession": 47.8,
       "sample_size": 10
     },
     {
-      "team_id": 274,
-      "team_name": "Huesca",
-      "avg_possession": 47.8,
+      "team_id": 8366,
+      "team_name": "Burgos",
+      "avg_possession": 47.7,
       "sample_size": 10
     },
     {
@@ -87,27 +93,33 @@
       "sample_size": 10
     },
     {
-      "team_id": 8366,
-      "team_name": "Burgos",
-      "avg_possession": 47.2,
-      "sample_size": 10
-    },
-    {
       "team_id": 103,
       "team_name": "Granada",
       "avg_possession": 47.1,
       "sample_size": 10
     },
     {
+      "team_id": 274,
+      "team_name": "Huesca",
+      "avg_possession": 46.7,
+      "sample_size": 10
+    },
+    {
       "team_id": 6827,
       "team_name": "Cádiz",
-      "avg_possession": 45.7,
+      "avg_possession": 46.6,
+      "sample_size": 10
+    },
+    {
+      "team_id": 9656,
+      "team_name": "Real Sociedad II",
+      "avg_possession": 44,
       "sample_size": 10
     },
     {
       "team_id": 344,
       "team_name": "Sporting Gijón",
-      "avg_possession": 42.8,
+      "avg_possession": 43.8,
       "sample_size": 10
     },
     {
@@ -119,10 +131,10 @@
     {
       "team_id": 6968,
       "team_name": "Mirandés",
-      "avg_possession": 41.4,
+      "avg_possession": 40.5,
       "sample_size": 10
     }
   ],
   "min_sample": 3,
-  "team_count": 20
+  "team_count": 22
 }
