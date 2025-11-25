@@ -1,3 +1,10 @@
+# BTTS & Over 2.5 (List #1) – Copy/Paste Bundle
+
+Full, ready-to-copy versions of the shortlist script and the GitHub Actions workflow.
+
+## scripts/value_bets/goals/goals_value_flags.py
+
+```python
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -490,3 +497,73 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+## .github/workflows/posts-BTTS&O2.5_V1.yml
+
+```yaml
+name: Posts — BTTS & Over 2.5 V1
+
+on:
+  schedule:
+    - cron: "20 7 * * *"   # Daily at 07:20 UTC (after upstream builders)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: posts-btts-o25-v1
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          # No external libs needed for pure-local processing.
+
+      - name: Generate BTTS & Over 2.5 post (pure local)
+        env:
+          MIN_PRICE: "1.30"
+          LAST_N: "10"
+          MIN_GAMES: "10"
+          THRESH_OVER25: "0.70"
+          THRESH_BTTS: "0.70"
+          WINDOW_DAYS: "7"
+        run: |
+          python scripts/value_bets/goals/goals_value_flags.py
+          echo "----- posts/BTTS&O2.5_1.md (first 120 lines) -----"
+          head -n 120 "posts/BTTS&O2.5_1.md" || true
+          echo "--------------------------------------------------"
+
+      - name: Commit & push post
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "posts/BTTS&O2.5_1.md"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "post: BTTS & Over 2.5 V1"
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          git pull --rebase origin "$BRANCH" || true
+          git push origin HEAD:"$BRANCH"
+```
+
