@@ -355,11 +355,11 @@ def main():
             if not (home and away):
                 continue
 
-            # find team records (offense + opponent-allowed)
+            # find team records (offense + their own conceded series)
             h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
             a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
-            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # away conceded (for home)
-            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home, k)), None)  # home conceded (for away)
+            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home, k)), None)  # home conceded (paired with home attack)
+            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # away conceded (paired with away attack)
             if not (h_rec and a_rec and h_opp and a_opp):
                 continue
 
