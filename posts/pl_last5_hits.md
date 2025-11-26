@@ -4,25 +4,26 @@ Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
-• L. Paquetá (West Ham) = 3, 2, 4, 1, 4
+• J. Grealish (Everton) = 3, 3, 2, 2, 4
 • I. Sarr (Crystal Palace) = 1, 4, 3, 1, 3
 • D. Ouattara (Brentford) = 2, 3, 3, 2, 1
 • L. Ugochukwu (Burnley) = 2, 4, 1, 2, 2
 • B. Kamara (Aston Villa) = 2, 2, 1, 1, 4
 • J. Pedro (Chelsea) = 2, 2, 2, 1, 3
 • R. Mandava (Sunderland) = 2, 2, 1, 4, 1
-• C. Summerville (West Ham) = 1, 1, 1, 2, 4
 • E. Eze (Arsenal) = 2, 1, 4, 1, 1
+• I. Gueye (Everton) = 1, 2, 3, 1, 2
 • S. Longstaff (Leeds United) = 2, 2, 2, 1, 2
 • D. Ballard (Sunderland) = 1, 1, 3, 1, 2
 • G. Gudmundsson (Leeds United) = 2, 1, 1, 2, 2
 • J. Joelinton (Newcastle) = 2, 1, 2, 2, 1
 • L. Trossard (Arsenal) = 2, 1, 2, 1, 2
+• M. Merino (Arsenal) = 3, 1, 1, 1, 2
 • P. Foden (Man City) = 1, 1, 3, 2, 1
-• A. Garnacho (Chelsea) = 1, 1, 1, 2, 2
 • M. Rogers (Aston Villa) = 1, 1, 2, 2, 1
-• E. Diouf (West Ham) = 1, 1, 1, 1, 2
+• Y. Pino (Crystal Palace) = 2, 1, 1, 1, 2
 • L. Tchaouna (Burnley) = 2, 1, 1, 1, 1
+• E. Diouf (West Ham) = 1, 1, 1, 1, 1
 • J. Larsen (Wolves) = 1, 1, 1, 1, 1
 • R. Richarlison (Spurs) = 1, 1, 1, 1, 1
 
