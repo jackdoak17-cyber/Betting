@@ -26,8 +26,10 @@ Leave a like if you find these useful.
 
 📊2+ Fouls Drawn in ≥4/5📊
 
+• J. Grealish (Everton) = 3, 3, 2, 2, 4
+• P. Dorgu (Man Utd) = 0, 4, 5, 2, 4
 • B. Saka (Arsenal) = 4, 3, 0, 2, 5
-• L. Paquetá (West Ham) = 3, 2, 4, 1, 4
+• M. Cunha (Man Utd) = 0, 5, 2, 2, 3
 • D. Ouattara (Brentford) = 2, 3, 3, 2, 1
 • J. Doku (Man City) = 3, 4, 0, 2, 2
 • L. Ugochukwu (Burnley) = 2, 4, 1, 2, 2
