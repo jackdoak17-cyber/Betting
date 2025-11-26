@@ -3,7 +3,7 @@ name: Build - Team Win Rates (Corners/Shots/SOT/Cards)
 on:
   schedule:
     # Daily at 07:30 UTC
-    - cron: "30 7 * * *"
+    - cron: "30 6 * * *"
   workflow_dispatch: {}
 
 permissions:
