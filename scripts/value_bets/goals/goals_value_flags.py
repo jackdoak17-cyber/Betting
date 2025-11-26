@@ -85,6 +85,35 @@ def team_names_match(a: str, b_norm_key: str) -> bool:
     if len(inter) >= 2: return True
     return False
 
+def best_team_record(name: str, idx: Dict[str, dict]) -> Optional[dict]:
+    target = team_tokens(name)
+    if not target:
+        return None
+
+    best_key = None
+    best_score = 0.0
+    best_size = 0
+
+    for key, rec in idx.items():
+        toks = team_tokens(key)
+        if not toks:
+            continue
+        inter = len(target & toks)
+        if not inter:
+            continue
+        union = len(target | toks)
+        score = inter / max(1, union)
+
+        # Prefer higher similarity; tie-break by using the entry with more tokens
+        if (score > best_score) or (math.isclose(score, best_score) and len(toks) > best_size):
+            best_score = score
+            best_key = key
+            best_size = len(toks)
+
+    if best_key and best_score >= 0.5:
+        return idx.get(best_key)
+    return None
+
 def parse_fixture_teams(fixture_name: str) -> Tuple[str, str]:
     if not fixture_name: return "",""
     for sep in (" vs ", " v ", " - ", " VS ", " Vs "):
@@ -356,10 +385,10 @@ def main():
                 continue
 
             # find team records (offense + their own conceded series)
-            h_rec = next((ts_idx[k] for k in ts_idx if team_names_match(home, k)), None)
-            a_rec = next((ts_idx[k] for k in ts_idx if team_names_match(away, k)), None)
-            h_opp = next((opp_idx[k] for k in opp_idx if team_names_match(home, k)), None)  # home conceded (paired with home attack)
-            a_opp = next((opp_idx[k] for k in opp_idx if team_names_match(away, k)), None)  # away conceded (paired with away attack)
+            h_rec = best_team_record(home, ts_idx)
+            a_rec = best_team_record(away, ts_idx)
+            h_opp = best_team_record(home, opp_idx)  # home conceded (paired with home attack)
+            a_opp = best_team_record(away, opp_idx)  # away conceded (paired with away attack)
             if not (h_rec and a_rec and h_opp and a_opp):
                 continue
 

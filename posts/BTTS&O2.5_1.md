@@ -13,7 +13,6 @@ Radomiak Radom (80%) vs Górnik Zabrze (70%) @ 1.70
 PSV (70%) vs FC Volendam (70%) @ 1.70
 PEC Zwolle (70%) vs SC Heerenveen (80%) @ 1.53
 FC Twente (80%) vs AZ (80%) @ 1.50
-Monaco (80%) vs Paris Saint Germain (70%) @ 1.50
 
 *Uses league data only, odds correct time of run
 *If you spot any errors let me know so I can investigate and improve the list
