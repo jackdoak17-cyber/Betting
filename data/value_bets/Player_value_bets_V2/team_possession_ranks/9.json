@@ -1,11 +1,17 @@
 {
   "league_id": 9,
-  "generated_at": "2025-11-27T03:50:15.816330+00:00",
+  "generated_at": "2025-11-28T03:49:54.721880+00:00",
   "possession_rank": [
     {
       "team_id": 7,
       "team_name": "Middlesbrough",
       "avg_possession": 57.3,
+      "sample_size": 10
+    },
+    {
+      "team_id": 12,
+      "team_name": "Birmingham City",
+      "avg_possession": 57.1,
       "sample_size": 10
     },
     {
@@ -27,12 +33,6 @@
       "sample_size": 10
     },
     {
-      "team_id": 12,
-      "team_name": "Birmingham City",
-      "avg_possession": 55,
-      "sample_size": 10
-    },
-    {
       "team_id": 26,
       "team_name": "Stoke City",
       "avg_possession": 54,
@@ -51,9 +51,9 @@
       "sample_size": 10
     },
     {
-      "team_id": 56,
-      "team_name": "Sheffield Wednesday",
-      "avg_possession": 51,
+      "team_id": 21,
+      "team_name": "Sheffield United",
+      "avg_possession": 52.4,
       "sample_size": 10
     },
     {
@@ -77,25 +77,31 @@
     {
       "team_id": 10,
       "team_name": "West Bromwich Albion",
+      "avg_possession": 50.6,
+      "sample_size": 10
+    },
+    {
+      "team_id": 56,
+      "team_name": "Sheffield Wednesday",
       "avg_possession": 50.5,
-      "sample_size": 10
-    },
-    {
-      "team_id": 21,
-      "team_name": "Sheffield United",
-      "avg_possession": 50.3,
-      "sample_size": 10
-    },
-    {
-      "team_id": 5,
-      "team_name": "Portsmouth",
-      "avg_possession": 49.8,
       "sample_size": 10
     },
     {
       "team_id": 47,
       "team_name": "Queens Park Rangers",
-      "avg_possession": 49.5,
+      "avg_possession": 49.1,
+      "sample_size": 10
+    },
+    {
+      "team_id": 5,
+      "team_name": "Portsmouth",
+      "avg_possession": 48.3,
+      "sample_size": 10
+    },
+    {
+      "team_id": 64,
+      "team_name": "Millwall",
+      "avg_possession": 47.8,
       "sample_size": 10
     },
     {
@@ -111,15 +117,9 @@
       "sample_size": 10
     },
     {
-      "team_id": 64,
-      "team_name": "Millwall",
-      "avg_possession": 45.9,
-      "sample_size": 10
-    },
-    {
       "team_id": 283,
       "team_name": "Wrexham",
-      "avg_possession": 44.5,
+      "avg_possession": 43.8,
       "sample_size": 10
     },
     {
@@ -131,7 +131,7 @@
     {
       "team_id": 122,
       "team_name": "Bristol City",
-      "avg_possession": 42,
+      "avg_possession": 41.9,
       "sample_size": 10
     },
     {
