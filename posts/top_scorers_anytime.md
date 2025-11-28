@@ -7,9 +7,9 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 4. A. Semenyo — 6 — Bournemouth — @ 3.00 (vs Sunderland)
 5. J. Mateta — 6 — Crystal Palace — @ 2.10 (vs Man Utd)
 6. B. Mbeumo — 5 — Man Utd — @ 2.75 (vs Leeds)
-7. R. Richarlison — 5 — Spurs — @ 2.75 (vs Fulham)
+7. R. Richarlison — 5 — Spurs — @ 2.87 (vs Fulham)
 8. C. Wilson — 4 — West Ham — @ 2.75 (vs Liverpool)
-9. E. Eze — 4 — Arsenal — @ 4.00 (vs Chelsea)
+9. E. Eze — 4 — Arsenal — @ 3.25 (vs Chelsea)
 10. E. Kroupi — 4 — Bournemouth — @ 2.60 (vs Sunderland)
 
 *LaLiga*
@@ -18,11 +18,11 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 3. F. Torres — 7 — Barcelona — @ 1.80 (vs Alaves)
 4. J. Alvarez — 7 — Atleti — @ 1.80 (vs Real Oviedo)
 5. K. Eyong — 6 — Levante — @ 3.10 (vs Athletic Club)
-6. V. Muriqi — 6 — Mallorca — @ 2.75 (vs Osasuna)
-7. B. Iglesias — 5 — Celta — @ 2.40 (vs Espanyol)
+6. V. Muriqi — 6 — Mallorca — @ 2.87 (vs Osasuna)
+7. B. Iglesias — 5 — Celta — @ 2.30 (vs Espanyol)
 8. C. Hernández — 5 — Betis — @ 2.75 (vs Sevilla)
 9. M. Oyarzabal — 5 — Sociedad — @ 2.87 (vs Villarreal)
-10. P. Milla — 5 — Espanyol — @ 3.75 (vs Celta)
+10. P. Milla — 5 — Espanyol — @ 3.50 (vs Celta)
 
 *Bundesliga*
 1. H. Kane — 14 — Bayern — @ 1.44 (vs St. Pauli)
@@ -32,16 +32,16 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 5. L. Díaz — 6 — Bayern — @ 1.83 (vs St. Pauli)
 6. M. Olise — 6 — Bayern — @ 1.95 (vs St. Pauli)
 7. C. Uzun — 5 — Frankfurt — @ 2.37 (vs Wolfsburg)
-8. C. Baumgartner — 5 — RB Leipzig — @ 3.00 (vs Gladbach)
+8. C. Baumgartner — 5 — RB Leipzig — @ 3.10 (vs Gladbach)
 9. F. Asllani — 5 — Hoffenheim — @ 2.30 (vs Augsburg)
 10. J. Kaminski — 5 — Koln — @ 3.50 (vs Bremen)
 
 *Serie A*
 1. C. Pulisic — 5 — Milan — @ 2.87 (vs Lazio)
-2. H. Çalhanoğlu — 5 — Inter — @ 4.00 (vs Pisa)
+2. H. Çalhanoğlu — 5 — Inter — @ 3.75 (vs Pisa)
 3. N. Paz — 5 — Como — @ 3.00 (vs Sassuolo)
 4. R. Orsolini — 5 — Bologna — @ 2.30 (vs Cremonese)
-5. A. Pinamonti — 4 — Sassuolo — @ 3.75 (vs Como)
+5. A. Pinamonti — 4 — Sassuolo — @ 3.60 (vs Como)
 6. A. Bonny — 4 — Inter — @ 1.83 (vs Pisa)
 7. D. Berardi — 4 — Sassuolo — @ 4.33 (vs Como)
 8. F. Bonazzoli — 4 — Cremonese — @ 3.40 (vs Bologna)
