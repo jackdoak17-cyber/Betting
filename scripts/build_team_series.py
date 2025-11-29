@@ -93,12 +93,13 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
         params = {}
     params = {**params, "api_token": API_TOKEN}
     url = f"{API_BASE}/{path.lstrip('/')}"
-    last_exc = None
+    last_exc: Optional[Exception] = None
     for i in range(1, RETRIES + 1):
         _pace()
         try:
             r = requests.get(url, params=params, timeout=TIMEOUT)
             if r.status_code == 429:
+                last_exc = requests.HTTPError(f"429 Too Many Requests for {path}")
                 sleep = min(60, (BACKOFF ** i) * 2.0)
                 print(f"[429] {path} — sleeping {sleep:.1f}s")
                 time.sleep(sleep)
@@ -113,7 +114,9 @@ def api_get(path: str, params: Optional[dict] = None) -> dict:
                 time.sleep(sleep)
             else:
                 raise
-    raise last_exc
+    if last_exc:
+        raise last_exc
+    raise RuntimeError(f"Request for {path} failed without raising an exception")
 
 # ----------------- Type IDs -----------------
 SHOTS_TOTAL      = int(os.getenv("TEAM_STAT_SHOTS_TOTAL_ID", "42"))
@@ -318,7 +321,18 @@ def collect_team_series(league_id: int, season_id: int, team_id: int, last_n: in
             j = fetch_team_fixtures_window(team_id, win_start, end, league_id, type_ids, page=page)
             data = j.get("data") or []
             meta = j.get("meta") or {}
-            has_more = bool(meta.get("has_more"))
+
+            # Some SportMonks responses omit `has_more` but still paginate at the
+            # API default page size (10). Prefer the API-reported per_page to
+            # detect when we're hitting a truncated page size, then fall back to
+            # the requested page size when meta is absent.
+            meta_page_size = (
+                (meta.get("pagination") or {}).get("per_page")
+                or meta.get("per_page")
+                or 0
+            )
+            per_page = meta_page_size or params.get("per_page", 50)
+            has_more = bool(meta.get("has_more")) or (len(data) == per_page)
             page += 1
 
             for fx in data:
@@ -439,7 +453,12 @@ def collect_opponent_series(league_id: int, season_id: int, team_id: int, last_n
             j = fetch_team_fixtures_window(team_id, win_start, end, league_id, sorted(needed_type_ids), page=page)
             data = j.get("data") or []
             meta = j.get("meta") or {}
-            per_page = 50
+            meta_page_size = (
+                (meta.get("pagination") or {}).get("per_page")
+                or meta.get("per_page")
+                or 0
+            )
+            per_page = meta_page_size or params.get("per_page", 50)
             has_more = bool(meta.get("has_more")) or (len(data) == per_page)
             page += 1
 
