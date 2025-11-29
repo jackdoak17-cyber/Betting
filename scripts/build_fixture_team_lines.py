@@ -27,7 +27,7 @@ For each fixture (Home vs Away) and each stat:
 
 We report per team per fixture:
 - 80%:  FINAL range = [min(team_off_80, opp_allw_80), max(team_off_80, opp_allw_80)]
-- 100%: FINAL range = [min(team_off_100, opp_allw_100), max(team_off_100, opp_allw_100)]
+- 200%: FINAL range = [min(team_off_200, opp_allw_200), max(team_off_200, opp_allw_200)]
 And we explicitly indicate whether the min/max came from Team-Offense or Opp-Allowed.
 
 Inputs
@@ -44,7 +44,7 @@ Outputs
 
 Env
 ---
-TEAM_LINES_USE_LAST_N (int, default 10): trim series to last N items (or fewer if unavailable).
+TEAM_LINES_USE_LAST_N (int, default 20): trim series to last N items (or fewer if unavailable).
 """
 
 from __future__ import annotations
@@ -62,7 +62,7 @@ OL_DIR   = OUT_DIR / "by_league"
 OL_DIR.mkdir(parents=True, exist_ok=True)
 
 # Use last N from each series (or fewer if not available)
-USE_LAST_N = int(os.getenv("TEAM_LINES_USE_LAST_N", "10"))
+USE_LAST_N = int(os.getenv("TEAM_LINES_USE_LAST_N", "20"))
 
 # Stat map: offense key, opponent-allowed key, short label
 STAT_MAP = {
