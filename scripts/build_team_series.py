@@ -50,8 +50,8 @@ Also writes combined.json + summary.txt in each tree.
 
 Env:
   SPORTMONKS_TOKEN                  (required)
-  TEAM_STATS_LAST_N                 (default 10)
-  TEAM_OPP_STATS_LAST_N             (default 10)
+  TEAM_STATS_LAST_N                 (default 20)
+  TEAM_OPP_STATS_LAST_N             (default 20)
   INCLUDE_SECOND_YELLOW_IN_CARDS    (0/1, default 0)
   SERIES_MODE                       (both | team | opp, default both)
   TEAM_STAT_*_ID overrides supported; OFFSIDES=51, GOALS=52, POSSESSION=45
@@ -133,8 +133,8 @@ POSSESSION       = int(os.getenv("TEAM_STAT_POSSESSION_ID", "45"))
 INCLUDE_SECOND_YELLOW_IN_CARDS = os.getenv("INCLUDE_SECOND_YELLOW_IN_CARDS", "0") in ("1","true","TRUE","yes","YES")
 
 # ----------------- Config -----------------
-LAST_N_TEAM = int(os.getenv("TEAM_STATS_LAST_N", "10"))
-LAST_N_OPP  = int(os.getenv("TEAM_OPP_STATS_LAST_N", "10"))
+LAST_N_TEAM = int(os.getenv("TEAM_STATS_LAST_N", "20"))
+LAST_N_OPP  = int(os.getenv("TEAM_OPP_STATS_LAST_N", "20"))
 SERIES_MODE = (os.getenv("SERIES_MODE") or "both").strip().lower()
 if SERIES_MODE not in {"both","team","opp"}:
     SERIES_MODE = "both"
