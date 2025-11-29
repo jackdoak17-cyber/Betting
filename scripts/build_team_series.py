@@ -318,8 +318,7 @@ def collect_team_series(league_id: int, season_id: int, team_id: int, last_n: in
             j = fetch_team_fixtures_window(team_id, win_start, end, league_id, type_ids, page=page)
             data = j.get("data") or []
             meta = j.get("meta") or {}
-            per_page = 50
-            has_more = bool(meta.get("has_more")) or (len(data) == per_page)
+            has_more = bool(meta.get("has_more"))
             page += 1
 
             for fx in data:
