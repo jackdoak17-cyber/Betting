@@ -92,6 +92,8 @@ BET_HEADERS = [
     "model_p",
     "implied_p",
     "threshold",
+    "stake",
+    "profit",
     "created_at",
     "result",
     "actual",
@@ -382,6 +384,25 @@ def settle_row(row: dict, ts_index: Dict[int, Dict[int, dict]]):
     row["result"] = outcome
     row["actual"] = str(val)
     row["settled_at"] = now
+    try:
+        stake = float(row.get("stake", 1) or 1)
+    except Exception:
+        stake = 1.0
+    try:
+        price = float(row.get("price"))
+    except Exception:
+        price = None
+    profit = None
+    if outcome == "won" and price:
+        profit = (price - 1.0) * stake
+    elif outcome == "lost":
+        profit = -stake
+    elif outcome == "push":
+        profit = 0.0
+    if profit is not None:
+        row["profit"] = f"{profit:.2f}"
+    elif "profit" not in row:
+        row["profit"] = ""
 
 def update_bet_sheet(path: Path, candidates: List[dict], ts_index: Dict[int, Dict[int, dict]]):
     existing = load_sheet(path)
@@ -424,6 +445,8 @@ def update_bet_sheet(path: Path, candidates: List[dict], ts_index: Dict[int, Dic
                 "model_p": f"{c.get('model_p', 0):.3f}",
                 "implied_p": f"{c.get('implied_p', 0):.3f}",
                 "threshold": c.get("threshold", ""),
+                "stake": "1",
+                "profit": "",
                 "created_at": now,
                 "result": "",
                 "actual": "",
@@ -438,8 +461,12 @@ def update_bet_sheet(path: Path, candidates: List[dict], ts_index: Dict[int, Dic
                 "threshold": c.get("threshold", row.get("threshold", "")),
                 "kickoff": c.get("kickoff", row.get("kickoff", "")),
             })
+            row.setdefault("stake", "1")
+            row.setdefault("profit", "")
 
     for r in rows.values():
+        r.setdefault("stake", "1")
+        r.setdefault("profit", "")
         if (r.get("result") or "").lower() in {"won", "lost", "push"}:
             continue
         settle_row(r, ts_index)

@@ -122,6 +122,25 @@ def settle_row(row: dict, ts_index: Dict[int, Dict[int, dict]]) -> None:
         outcome = "won" if val < threshold else "lost"
     row["result"] = outcome
     row["actual"] = str(val)
+    try:
+        stake = float(row.get("stake", 1) or 1)
+    except Exception:
+        stake = 1.0
+    try:
+        price = float(row.get("price"))
+    except Exception:
+        price = None
+    profit = None
+    if outcome == "won" and price:
+        profit = (price - 1.0) * stake
+    elif outcome == "lost":
+        profit = -stake
+    elif outcome == "push":
+        profit = 0.0
+    if profit is not None:
+        row["profit"] = f"{profit:.2f}"
+    elif "profit" not in row:
+        row["profit"] = ""
 
 
 # ---------- Main ----------
@@ -150,6 +169,8 @@ def settle_sheet(path: Path, ts_index: Dict[int, Dict[int, dict]]) -> Tuple[int,
     settled = 0
     pending = 0
     for row in rows:
+        row.setdefault("stake", "1")
+        row.setdefault("profit", "")
         if (row.get("result") or "").lower() in {"won", "lost", "push"}:
             continue
         pending += 1
