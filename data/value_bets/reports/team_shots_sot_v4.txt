@@ -1,6 +1,18 @@
-Generated at (UTC): 2025-11-30T15:46:24
+Generated at (UTC): 2025-11-30T16:16:15
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
-(none)
+ • Everton (away) — Shots on Target Under 3.5 @ 1.720 vs AFC Bournemouth | kickoff 2025-12-02 19:30:00
+    model=0.797 | implied=0.581 | threshold≥4
+    Everton have had under 4 shots on target in 5/6 away matches = 1,2,1,2,4,1
+    AFC Bournemouth's opponents have had under 4 shots on target in 4/6 home games = 2,4,4,1,2,1
+    This landed in the reverse fixture last season = 1
+    team hits 1/6 | opp conceded 2/6 | H2H 1/4
+    implied win probs: home 0.619 / away 0.381
+ • Burnley (home) — Shots on Target Under 3.5 @ 1.720 vs Crystal Palace | kickoff 2025-12-03 19:30:00
+    model=0.747 | implied=0.581 | threshold≥4
+    Burnley have had under 4 shots on target in 5/6 home matches = 2,0,3,5,0,2
+    Crystal Palace's opponents have had under 4 shots on target in 4/6 away games = 1,3,7,3,4,3
+    team hits 1/6 | opp conceded 2/6 | H2H 2/4
+    implied win probs: home 0.274 / away 0.726
