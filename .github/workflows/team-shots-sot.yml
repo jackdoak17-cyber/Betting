@@ -1,0 +1,113 @@
+name: Value — Team Shots & SOT (V2–V4)
+
+on:
+  schedule:
+    # Twice daily at 01:00 and 16:00 UTC
+    - cron: "0 1,16 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: team-shots-sot-v2-v4
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Run Team Shots & SOT generators (V2–V4)
+        run: |
+          set -euo pipefail
+          python scripts/value_bets/team_shots_sot_run_all.py
+
+      - name: Settle Team Shots & SOT bet sheets (V2–V4)
+        run: |
+          set -euo pipefail
+          python scripts/value_bets/team_shots_sot_settle.py
+
+      - name: Show reports
+        run: |
+          set -euo pipefail
+          for f in data/value_bets/reports/team_shots_sot_v{2,3,4}.txt; do
+            echo "----- ${f} -----"
+            if [ -f "$f" ]; then
+              tail -n +1 "$f"
+            else
+              echo "(missing)"
+            fi
+            echo "----------------------"
+          done
+
+      - name: Commit & push updates (reports + sheets)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          git config --global user.name  "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+
+          git fetch origin main
+          git checkout -B main origin/main
+
+          git add data/value_bets/reports/team_shots_sot_v2.txt \
+                  data/value_bets/reports/team_shots_sot_v3.txt \
+                  data/value_bets/reports/team_shots_sot_v4.txt \
+                  data/value_bets/sheets/team_shots_sot_v2_bets.csv \
+                  data/value_bets/sheets/team_shots_sot_v3_bets.csv \
+                  data/value_bets/sheets/team_shots_sot_v4_bets.csv || true
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(team-shots-sot): update ${ts}"
+
+          for attempt in 1 2 3; do
+            git rebase --abort || true
+            git pull --rebase --autostash origin main || true
+            if git push --force-with-lease origin HEAD:main; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed on attempt $attempt — retrying..."
+            sleep 2
+          done
+
+          echo "Final attempt after fresh fetch..."
+          git rebase --abort || true
+          git fetch origin main
+          git pull --rebase --autostash origin main || true
+          git push --force-with-lease origin HEAD:main
