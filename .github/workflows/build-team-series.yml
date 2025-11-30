@@ -18,8 +18,8 @@ jobs:
     timeout-minutes: 90
     env:
       SPORTMONKS_TOKEN: ${{ secrets.SPORTMONKS_TOKEN }}
-      TEAM_STATS_LAST_N: "10"
-      TEAM_OPP_STATS_LAST_N: "10"
+      TEAM_STATS_LAST_N: "20"
+      TEAM_OPP_STATS_LAST_N: "20"
       INCLUDE_SECOND_YELLOW_IN_CARDS: "0"  # set "1" to include 2nd yellows in cards_total
       SERIES_MODE: "both"                  # both | team | opp
       PYTHONUNBUFFERED: "1"
