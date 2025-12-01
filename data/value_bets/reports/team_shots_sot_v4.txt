@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-01T03:06:03
+Generated at (UTC): 2025-12-01T16:20:11
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -9,7 +9,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Aston Villa's opponents have had under 15 shots in 4/6 away games = 14,16,10,14,20,9
     This landed in the reverse fixture last season = 11
     team hits 0/6 | opp conceded 2/6 | H2H 1/4
-    implied win probs: home 0.618 / away 0.382
+    implied win probs: home 0.606 / away 0.394
  • Everton (away) — Shots on Target Under 3.5 @ 1.720 vs AFC Bournemouth | kickoff 2025-12-02 19:30:00
     model=0.797 | implied=0.581 | threshold≥4
     Everton have had under 4 shots on target in 5/6 away matches = 1,2,1,2,4,1
@@ -22,4 +22,4 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Burnley have had under 4 shots on target in 5/6 home matches = 2,0,3,5,0,2
     Crystal Palace's opponents have had under 4 shots on target in 4/6 away games = 1,3,7,3,4,3
     team hits 1/6 | opp conceded 2/6 | H2H 2/4
-    implied win probs: home 0.284 / away 0.716
+    implied win probs: home 0.288 / away 0.712
