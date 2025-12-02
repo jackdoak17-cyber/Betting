@@ -1,6 +1,12 @@
-Generated at (UTC): 2025-12-02T02:46:11
+Generated at (UTC): 2025-12-02T16:20:04
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
-(none)
+ • Hull City (home) — Shots Under 11.5 @ 1.900 vs Middlesbrough | kickoff 2025-12-05 20:00:00
+    model=0.717 | implied=0.526 | threshold≥12
+    Hull City have had under 12 shots in 6/9 home matches = 11,13,15,9,5,10,11,8,19
+    Middlesbrough's opponents have had under 12 shots in 7/9 away games = 9,6,8,11,8,14,7,14,11
+    This landed in the reverse fixture last season = 7
+    team hits 3/9 | opp conceded 2/9 | H2H 1/4
+    implied win probs: home 0.402 / away 0.598
