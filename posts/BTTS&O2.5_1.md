@@ -2,17 +2,18 @@
 
 📊Over 2.5 goals📊
 (Both teams have had at least 2.5 goals in 70% of their last 10 & in both of their last 2 h2h)
-Odense BK (70%) vs Vejle Boldklub (70%) @ 1.61
-West Ham United (70%) vs Liverpool (70%) @ 1.53
-Luzern (90%) vs Winterthur (90%) @ 1.50
+Thun (70%) vs Luzern (90%) @ 1.57
+St. Gallen (70%) vs Zürich (70%) @ 1.57
+FC Volendam (80%) vs NEC Nijmegen (70%) @ 1.44
+VfB Stuttgart (80%) vs FC Bayern München (100%) @ 1.33
+Feyenoord (80%) vs PEC Zwolle (80%) @ 1.30
 
 📊Both teams to score📊
 (BTTS has landed in 70% of their last 10 & in both of their last 2 h2h)
-Racing Santander (70%) vs SD Eibar (70%) @ 1.72
-Radomiak Radom (80%) vs Górnik Zabrze (70%) @ 1.70
-PSV (70%) vs FC Volendam (70%) @ 1.70
-PEC Zwolle (70%) vs SC Heerenveen (80%) @ 1.53
-FC Twente (80%) vs AZ (80%) @ 1.50
+Swansea City (70%) vs Oxford United (70%) @ 2.00
+Derby County (70%) vs Leicester City (70%) @ 1.83
+Lechia Gdańsk (80%) vs Górnik Zabrze (70%) @ 1.66
+Konyaspor (70%) vs Rizespor (70%) @ 1.66
 
 *Uses league data only, odds correct time of run
 *If you spot any errors let me know so I can investigate and improve the list
