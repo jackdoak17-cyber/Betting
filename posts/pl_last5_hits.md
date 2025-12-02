@@ -5,25 +5,21 @@ Leave a like if you find these useful.
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
 • I. Sarr (Crystal Palace) = 1, 4, 3, 1, 3
+• L. Paquetá (West Ham) = 2, 3, 2, 4, 1
 • D. Ouattara (Brentford) = 1, 2, 3, 3, 2
 • J. Grealish (Everton) = 1, 3, 3, 2, 2
-• L. Ugochukwu (Burnley) = 2, 4, 1, 2, 2
 • R. Mandava (Sunderland) = 2, 2, 2, 1, 4
 • K. Tete (Fulham) = 3, 1, 3, 1, 2
 • K. Schade (Brentford) = 2, 2, 4, 1, 1
 • A. Diallo (Man Utd) = 3, 2, 2, 1, 1
 • E. Eze (Arsenal) = 1, 2, 1, 4, 1
-• I. Gueye (Everton) = 1, 2, 3, 1, 2
 • J. Gomes (Wolves) = 1, 1, 4, 2, 1
 • J. Pedro (Chelsea) = 2, 2, 2, 2, 1
 • M. Merino (Arsenal) = 3, 3, 1, 1, 1
 • P. Foden (Man City) = 2, 1, 1, 3, 2
-• S. Longstaff (Leeds United) = 2, 2, 2, 1, 2
 • B. Kamara (Aston Villa) = 2, 2, 2, 1, 1
 • E. Evanilson (Bournemouth) = 3, 1, 1, 2, 1
-• G. Gudmundsson (Leeds United) = 2, 1, 1, 2, 2
 • J. Joelinton (Newcastle) = 1, 2, 1, 2, 2
-• L. Trossard (Arsenal) = 2, 1, 2, 1, 2
 • M. Rogers (Aston Villa) = 1, 1, 1, 2, 2
 • E. Diouf (West Ham) = 2, 1, 1, 1, 1
 • Y. Pino (Crystal Palace) = 1, 2, 1, 1, 1
@@ -33,6 +29,7 @@ Leave a like if you find these useful.
 
 📊1+ Foul in 5/5 (100%)📊
 
+• D. Burn (Newcastle) = 1, 4, 2, 3, 2
 • J. Gomes (Wolves) = 3, 2, 4, 1, 2
 • R. Mandava (Sunderland) = 2, 1, 5, 2, 2
 • M. Wieffer (Brighton) = 3, 4, 2, 1, 1
@@ -41,15 +38,17 @@ Leave a like if you find these useful.
 • T. Barry (Everton) = 1, 1, 3, 3, 1
 • J. Gvardiol (Man City) = 1, 1, 1, 1, 4
 • J. Doku (Man City) = 2, 1, 1, 2, 2
+• L. Foster (Burnley) = 1, 3, 1, 1, 2
+• M. Caicedo (Chelsea) = 4, 1, 1, 1, 1
 • N. González (Man City) = 2, 3, 1, 1, 1
-• C. Romero (Spurs) = 1, 2, 1, 1, 2
 • J. Pedro (Chelsea) = 1, 2, 2, 1, 1
 • K. Tete (Fulham) = 1, 1, 2, 1, 2
+• L. Bergvall (Spurs) = 2, 2, 1, 1, 1
 • N. Woltemade (Newcastle) = 2, 1, 2, 1, 1
 • P. Foden (Man City) = 3, 1, 1, 1, 1
-• C. Baleba (Brighton) = 1, 1, 2, 1, 1
 • J. Timber (Arsenal) = 2, 1, 1, 1, 1
 • M. Zubimendi (Arsenal) = 1, 2, 1, 1, 1
+• M. Mount (Man Utd) = 1, 1, 1, 1, 2
 • M. Kudus (Spurs) = 1, 1, 1, 1, 2
 • N. O'Reilly (Man City) = 1, 1, 2, 1, 1
 • D. Kamada (Crystal Palace) = 1, 1, 1, 1, 1
