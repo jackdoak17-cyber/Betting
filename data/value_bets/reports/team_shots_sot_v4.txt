@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-02T16:20:04
+Generated at (UTC): 2025-12-02T22:01:55
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -10,3 +10,10 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 7
     team hits 3/9 | opp conceded 2/9 | H2H 1/4
     implied win probs: home 0.402 / away 0.598
+ • Crystal Palace (away) — Shots Under 10.5 @ 1.900 vs Fulham | kickoff 2025-12-07 16:30:00
+    model=0.600 | implied=0.526 | threshold≥11
+    Crystal Palace have had under 11 shots in 3/6 away matches = 10,7,15,18,6,11
+    Fulham's opponents have had under 11 shots in 5/6 home games = 4,5,16,8,10,10
+    This landed in the reverse fixture last season = 8
+    team hits 3/6 | opp conceded 1/6 | H2H 2/4
+    implied win probs: home 0.514 / away 0.486
