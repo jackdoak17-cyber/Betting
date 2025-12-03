@@ -29,34 +29,31 @@ Leave a like if you find these useful.
 
 📊1+ Foul in 5/5 (100%)📊
 
-• D. Burn (Newcastle) = 1, 4, 2, 3, 2
 • J. Gomes (Wolves) = 3, 2, 4, 1, 2
 • R. Mandava (Sunderland) = 2, 1, 5, 2, 2
 • M. Wieffer (Brighton) = 3, 4, 2, 1, 1
 • A. Tuanzebe (Burnley) = 3, 2, 2, 1, 1
 • M. Cash (Aston Villa) = 3, 3, 1, 1, 1
-• T. Barry (Everton) = 1, 1, 3, 3, 1
-• J. Gvardiol (Man City) = 1, 1, 1, 1, 4
-• J. Doku (Man City) = 2, 1, 1, 2, 2
+• N. González (Man City) = 2, 2, 3, 1, 1
+• T. Barry (Everton) = 1, 1, 1, 3, 3
+• J. Doku (Man City) = 2, 2, 1, 1, 2
 • L. Foster (Burnley) = 1, 3, 1, 1, 2
 • M. Caicedo (Chelsea) = 4, 1, 1, 1, 1
-• N. González (Man City) = 2, 3, 1, 1, 1
+• N. O'Reilly (Man City) = 3, 1, 1, 2, 1
 • J. Pedro (Chelsea) = 1, 2, 2, 1, 1
-• K. Tete (Fulham) = 1, 1, 2, 1, 2
-• L. Bergvall (Spurs) = 2, 2, 1, 1, 1
-• N. Woltemade (Newcastle) = 2, 1, 2, 1, 1
-• P. Foden (Man City) = 3, 1, 1, 1, 1
+• L. Bergvall (Spurs) = 1, 2, 2, 1, 1
 • J. Timber (Arsenal) = 2, 1, 1, 1, 1
+• K. Tete (Fulham) = 1, 1, 1, 2, 1
 • M. Zubimendi (Arsenal) = 1, 2, 1, 1, 1
 • M. Mount (Man Utd) = 1, 1, 1, 1, 2
-• M. Kudus (Spurs) = 1, 1, 1, 1, 2
-• N. O'Reilly (Man City) = 1, 1, 2, 1, 1
+• V. Mykolenko (Everton) = 2, 1, 1, 1, 1
 • D. Kamada (Crystal Palace) = 1, 1, 1, 1, 1
 • E. Fernández (Chelsea) = 1, 1, 1, 1, 1
+• M. Kudus (Spurs) = 1, 1, 1, 1, 1
 
 📊1+ SOT in 5/5 (100%)📊
 
-• E. Haaland (Man City) = 1, 2, 2, 4, 3
+• E. Haaland (Man City) = 1, 1, 2, 2, 4
 • B. Mbeumo (Man Utd) = 2, 1, 1, 1, 3
 • E. Fernández (Chelsea) = 1, 1, 2, 1, 3
 
