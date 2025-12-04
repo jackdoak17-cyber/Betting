@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-04T02:49:47
+Generated at (UTC): 2025-12-04T16:19:59
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -43,6 +43,12 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 4
     team hits 3/6 | opp conceded 1/7 | H2H 1/4
     implied win probs: home 0.381 / away 0.619
+ • Hamburger SV (home) — Shots Over 14.5 @ 1.720 vs Werder Bremen | kickoff 2025-12-07 14:30:00
+    model=0.600 | implied=0.581 | threshold≥15
+    Hamburger SV have cleared 15 shots in 3/6 home matches = 9,9,27,15,22,5
+    Werder Bremen's opponents have had 15+ shots in 5/6 away games = 22,10,31,26,19,18
+    team hits 3/6 | opp conceded 5/6 | H2H 2/4
+    implied win probs: home 0.571 / away 0.429
  • Hamburger SV (home) — Shots on Target Over 4.5 @ 1.720 vs Werder Bremen | kickoff 2025-12-07 14:30:00
     model=0.600 | implied=0.581 | threshold≥5
     Hamburger SV have cleared 5 shots on target in 3/6 home matches = 2,3,6,9,9,2
@@ -55,11 +61,11 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Fulham's opponents have had under 11 shots in 5/6 home games = 4,5,16,8,10,10
     This landed in the reverse fixture last season = 8
     team hits 3/6 | opp conceded 1/6 | H2H 2/4
-    implied win probs: home 0.524 / away 0.476
+    implied win probs: home 0.523 / away 0.477
  • Sevilla (away) — Shots Over 9.5 @ 1.800 vs Valencia | kickoff 2025-12-07 15:15:00
     model=0.570 | implied=0.556 | threshold≥10
     Sevilla have cleared 10 shots in 4/7 away matches = 22,10,6,4,9,13,12
     Valencia's opponents have had 10+ shots in 5/7 home games = 7,9,12,10,11,11,13
     This landed in the reverse fixture last season = 12
     team hits 4/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.625 / away 0.375
+    implied win probs: home 0.613 / away 0.387
