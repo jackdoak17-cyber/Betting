@@ -1,24 +1,30 @@
 {
   "league_id": 600,
-  "generated_at": "2025-12-01T09:22:10.645309+00:00",
+  "generated_at": "2025-12-04T20:17:45.408903+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 88,
       "team_name": "Fenerbahçe",
-      "avg_shots_conceded": 8.538461538461538,
-      "sample_size": 13
+      "avg_shots_conceded": 8.357142857142858,
+      "sample_size": 14
+    },
+    {
+      "team_id": 34,
+      "team_name": "Galatasaray",
+      "avg_shots_conceded": 10,
+      "sample_size": 14
     },
     {
       "team_id": 347,
       "team_name": "Alanyaspor",
-      "avg_shots_conceded": 11.615384615384615,
-      "sample_size": 13
+      "avg_shots_conceded": 11.285714285714286,
+      "sample_size": 14
     },
     {
       "team_id": 554,
       "team_name": "Beşiktaş",
-      "avg_shots_conceded": 11.692307692307692,
-      "sample_size": 13
+      "avg_shots_conceded": 11.357142857142858,
+      "sample_size": 14
     },
     {
       "team_id": 13860,
@@ -29,14 +35,14 @@
     {
       "team_id": 3897,
       "team_name": "Göztepe",
-      "avg_shots_conceded": 12.384615384615385,
-      "sample_size": 13
+      "avg_shots_conceded": 12.071428571428571,
+      "sample_size": 14
     },
     {
       "team_id": 2811,
       "team_name": "Samsunspor",
-      "avg_shots_conceded": 12.384615384615385,
-      "sample_size": 13
+      "avg_shots_conceded": 12.214285714285714,
+      "sample_size": 14
     },
     {
       "team_id": 2632,
@@ -57,12 +63,6 @@
       "sample_size": 14
     },
     {
-      "team_id": 4192,
-      "team_name": "Gaziantep F.K.",
-      "avg_shots_conceded": 13.357142857142858,
-      "sample_size": 14
-    },
-    {
       "team_id": 3702,
       "team_name": "İstanbul Başakşehir",
       "avg_shots_conceded": 13.357142857142858,
@@ -73,12 +73,6 @@
       "team_name": "Kayserispor",
       "avg_shots_conceded": 13.714285714285714,
       "sample_size": 14
-    },
-    {
-      "team_id": 3990,
-      "team_name": "Fatih Karagümrük",
-      "avg_shots_conceded": 14.384615384615385,
-      "sample_size": 13
     },
     {
       "team_id": 688,
@@ -93,10 +87,16 @@
       "sample_size": 14
     },
     {
+      "team_id": 3990,
+      "team_name": "Fatih Karagümrük",
+      "avg_shots_conceded": 15.285714285714286,
+      "sample_size": 14
+    },
+    {
       "team_id": 81,
       "team_name": "Antalyaspor",
-      "avg_shots_conceded": 15.538461538461538,
-      "sample_size": 13
+      "avg_shots_conceded": 15.571428571428571,
+      "sample_size": 14
     },
     {
       "team_id": 286,
@@ -109,13 +109,25 @@
     {
       "team_id": 88,
       "team_name": "Fenerbahçe",
-      "avg_shots_for": 19.076923076923077,
-      "sample_size": 13
+      "avg_shots_for": 18.928571428571427,
+      "sample_size": 14
+    },
+    {
+      "team_id": 34,
+      "team_name": "Galatasaray",
+      "avg_shots_for": 17.5,
+      "sample_size": 14
     },
     {
       "team_id": 688,
       "team_name": "Trabzonspor",
       "avg_shots_for": 15.071428571428571,
+      "sample_size": 14
+    },
+    {
+      "team_id": 554,
+      "team_name": "Beşiktaş",
+      "avg_shots_for": 14.785714285714286,
       "sample_size": 14
     },
     {
@@ -125,39 +137,27 @@
       "sample_size": 14
     },
     {
-      "team_id": 4192,
-      "team_name": "Gaziantep F.K.",
-      "avg_shots_for": 14.142857142857142,
-      "sample_size": 14
-    },
-    {
-      "team_id": 554,
-      "team_name": "Beşiktaş",
-      "avg_shots_for": 13.846153846153847,
-      "sample_size": 13
-    },
-    {
       "team_id": 2811,
       "team_name": "Samsunspor",
-      "avg_shots_for": 13.76923076923077,
-      "sample_size": 13
+      "avg_shots_for": 13.285714285714286,
+      "sample_size": 14
     },
     {
       "team_id": 3897,
       "team_name": "Göztepe",
-      "avg_shots_for": 12.846153846153847,
-      "sample_size": 13
-    },
-    {
-      "team_id": 347,
-      "team_name": "Alanyaspor",
-      "avg_shots_for": 12.461538461538462,
-      "sample_size": 13
+      "avg_shots_for": 13.071428571428571,
+      "sample_size": 14
     },
     {
       "team_id": 3702,
       "team_name": "İstanbul Başakşehir",
       "avg_shots_for": 12.357142857142858,
+      "sample_size": 14
+    },
+    {
+      "team_id": 347,
+      "team_name": "Alanyaspor",
+      "avg_shots_for": 12.285714285714286,
       "sample_size": 14
     },
     {
@@ -187,8 +187,8 @@
     {
       "team_id": 3990,
       "team_name": "Fatih Karagümrük",
-      "avg_shots_for": 11.538461538461538,
-      "sample_size": 13
+      "avg_shots_for": 11.214285714285714,
+      "sample_size": 14
     },
     {
       "team_id": 13860,
@@ -205,8 +205,8 @@
     {
       "team_id": 81,
       "team_name": "Antalyaspor",
-      "avg_shots_for": 8.461538461538462,
-      "sample_size": 13
+      "avg_shots_for": 8.428571428571429,
+      "sample_size": 14
     }
   ],
   "min_sample": 3,

@@ -1,29 +1,29 @@
 {
   "league_id": 384,
-  "generated_at": "2025-12-01T09:22:10.638681+00:00",
+  "generated_at": "2025-12-04T20:17:45.402014+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 2930,
       "team_name": "Inter",
-      "avg_shots_conceded": 8.916666666666666,
+      "avg_shots_conceded": 9,
+      "sample_size": 13
+    },
+    {
+      "team_id": 8513,
+      "team_name": "Bologna",
+      "avg_shots_conceded": 9.666666666666666,
       "sample_size": 12
     },
     {
       "team_id": 37,
       "team_name": "Roma",
-      "avg_shots_conceded": 10.416666666666666,
-      "sample_size": 12
+      "avg_shots_conceded": 10.153846153846153,
+      "sample_size": 13
     },
     {
       "team_id": 708,
       "team_name": "Atalanta",
-      "avg_shots_conceded": 10.5,
-      "sample_size": 12
-    },
-    {
-      "team_id": 102,
-      "team_name": "Genoa",
-      "avg_shots_conceded": 10.538461538461538,
+      "avg_shots_conceded": 10.846153846153847,
       "sample_size": 13
     },
     {
@@ -41,25 +41,13 @@
     {
       "team_id": 597,
       "team_name": "Napoli",
-      "avg_shots_conceded": 11.25,
-      "sample_size": 12
-    },
-    {
-      "team_id": 113,
-      "team_name": "Milan",
-      "avg_shots_conceded": 11.538461538461538,
+      "avg_shots_conceded": 11,
       "sample_size": 13
     },
     {
       "team_id": 7790,
       "team_name": "Lecce",
-      "avg_shots_conceded": 12.25,
-      "sample_size": 12
-    },
-    {
-      "team_id": 346,
-      "team_name": "Udinese",
-      "avg_shots_conceded": 12.538461538461538,
+      "avg_shots_conceded": 12.461538461538462,
       "sample_size": 13
     },
     {
@@ -67,12 +55,6 @@
       "team_name": "Hellas Verona",
       "avg_shots_conceded": 12.615384615384615,
       "sample_size": 13
-    },
-    {
-      "team_id": 109,
-      "team_name": "Fiorentina",
-      "avg_shots_conceded": 12.75,
-      "sample_size": 12
     },
     {
       "team_id": 585,
@@ -87,9 +69,9 @@
       "sample_size": 13
     },
     {
-      "team_id": 398,
-      "team_name": "Parma",
-      "avg_shots_conceded": 13.461538461538462,
+      "team_id": 109,
+      "team_name": "Fiorentina",
+      "avg_shots_conceded": 13.384615384615385,
       "sample_size": 13
     },
     {
@@ -101,8 +83,8 @@
     {
       "team_id": 613,
       "team_name": "Torino",
-      "avg_shots_conceded": 15.083333333333334,
-      "sample_size": 12
+      "avg_shots_conceded": 14.692307692307692,
+      "sample_size": 13
     },
     {
       "team_id": 10722,
@@ -113,16 +95,16 @@
     {
       "team_id": 1072,
       "team_name": "Pisa",
-      "avg_shots_conceded": 16.333333333333332,
-      "sample_size": 12
+      "avg_shots_conceded": 16.153846153846153,
+      "sample_size": 13
     }
   ],
   "shots_for_rank": [
     {
       "team_id": 2930,
       "team_name": "Inter",
-      "avg_shots_for": 18.25,
-      "sample_size": 12
+      "avg_shots_for": 17.923076923076923,
+      "sample_size": 13
     },
     {
       "team_id": 625,
@@ -133,20 +115,8 @@
     {
       "team_id": 708,
       "team_name": "Atalanta",
-      "avg_shots_for": 14.5,
-      "sample_size": 12
-    },
-    {
-      "team_id": 37,
-      "team_name": "Roma",
-      "avg_shots_for": 14.166666666666666,
-      "sample_size": 12
-    },
-    {
-      "team_id": 597,
-      "team_name": "Napoli",
-      "avg_shots_for": 13.916666666666666,
-      "sample_size": 12
+      "avg_shots_for": 15,
+      "sample_size": 13
     },
     {
       "team_id": 268,
@@ -155,16 +125,22 @@
       "sample_size": 13
     },
     {
-      "team_id": 113,
-      "team_name": "Milan",
-      "avg_shots_for": 13.307692307692308,
+      "team_id": 37,
+      "team_name": "Roma",
+      "avg_shots_for": 13.692307692307692,
       "sample_size": 13
     },
     {
-      "team_id": 102,
-      "team_name": "Genoa",
-      "avg_shots_for": 12.384615384615385,
+      "team_id": 597,
+      "team_name": "Napoli",
+      "avg_shots_for": 13.384615384615385,
       "sample_size": 13
+    },
+    {
+      "team_id": 8513,
+      "team_name": "Bologna",
+      "avg_shots_for": 12.666666666666666,
+      "sample_size": 12
     },
     {
       "team_id": 1123,
@@ -173,33 +149,21 @@
       "sample_size": 13
     },
     {
-      "team_id": 346,
-      "team_name": "Udinese",
-      "avg_shots_for": 11.76923076923077,
-      "sample_size": 13
-    },
-    {
       "team_id": 109,
       "team_name": "Fiorentina",
-      "avg_shots_for": 11.583333333333334,
-      "sample_size": 12
+      "avg_shots_for": 11.846153846153847,
+      "sample_size": 13
     },
     {
       "team_id": 613,
       "team_name": "Torino",
-      "avg_shots_for": 11.25,
-      "sample_size": 12
+      "avg_shots_for": 11.538461538461538,
+      "sample_size": 13
     },
     {
       "team_id": 2714,
       "team_name": "Sassuolo",
       "avg_shots_for": 11.076923076923077,
-      "sample_size": 13
-    },
-    {
-      "team_id": 398,
-      "team_name": "Parma",
-      "avg_shots_for": 10.923076923076923,
       "sample_size": 13
     },
     {
@@ -211,14 +175,14 @@
     {
       "team_id": 1072,
       "team_name": "Pisa",
-      "avg_shots_for": 9.75,
-      "sample_size": 12
+      "avg_shots_for": 9.76923076923077,
+      "sample_size": 13
     },
     {
       "team_id": 7790,
       "team_name": "Lecce",
-      "avg_shots_for": 9.5,
-      "sample_size": 12
+      "avg_shots_for": 9.538461538461538,
+      "sample_size": 13
     },
     {
       "team_id": 585,
@@ -234,5 +198,5 @@
     }
   ],
   "min_sample": 3,
-  "team_count": 19
+  "team_count": 16
 }

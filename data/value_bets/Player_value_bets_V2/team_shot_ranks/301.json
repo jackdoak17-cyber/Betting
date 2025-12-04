@@ -1,6 +1,6 @@
 {
   "league_id": 301,
-  "generated_at": "2025-12-01T09:22:10.636368+00:00",
+  "generated_at": "2025-12-04T20:17:45.400311+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 591,
@@ -9,28 +9,34 @@
       "sample_size": 14
     },
     {
-      "team_id": 690,
-      "team_name": "LOSC Lille",
-      "avg_shots_conceded": 9.153846153846153,
-      "sample_size": 13
-    },
-    {
       "team_id": 44,
       "team_name": "Olympique Marseille",
       "avg_shots_conceded": 9.214285714285714,
       "sample_size": 14
     },
     {
+      "team_id": 690,
+      "team_name": "LOSC Lille",
+      "avg_shots_conceded": 9.5,
+      "sample_size": 14
+    },
+    {
       "team_id": 9257,
       "team_name": "Lorient",
-      "avg_shots_conceded": 9.846153846153847,
-      "sample_size": 13
+      "avg_shots_conceded": 9.785714285714286,
+      "sample_size": 14
     },
     {
       "team_id": 686,
       "team_name": "Strasbourg",
-      "avg_shots_conceded": 10.692307692307692,
-      "sample_size": 13
+      "avg_shots_conceded": 10.428571428571429,
+      "sample_size": 14
+    },
+    {
+      "team_id": 79,
+      "team_name": "Olympique Lyonnais",
+      "avg_shots_conceded": 11.285714285714286,
+      "sample_size": 14
     },
     {
       "team_id": 4508,
@@ -39,16 +45,10 @@
       "sample_size": 14
     },
     {
-      "team_id": 79,
-      "team_name": "Olympique Lyonnais",
-      "avg_shots_conceded": 11.692307692307692,
-      "sample_size": 13
-    },
-    {
       "team_id": 1055,
       "team_name": "Le Havre",
-      "avg_shots_conceded": 11.76923076923077,
-      "sample_size": 13
+      "avg_shots_conceded": 11.5,
+      "sample_size": 14
     },
     {
       "team_id": 289,
@@ -65,20 +65,20 @@
     {
       "team_id": 266,
       "team_name": "Brest",
-      "avg_shots_conceded": 12.615384615384615,
-      "sample_size": 13
+      "avg_shots_conceded": 12.714285714285714,
+      "sample_size": 14
+    },
+    {
+      "team_id": 271,
+      "team_name": "Lens",
+      "avg_shots_conceded": 13.214285714285714,
+      "sample_size": 14
     },
     {
       "team_id": 6789,
       "team_name": "Monaco",
       "avg_shots_conceded": 13.642857142857142,
       "sample_size": 14
-    },
-    {
-      "team_id": 271,
-      "team_name": "Lens",
-      "avg_shots_conceded": 13.692307692307692,
-      "sample_size": 13
     },
     {
       "team_id": 598,
@@ -95,20 +95,20 @@
     {
       "team_id": 776,
       "team_name": "Angers SCO",
-      "avg_shots_conceded": 15.384615384615385,
-      "sample_size": 13
+      "avg_shots_conceded": 15.5,
+      "sample_size": 14
     },
     {
       "team_id": 59,
       "team_name": "Nantes",
-      "avg_shots_conceded": 15.76923076923077,
-      "sample_size": 13
+      "avg_shots_conceded": 16.071428571428573,
+      "sample_size": 14
     },
     {
       "team_id": 450,
       "team_name": "Nice",
-      "avg_shots_conceded": 16.23076923076923,
-      "sample_size": 13
+      "avg_shots_conceded": 16.357142857142858,
+      "sample_size": 14
     }
   ],
   "shots_for_rank": [
@@ -121,8 +121,8 @@
     {
       "team_id": 690,
       "team_name": "LOSC Lille",
-      "avg_shots_for": 16.384615384615383,
-      "sample_size": 13
+      "avg_shots_for": 15.785714285714286,
+      "sample_size": 14
     },
     {
       "team_id": 44,
@@ -133,8 +133,8 @@
     {
       "team_id": 271,
       "team_name": "Lens",
-      "avg_shots_for": 13.153846153846153,
-      "sample_size": 13
+      "avg_shots_for": 13.428571428571429,
+      "sample_size": 14
     },
     {
       "team_id": 598,
@@ -155,6 +155,12 @@
       "sample_size": 14
     },
     {
+      "team_id": 79,
+      "team_name": "Olympique Lyonnais",
+      "avg_shots_for": 12.642857142857142,
+      "sample_size": 14
+    },
+    {
       "team_id": 4508,
       "team_name": "Paris",
       "avg_shots_for": 12.642857142857142,
@@ -163,38 +169,32 @@
     {
       "team_id": 266,
       "team_name": "Brest",
-      "avg_shots_for": 12.461538461538462,
-      "sample_size": 13
-    },
-    {
-      "team_id": 79,
-      "team_name": "Olympique Lyonnais",
-      "avg_shots_for": 12.076923076923077,
-      "sample_size": 13
-    },
-    {
-      "team_id": 1055,
-      "team_name": "Le Havre",
-      "avg_shots_for": 11.538461538461538,
-      "sample_size": 13
+      "avg_shots_for": 12.071428571428571,
+      "sample_size": 14
     },
     {
       "team_id": 9257,
       "team_name": "Lorient",
-      "avg_shots_for": 11.538461538461538,
-      "sample_size": 13
+      "avg_shots_for": 12,
+      "sample_size": 14
+    },
+    {
+      "team_id": 1055,
+      "team_name": "Le Havre",
+      "avg_shots_for": 11.714285714285714,
+      "sample_size": 14
     },
     {
       "team_id": 686,
       "team_name": "Strasbourg",
-      "avg_shots_for": 11.461538461538462,
-      "sample_size": 13
+      "avg_shots_for": 11.642857142857142,
+      "sample_size": 14
     },
     {
       "team_id": 450,
       "team_name": "Nice",
-      "avg_shots_for": 11.384615384615385,
-      "sample_size": 13
+      "avg_shots_for": 11.214285714285714,
+      "sample_size": 14
     },
     {
       "team_id": 3682,
@@ -205,8 +205,8 @@
     {
       "team_id": 59,
       "team_name": "Nantes",
-      "avg_shots_for": 10.23076923076923,
-      "sample_size": 13
+      "avg_shots_for": 9.928571428571429,
+      "sample_size": 14
     },
     {
       "team_id": 3513,
@@ -217,8 +217,8 @@
     {
       "team_id": 776,
       "team_name": "Angers SCO",
-      "avg_shots_for": 8.692307692307692,
-      "sample_size": 13
+      "avg_shots_for": 8.571428571428571,
+      "sample_size": 14
     }
   ],
   "min_sample": 3,
