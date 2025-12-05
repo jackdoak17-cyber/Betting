@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-05T02:47:42
+Generated at (UTC): 2025-12-05T16:20:45
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -15,34 +15,34 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Middlesbrough's opponents have had under 12 shots in 7/9 away games = 9,6,8,11,8,14,7,14,11
     This landed in the reverse fixture last season = 7
     team hits 3/9 | opp conceded 2/9 | H2H 1/4
-    implied win probs: home 0.415 / away 0.585
+    implied win probs: home 0.429 / away 0.571
  • Atlético Madrid (away) — Shots Under 12.5 @ 2.000 vs Athletic Club | kickoff 2025-12-06 20:00:00
-    model=0.670 | implied=0.500 | threshold≥13
+    model=0.700 | implied=0.500 | threshold≥13
     Atlético Madrid have had under 13 shots in 3/6 away matches = 13,9,6,12,15,15
     Athletic Club's opponents have had under 13 shots in 7/7 home games = 4,8,6,6,4,6,12
     This landed in the reverse fixture last season = 12
     team hits 3/6 | opp conceded 0/7 | H2H 1/4
-    implied win probs: home 0.393 / away 0.607
+    implied win probs: home 0.409 / away 0.591
  • Espanyol (home) — Shots on Target Over 3.5 @ 1.660 vs Rayo Vallecano | kickoff 2025-12-07 17:30:00
     model=0.662 | implied=0.602 | threshold≥4
     Espanyol have cleared 4 shots on target in 6/8 home matches = 5,3,7,5,10,3,4,5
     Rayo Vallecano's opponents have had 4+ shots on target in 5/8 away games = 3,7,4,3,8,7,4,2
     This landed in the reverse fixture last season = 7
     team hits 6/8 | opp conceded 5/8 | H2H 2/4
-    implied win probs: home 0.574 / away 0.426
+    implied win probs: home 0.587 / away 0.413
+ • Atlético Madrid (away) — Shots on Target Under 4.5 @ 1.720 vs Athletic Club | kickoff 2025-12-06 20:00:00
+    model=0.657 | implied=0.581 | threshold≥5
+    Atlético Madrid have had under 5 shots on target in 3/6 away matches = 6,4,1,7,6,4
+    Athletic Club's opponents have had under 5 shots on target in 6/7 home games = 2,3,2,3,2,1,6
+    This landed in the reverse fixture last season = 4
+    team hits 3/6 | opp conceded 1/7 | H2H 1/4
+    implied win probs: home 0.409 / away 0.591
  • Girona (away) — Shots Over 9.5 @ 1.800 vs Elche | kickoff 2025-12-07 13:00:00
     model=0.634 | implied=0.556 | threshold≥10
     Girona have cleared 10 shots in 3/6 away matches = 11,8,11,6,13,5
     Elche's opponents have had 10+ shots in 5/7 home games = 20,13,4,8,12,11,12
     team hits 3/6 | opp conceded 5/7 | H2H 4/4
     implied win probs: home 0.619 / away 0.381
- • Atlético Madrid (away) — Shots on Target Under 4.5 @ 1.720 vs Athletic Club | kickoff 2025-12-06 20:00:00
-    model=0.627 | implied=0.581 | threshold≥5
-    Atlético Madrid have had under 5 shots on target in 3/6 away matches = 6,4,1,7,6,4
-    Athletic Club's opponents have had under 5 shots on target in 6/7 home games = 2,3,2,3,2,1,6
-    This landed in the reverse fixture last season = 4
-    team hits 3/6 | opp conceded 1/7 | H2H 1/4
-    implied win probs: home 0.393 / away 0.607
  • Hamburger SV (home) — Shots Over 14.5 @ 1.720 vs Werder Bremen | kickoff 2025-12-07 14:30:00
     model=0.600 | implied=0.581 | threshold≥15
     Hamburger SV have cleared 15 shots in 3/6 home matches = 9,9,27,15,22,5
