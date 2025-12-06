@@ -1,0 +1,79 @@
+name: Build weekend shots posts (SOT + shots)
+
+on:
+  schedule:
+    # Twice daily at 06:00 and 18:00 UTC
+    - cron: "0 6,18 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekend-posts-v2
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  build-weekend-posts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Build weekend shots (1+ and 2+)
+        run: |
+          set -euo pipefail
+          python scripts/postsv2/weekend_shots.py
+
+      - name: Build weekend shots on target (5/5, 7/7, 8/10)
+        run: |
+          set -euo pipefail
+          python scripts/postsv2/weekend_sot.py
+
+      - name: Commit & push outputs
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          git config --global user.name  "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+
+          git add posts_v2/weekend_shots.md posts_v2/weekend_sot.md || true
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git commit -m "chore(posts-weekend): update ${ts}"
+
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          git pull --rebase origin "$BRANCH" || true
+          git push origin HEAD:"$BRANCH"
