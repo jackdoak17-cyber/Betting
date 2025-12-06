@@ -5,7 +5,7 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Bobby Thomas (Coventry City — CB) — last5: 3,2,2,2,1 — @ 1.67
 • Nicolas Madsen (QPR — MID) — last5: 1,2,1,2,2 — @ 1.50
 • Seung-Ho Paik (Birmingham City — MID) — last5: 2,3,1,3,2 — @ 1.44
-• Ivan Mesik (Heracles Almelo — LB) — last5: 1,2,1,2,2 — @ 1.57
+• Ivan Mesik (Heracles Almelo — LB) — last5: 1,2,1,2,2 — @ 1.50
 • Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 1,1,2,2,3 — @ 1.67
 • Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,2,3,2 — @ 1.44
 • Emin Bayram (Westerlo — CB) — last5: 2,1,1,3,1 — @ 1.83
@@ -16,12 +16,12 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Simone Zanon (Carrarese — MID) — last5: 1,1,1,1,1 — @ 1.91
 • Connor Barron (Rangers — MID) — last5: 2,2,1,1,1 — @ 1.73
 • Jon Balda (Real Sociedad II — LB) — last5: 3,1,1,2,3 — @ 1.50
-• Selu Diallo (Cultural Leonesa — MID) — last5: 1,2,2,4,2 — @ 1.61
+• Selu Diallo (Cultural Leonesa — MID) — last5: 1,2,2,4,2 — @ 1.44
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Jack Rudoni (Coventry City — MID) — last5: 5,4,5,2,4 — @ 1.61
 • Demarai Gray (Birmingham City — MID) — last5: 3,3,3,3,2 — @ 1.57
-• Filippo Ranocchia (Palermo — MID) — last5: 3,4,3,3,2 — @ 2.10
+• Filippo Ranocchia (Palermo — MID) — last5: 3,4,3,3,2 — @ 1.73
 
 ⚠️Stat-based shortlist, not tips. Its a good starting point to identify value but we need to consider price, team news, form, and opposition etc. Any value here?
