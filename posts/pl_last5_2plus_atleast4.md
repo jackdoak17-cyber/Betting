@@ -35,6 +35,7 @@ Leave a like if you find these useful.
 • B. Saka (Arsenal) = 3, 4, 3, 0, 2
 • J. Grealish (Everton) = 3, 1, 3, 3, 2
 • L. Paquetá (West Ham) = 2, 3, 2, 4, 1
+• A. Diallo (Man Utd) = 2, 3, 2, 2, 1
 • R. Mandava (Sunderland) = 3, 2, 2, 2, 1
 • B. Kamara (Aston Villa) = 2, 2, 2, 2, 1
 • J. Pedro (Chelsea) = 1, 2, 2, 2, 2
