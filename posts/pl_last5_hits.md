@@ -7,12 +7,12 @@ Leave a like if you find these useful.
 • I. Sarr (Crystal Palace) = 1, 4, 3, 1, 3
 • J. Grealish (Everton) = 3, 1, 3, 3, 2
 • L. Paquetá (West Ham) = 2, 3, 2, 4, 1
+• A. Diallo (Man Utd) = 2, 3, 2, 2, 1
 • D. Ouattara (Brentford) = 1, 1, 2, 3, 3
 • E. Konsa (Aston Villa) = 2, 2, 1, 1, 4
 • K. Schade (Brentford) = 1, 2, 2, 4, 1
 • K. Dewsbury-Hall (Everton) = 2, 1, 3, 3, 1
 • R. Mandava (Sunderland) = 3, 2, 2, 2, 1
-• A. Diallo (Man Utd) = 3, 2, 2, 1, 1
 • B. Kamara (Aston Villa) = 2, 2, 2, 2, 1
 • E. Eze (Arsenal) = 1, 2, 1, 4, 1
 • J. Gomes (Wolves) = 1, 1, 1, 4, 2
@@ -24,7 +24,7 @@ Leave a like if you find these useful.
 • J. Bellegarde (Wolves) = 1, 2, 2, 2, 1
 • J. Joelinton (Newcastle) = 2, 1, 2, 1, 2
 • Y. Pino (Crystal Palace) = 2, 1, 2, 1, 1
-• E. Diouf (West Ham) = 2, 1, 1, 1, 1
+• E. Diouf (West Ham) = 1, 2, 1, 1, 1
 • E. Ampadu (Leeds United) = 2, 1, 1, 1, 1
 • M. Wieffer (Brighton) = 2, 1, 1, 1, 1
 • M. Rogers (Aston Villa) = 1, 1, 1, 1, 2
