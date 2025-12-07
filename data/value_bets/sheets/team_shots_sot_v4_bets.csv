@@ -1,15 +1,17 @@
 fixture_id,league_id,fixture,kickoff,team_id,team,opp_id,opp,venue,market,stat,pick,line,price,model_p,implied_p,threshold,stake,profit,created_at,result,actual,settled_at
 19439389,564,Sevilla vs Real Betis,2025-11-30 15:15:00,485,Real Betis,676,Sevilla,away,Shots,shots_total,Under,13.5,1.9,0.590,0.526,14,1,0.90,2025-11-30T14:51:30,won,9,2025-12-02T02:46:11
-19427587,8,AFC Bournemouth vs Everton,2025-12-02 19:30:00,13,Everton,52,AFC Bournemouth,away,Shots on Target,shots_on_target,Under,3.5,1.72,0.797,0.581,4,1,,2025-11-30T16:16:15,,,
-19427588,8,Brighton & Hove Albion vs Aston Villa,2025-12-03 19:30:00,78,Brighton & Hove Albion,15,Aston Villa,home,Shots,shots_total,Under,14.5,1.8,0.820,0.556,15,1,,2025-12-01T03:06:03,,,
-19427589,8,Burnley vs Crystal Palace,2025-12-03 19:30:00,27,Burnley,51,Crystal Palace,home,Shots on Target,shots_on_target,Under,3.5,1.72,0.747,0.581,4,1,,2025-11-30T16:16:15,,,
-19431967,9,Hull City vs Middlesbrough,2025-12-05 20:00:00,22,Hull City,7,Middlesbrough,home,Shots,shots_total,Under,11.5,1.9,0.717,0.526,12,1,,2025-12-02T16:20:04,,,
-19439390,564,Athletic Club vs Atlético Madrid,2025-12-06 20:00:00,7980,Atlético Madrid,13258,Athletic Club,away,Shots,shots_total,Under,12.5,2.0,0.700,0.500,13,1,,2025-12-04T02:49:47,,,
-19439390,564,Athletic Club vs Atlético Madrid,2025-12-06 20:00:00,7980,Atlético Madrid,13258,Athletic Club,away,Shots on Target,shots_on_target,Under,4.5,1.72,0.657,0.581,5,1,,2025-12-04T02:49:47,,,
-19439392,564,Elche vs Girona,2025-12-07 13:00:00,1099,Elche,231,Girona,home,Shots on Target,shots_on_target,Over,4.5,1.83,0.737,0.546,5,1,,2025-12-04T02:49:47,,,
-19439392,564,Elche vs Girona,2025-12-07 13:00:00,231,Girona,1099,Elche,away,Shots,shots_total,Over,9.5,1.8,0.634,0.556,10,1,,2025-12-04T02:49:47,,,
+19427587,8,AFC Bournemouth vs Everton,2025-12-02 19:30:00,13,Everton,52,AFC Bournemouth,away,Shots on Target,shots_on_target,Under,3.5,1.72,0.797,0.581,4,1,0.72,2025-11-30T16:16:15,won,3,2025-12-07T16:23:39
+19427588,8,Brighton & Hove Albion vs Aston Villa,2025-12-03 19:30:00,78,Brighton & Hove Albion,15,Aston Villa,home,Shots,shots_total,Under,14.5,1.8,0.820,0.556,15,1,-1.00,2025-12-01T03:06:03,lost,16,2025-12-07T16:23:39
+19427589,8,Burnley vs Crystal Palace,2025-12-03 19:30:00,27,Burnley,51,Crystal Palace,home,Shots on Target,shots_on_target,Under,3.5,1.72,0.747,0.581,4,1,-1.00,2025-11-30T16:16:15,lost,4,2025-12-07T16:23:39
+19431967,9,Hull City vs Middlesbrough,2025-12-05 20:00:00,22,Hull City,7,Middlesbrough,home,Shots,shots_total,Under,11.5,1.9,0.717,0.526,12,1,0.90,2025-12-02T16:20:04,won,5,2025-12-07T16:23:39
+19439390,564,Athletic Club vs Atlético Madrid,2025-12-06 20:00:00,7980,Atlético Madrid,13258,Athletic Club,away,Shots,shots_total,Under,12.5,2.0,0.700,0.500,13,1,1.00,2025-12-04T02:49:47,won,7,2025-12-07T16:23:39
+19439390,564,Athletic Club vs Atlético Madrid,2025-12-06 20:00:00,7980,Atlético Madrid,13258,Athletic Club,away,Shots on Target,shots_on_target,Under,4.5,1.72,0.657,0.581,5,1,0.72,2025-12-04T02:49:47,won,3,2025-12-07T16:23:39
+19439392,564,Elche vs Girona,2025-12-07 13:00:00,1099,Elche,231,Girona,home,Shots on Target,shots_on_target,Over,4.5,1.83,0.737,0.546,5,1,0.83,2025-12-04T02:49:47,won,6,2025-12-07T16:23:39
+19439392,564,Elche vs Girona,2025-12-07 13:00:00,231,Girona,1099,Elche,away,Shots,shots_total,Over,9.5,1.8,0.634,0.556,10,1,-1.00,2025-12-04T02:49:47,lost,8,2025-12-07T16:23:39
 19433588,82,Hamburger SV vs Werder Bremen,2025-12-07 14:30:00,2708,Hamburger SV,82,Werder Bremen,home,Shots,shots_total,Over,14.5,1.72,0.600,0.581,15,1,,2025-12-04T16:19:59,,,
 19433588,82,Hamburger SV vs Werder Bremen,2025-12-07 14:30:00,2708,Hamburger SV,82,Werder Bremen,home,Shots on Target,shots_on_target,Over,4.5,1.72,0.600,0.581,5,1,,2025-12-04T02:49:47,,,
 19439398,564,Valencia vs Sevilla,2025-12-07 15:15:00,676,Sevilla,214,Valencia,away,Shots,shots_total,Over,9.5,1.8,0.570,0.556,10,1,,2025-12-04T02:49:47,,,
 19427600,8,Fulham vs Crystal Palace,2025-12-07 16:30:00,51,Crystal Palace,11,Fulham,away,Shots,shots_total,Under,10.5,1.9,0.600,0.526,11,1,,2025-12-02T22:01:55,,,
 19439393,564,Espanyol vs Rayo Vallecano,2025-12-07 17:30:00,528,Espanyol,377,Rayo Vallecano,home,Shots on Target,shots_on_target,Over,3.5,1.66,0.662,0.602,4,1,,2025-12-04T02:49:47,,,
+19431978,9,Queens Park Rangers vs Birmingham City,2025-12-09 20:00:00,12,Birmingham City,47,Queens Park Rangers,away,Shots,shots_total,Under,12.5,1.83,0.683,0.546,13,1,,2025-12-07T16:23:39,,,
+19431978,9,Queens Park Rangers vs Birmingham City,2025-12-09 20:00:00,47,Queens Park Rangers,12,Birmingham City,home,Shots,shots_total,Over,11.5,1.83,0.744,0.546,12,1,,2025-12-07T16:23:39,,,
