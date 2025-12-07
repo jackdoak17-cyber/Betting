@@ -1,0 +1,81 @@
+name: Player Stats V3 (every 2.5h)
+
+on:
+  schedule:
+    - cron: "0 0,5,10,15,20 * * *"   # 00:00 / 05:00 / 10:00 / 15:00 / 20:00 UTC
+    - cron: "30 2,7,12,17,22 * * *"  # 02:30 / 07:30 / 12:30 / 17:30 / 22:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: player-stats-v3
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  player-stats-v3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          set -e
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Player stats V3 singles
+        run: |
+          set -e
+          mkdir -p "data/value_bets/V3 Bets/V3 player singles"
+          python "scripts/value_bets/V3 Bets/V3 player singles/player_stats_v3.py"
+          echo "\n---- tail: singles ----"
+          tail -n 120 "data/value_bets/V3 Bets/V3 player singles/player_stats_v3.txt" || true
+
+      - name: Player stats V3 doubles
+        run: |
+          set -e
+          mkdir -p "data/value_bets/V3 Bets/V3 player doubles"
+          python "scripts/value_bets/V3 Bets/V3 player doubles/player_stats_v3_doubles.py"
+          echo "\n---- tail: doubles ----"
+          tail -n 120 "data/value_bets/V3 Bets/V3 player doubles/player_stats_v3_doubles.txt" || true
+
+      - name: Player stats V3 long shots
+        run: |
+          set -e
+          mkdir -p "data/value_bets/V3 Bets/V3 long shots"
+          python "scripts/value_bets/V3 Bets/V3 long shots/player_stats_v3_long_shots.py"
+          echo "\n---- tail: long shots ----"
+          tail -n 120 "data/value_bets/V3 Bets/V3 long shots/player_stats_v3_long_shots.txt" || true
+
+      - name: Upload artifacts (V3 outputs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-stats-v3-${{ github.run_number }}
+          path: |
+            data/value_bets/V3 Bets/V3 player singles/player_stats_v3.txt
+            data/value_bets/V3 Bets/V3 player doubles/player_stats_v3_doubles.txt
+            data/value_bets/V3 Bets/V3 long shots/player_stats_v3_long_shots.txt
+            data/value_bets/sheets/player_stats_v3_singles.csv
+            data/value_bets/sheets/player_stats_v3_doubles.csv
+            data/value_bets/sheets/player_stats_v3_long_shots.csv
+          if-no-files-found: warn
