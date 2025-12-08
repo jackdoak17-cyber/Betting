@@ -2,8 +2,7 @@ name: Player Stats V3 (every 2.5h)
 
 on:
   schedule:
-    - cron: "0 0,5,10,15,20 * * *"   # 00:00 / 05:00 / 10:00 / 15:00 / 20:00 UTC
-    - cron: "30 2,7,12,17,22 * * *"  # 02:30 / 07:30 / 12:30 / 17:30 / 22:30 UTC
+    - cron: "5,35 9-20 * * *"  # 5 minutes after Bet365 odds fetch (09:05–20:35 UTC)
   workflow_dispatch: {}
 
 permissions:
