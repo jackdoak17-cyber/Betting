@@ -3,7 +3,7 @@ name: Fetch Bet365 odds (Sportmonks pre-match — 9 leagues)
 on:
   # every 2 hours at :07 UTC (stagger this minute if you want)
   schedule:
-    - cron: "7 */2 * * *"
+    - cron: "7 */0.5 * * *"
   workflow_dispatch: {}
 
 permissions:
