@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-08T03:47:42.340059+00:00",
+  "generated_at": "2025-12-08T06:51:56.438643+00:00",
   "count": 3366,
   "players": [
     {
@@ -29510,7 +29510,7 @@
       "team_id": 1118,
       "player_id": 37550460,
       "name": "Jeppe Erenbjerg",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "on_target_last_n": [
         0,
         0,
@@ -45657,9 +45657,54 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 3497,
+      "player_id": 21414082,
+      "name": "Tiago Manso",
+      "position_tag": "RB",
+      "on_target_last_n": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        63,
+        46,
+        79,
+        57,
+        74,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19449033,
+        19448999,
+        19448987,
+        19448979,
+        19448958,
+        19448952,
+        19448936,
+        19448934,
+        19448926
+      ],
+      "n": 9,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3497,
       "player_id": 37597769,
       "name": "Hugo Félix",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "on_target_last_n": [
         0,
         0,
@@ -45769,48 +45814,6 @@
         19448952
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3497,
-      "player_id": 221841,
-      "name": "Bebeto",
-      "position_tag": "RB",
-      "on_target_last_n": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        82,
-        80,
-        90,
-        75,
-        90,
-        71,
-        79,
-        90
-      ],
-      "fixture_ids": [
-        19449021,
-        19449016,
-        19448998,
-        19448987,
-        19448979,
-        19448970,
-        19448958,
-        19448952
-      ],
-      "n": 8,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -46095,54 +46098,6 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 652,
-      "player_id": 27048385,
-      "name": "Borja Sainz",
-      "position_tag": "FWD",
-      "on_target_last_n": [
-        1,
-        0,
-        0,
-        0,
-        3,
-        2,
-        0,
-        2,
-        1,
-        1
-      ],
-      "minutes_last_n": [
-        82,
-        46,
-        90,
-        69,
-        90,
-        90,
-        80,
-        90,
-        58,
-        65
-      ],
-      "fixture_ids": [
-        19449020,
-        19448995,
-        19448985,
-        19448977,
-        19448967,
-        19448960,
-        19448951,
-        19448942,
-        19448930,
-        19448924
-      ],
-      "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 652,
       "player_id": 155138,
       "name": "Jan Bednarek",
       "position_tag": "CB",
@@ -46265,6 +46220,102 @@
         19448967,
         19448960,
         19448924
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 652,
+      "player_id": 439683,
+      "name": "Pepê",
+      "position_tag": "FWD",
+      "on_target_last_n": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        78,
+        90,
+        64,
+        74,
+        63,
+        69,
+        76,
+        90,
+        78,
+        90
+      ],
+      "fixture_ids": [
+        19449033,
+        19449012,
+        19449003,
+        19448995,
+        19448985,
+        19448977,
+        19448967,
+        19448960,
+        19448930,
+        19448924
+      ],
+      "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 652,
+      "player_id": 37537770,
+      "name": "Alan Varela",
+      "position_tag": "MID",
+      "on_target_last_n": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        46,
+        56,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19449033,
+        19449012,
+        19449003,
+        19448995,
+        19448985,
+        19448977,
+        19448967,
+        19448960,
+        19448951,
+        19448942
       ],
       "n": 10,
       "n_requested": 10,
@@ -46540,36 +46591,6 @@
         19448960
       ],
       "n": 9,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 652,
-      "player_id": 26687,
-      "name": "Pablo Rosario",
-      "position_tag": "MID",
-      "on_target_last_n": [
-        0,
-        0,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        71,
-        58,
-        90
-      ],
-      "fixture_ids": [
-        19449020,
-        19449012,
-        19448967,
-        19448960
-      ],
-      "n": 4,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -80272,7 +80293,7 @@
       "name": "D. de Wit",
       "position_tag": "FWD",
       "on_target_last_n": [
-        0,
+        1,
         0,
         0,
         0,
@@ -107093,7 +107114,7 @@
       "team_id": 429,
       "player_id": 37590624,
       "name": "Lucas Noubi",
-      "position_tag": "CB",
+      "position_tag": "RB",
       "on_target_last_n": [
         0,
         0,
@@ -107252,7 +107273,7 @@
       "team_id": 429,
       "player_id": 37551146,
       "name": "Yeremay Hernández",
-      "position_tag": "FWD",
+      "position_tag": "MID",
       "on_target_last_n": [
         2,
         1,
@@ -107348,7 +107369,7 @@
       "team_id": 429,
       "player_id": 382668,
       "name": "Miguel Loureiro",
-      "position_tag": "RB",
+      "position_tag": "CB",
       "on_target_last_n": [
         0,
         0,
@@ -107386,51 +107407,6 @@
         19441152
       ],
       "n": 10,
-      "n_requested": 10,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 567,
-      "season_id": 25673,
-      "team_id": 429,
-      "player_id": 37593325,
-      "name": "David Mella",
-      "position_tag": "MID",
-      "on_target_last_n": [
-        1,
-        0,
-        0,
-        2,
-        0,
-        1,
-        2,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        69,
-        90,
-        90,
-        90,
-        90,
-        66,
-        90
-      ],
-      "fixture_ids": [
-        19441250,
-        19441238,
-        19441207,
-        19441202,
-        19441186,
-        19441178,
-        19441133,
-        19441122,
-        19441100
-      ],
-      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -107479,6 +107455,51 @@
         19441140
       ],
       "n": 10,
+      "n_requested": 10,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 567,
+      "season_id": 25673,
+      "team_id": 429,
+      "player_id": 37593325,
+      "name": "David Mella",
+      "position_tag": "MID",
+      "on_target_last_n": [
+        1,
+        0,
+        0,
+        2,
+        0,
+        1,
+        2,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        69,
+        90,
+        90,
+        90,
+        90,
+        66,
+        90
+      ],
+      "fixture_ids": [
+        19441250,
+        19441238,
+        19441207,
+        19441202,
+        19441186,
+        19441178,
+        19441133,
+        19441122,
+        19441100
+      ],
+      "n": 9,
       "n_requested": 10,
       "min_minutes": 45,
       "order": "latest_first"
@@ -123841,7 +123862,7 @@
       "name": "Nikolas Nartey",
       "position_tag": "MID",
       "on_target_last_n": [
-        1,
+        0,
         0,
         0,
         0
