@@ -217,21 +217,25 @@ def surname_tokens(parts: List[str]) -> List[str]:
 
 
 def label_matches_aliases(label: str, aliases: Iterable[str]) -> bool:
-    label_tokens = set(split_name_tokens(person_part_from_option(label)))
-    if not label_tokens:
+    label_parts = split_name_tokens(person_part_from_option(label))
+    if not label_parts:
         return False
+    label_tokens = set(label_parts)
+    label_surnames = surname_tokens(label_parts)
     for alias in aliases:
-        a_tokens = set(split_name_tokens(alias))
-        if not a_tokens:
+        alias_parts = split_name_tokens(alias)
+        if not alias_parts:
             continue
-        if a_tokens == label_tokens:
+        alias_tokens = set(alias_parts)
+        if alias_tokens == label_tokens:
             return True
-        if a_tokens.issubset(label_tokens):
+        if alias_tokens.issubset(label_tokens):
             return True
-        if label_tokens.issubset(a_tokens):
+        if label_tokens.issubset(alias_tokens):
             return True
-        if surname_tokens(list(a_tokens)) == surname_tokens(list(label_tokens)):
-            return True
+        if surname_tokens(alias_parts) and label_surnames:
+            if surname_tokens(alias_parts) == label_surnames:
+                return True
     return False
 
 
@@ -250,17 +254,20 @@ def _is_over_row(row: dict) -> Optional[bool]:
 
 
 def _line_matches_target(fields: List[str], target: float) -> bool:
+    found_numeric = False
     for field in fields:
         if field is None:
             continue
         if isinstance(field, (int, float)):
             try:
+                found_numeric = True
                 if math.isclose(float(field), target, rel_tol=0, abs_tol=1e-6):
                     return True
             except Exception:
                 continue
         text = str(field)
         try:
+            found_numeric = True
             if math.isclose(float(text.replace(",", ".")), target, rel_tol=0, abs_tol=1e-6):
                 return True
         except Exception:
@@ -268,6 +275,7 @@ def _line_matches_target(fields: List[str], target: float) -> bool:
         m = re.search(r"-?\d+(?:[\.,]\d+)?", text)
         if m:
             try:
+                found_numeric = True
                 if math.isclose(float(m.group(0).replace(",", ".")), target, rel_tol=0, abs_tol=1e-6):
                     return True
             except Exception:
@@ -276,7 +284,7 @@ def _line_matches_target(fields: List[str], target: float) -> bool:
 
 
 def best_price_for_line(
-    odds_rows: List[dict],
+    odds_by_market: Dict[int, List[dict]],
     player_rec: dict,
     market_ids: Iterable[int],
     target_label: str,
@@ -292,46 +300,43 @@ def best_price_for_line(
     over_prices: List[float] = []
     ambiguous: List[float] = []
 
-    for row in odds_rows or []:
-        try:
-            mid = int(row.get("market_id") or 0)
-        except Exception:
-            continue
-        if mid not in markets:
-            continue
-        line_fields = [
-            row.get("line"),
-            row.get("label"),
-            row.get("original_label"),
-            row.get("price"),
-            row.get("header"),
-            row.get("handicap"),
-            row.get("description"),
-        ]
-        if not _line_matches_target(line_fields, target_val):
-            continue
-        name_fields = [
-            row.get("name", ""),
-            row.get("market", ""),
-            row.get("market_description", ""),
-            row.get("original_label", ""),
-            row.get("description", ""),
-            row.get("header", ""),
-        ]
-        if not any(label_matches_aliases(str(nf), aliases) for nf in name_fields):
-            continue
-        flag = _is_over_row(row)
-        price = _as_float(row.get("value"))
-        if price is None:
-            continue
-        if target_label in {"0.5", "0,5"} and price > 12:
-            continue
-        if price <= 1.0:
-            continue
-        if flag is True:
-            over_prices.append(price)
-        elif flag is None:
-            ambiguous.append(price)
+    for mid in markets:
+        for row in odds_by_market.get(mid, []):
+            line_fields = [
+                row.get("line"),
+                row.get("label"),
+                row.get("original_label"),
+                row.get("price"),
+                row.get("header"),
+                row.get("handicap"),
+                row.get("description"),
+            ]
+            if not _line_matches_target(line_fields, target_val):
+                continue
+            name_fields = [
+                row.get("name", ""),
+                row.get("market", ""),
+                row.get("market_description", ""),
+                row.get("original_label", ""),
+                row.get("description", ""),
+                row.get("header", ""),
+            ]
+            if not any(label_matches_aliases(str(nf), aliases) for nf in name_fields):
+                continue
+            flag = _is_over_row(row)
+            if flag is False:
+                continue
+            price = _as_float(row.get("value"))
+            if price is None:
+                continue
+            if target_label in {"0.5", "0,5"} and price > 12:
+                continue
+            if price <= 1.0:
+                continue
+            if flag is True:
+                over_prices.append(price)
+            elif flag is None:
+                ambiguous.append(price)
 
     if over_prices:
         return min(over_prices)
@@ -340,12 +345,12 @@ def best_price_for_line(
     return None
 
 
-def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
+def extract_team_ml_prices(
+    odds_by_market: Dict[int, List[dict]], home_name: str, away_name: str
+) -> Tuple[Optional[float], Optional[float]]:
     home_price: Optional[float] = None
     away_price: Optional[float] = None
-    for row in odds_rows or []:
-        if int(row.get("market_id") or 0) != 1:
-            continue
+    for row in odds_by_market.get(1, []):
         name = row.get("name") or ""
         price = _as_float(row.get("value"))
         if price is None:
@@ -358,6 +363,17 @@ def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str
         elif team_names_match(name, away_name) or label == "away" or label == "2" or sort_order == 2:
             away_price = price
     return home_price, away_price
+
+
+def index_odds_by_market(odds_rows: List[dict]) -> Dict[int, List[dict]]:
+    indexed: Dict[int, List[dict]] = defaultdict(list)
+    for row in odds_rows or []:
+        try:
+            mid = int(row.get("market_id") or 0)
+        except Exception:
+            continue
+        indexed[mid].append(row)
+    return indexed
 
 
 # ---- data loading ---------------------------------------------------------
@@ -820,7 +836,7 @@ def hit_rate_value(hr: str) -> float:
 
 def evaluate_player(
     player: dict,
-    odds_rows: List[dict],
+    odds_by_market: Dict[int, List[dict]],
     team_ml: Optional[float],
     opponent_ml: Optional[float],
     team_id: int,
@@ -838,9 +854,9 @@ def evaluate_player(
     legs: List[dict] = []
     stingy_rank = rank_info.get("stingy", {}).get(opponent_id, 999)
     rank_total = rank_info.get("team_count") or None
-    price_o05_sot = best_price_for_line(odds_rows, player, (267, 284, 291), "0.5")
-    price_o15_sot = best_price_for_line(odds_rows, player, (267, 284, 291), "1.5")
-    price_o15_shots = best_price_for_line(odds_rows, player, (268, 285, 292), "1.5")
+    price_o05_sot = best_price_for_line(odds_by_market, player, (267, 284, 291), "0.5")
+    price_o15_sot = best_price_for_line(odds_by_market, player, (267, 284, 291), "1.5")
+    price_o15_shots = best_price_for_line(odds_by_market, player, (268, 285, 292), "1.5")
 
     shots = player.get("shots") or []
     sot = player.get("sot") or []
@@ -936,13 +952,13 @@ def evaluate_player(
     # Criteria 7: 2+ shots in 5/10, price > 4, forwards only
     if len(seq10_shots) >= 10 and hits(shots, 2, 10) >= 5:
         if not is_defender(pos_bucket) and not is_midfielder(pos_bucket):
-            add_leg("LC7 (2+ shots 5/10 forwards)", "O1.5 shots", 1.5, "shots", seq10_shots, price_o15_shots, 2, 4.0)
+            add_leg("LC7 (2+ shots 5/10 forwards)", "O1.5 shots", 1.5, "shots", seq10_shots, price_o15_shots, 2, 3.0)
 
     # Criteria 8: 2+ shots in 4/7, price > 4, forwards only
     seq7_shots = take(shots, 7)
     if len(seq7_shots) >= 7 and hits(shots, 2, 7) >= 4:
         if not is_defender(pos_bucket) and not is_midfielder(pos_bucket):
-            add_leg("LC8 (2+ shots 4/7 forwards)", "O1.5 shots", 1.5, "shots", seq7_shots, price_o15_shots, 2, 4.0)
+            add_leg("LC8 (2+ shots 4/7 forwards)", "O1.5 shots", 1.5, "shots", seq7_shots, price_o15_shots, 2, 3.0)
 
     return legs
 
@@ -963,7 +979,8 @@ def process_league(league_id: int, form_candidates: Optional[List[dict]] = None)
         fixture_name = meta.get("name") or f"{meta['home_name']} vs {meta['away_name']}"
         starting_at = meta.get("starting_at") or ""
         odds_rows = fx.get("odds") or []
-        home_ml, away_ml = extract_team_ml_prices(odds_rows, meta["home_name"], meta["away_name"])
+        odds_by_market = index_odds_by_market(odds_rows)
+        home_ml, away_ml = extract_team_ml_prices(odds_by_market, meta["home_name"], meta["away_name"])
 
         for team_id, opp_id, team_name, opp_name, team_ml, opp_ml, home_away in [
             (meta["home_id"], meta["away_id"], meta["home_name"], meta["away_name"], home_ml, away_ml, "home"),
@@ -973,7 +990,7 @@ def process_league(league_id: int, form_candidates: Optional[List[dict]] = None)
                 legs.extend(
                     evaluate_player(
                         player,
-                        odds_rows,
+                        odds_by_market,
                         team_ml,
                         opp_ml,
                         team_id,
