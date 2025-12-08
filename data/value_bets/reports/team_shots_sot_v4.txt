@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-07T16:23:39
+Generated at (UTC): 2025-12-08T02:51:26
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -8,17 +8,10 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Queens Park Rangers have cleared 12 shots in 8/9 home matches = 9,26,18,12,20,13,14,13,13
     Birmingham City's opponents have had 12+ shots in 5/10 away games = 18,13,8,5,17,12,14,8,5,5
     team hits 8/9 | opp conceded 5/10 | H2H 3/4
-    implied win probs: home 0.442 / away 0.558
+    implied win probs: home 0.472 / away 0.528
  • Birmingham City (away) — Shots Under 12.5 @ 1.830 vs Queens Park Rangers | kickoff 2025-12-09 20:00:00
     model=0.683 | implied=0.546 | threshold≥13
     Birmingham City have had under 13 shots in 6/10 away matches = 22,14,13,13,9,8,5,7,11,8
     Queens Park Rangers's opponents have had under 13 shots in 7/9 home games = 13,8,9,12,5,9,7,13,11
     team hits 4/10 | opp conceded 2/9 | H2H 1/4
-    implied win probs: home 0.442 / away 0.558
- • Crystal Palace (away) — Shots Under 10.5 @ 1.900 vs Fulham | kickoff 2025-12-07 16:30:00
-    model=0.600 | implied=0.526 | threshold≥11
-    Crystal Palace have had under 11 shots in 4/7 away matches = 3,10,7,15,18,6,11
-    Fulham's opponents have had under 11 shots in 5/7 home games = 11,4,5,16,8,10,10
-    This landed in the reverse fixture last season = 8
-    team hits 3/7 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.534 / away 0.466
+    implied win probs: home 0.472 / away 0.528
