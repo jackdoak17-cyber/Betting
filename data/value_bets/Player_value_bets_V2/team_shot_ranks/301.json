@@ -1,24 +1,24 @@
 {
   "league_id": 301,
-  "generated_at": "2025-12-04T20:17:45.400311+00:00",
+  "generated_at": "2025-12-08T09:23:08.826468+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 591,
       "team_name": "Paris Saint Germain",
-      "avg_shots_conceded": 8.857142857142858,
-      "sample_size": 14
+      "avg_shots_conceded": 8.666666666666666,
+      "sample_size": 15
     },
     {
       "team_id": 44,
       "team_name": "Olympique Marseille",
-      "avg_shots_conceded": 9.214285714285714,
-      "sample_size": 14
+      "avg_shots_conceded": 8.933333333333334,
+      "sample_size": 15
     },
     {
       "team_id": 690,
       "team_name": "LOSC Lille",
-      "avg_shots_conceded": 9.5,
-      "sample_size": 14
+      "avg_shots_conceded": 9.266666666666667,
+      "sample_size": 15
     },
     {
       "team_id": 9257,
@@ -29,8 +29,14 @@
     {
       "team_id": 686,
       "team_name": "Strasbourg",
-      "avg_shots_conceded": 10.428571428571429,
-      "sample_size": 14
+      "avg_shots_conceded": 10.133333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 289,
+      "team_name": "Toulouse",
+      "avg_shots_conceded": 11.2,
+      "sample_size": 15
     },
     {
       "team_id": 79,
@@ -51,12 +57,6 @@
       "sample_size": 14
     },
     {
-      "team_id": 289,
-      "team_name": "Toulouse",
-      "avg_shots_conceded": 11.785714285714286,
-      "sample_size": 14
-    },
-    {
       "team_id": 3682,
       "team_name": "Auxerre",
       "avg_shots_conceded": 12.142857142857142,
@@ -65,26 +65,26 @@
     {
       "team_id": 266,
       "team_name": "Brest",
-      "avg_shots_conceded": 12.714285714285714,
-      "sample_size": 14
+      "avg_shots_conceded": 12.533333333333333,
+      "sample_size": 15
     },
     {
       "team_id": 271,
       "team_name": "Lens",
-      "avg_shots_conceded": 13.214285714285714,
-      "sample_size": 14
+      "avg_shots_conceded": 13,
+      "sample_size": 15
     },
     {
       "team_id": 6789,
       "team_name": "Monaco",
-      "avg_shots_conceded": 13.642857142857142,
-      "sample_size": 14
+      "avg_shots_conceded": 13.533333333333333,
+      "sample_size": 15
     },
     {
       "team_id": 598,
       "team_name": "Rennes",
-      "avg_shots_conceded": 14.428571428571429,
-      "sample_size": 14
+      "avg_shots_conceded": 14.8,
+      "sample_size": 15
     },
     {
       "team_id": 3513,
@@ -95,64 +95,46 @@
     {
       "team_id": 776,
       "team_name": "Angers SCO",
-      "avg_shots_conceded": 15.5,
-      "sample_size": 14
-    },
-    {
-      "team_id": 59,
-      "team_name": "Nantes",
-      "avg_shots_conceded": 16.071428571428573,
-      "sample_size": 14
+      "avg_shots_conceded": 15.4,
+      "sample_size": 15
     },
     {
       "team_id": 450,
       "team_name": "Nice",
-      "avg_shots_conceded": 16.357142857142858,
-      "sample_size": 14
+      "avg_shots_conceded": 15.8,
+      "sample_size": 15
+    },
+    {
+      "team_id": 59,
+      "team_name": "Nantes",
+      "avg_shots_conceded": 16.333333333333332,
+      "sample_size": 15
     }
   ],
   "shots_for_rank": [
     {
       "team_id": 591,
       "team_name": "Paris Saint Germain",
-      "avg_shots_for": 17.785714285714285,
-      "sample_size": 14
+      "avg_shots_for": 17.933333333333334,
+      "sample_size": 15
     },
     {
       "team_id": 690,
       "team_name": "LOSC Lille",
-      "avg_shots_for": 15.785714285714286,
-      "sample_size": 14
+      "avg_shots_for": 15.066666666666666,
+      "sample_size": 15
     },
     {
       "team_id": 44,
       "team_name": "Olympique Marseille",
-      "avg_shots_for": 14.642857142857142,
-      "sample_size": 14
+      "avg_shots_for": 14.066666666666666,
+      "sample_size": 15
     },
     {
       "team_id": 271,
       "team_name": "Lens",
-      "avg_shots_for": 13.428571428571429,
-      "sample_size": 14
-    },
-    {
-      "team_id": 598,
-      "team_name": "Rennes",
-      "avg_shots_for": 13.071428571428571,
-      "sample_size": 14
-    },
-    {
-      "team_id": 289,
-      "team_name": "Toulouse",
-      "avg_shots_for": 13,
-      "sample_size": 14
-    },
-    {
-      "team_id": 6789,
-      "team_name": "Monaco",
-      "avg_shots_for": 12.714285714285714,
-      "sample_size": 14
+      "avg_shots_for": 13.866666666666667,
+      "sample_size": 15
     },
     {
       "team_id": 79,
@@ -167,10 +149,28 @@
       "sample_size": 14
     },
     {
+      "team_id": 598,
+      "team_name": "Rennes",
+      "avg_shots_for": 12.6,
+      "sample_size": 15
+    },
+    {
+      "team_id": 6789,
+      "team_name": "Monaco",
+      "avg_shots_for": 12.533333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 289,
+      "team_name": "Toulouse",
+      "avg_shots_for": 12.533333333333333,
+      "sample_size": 15
+    },
+    {
       "team_id": 266,
       "team_name": "Brest",
-      "avg_shots_for": 12.071428571428571,
-      "sample_size": 14
+      "avg_shots_for": 12.066666666666666,
+      "sample_size": 15
     },
     {
       "team_id": 9257,
@@ -185,16 +185,16 @@
       "sample_size": 14
     },
     {
-      "team_id": 686,
-      "team_name": "Strasbourg",
-      "avg_shots_for": 11.642857142857142,
-      "sample_size": 14
-    },
-    {
       "team_id": 450,
       "team_name": "Nice",
-      "avg_shots_for": 11.214285714285714,
-      "sample_size": 14
+      "avg_shots_for": 11.4,
+      "sample_size": 15
+    },
+    {
+      "team_id": 686,
+      "team_name": "Strasbourg",
+      "avg_shots_for": 11.066666666666666,
+      "sample_size": 15
     },
     {
       "team_id": 3682,
@@ -205,8 +205,8 @@
     {
       "team_id": 59,
       "team_name": "Nantes",
-      "avg_shots_for": 9.928571428571429,
-      "sample_size": 14
+      "avg_shots_for": 9.933333333333334,
+      "sample_size": 15
     },
     {
       "team_id": 3513,
@@ -217,8 +217,8 @@
     {
       "team_id": 776,
       "team_name": "Angers SCO",
-      "avg_shots_for": 8.571428571428571,
-      "sample_size": 14
+      "avg_shots_for": 8.533333333333333,
+      "sample_size": 15
     }
   ],
   "min_sample": 3,
