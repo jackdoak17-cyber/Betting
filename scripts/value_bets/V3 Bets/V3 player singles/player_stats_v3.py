@@ -345,14 +345,14 @@ def _is_over_row(row: dict) -> Optional[bool]:
     return None
 
 
-def best_price_for_line(
-    odds_by_market: Dict[int, List[dict]], player_rec: dict, market_id: int, target_label: str
-) -> Optional[float]:
+def best_price_for_line(odds_rows: List[dict], player_rec: dict, market_id: int, target_label: str) -> Optional[float]:
     aliases = aliases_from_record(player_rec)
     over_prices: List[float] = []
     ambiguous: List[float] = []
 
-    for row in odds_by_market.get(market_id, []):
+    for row in odds_rows or []:
+        if int(row.get("market_id") or 0) != market_id:
+            continue
         if not _line_matches(row, target_label):
             continue
         name_fields = [
@@ -381,33 +381,23 @@ def best_price_for_line(
     return None
 
 
-def extract_team_ml_prices(
-    odds_by_market: Dict[int, List[dict]], home_name: str, away_name: str
-) -> Tuple[Optional[float], Optional[float]]:
+def extract_team_ml_prices(odds_rows: List[dict], home_name: str, away_name: str) -> Tuple[Optional[float], Optional[float]]:
     home_price: Optional[float] = None
     away_price: Optional[float] = None
-    for row in odds_by_market.get(1, []):
+    for row in odds_rows or []:
+        if int(row.get("market_id") or 0) != 1:
+            continue
         price = _as_float(row.get("value"))
         if price is None:
             continue
-        home_fields = [row.get("team_a", ""), row.get("name", ""), row.get("outcome_name", "")]
-        away_fields = [row.get("team_b", ""), row.get("description", ""), row.get("header", "")]
-        if any(team_names_match(home_name, hf) for hf in home_fields):
-            home_price = price if home_price is None else min(home_price, price)
-        if any(team_names_match(away_name, af) for af in away_fields):
-            away_price = price if away_price is None else min(away_price, price)
+        label = (row.get("label") or "").strip()
+        name = (row.get("name") or "").strip()
+
+        if norm(label) in {"1", "home"} or team_names_match(home_name, label) or team_names_match(home_name, name):
+            home_price = price if home_price is None or price < home_price else home_price
+        elif norm(label) in {"2", "away"} or team_names_match(away_name, label) or team_names_match(away_name, name):
+            away_price = price if away_price is None or price < away_price else away_price
     return home_price, away_price
-
-
-def index_odds_by_market(odds_rows: List[dict]) -> Dict[int, List[dict]]:
-    indexed: Dict[int, List[dict]] = defaultdict(list)
-    for row in odds_rows or []:
-        try:
-            mid = int(row.get("market_id") or 0)
-        except Exception:
-            continue
-        indexed[mid].append(row)
-    return indexed
 
 
 # ---- data loading ---------------------------------------------------------
@@ -810,7 +800,7 @@ def build_writeup(
 
 def evaluate_player(
     player: dict,
-    odds_by_market: Dict[int, List[dict]],
+    odds_rows: List[dict],
     team_ml: Optional[float],
     opp_ml: Optional[float],
     opponent_id: int,
@@ -899,7 +889,7 @@ def evaluate_player(
 
     # ---- Criteria 1: 1+ shot in 9/10, team ML <= 4 ----
     seq10, n10 = format_series(shots, 10)
-    price_o05 = best_price_for_line(odds_by_market, player, 268, "0.5")
+    price_o05 = best_price_for_line(odds_rows, player, 268, "0.5")
     if n10 >= 10 and hits(shots, 1, 10) >= 9 and price_o05 is not None and price_o05 >= MIN_PRICE:
         if team_ml is not None and team_ml <= 4:
             add_pick(
@@ -914,7 +904,7 @@ def evaluate_player(
 
     # ---- Criteria 2: 1+ SOT in 9/10, team ML <= 4 ----
     seq10_sot, n10_sot = format_series(sot, 10)
-    price_o05_sot = best_price_for_line(odds_by_market, player, 267, "0.5")
+    price_o05_sot = best_price_for_line(odds_rows, player, 267, "0.5")
     if n10_sot >= 10 and hits(sot, 1, 10) >= 9 and price_o05_sot is not None and price_o05_sot >= MIN_PRICE:
         if team_ml is not None and team_ml <= 4:
             add_pick(
@@ -928,7 +918,7 @@ def evaluate_player(
             )
 
     # ---- Criteria 3: 2+ shots in 9/10, team ML <= 4 ----
-    price_o15 = best_price_for_line(odds_by_market, player, 268, "1.5")
+    price_o15 = best_price_for_line(odds_rows, player, 268, "1.5")
     if n10 >= 10 and hits(shots, 2, 10) >= 9 and price_o15 is not None and price_o15 >= MIN_PRICE:
         if team_ml is not None and team_ml <= 4:
             add_pick(
@@ -955,8 +945,8 @@ def evaluate_player(
             )
 
     # ---- Criteria 5: 1+ SOT in 8/10, 2+ SOT at least 3 times, team ML <= 3 ----
-    price_o05_sot = price_o05_sot or best_price_for_line(odds_by_market, player, 267, "0.5")
-    price_o15_sot = best_price_for_line(odds_by_market, player, 267, "1.5")
+    price_o05_sot = price_o05_sot or best_price_for_line(odds_rows, player, 267, "0.5")
+    price_o15_sot = best_price_for_line(odds_rows, player, 267, "1.5")
     if (
         n10_sot >= 10
         and hits(sot, 1, 10) >= 8
@@ -976,7 +966,7 @@ def evaluate_player(
             )
 
     # ---- Criteria 6: 1+ shot in 8/10 with 3+ at least 3 times, team ML <= 3 ----
-    price_o25 = best_price_for_line(odds_by_market, player, 268, "2.5")
+    price_o25 = best_price_for_line(odds_rows, player, 268, "2.5")
     if n10 >= 10 and hits(shots, 1, 10) >= 8 and hits(shots, 3, 10) >= 3 and price_o05 is not None and price_o05 >= MIN_PRICE:
         if team_ml is not None and team_ml <= 3:
             add_pick(
@@ -1203,9 +1193,9 @@ def evaluate_player(
                 "shots",
             )
 
-    # ---- Criteria 17: 1+ SOT in 6/7, avg >=1 if full sample, team ML <=2.7, forwards only ----
+    # ---- Criteria 17: 1+ SOT in 6/7, avg >=1 if full sample, team ML <=2.7, skip CB ----
     if (
-        pos_bucket in {"ST", "WF"}
+        position != "CB"
         and n7_sot >= 7
         and hits(sot, 1, 7) >= 6
         and price_o05_sot is not None
@@ -1288,8 +1278,7 @@ def process_league(league_id: int) -> List[dict]:
         fixture_name = meta.get("name") or f"{meta['home_name']} vs {meta['away_name']}"
         starting_at = meta.get("starting_at") or ""
         odds_rows = fx.get("odds") or []
-        odds_by_market = index_odds_by_market(odds_rows)
-        home_ml, away_ml = extract_team_ml_prices(odds_by_market, meta["home_name"], meta["away_name"])
+        home_ml, away_ml = extract_team_ml_prices(odds_rows, meta["home_name"], meta["away_name"])
 
         for team_id, opp_id, team_name, opp_name, team_ml, opp_ml, home_away in [
             (meta["home_id"], meta["away_id"], meta["home_name"], meta["away_name"], home_ml, away_ml, "home"),
@@ -1299,7 +1288,7 @@ def process_league(league_id: int) -> List[dict]:
                 picks.extend(
                     evaluate_player(
                         player,
-                        odds_by_market,
+                        odds_rows,
                         team_ml,
                         opp_ml,
                         opp_id,
