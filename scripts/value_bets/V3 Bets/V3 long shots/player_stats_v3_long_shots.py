@@ -217,21 +217,25 @@ def surname_tokens(parts: List[str]) -> List[str]:
 
 
 def label_matches_aliases(label: str, aliases: Iterable[str]) -> bool:
-    label_tokens = set(split_name_tokens(person_part_from_option(label)))
-    if not label_tokens:
+    label_parts = split_name_tokens(person_part_from_option(label))
+    if not label_parts:
         return False
+    label_tokens = set(label_parts)
+    label_surnames = surname_tokens(label_parts)
     for alias in aliases:
-        a_tokens = set(split_name_tokens(alias))
-        if not a_tokens:
+        alias_parts = split_name_tokens(alias)
+        if not alias_parts:
             continue
-        if a_tokens == label_tokens:
+        alias_tokens = set(alias_parts)
+        if alias_tokens == label_tokens:
             return True
-        if a_tokens.issubset(label_tokens):
+        if alias_tokens.issubset(label_tokens):
             return True
-        if label_tokens.issubset(a_tokens):
+        if label_tokens.issubset(alias_tokens):
             return True
-        if surname_tokens(list(a_tokens)) == surname_tokens(list(label_tokens)):
-            return True
+        if surname_tokens(alias_parts) and label_surnames:
+            if surname_tokens(alias_parts) == label_surnames:
+                return True
     return False
 
 
