@@ -5,23 +5,26 @@ Leave a like if you find these useful.
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
 • K. Dewsbury-Hall (Everton) = 4, 2, 1, 3, 3
-• I. Sarr (Crystal Palace) = 1, 4, 3, 1, 3
 • J. Grealish (Everton) = 2, 3, 1, 3, 3
 • L. Paquetá (West Ham) = 1, 2, 3, 2, 4
 • K. Schade (Brentford) = 2, 1, 2, 2, 4
+• L. Ugochukwu (Burnley) = 2, 2, 4, 1, 2
 • A. Diallo (Man Utd) = 2, 3, 2, 2, 1
-• R. Mandava (Sunderland) = 3, 2, 2, 2, 1
+• A. Gordon (Newcastle) = 3, 1, 3, 2, 1
+• G. Gudmundsson (Leeds United) = 3, 3, 2, 1, 1
 • E. Eze (Arsenal) = 1, 1, 2, 1, 4
-• J. Pedro (Chelsea) = 1, 2, 2, 2, 2
 • K. Tete (Fulham) = 1, 1, 3, 1, 3
 • N. Williams (Nottm Forest) = 2, 2, 2, 1, 2
+• X. Simons (Spurs) = 3, 2, 2, 1, 1
 • A. Wharton (Crystal Palace) = 1, 2, 2, 2, 1
 • D. Ouattara (Brentford) = 1, 1, 1, 2, 3
 • G. Rutter (Brighton) = 2, 2, 2, 1, 1
 • J. Bellegarde (Wolves) = 1, 2, 2, 2, 1
-• J. Joelinton (Newcastle) = 2, 1, 2, 1, 2
 • J. Gomes (Wolves) = 1, 1, 1, 4, 1
 • Y. Pino (Crystal Palace) = 2, 2, 1, 2, 1
+• A. Garnacho (Chelsea) = 2, 1, 1, 1, 2
+• C. Bradley (Liverpool) = 2, 1, 1, 1, 2
+• C. Summerville (West Ham) = 2, 1, 1, 1, 2
 • E. Konsa (Aston Villa) = 1, 2, 2, 1, 1
 • J. Garner (Everton) = 1, 2, 2, 1, 1
 • M. Wieffer (Brighton) = 2, 2, 1, 1, 1
@@ -47,19 +50,19 @@ Leave a like if you find these useful.
 • J. McGinn (Aston Villa) = 1, 1, 1, 4, 1
 • N. O'Reilly (Man City) = 1, 3, 1, 1, 2
 • R. Gravenberch (Liverpool) = 1, 2, 1, 2, 2
-• L. Shaw (Man Utd) = 3, 1, 1, 1, 1
+• L. Shaw (Man Utd) = 1, 3, 1, 1, 1
 • C. Romero (Spurs) = 1, 1, 1, 2, 1
 • D. Kamada (Crystal Palace) = 1, 2, 1, 1, 1
-• J. Bellegarde (Wolves) = 2, 1, 1, 1, 1
+• J. Bellegarde (Wolves) = 1, 2, 1, 1, 1
 • J. Timber (Arsenal) = 1, 1, 2, 1, 1
 • V. Mykolenko (Everton) = 1, 2, 1, 1, 1
 • J. Bogle (Leeds United) = 1, 1, 1, 1, 1
 
 📊1+ SOT in 5/5 (100%)📊
 
+• B. Mbeumo (Man Utd) = 4, 1, 2, 1, 1
 • B. Saka (Arsenal) = 2, 1, 2, 2, 2
 • E. Haaland (Man City) = 1, 1, 1, 2, 2
-• B. Mbeumo (Man Utd) = 1, 2, 1, 1, 1
 • I. Jesus (Nottm Forest) = 1, 1, 2, 1, 1
 
 
