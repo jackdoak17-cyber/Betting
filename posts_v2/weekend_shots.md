@@ -5,12 +5,12 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Bobby Thomas (Coventry City — CB) — last5: 1,3,2,2,2 — @ 1.44
 • Mark Sykes (Bristol City — MID) — last5: 2,1,1,1,3 — @ 1.44
 • Nicolas Madsen (QPR — MID) — last5: 1,1,2,1,2 — @ 1.61
-• Marc Bola (Watford — LB) — last5: 1,3,1,1,3 — @ 2.25
-• Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 2,1,1,2,2 — @ 1.83
+• Marc Bola (Watford — LB) — last5: 1,3,1,1,3 — @ 2.00
+• Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 2,1,1,2,2 — @ 1.67
 • Ivan Mesik (Heracles Almelo — LB) — last5: 3,1,2,1,2 — @ 2.25
 • Cherrion Valerius (NAC Breda — CB) — last5: 2,1,1,1,1 — @ 2.25
 • Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,1,2,3 — @ 1.67
-• Emin Bayram (Westerlo — CB) — last5: 1,2,1,1,3 — @ 2.25
+• Martin Frese (Hellas Verona — MID) — last5: 1,1,1,1,2 — @ 1.67
 • Leandro Cabrera (Espanyol — CB) — last5: 1,1,1,2,1 — @ 1.83
 • Jon Balda (Real Sociedad II — LB) — last5: 1,3,1,1,2 — @ 2.25
 
