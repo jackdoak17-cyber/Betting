@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-09T16:20:21
+Generated at (UTC): 2025-12-09T18:27:12
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -15,8 +15,8 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Sunderland's opponents have had under 5 shots on target in 5/7 home games = 6,7,2,3,2,4,4
     team hits 1/7 | opp conceded 2/7 | H2H 2/4
     implied win probs: home 0.400 / away 0.600
- • Birmingham City (away) — Shots Under 12.5 @ 1.830 vs Queens Park Rangers | kickoff 2025-12-09 20:00:00
-    model=0.683 | implied=0.546 | threshold≥13
+ • Birmingham City (away) — Shots Under 12.5 @ 2.000 vs Queens Park Rangers | kickoff 2025-12-09 20:00:00
+    model=0.683 | implied=0.500 | threshold≥13
     Birmingham City have had under 13 shots in 6/10 away matches = 22,14,13,13,9,8,5,7,11,8
     Queens Park Rangers's opponents have had under 13 shots in 7/9 home games = 13,8,9,12,5,9,7,13,11
     team hits 4/10 | opp conceded 2/9 | H2H 1/4
@@ -28,6 +28,13 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 3
     team hits 3/7 | opp conceded 2/7 | H2H 1/4
     implied win probs: home 0.519 / away 0.481
+ • Sheffield Wednesday (home) — Shots on Target Over 3.5 @ 1.800 vs Derby County | kickoff 2025-12-15 20:00:00
+    model=0.637 | implied=0.556 | threshold≥4
+    Sheffield Wednesday have cleared 4 shots on target in 5/10 home matches = 5,0,6,5,3,0,5,0,1,5
+    Derby County's opponents have had 4+ shots on target in 8/9 away games = 4,4,3,5,7,5,4,5,7
+    This landed in the reverse fixture last season = 8
+    team hits 5/10 | opp conceded 8/9 | H2H 3/4
+    implied win probs: home 0.369 / away 0.631
  • VfL Wolfsburg (away) — Shots on Target Over 3.5 @ 1.660 vs Borussia Mönchengladbach | kickoff 2025-12-13 14:30:00
     model=0.634 | implied=0.602 | threshold≥4
     VfL Wolfsburg have cleared 4 shots on target in 3/6 away matches = 3,4,2,4,0,5
@@ -41,6 +48,12 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Sunderland's opponents have had under 14 shots in 4/7 home games = 18,17,8,16,12,7,12
     team hits 2/7 | opp conceded 3/7 | H2H 2/4
     implied win probs: home 0.400 / away 0.600
+ • Norwich City (home) — Shots on Target Over 3.5 @ 1.660 vs Southampton | kickoff 2025-12-13 12:30:00
+    model=0.558 | implied=0.602 | threshold≥4
+    Norwich City have cleared 4 shots on target in 5/9 home matches = 6,6,3,3,4,5,5,3,3
+    Southampton's opponents have had 4+ shots on target in 7/10 away games = 7,2,5,6,4,5,3,4,4,1
+    team hits 5/9 | opp conceded 7/10 | H2H 2/4
+    implied win probs: home 0.398 / away 0.602
  • Pisa (away) — Shots on Target Over 2.5 @ 1.660 vs Lecce | kickoff 2025-12-12 19:45:00
     model=0.534 | implied=0.602 | threshold≥3
     Pisa have cleared 3 shots on target in 3/6 away matches = 3,3,2,0,6,2
