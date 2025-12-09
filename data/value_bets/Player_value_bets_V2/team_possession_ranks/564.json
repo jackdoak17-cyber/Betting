@@ -1,6 +1,6 @@
 {
   "league_id": 564,
-  "generated_at": "2025-12-08T04:01:12.422979+00:00",
+  "generated_at": "2025-12-09T03:55:59.275803+00:00",
   "possession_rank": [
     {
       "team_id": 83,
@@ -11,8 +11,8 @@
     {
       "team_id": 3468,
       "team_name": "Real Madrid",
-      "avg_possession": 59.86666666666667,
-      "sample_size": 15
+      "avg_possession": 59.75,
+      "sample_size": 16
     },
     {
       "team_id": 1099,
@@ -21,22 +21,22 @@
       "sample_size": 15
     },
     {
+      "team_id": 377,
+      "team_name": "Rayo Vallecano",
+      "avg_possession": 54.2,
+      "sample_size": 15
+    },
+    {
       "team_id": 676,
       "team_name": "Sevilla",
-      "avg_possession": 54.357142857142854,
-      "sample_size": 14
+      "avg_possession": 54.2,
+      "sample_size": 15
     },
     {
       "team_id": 7980,
       "team_name": "Atlético Madrid",
       "avg_possession": 54.1875,
       "sample_size": 16
-    },
-    {
-      "team_id": 377,
-      "team_name": "Rayo Vallecano",
-      "avg_possession": 53.5,
-      "sample_size": 14
     },
     {
       "team_id": 594,
@@ -47,13 +47,7 @@
     {
       "team_id": 36,
       "team_name": "Celta de Vigo",
-      "avg_possession": 51.5,
-      "sample_size": 14
-    },
-    {
-      "team_id": 485,
-      "team_name": "Real Betis",
-      "avg_possession": 50.333333333333336,
+      "avg_possession": 50.86666666666667,
       "sample_size": 15
     },
     {
@@ -71,8 +65,8 @@
     {
       "team_id": 214,
       "team_name": "Valencia",
-      "avg_possession": 47.07142857142857,
-      "sample_size": 14
+      "avg_possession": 47.13333333333333,
+      "sample_size": 15
     },
     {
       "team_id": 3477,
@@ -85,6 +79,12 @@
       "team_name": "Girona",
       "avg_possession": 46.666666666666664,
       "sample_size": 15
+    },
+    {
+      "team_id": 459,
+      "team_name": "Osasuna",
+      "avg_possession": 46.642857142857146,
+      "sample_size": 14
     },
     {
       "team_id": 645,
@@ -101,7 +101,13 @@
     {
       "team_id": 528,
       "team_name": "Espanyol",
-      "avg_possession": 41.357142857142854,
+      "avg_possession": 41,
+      "sample_size": 15
+    },
+    {
+      "team_id": 3457,
+      "team_name": "Levante",
+      "avg_possession": 40.214285714285715,
       "sample_size": 14
     },
     {
@@ -112,5 +118,5 @@
     }
   ],
   "min_sample": 3,
-  "team_count": 18
+  "team_count": 19
 }
