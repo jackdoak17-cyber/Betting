@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-10T02:51:58
+Generated at (UTC): 2025-12-10T16:22:19
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -29,7 +29,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Derby County's opponents have had 4+ shots on target in 8/9 away games = 4,4,3,5,7,5,4,5,7
     This landed in the reverse fixture last season = 8
     team hits 5/10 | opp conceded 8/9 | H2H 3/4
-    implied win probs: home 0.369 / away 0.631
+    implied win probs: home 0.363 / away 0.637
  • VfL Wolfsburg (away) — Shots on Target Over 3.5 @ 1.660 vs Borussia Mönchengladbach | kickoff 2025-12-13 14:30:00
     model=0.634 | implied=0.602 | threshold≥4
     VfL Wolfsburg have cleared 4 shots on target in 3/6 away matches = 3,4,2,4,0,5
@@ -44,21 +44,28 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 4
     team hits 3/7 | opp conceded 2/7 | H2H 2/4
     implied win probs: home 0.849 / away 0.151
+ • Osasuna (away) — Shots on Target Under 2.5 @ 1.830 vs FC Barcelona | kickoff 2025-12-13 17:30:00
+    model=0.605 | implied=0.546 | threshold≥3
+    Osasuna have had under 3 shots on target in 4/8 away matches = 2,3,5,2,1,3,3,0
+    FC Barcelona's opponents have had under 3 shots on target in 6/8 home games = 2,2,2,3,4,2,2,1
+    This landed in the reverse fixture last season = 0
+    team hits 4/8 | opp conceded 2/8 | H2H 2/4
+    implied win probs: home 0.900 / away 0.100
  • Newcastle United (away) — Shots Under 13.5 @ 1.720 vs Sunderland | kickoff 2025-12-14 14:00:00
     model=0.599 | implied=0.581 | threshold≥14
     Newcastle United have had under 14 shots in 5/7 away matches = 13,5,12,16,4,8,16
     Sunderland's opponents have had under 14 shots in 4/7 home games = 18,17,8,16,12,7,12
     team hits 2/7 | opp conceded 3/7 | H2H 2/4
     implied win probs: home 0.400 / away 0.600
+ • Pisa (away) — Shots on Target Over 2.5 @ 1.660 vs Lecce | kickoff 2025-12-12 19:45:00
+    model=0.564 | implied=0.602 | threshold≥3
+    Pisa have cleared 3 shots on target in 3/6 away matches = 3,3,2,0,6,2
+    Lecce's opponents have had 3+ shots on target in 5/7 home games = 6,2,3,2,5,6,6
+    team hits 3/6 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.579 / away 0.421
  • Norwich City (home) — Shots on Target Over 3.5 @ 1.660 vs Southampton | kickoff 2025-12-13 12:30:00
     model=0.558 | implied=0.602 | threshold≥4
     Norwich City have cleared 4 shots on target in 5/9 home matches = 6,6,3,3,4,5,5,3,3
     Southampton's opponents have had 4+ shots on target in 7/10 away games = 7,2,5,6,4,5,3,4,4,1
     team hits 5/9 | opp conceded 7/10 | H2H 2/4
-    implied win probs: home 0.398 / away 0.602
- • Pisa (away) — Shots on Target Over 2.5 @ 1.660 vs Lecce | kickoff 2025-12-12 19:45:00
-    model=0.534 | implied=0.602 | threshold≥3
-    Pisa have cleared 3 shots on target in 3/6 away matches = 3,3,2,0,6,2
-    Lecce's opponents have had 3+ shots on target in 5/7 home games = 6,2,3,2,5,6,6
-    team hits 3/6 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.603 / away 0.397
+    implied win probs: home 0.377 / away 0.623
