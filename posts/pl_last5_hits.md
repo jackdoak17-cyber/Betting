@@ -9,9 +9,10 @@ Leave a like if you find these useful.
 • L. Paquetá (West Ham) = 1, 2, 3, 2, 4
 • K. Schade (Brentford) = 2, 1, 2, 2, 4
 • L. Ugochukwu (Burnley) = 2, 2, 4, 1, 2
-• A. Diallo (Man Utd) = 2, 3, 2, 2, 1
+• A. Diallo (Man Utd) = 1, 2, 3, 2, 2
 • A. Gordon (Newcastle) = 3, 1, 3, 2, 1
 • G. Gudmundsson (Leeds United) = 3, 3, 2, 1, 1
+• J. Bellegarde (Wolves) = 3, 1, 2, 2, 2
 • E. Eze (Arsenal) = 1, 1, 2, 1, 4
 • K. Tete (Fulham) = 1, 1, 3, 1, 3
 • N. Williams (Nottm Forest) = 2, 2, 2, 1, 2
@@ -19,10 +20,10 @@ Leave a like if you find these useful.
 • A. Wharton (Crystal Palace) = 1, 2, 2, 2, 1
 • D. Ouattara (Brentford) = 1, 1, 1, 2, 3
 • G. Rutter (Brighton) = 2, 2, 2, 1, 1
-• J. Bellegarde (Wolves) = 1, 2, 2, 2, 1
 • J. Gomes (Wolves) = 1, 1, 1, 4, 1
 • Y. Pino (Crystal Palace) = 2, 2, 1, 2, 1
 • A. Garnacho (Chelsea) = 2, 1, 1, 1, 2
+• A. André (Wolves) = 1, 1, 2, 2, 1
 • C. Bradley (Liverpool) = 2, 1, 1, 1, 2
 • C. Summerville (West Ham) = 2, 1, 1, 1, 2
 • E. Konsa (Aston Villa) = 1, 2, 2, 1, 1
@@ -31,7 +32,6 @@ Leave a like if you find these useful.
 • P. Foden (Man City) = 1, 2, 2, 1, 1
 • E. Ampadu (Leeds United) = 1, 2, 1, 1, 1
 • R. Richarlison (Spurs) = 2, 1, 1, 1, 1
-• J. Larsen (Wolves) = 1, 1, 1, 1, 1
 • M. Rogers (Aston Villa) = 1, 1, 1, 1, 1
 • Y. Minteh (Brighton) = 1, 1, 1, 1, 1
 
