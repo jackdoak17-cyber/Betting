@@ -1,7 +1,6 @@
 Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 
 1+ SOT in last 5 (5/5)
-• Finn Azaz (Southampton — FWD) — last5: 1,3,1,3,2 — @ 1.50
 • Oluwafemi Azeez (Millwall — MID) — last5: 2,1,3,1,2 — @ 1.61
 • Kieffer Moore (Wrexham — FWD) — last5: 2,1,1,1,1 — @ 1.44
 • Jizz Hornkamp (Heracles Almelo — FWD) — last5: 4,1,3,2,4 — @ 1.73
@@ -14,17 +13,18 @@ Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 1+ SOT in last 7 (7/7)
 • John Yeboah (Venezia — FWD) — last7: 1,1,2,1,1,1,3 — @ 1.73
 • Jesus Ramirez (Nacional — FWD) — last7: 3,2,1,1,1,3,2 — @ 1.61
-• Eldor Shomurodov (İstanbul Başakşehir — FWD) — last7: 1,2,1,1,2,4,1 — @ 1.53
+• Eldor Shomurodov (İstanbul Başakşehir — FWD) — last7: 1,2,1,1,2,4,1 — @ 1.50
 
 1+ SOT in 8 of last 10 (8/10)
 • Enzo Fernandez (Chelsea — MID) — last10: 1,0,1,1,2,1,3,1,2,0 — @ 2.10
 • Iliman-Cheikh Ndiaye (Everton — MID) — last10: 1,1,1,0,0,1,1,1,1,1 — @ 1.67
-• Leo Scienza (Southampton — FWD) — last10: 3,2,1,0,1,1,2,1,2,1 — @ 1.57
-• Demarai Gray (Birmingham City — MID) — last10: 3,2,0,1,1,1,0,1,1,1 — @ 1.73
+• Leo Scienza (Southampton — FWD) — last10: 1,3,2,1,0,1,1,2,1,2 — @ 1.57
+• Sonny Carey (Charlton Athletic — MID) — last10: 2,0,0,1,1,2,1,2,1,3 — @ 2.00
 • Ilias Chair (QPR — MID) — last10: 0,1,1,2,1,1,1,1,2,0 — @ 1.67
 • Joe Gelhardt (Hull City — MID) — last10: 1,2,2,1,1,0,1,2,3,4 — @ 1.73
-• Andri Gudjohnsen (Blackburn Rovers — FWD) — last10: 2,1,1,1,1,0,2,1,1,0 — @ 1.44
-• Yuki Ohashi (Blackburn Rovers — FWD) — last10: 0,1,0,2,2,2,1,3,1,2 — @ 1.57
+• Andri Gudjohnsen (Blackburn Rovers — FWD) — last10: 0,2,1,1,1,1,0,2,1,1 — @ 1.44
+• Yuki Ohashi (Blackburn Rovers — FWD) — last10: 1,0,1,0,2,2,2,1,3,1 — @ 1.57
+• Luca Kjerrumgaard (Watford — FWD) — last10: 1,2,0,1,1,2,1,0,1,1 — @ 1.50
 • Henk Veerman (FC Volendam — FWD) — last10: 1,1,1,2,1,1,0,0,1,2 — @ 1.61
 • Corentin Tolisso (Olympique Lyonnais — FWD) — last10: 1,3,0,1,1,1,1,1,0,1 — @ 1.44
 • Jeremy Livolant (Casa Pia — FWD) — last10: 1,0,1,0,1,2,1,1,2,2 — @ 2.50

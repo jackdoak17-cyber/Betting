@@ -2,15 +2,15 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Elliot Anderson (Nottm Forest — MID) — last5: 1,1,1,2,1 — @ 1.50
 • Pascal Struijk (Leeds — CB) — last5: 1,1,2,1,2 — @ 1.61
-• Ethan Galbraith (Swansea City — RB) — last5: 3,1,1,3,1 — @ 1.44
-• Bobby Thomas (Coventry City — CB) — last5: 1,3,2,2,2 — @ 1.44
+• Ethan Galbraith (Swansea City — RB) — last5: 2,3,1,1,3 — @ 1.44
+• Liam Kitching (Coventry City — CB) — last5: 2,1,2,3,3 — @ 1.50
 • Mark Sykes (Bristol City — MID) — last5: 2,1,1,1,3 — @ 1.44
-• Nicolas Madsen (QPR — MID) — last5: 1,1,2,1,2 — @ 1.61
-• Marc Bola (Watford — LB) — last5: 1,3,1,1,3 — @ 2.00
+• Marc Bola (Watford — LB) — last5: 3,1,3,1,1 — @ 2.00
 • Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 2,1,1,2,2 — @ 1.67
 • Ivan Mesik (Heracles Almelo — LB) — last5: 3,1,2,1,2 — @ 2.25
 • Cherrion Valerius (NAC Breda — CB) — last5: 2,1,1,1,1 — @ 2.25
 • Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,1,2,3 — @ 1.57
+• Emin Bayram (Westerlo — CB) — last5: 1,2,1,1,3 — @ 2.25
 • Martin Frese (Hellas Verona — MID) — last5: 1,1,1,1,2 — @ 1.67
 • Simone Zanon (Carrarese — MID) — last5: 1,1,1,1,1 — @ 1.67
 • Leandro Cabrera (Espanyol — CB) — last5: 1,1,1,2,1 — @ 1.83
