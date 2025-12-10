@@ -43,7 +43,8 @@ Leave a like if you find these useful.
 • L. Paquetá (West Ham) = 1, 2, 3, 2, 4
 • K. Schade (Brentford) = 2, 1, 2, 2, 4
 • L. Ugochukwu (Burnley) = 2, 2, 4, 1, 2
-• A. Diallo (Man Utd) = 2, 3, 2, 2, 1
+• A. Diallo (Man Utd) = 1, 2, 3, 2, 2
+• J. Bellegarde (Wolves) = 3, 1, 2, 2, 2
 • N. Williams (Nottm Forest) = 2, 2, 2, 1, 2
 • B. Kamara (Aston Villa) = 0, 2, 2, 2, 2
 
