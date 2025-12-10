@@ -10,7 +10,7 @@ Zürich (70%) vs Winterthur (90%) @ 1.47
 (BTTS has landed in 70% of their last 10 & in both of their last 2 h2h)
 FC Twente (80%) vs Go Ahead Eagles (70%) @ 1.66
 Salzburg (70%) vs Wolfsberger AC (70%) @ 1.61
-Trabzonspor (70%) vs Beşiktaş (70%) @ 1.53
+Trabzonspor (70%) vs Beşiktaş (70%) @ 1.57
 
 *Uses league data only, odds correct time of run
 *If you spot any errors let me know so I can investigate and improve the list
