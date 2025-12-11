@@ -47,7 +47,7 @@ SHOTS_ON_TGT = 86
 MINUTES_PLAYED = 119
 
 # ---- Collection rules ----
-LAST_N = int(os.getenv("PLAYER_SHOTS_LAST_N", "10"))
+LAST_N = int(os.getenv("PLAYER_SHOTS_LAST_N", "20"))
 MIN_MINUTES = 45
 
 # ---- IO ----

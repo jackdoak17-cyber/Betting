@@ -33,7 +33,7 @@ TACKLES = 78          # Sportmonks Types: Tackles
 MINUTES_PLAYED = 119  # Minutes played
 
 # ---- Collection rules ----
-LAST_N = int(os.getenv("PLAYER_TACKLES_LAST_N", "10"))
+LAST_N = int(os.getenv("PLAYER_TACKLES_LAST_N", "20"))
 MIN_MINUTES = int(os.getenv("PLAYER_MIN_MINUTES", "45"))
 
 # ---- IO ----

@@ -41,7 +41,7 @@ FOULS_DRAWN = 96
 MINUTES_PLAYED = 119
 
 # ---- Collection rules ----
-LAST_N = int(os.getenv("PLAYER_FOULS_DRAWN_LAST_N", os.getenv("PLAYER_FOULS_LAST_N", "10")))
+LAST_N = int(os.getenv("PLAYER_FOULS_DRAWN_LAST_N", os.getenv("PLAYER_FOULS_LAST_N", "20")))
 MIN_MINUTES = int(os.getenv("PLAYER_MIN_MINUTES", "45"))
 
 # ---- IO ----

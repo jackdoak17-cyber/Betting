@@ -40,7 +40,7 @@ PASSES = 80           # Passes (Sportmonks team/player detail type)
 MINUTES_PLAYED = 119  # Minutes played
 
 # ---- Collection rules ----
-LAST_N = int(os.getenv("PLAYER_PASSES_LAST_N", "10"))
+LAST_N = int(os.getenv("PLAYER_PASSES_LAST_N", "20"))
 MIN_MINUTES = int(os.getenv("PLAYER_MIN_MINUTES", "45"))
 
 # ---- IO ----
