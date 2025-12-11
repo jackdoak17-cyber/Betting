@@ -1,6 +1,6 @@
 {
   "league_id": 8,
-  "generated_at": "2025-12-08T09:23:08.835597+00:00",
+  "generated_at": "2025-12-11T20:20:30.991950+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 19,
@@ -27,33 +27,27 @@
       "sample_size": 15
     },
     {
-      "team_id": 51,
-      "team_name": "Crystal Palace",
-      "avg_shots_conceded": 10.928571428571429,
-      "sample_size": 14
+      "team_id": 14,
+      "team_name": "Manchester United",
+      "avg_shots_conceded": 10.866666666666667,
+      "sample_size": 15
     },
     {
       "team_id": 11,
       "team_name": "Fulham",
-      "avg_shots_conceded": 10.928571428571429,
-      "sample_size": 14
+      "avg_shots_conceded": 10.933333333333334,
+      "sample_size": 15
     },
     {
-      "team_id": 14,
-      "team_name": "Manchester United",
-      "avg_shots_conceded": 11.071428571428571,
-      "sample_size": 14
+      "team_id": 51,
+      "team_name": "Crystal Palace",
+      "avg_shots_conceded": 11,
+      "sample_size": 15
     },
     {
       "team_id": 8,
       "team_name": "Liverpool",
       "avg_shots_conceded": 11.133333333333333,
-      "sample_size": 15
-    },
-    {
-      "team_id": 52,
-      "team_name": "AFC Bournemouth",
-      "avg_shots_conceded": 11.4,
       "sample_size": 15
     },
     {
@@ -93,15 +87,15 @@
       "sample_size": 15
     },
     {
-      "team_id": 29,
-      "team_name": "Wolverhampton Wanderers",
-      "avg_shots_conceded": 13,
-      "sample_size": 14
-    },
-    {
       "team_id": 63,
       "team_name": "Nottingham Forest",
       "avg_shots_conceded": 13.266666666666667,
+      "sample_size": 15
+    },
+    {
+      "team_id": 29,
+      "team_name": "Wolverhampton Wanderers",
+      "avg_shots_conceded": 13.933333333333334,
       "sample_size": 15
     },
     {
@@ -125,16 +119,16 @@
   ],
   "shots_for_rank": [
     {
+      "team_id": 14,
+      "team_name": "Manchester United",
+      "avg_shots_for": 16.066666666666666,
+      "sample_size": 15
+    },
+    {
       "team_id": 8,
       "team_name": "Liverpool",
       "avg_shots_for": 15.466666666666667,
       "sample_size": 15
-    },
-    {
-      "team_id": 14,
-      "team_name": "Manchester United",
-      "avg_shots_for": 15.285714285714286,
-      "sample_size": 14
     },
     {
       "team_id": 19,
@@ -158,12 +152,6 @@
       "team_id": 78,
       "team_name": "Brighton & Hove Albion",
       "avg_shots_for": 13.466666666666667,
-      "sample_size": 15
-    },
-    {
-      "team_id": 52,
-      "team_name": "AFC Bournemouth",
-      "avg_shots_for": 13.066666666666666,
       "sample_size": 15
     },
     {
@@ -193,14 +181,14 @@
     {
       "team_id": 11,
       "team_name": "Fulham",
-      "avg_shots_for": 11.714285714285714,
-      "sample_size": 14
+      "avg_shots_for": 11.733333333333333,
+      "sample_size": 15
     },
     {
       "team_id": 51,
       "team_name": "Crystal Palace",
-      "avg_shots_for": 11.571428571428571,
-      "sample_size": 14
+      "avg_shots_for": 11.533333333333333,
+      "sample_size": 15
     },
     {
       "team_id": 13,
@@ -235,8 +223,8 @@
     {
       "team_id": 29,
       "team_name": "Wolverhampton Wanderers",
-      "avg_shots_for": 9.071428571428571,
-      "sample_size": 14
+      "avg_shots_for": 9,
+      "sample_size": 15
     },
     {
       "team_id": 27,
@@ -246,5 +234,5 @@
     }
   ],
   "min_sample": 3,
-  "team_count": 20
+  "team_count": 19
 }
