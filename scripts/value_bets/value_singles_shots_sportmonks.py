@@ -32,6 +32,7 @@ from typing import Dict, List, Tuple, Optional, Any, Iterable
 # -------- Config --------
 MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.72"))
 TEAM_UNDERDOG_MAX = float(os.getenv("TEAM_UNDERDOG_MAX", "3.50"))
+DEBUG_DROPS = bool(int(os.getenv("DEBUG_DROPS", "0")))
 
 DEFAULT_LEAGUES = [301, 384, 387, 564, 567, 600, 8, 82, 9]
 LEAGUE_IDS = [
@@ -44,6 +45,8 @@ ROOT     = Path(".")
 PX_DIR   = ROOT / "data" / "predicted_xi" / "by_league"
 PS_DIR   = ROOT / "data" / "player_shots" / "by_league"
 ODDS_DIR = ROOT / "data" / "odds" / "b365"
+ODDS_FIX = ODDS_DIR / "fixtures"
+FIX_DIR  = ROOT / "data" / "fixtures"
 OUT_DIR  = ROOT / "data" / "value_bets"; OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE = OUT_DIR / "value_singles.txt"
 
@@ -188,6 +191,52 @@ def _load_json(p: Path) -> Any:
         return json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return None
+
+def _load_fixture_odds(fixture_id: int) -> List[dict]:
+    blob = _load_json(ODDS_FIX / f"{fixture_id}.json") or {}
+    rows = blob.get("odds") or []
+    return rows if isinstance(rows, list) else []
+
+
+def load_fixtures_by_team(league_id: int) -> Dict[int, List[dict]]:
+    """Map team_id -> list of fixtures with participant names/ids."""
+    out: Dict[int, List[dict]] = {}
+    blob = _load_json(FIX_DIR / f"{league_id}.json") or {}
+    for fx in blob.get("fixtures") or []:
+        fid = int(fx.get("id") or 0)
+        parts = fx.get("participants") or []
+        home_id = away_id = None
+        home_name = away_name = ""
+        for p in parts:
+            pid = p.get("id")
+            nm = p.get("name") or ""
+            loc = ((p.get("meta") or {}).get("location") or "").lower()
+            if loc == "home":
+                home_id, home_name = pid, nm
+            elif loc == "away":
+                away_id, away_name = pid, nm
+        if not (home_id and away_id and fid):
+            continue
+        row = {
+            "fixture_id": fid,
+            "name": fx.get("name") or f"{home_name} vs {away_name}",
+            "starting_at": fx.get("starting_at") or "",
+            "home_id": int(home_id),
+            "away_id": int(away_id),
+            "home_name": home_name,
+            "away_name": away_name,
+        }
+        out.setdefault(int(home_id), []).append(row)
+        out.setdefault(int(away_id), []).append(row)
+    # sort each team's fixtures by kickoff time if parsable
+    def _key(fx: dict):
+        try:
+            return dt.datetime.fromisoformat((fx.get("starting_at") or "").replace("Z", "+00:00"))
+        except Exception:
+            return dt.datetime.max
+    for tid, rows in out.items():
+        rows.sort(key=_key)
+    return out
 
 def _team_name_map(league_id: int) -> Dict[int, str]:
     """Map team_id -> team name from predicted_xi file (optional)."""
@@ -376,6 +425,7 @@ def collect_candidates() -> List[dict]:
                 "league_id": lid,
                 "player": player,
                 "team": team,
+                "team_id": int(tid) if isinstance(tid, int) else None,
                 "position_tag": pos_tag,
                 "series": (series or [])[:12],
                 "tag": tag,  # "5/5" or "7/10"
@@ -393,29 +443,92 @@ def main():
         return
 
     odds_by_league: Dict[int, dict] = {lid: (_load_json(ODDS_DIR / f"{lid}.json") or {}) for lid in LEAGUE_IDS}
+    fixtures_by_team: Dict[int, Dict[int, List[dict]]] = {lid: load_fixtures_by_team(lid) for lid in LEAGUE_IDS}
 
     picks: List[dict] = []
     seen = set()
+    drop_reasons: Dict[str, int] = {}
+
+    def drop(reason: str, ctx: Optional[dict] = None):
+        drop_reasons[reason] = drop_reasons.get(reason, 0) + 1
+        if DEBUG_DROPS:
+            print(f"[drop] {reason} :: {ctx or {}}")
 
     for c in candidates:
         lid, player, team, tag = c["league_id"], c["player"], c["team"], c["tag"]
         key = (lid, team.lower(), player.lower(), tag)
         if key in seen:
             continue
-        blob = odds_by_league.get(lid) or {}
-        fixtures = blob.get("fixtures") or []
-        for fx in fixtures:
-            fname = fx.get("name") or ""
-            home, away = parse_fixture_teams(fname)
+        odds_blob = odds_by_league.get(lid) or {}
+        fixtures_odds = {int(fx.get("fixture_id") or fx.get("id") or 0): fx for fx in (odds_blob.get("fixtures") or []) if (fx.get("fixture_id") or fx.get("id"))}
+        if not fixtures_odds:
+            drop("no league odds fixtures", {"league_id": lid, "player": player, "team": team})
+            continue
+
+        team_id = c.get("team_id")
+        team_fixtures = fixtures_by_team.get(lid, {}) if isinstance(fixtures_by_team, dict) else {}
+        candidate_fixtures = []
+        if team_id and team_id in team_fixtures:
+            candidate_fixtures = team_fixtures.get(team_id) or []
+        else:
+            # fallback: try any fixture where team name matches home/away tokens
+            for fx in (odds_blob.get("fixtures") or []):
+                fname = fx.get("name") or ""
+                home, away = parse_fixture_teams(fname)
+                if side_for_team(team, home, away):
+                    candidate_fixtures.append({
+                        "fixture_id": int(fx.get("fixture_id") or fx.get("id") or 0),
+                        "name": fname,
+                        "starting_at": fx.get("starting_at") or "",
+                        "home_name": home,
+                        "away_name": away,
+                    })
+
+        if not candidate_fixtures:
+            drop("no fixture for team", {"league_id": lid, "team": team, "player": player})
+            continue
+
+        picked = False
+        for fx_meta in candidate_fixtures:
+            fid = int(fx_meta.get("fixture_id") or 0)
+            fx_odds = fixtures_odds.get(fid)
+            fname = fx_meta.get("name") or (fx_odds.get("name") if fx_odds else "")
+            home = fx_meta.get("home_name") or ""
+            away = fx_meta.get("away_name") or ""
             if not home or not away:
+                if fname:
+                    home, away = parse_fixture_teams(fname)
+
+            # If we still don't have odds for this fixture, try to match by name across odds fixtures
+            if fx_odds is None:
+                for alt in fixtures_odds.values():
+                    aname = alt.get("name") or ""
+                    ahome, aaway = parse_fixture_teams(aname)
+                    if not ahome or not aaway:
+                        continue
+                    if side_for_team(team, ahome, aaway):
+                        fx_odds = alt
+                        fname = aname
+                        home, away = ahome, aaway
+                        fid = int(alt.get("fixture_id") or alt.get("id") or fid)
+                        break
+            if not home or not away:
+                drop("unparsed fixture name", {"fixture": fname, "player": player})
                 continue
             side = side_for_team(team, home, away)
             if not side:
+                drop("team side not found", {"fixture": fname, "team": team, "player": player})
                 continue
 
-            odds_rows = fx.get("odds") or []
+            odds_rows = (fx_odds or {}).get("odds") or []
+            if not odds_rows:
+                odds_rows = _load_fixture_odds(fid)
+            if not odds_rows:
+                drop("missing odds rows", {"fixture": fname, "team": team, "player": player})
+                continue
             home_ml, away_ml = extract_team_ml_prices(odds_rows, home, away)
             if home_ml is None or away_ml is None:
+                drop("missing team ML", {"fixture": fname, "team": team, "player": player})
                 continue
 
             team_ml = home_ml if side == "home" else away_ml
@@ -423,10 +536,20 @@ def main():
 
             # Exclude big underdogs (decimal odds > TEAM_UNDERDOG_MAX)
             if team_ml is None or team_ml > TEAM_UNDERDOG_MAX:
+                drop("team ML too high", {"fixture": fname, "team": team, "player": player, "team_ml": team_ml})
                 continue
 
             price = best_over05_player_shots(odds_rows, c["_rec"])
-            if price is None or price < MIN_PRICE:
+            if price is None and fid:
+                fallback_rows = _load_fixture_odds(int(fid))
+                if fallback_rows:
+                    odds_rows = fallback_rows
+                    price = best_over05_player_shots(odds_rows, c["_rec"])
+            if price is None:
+                drop("no player shots market", {"fixture": fname, "player": player})
+                continue
+            if price < MIN_PRICE:
+                drop("price below min", {"fixture": fname, "player": player, "price": price})
                 continue
 
             picks.append({
@@ -435,7 +558,7 @@ def main():
                 "team": team,
                 "position_tag": c.get("position_tag") or "",
                 "fixture": fname,
-                "kickoff": fx.get("starting_at") or "",
+                "kickoff": fx_meta.get("starting_at") or "",
                 "price": price,
                 "team_ml": team_ml,
                 "opp_ml": opp_ml,
@@ -443,7 +566,11 @@ def main():
                 "tag": tag,
             })
             seen.add(key)
+            picked = True
             break
+
+        if not picked:
+            drop("no matching fixture odds", {"league_id": lid, "team": team, "player": player})
 
     # Render
     ts = dt.datetime.utcnow().isoformat()
@@ -475,8 +602,15 @@ def main():
             )
         lines.append("")
 
-    OUT_FILE.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-    print("\n".join(lines))
+    if drop_reasons:
+        lines.append("Drop summary (by reason):")
+        for k, v in sorted(drop_reasons.items(), key=lambda kv: (-kv[1], kv[0])):
+            lines.append(f"  {k}: {v}")
+        lines.append("")
+
+    out = "\n".join(lines).rstrip() + "\n"
+    OUT_FILE.write_text(out, encoding="utf-8")
+    print(out)
 
 if __name__ == "__main__":
     try:

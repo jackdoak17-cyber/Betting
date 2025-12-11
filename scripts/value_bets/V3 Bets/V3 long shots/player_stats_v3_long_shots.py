@@ -83,6 +83,8 @@ LEAGUE_IDS: List[int] = [
     if x.strip()
 ]
 
+DEBUG_DROPS = bool(int(os.getenv("DEBUG_DROPS", "0")))
+
 GENERIC_TOK = {
     "fc",
     "cf",
@@ -152,6 +154,12 @@ def save_sheet(path: Path, rows: List[dict]) -> None:
         writer = csv.DictWriter(f, fieldnames=SHEET_HEADERS)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def load_fixture_odds(fixture_id: int) -> List[dict]:
+    blob = _load_json(ODDS_DIR / "fixtures" / f"{fixture_id}.json") or {}
+    rows = blob.get("odds") or []
+    return rows if isinstance(rows, list) else []
 
 
 # ---- name helpers ---------------------------------------------------------
@@ -963,7 +971,14 @@ def evaluate_player(
     return legs
 
 
-def process_league(league_id: int, form_candidates: Optional[List[dict]] = None) -> List[dict]:
+def process_league(league_id: int, form_candidates: Optional[List[dict]] = None, drop_reasons: Optional[Dict[str, int]] = None) -> List[dict]:
+    def drop(reason: str, ctx: Optional[dict] = None):
+        if drop_reasons is None:
+            return
+        drop_reasons[reason] = drop_reasons.get(reason, 0) + 1
+        if DEBUG_DROPS:
+            print(f"[drop] {reason} :: {ctx or {}}")
+
     fmap = fixture_map(league_id)
     players_by_team = load_player_data(league_id)
     rank_info = load_rank_info(league_id, fixture_meta=fmap, players_by_team=players_by_team)
@@ -971,16 +986,29 @@ def process_league(league_id: int, form_candidates: Optional[List[dict]] = None)
     odds_blob = _load_json(ODDS_DIR / f"{league_id}.json") or {}
     legs: List[dict] = []
 
-    for fx in odds_blob.get("fixtures") or []:
+    fixtures = odds_blob.get("fixtures") or []
+    if not fixtures:
+        drop("no league odds fixtures", {"league_id": league_id})
+        return legs
+
+    for fx in fixtures:
         fid = int(fx.get("fixture_id") or fx.get("id") or 0)
         meta = fmap.get(fid)
         if not meta:
+            drop("fixture missing in fixtures json", {"league_id": league_id, "fixture_id": fid})
             continue
         fixture_name = meta.get("name") or f"{meta['home_name']} vs {meta['away_name']}"
         starting_at = meta.get("starting_at") or ""
         odds_rows = fx.get("odds") or []
+        if not odds_rows:
+            odds_rows = load_fixture_odds(fid)
+        if not odds_rows:
+            drop("missing odds rows", {"league_id": league_id, "fixture_id": fid, "fixture": fixture_name})
+            continue
         odds_by_market = index_odds_by_market(odds_rows)
         home_ml, away_ml = extract_team_ml_prices(odds_by_market, meta["home_name"], meta["away_name"])
+        if home_ml is None or away_ml is None:
+            drop("missing team ML", {"league_id": league_id, "fixture_id": fid, "fixture": fixture_name})
 
         for team_id, opp_id, team_name, opp_name, team_ml, opp_ml, home_away in [
             (meta["home_id"], meta["away_id"], meta["home_name"], meta["away_name"], home_ml, away_ml, "home"),
@@ -1038,7 +1066,7 @@ def dedup_records(records: List[dict]) -> List[dict]:
 
 # ---- output ---------------------------------------------------------------
 
-def render_output(picks: List[dict], fallback: Optional[List[dict]] = None) -> str:
+def render_output(picks: List[dict], fallback: Optional[List[dict]] = None, drop_reasons: Optional[Dict[str, int]] = None) -> str:
     lines = [
         f"Generated at (UTC): {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%SZ')}",
         "Opponent gate: skip opponents ranked top-3 stingiest for shots conceded.",
@@ -1087,6 +1115,13 @@ def render_output(picks: List[dict], fallback: Optional[List[dict]] = None) -> s
     elif not picks:
         lines.append("No candidates met the long-shot criteria with current data (price, form, or opponent/ML gates).")
 
+    if drop_reasons:
+        lines.append("")
+        lines.append("Drop summary (by reason):")
+        for k, v in sorted(drop_reasons.items(), key=lambda kv: (-kv[1], kv[0])):
+            lines.append(f"  {k}: {v}")
+        lines.append("")
+
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -1095,8 +1130,9 @@ def render_output(picks: List[dict], fallback: Optional[List[dict]] = None) -> s
 def main() -> None:
     all_picks: List[dict] = []
     form_candidates: List[dict] = []
+    drop_reasons: Dict[str, int] = {}
     for lid in LEAGUE_IDS:
-        all_picks.extend(process_league(lid, form_candidates=form_candidates))
+        all_picks.extend(process_league(lid, form_candidates=form_candidates, drop_reasons=drop_reasons))
     all_picks = dedup_records(all_picks)
     form_candidates = dedup_records(form_candidates)
     all_picks.sort(key=lambda r: r.get("price") or 0, reverse=True)
@@ -1116,7 +1152,7 @@ def main() -> None:
         upsert_sheet(all_picks)
     elif not SHEET_FILE.exists():
         save_sheet(SHEET_FILE, [])
-    output = render_output(all_picks, fallback_sorted)
+    output = render_output(all_picks, fallback_sorted, drop_reasons)
     OUT_FILE.write_text(output, encoding="utf-8")
     print(output)
 
