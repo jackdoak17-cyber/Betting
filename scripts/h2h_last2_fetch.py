@@ -15,7 +15,7 @@ Output:
       "pair_key": "18_27",
       "a_id": 18, "b_id": 27,         # a=min, b=max
       "fetched_at": "ISOZ",
-      "lastN_meta": [ { "starting_at": "...", "a_goals": int|null, "b_goals": int|null }, ... ],
+      "lastN_meta": [ { "starting_at": "...", "fixture_id": int|null, "home_id": int|null, "away_id": int|null, "a_goals": int|null, "b_goals": int|null }, ... ],
       "vectors": {
         "a": { "goals":[...], "shots":[...], "sot":[...], "corners":[...],
                "fouls":[...], "offsides":[...], "yellow":[...], "red":[...], "possession":[...] },
@@ -35,7 +35,7 @@ Output:
           "pair_key": "18_27",
           "cache_present": true/false,
           "fetched_at": "ISOZ|None",
-          "lastN_meta": [ { "starting_at": "...", "home_goals": int|null, "away_goals": int|null }, ... ],
+          "lastN_meta": [ { "starting_at": "...", "fixture_id": int|null, "actual_home_id": int|null, "actual_away_id": int|null, "home_goals": int|null, "away_goals": int|null }, ... ],
           "vectors": {
             "home": { ... sequences ... },
             "away": { ... sequences ... }
@@ -440,6 +440,18 @@ def build_pair_cache(a: int, b: int, lastN: int, force: bool = False) -> dict:
         scores = get_list_or_data(it, "scores")
         stats  = get_list_or_data(it, "statistics")
         events = get_list_or_data(it, "events")
+        participants = it.get("participants") or []
+        home_id = away_id = None
+        for p in participants:
+            loc = (p.get("meta") or {}).get("location")
+            try:
+                tid = int(p.get("id") or 0)
+            except Exception:
+                tid = None
+            if loc == "home" and tid:
+                home_id = tid
+            elif loc == "away" and tid:
+                away_id = tid
 
         Ag = extract_ft_for_team(scores, A)
         Bg = extract_ft_for_team(scores, B)
@@ -466,6 +478,9 @@ def build_pair_cache(a: int, b: int, lastN: int, force: bool = False) -> dict:
 
         last_meta.append({
             "starting_at": (it.get("starting_at") or "")[:19],
+            "fixture_id": int(it.get("id") or 0) or None,
+            "home_id": home_id,
+            "away_id": away_id,
             "a_goals": Ag,
             "b_goals": Bg,
         })
@@ -554,6 +569,9 @@ def _map_pair_to_home_away(pair_cache: dict, home_id: int, away_id: int):
     for row in last_meta_src:
         last_meta_ha.append({
             "starting_at": row.get("starting_at"),
+            "fixture_id": row.get("fixture_id"),
+            "actual_home_id": row.get("home_id"),
+            "actual_away_id": row.get("away_id"),
             "home_goals": row.get(hm_key_goals),
             "away_goals": row.get(aw_key_goals),
         })
