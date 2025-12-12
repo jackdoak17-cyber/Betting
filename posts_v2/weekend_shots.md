@@ -5,6 +5,8 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Ethan Galbraith (Swansea City — RB) — last5: 2,3,1,1,3 — @ 1.44
 • Liam Kitching (Coventry City — CB) — last5: 2,1,2,3,3 — @ 1.50
 • Marc Bola (Watford — LB) — last5: 3,1,3,1,1 — @ 1.67
+• Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 2,1,1,2,2 — @ 1.67
+• Ivan Mesik (Heracles Almelo — LB) — last5: 3,1,2,1,2 — @ 1.67
 • Cherrion Valerius (NAC Breda — CB) — last5: 2,1,1,1,1 — @ 2.00
 • Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,1,2,3 — @ 1.57
 • Emin Bayram (Westerlo — CB) — last5: 1,2,1,1,3 — @ 2.25
