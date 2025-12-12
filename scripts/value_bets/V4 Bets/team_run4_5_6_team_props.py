@@ -407,12 +407,6 @@ def process_fixture(
             ok_team, team_ratio, team_hits, team_win = best_gate(team_series, threshold, TEAM_WINDOWS)
             if not ok_team:
                 continue
-            if under_half_line_recent(team_series, threshold):
-                drop(
-                    "team under half-line twice in last10",
-                    {"fixture": fx_meta.get("name"), "team": team_id, "line": line, "stat": stat_label},
-                )
-                continue
             ok_opp, opp_ratio, opp_hits, opp_win = best_opp_gate(opp_series, threshold)
             if not ok_opp:
                 continue
