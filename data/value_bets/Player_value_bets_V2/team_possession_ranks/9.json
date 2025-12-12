@@ -1,13 +1,7 @@
 {
   "league_id": 9,
-  "generated_at": "2025-12-11T04:03:30.710311+00:00",
+  "generated_at": "2025-12-12T04:02:56.034844+00:00",
   "possession_rank": [
-    {
-      "team_id": 116,
-      "team_name": "Ipswich Town",
-      "avg_possession": 56.526315789473685,
-      "sample_size": 19
-    },
     {
       "team_id": 65,
       "team_name": "Southampton",
@@ -21,9 +15,15 @@
       "sample_size": 20
     },
     {
+      "team_id": 116,
+      "team_name": "Ipswich Town",
+      "avg_possession": 55.85,
+      "sample_size": 20
+    },
+    {
       "team_id": 7,
       "team_name": "Middlesbrough",
-      "avg_possession": 55.45,
+      "avg_possession": 55.4,
       "sample_size": 20
     },
     {
@@ -31,12 +31,6 @@
       "team_name": "Coventry City",
       "avg_possession": 55.15,
       "sample_size": 20
-    },
-    {
-      "team_id": 42,
-      "team_name": "Leicester City",
-      "avg_possession": 54.73684210526316,
-      "sample_size": 19
     },
     {
       "team_id": 30,
@@ -47,8 +41,14 @@
     {
       "team_id": 26,
       "team_name": "Stoke City",
-      "avg_possession": 53.8421052631579,
-      "sample_size": 19
+      "avg_possession": 54,
+      "sample_size": 20
+    },
+    {
+      "team_id": 42,
+      "team_name": "Leicester City",
+      "avg_possession": 53.75,
+      "sample_size": 20
     },
     {
       "team_id": 25,
@@ -87,6 +87,12 @@
       "sample_size": 19
     },
     {
+      "team_id": 122,
+      "team_name": "Bristol City",
+      "avg_possession": 47.55,
+      "sample_size": 20
+    },
+    {
       "team_id": 47,
       "team_name": "Queens Park Rangers",
       "avg_possession": 47.4,
@@ -99,28 +105,22 @@
       "sample_size": 19
     },
     {
-      "team_id": 122,
-      "team_name": "Bristol City",
-      "avg_possession": 46.63157894736842,
-      "sample_size": 19
-    },
-    {
       "team_id": 22,
       "team_name": "Hull City",
-      "avg_possession": 46.526315789473685,
-      "sample_size": 19
+      "avg_possession": 46.85,
+      "sample_size": 20
     },
     {
       "team_id": 64,
       "team_name": "Millwall",
-      "avg_possession": 46,
-      "sample_size": 19
+      "avg_possession": 45.95,
+      "sample_size": 20
     },
     {
       "team_id": 283,
       "team_name": "Wrexham",
-      "avg_possession": 45.421052631578945,
-      "sample_size": 19
+      "avg_possession": 45.5,
+      "sample_size": 20
     },
     {
       "team_id": 99,
@@ -135,15 +135,15 @@
       "sample_size": 20
     },
     {
-      "team_id": 4,
-      "team_name": "Charlton Athletic",
-      "avg_possession": 41.421052631578945,
-      "sample_size": 19
-    },
-    {
       "team_id": 24,
       "team_name": "Derby County",
-      "avg_possession": 40.89473684210526,
+      "avg_possession": 41.6,
+      "sample_size": 20
+    },
+    {
+      "team_id": 4,
+      "team_name": "Charlton Athletic",
+      "avg_possession": 41.473684210526315,
       "sample_size": 19
     }
   ],
