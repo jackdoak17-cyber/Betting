@@ -2,20 +2,20 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 
 *Premier League*
 1. E. Haaland — 15 — Man City — @ 1.80 (vs Crystal Palace)
-2. I. Thiago — 11 — Brentford — @ 2.40 (vs Leeds)
+2. I. Thiago — 11 — Brentford — @ 2.37 (vs Leeds)
 3. D. Welbeck — 7 — Brighton — @ 3.20 (vs Liverpool)
 4. J. Mateta — 7 — Crystal Palace — @ 2.60 (vs Man City)
 5. A. Semenyo — 6 — Bournemouth — @ 3.25 (vs Man Utd)
 6. B. Mbeumo — 6 — Man Utd — @ 2.50 (vs Crystal Palace)
 7. P. Foden — 6 — Man City — @ 3.10 (vs Crystal Palace)
 8. R. Richarlison — 6 — Spurs — @ 3.20 (vs Nottm Forest)
-9. B. Guimarães — 5 — Newcastle — @ 9.00 (vs Sunderland)
+9. B. Guimarães — 5 — Newcastle — @ 8.50 (vs Sunderland)
 10. H. Ekitiké — 5 — Liverpool — @ 2.25 (vs Brighton)
 
 *LaLiga*
 1. K. Mbappé — 16 — Real Madrid — @ 1.72 (vs Alaves)
 2. F. Torres — 11 — Barcelona — @ 1.72 (vs Osasuna)
-3. R. Lewandowski — 8 — Barcelona — @ 1.53 (vs Osasuna)
+3. R. Lewandowski — 8 — Barcelona — @ 1.50 (vs Osasuna)
 4. V. Muriqi — 8 — Mallorca — @ 2.62 (vs Elche)
 5. J. Alvarez — 7 — Atleti — @ 1.83 (vs Valencia)
 6. A. Moleiro — 6 — Villarreal — @ 2.50 (vs Levante)
@@ -26,7 +26,7 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 
 *Bundesliga*
 1. H. Kane — 17 — Bayern — @ 1.40 (vs FSV Mainz 05)
-2. J. Burkardt — 8 — Frankfurt — @ 1.95 (vs Augsburg)
+2. J. Burkardt — 8 — Frankfurt — @ — (vs Augsburg)
 3. D. Undav — 7 — Stuttgart — @ 2.40 (vs Bremen)
 4. H. Tabakovic — 7 — Gladbach — @ 2.30 (vs Wolfsburg)
 5. L. Díaz — 7 — Bayern — @ — (vs FSV Mainz 05)
@@ -37,7 +37,7 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 10. C. Uzun — 5 — Frankfurt — @ 2.50 (vs Augsburg)
 
 *Serie A*
-1. C. Pulisic — 7 — Milan — @ 2.37 (vs Sassuolo)
+1. C. Pulisic — 7 — Milan — @ 2.20 (vs Sassuolo)
 2. L. Martínez — 7 — Inter — @ 2.20 (vs Genoa)
 3. H. Çalhanoğlu — 6 — Inter — @ 4.50 (vs Genoa)
 4. R. Orsolini — 6 — Bologna — @ 3.40 (vs Juventus)
@@ -46,7 +46,7 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 7. N. Paz — 5 — Como — @ 4.33 (vs Roma)
 8. R. Leão — 5 — Milan — @ 1.95 (vs Sassuolo)
 9. A. Pinamonti — 4 — Sassuolo — @ 4.33 (vs Milan)
-10. A. Bonny — 4 — Inter — @ 2.05 (vs Genoa)
+10. A. Bonny — 4 — Inter — @ 2.30 (vs Genoa)
 
 *Ligue 1*
 1. M. Greenwood — 10 — Marseille — @ 1.95 (vs Monaco)
