@@ -2,23 +2,22 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Elliot Anderson (Nottm Forest — MID) — last5: 1,1,1,2,1 — @ 1.50
 • Pascal Struijk (Leeds — CB) — last5: 1,1,2,1,2 — @ 1.61
-• Ethan Galbraith (Swansea City — RB) — last5: 2,3,1,1,3 — @ 1.44
-• Liam Kitching (Coventry City — CB) — last5: 2,1,2,3,3 — @ 1.50
-• Marc Bola (Watford — LB) — last5: 3,1,3,1,1 — @ 1.67
+• Marc Bola (Watford — LB) — last5: 3,1,3,1,1 — @ 1.44
 • Ahmetcan Kaplan (NEC Nijmegen — CB) — last5: 2,1,1,2,2 — @ 1.67
 • Ivan Mesik (Heracles Almelo — LB) — last5: 3,1,2,1,2 — @ 1.67
 • Cherrion Valerius (NAC Breda — CB) — last5: 2,1,1,1,1 — @ 1.83
-• Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,1,2,3 — @ 1.57
+• Rihito Yamamoto (Sint-Truiden — MID) — last5: 1,1,1,2,3 — @ 1.44
 • Emin Bayram (Westerlo — CB) — last5: 1,2,1,1,3 — @ 2.25
 • Martin Frese (Hellas Verona — MID) — last5: 1,1,1,1,2 — @ 1.67
 • Giangiacomo Magnani (Reggiana — CB) — last5: 1,2,1,2,2 — @ 1.73
 • Simone Zanon (Carrarese — MID) — last5: 1,1,1,1,1 — @ 1.57
-• Leandro Cabrera (Espanyol — CB) — last5: 1,1,1,2,1 — @ 1.83
+• Leandro Cabrera (Espanyol — CB) — last5: 1,1,1,2,1 — @ 2.00
 • Jon Balda (Real Sociedad II — LB) — last5: 1,3,1,1,2 — @ 1.73
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Joe Gelhardt (Hull City — MID) — last5: 2,4,3,2,2 — @ 1.44
+• Henk Veerman (FC Volendam — FWD) — last5: 2,2,2,4,4 — @ 1.44
 • Danny Namaso (Auxerre — FWD) — last5: 4,3,4,2,2 — @ 1.53
 • Gianluca Busio (Venezia — MID) — last5: 4,3,2,3,3 — @ 1.61
 • Luis Hasa (Carrarese — MID) — last5: 3,3,2,3,4 — @ 1.80
