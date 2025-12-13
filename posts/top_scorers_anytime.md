@@ -9,18 +9,18 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 6. B. Mbeumo — 6 — Man Utd — @ 2.50 (vs Crystal Palace)
 7. P. Foden — 6 — Man City — @ 3.10 (vs Crystal Palace)
 8. R. Richarlison — 6 — Spurs — @ 3.20 (vs Nottm Forest)
-9. B. Guimarães — 5 — Newcastle — @ 8.50 (vs Sunderland)
-10. H. Ekitiké — 5 — Liverpool — @ 2.25 (vs Brighton)
+9. B. Guimarães — 5 — Newcastle — @ 9.00 (vs Sunderland)
+10. H. Ekitiké — 5 — Liverpool — @ 2.30 (vs Brighton)
 
 *LaLiga*
-1. K. Mbappé — 16 — Real Madrid — @ 1.72 (vs Alaves)
-2. F. Torres — 11 — Barcelona — @ 1.72 (vs Osasuna)
+1. K. Mbappé — 16 — Real Madrid — @ 1.83 (vs Alaves)
+2. F. Torres — 11 — Barcelona — @ 1.66 (vs Osasuna)
 3. R. Lewandowski — 8 — Barcelona — @ 1.50 (vs Osasuna)
 4. V. Muriqi — 8 — Mallorca — @ 2.62 (vs Elche)
-5. J. Alvarez — 7 — Atleti — @ 1.83 (vs Valencia)
+5. J. Alvarez — 7 — Atleti — @ 1.80 (vs Valencia)
 6. A. Moleiro — 6 — Villarreal — @ 2.50 (vs Levante)
 7. C. Hernández — 6 — Betis — @ 3.00 (vs Rayo)
-8. K. Eyong — 6 — Levante — @ 3.40 (vs Villarreal)
+8. K. Eyong — 6 — Levante — @ 3.25 (vs Villarreal)
 9. L. Yamal — 6 — Barcelona — @ 1.72 (vs Osasuna)
 10. R. Mir — 6 — Elche — @ 3.00 (vs Mallorca)
 
@@ -30,10 +30,10 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 3. D. Undav — 7 — Stuttgart — @ 2.40 (vs Bremen)
 4. H. Tabakovic — 7 — Gladbach — @ 2.30 (vs Wolfsburg)
 5. L. Díaz — 7 — Bayern — @ — (vs FSV Mainz 05)
-6. C. Baumgartner — 6 — RB Leipzig — @ 3.40 (vs Union Berlin)
+6. C. Baumgartner — 6 — RB Leipzig — @ 3.75 (vs Leverkusen)
 7. M. Olise — 6 — Bayern — @ 1.95 (vs FSV Mainz 05)
 8. S. Mala — 6 — Koln — @ 4.50 (vs Leverkusen)
-9. Y. Diomande — 6 — RB Leipzig — @ 3.75 (vs Union Berlin)
+9. Y. Diomande — 6 — RB Leipzig — @ 3.50 (vs Leverkusen)
 10. C. Uzun — 5 — Frankfurt — @ 2.50 (vs Augsburg)
 
 *Serie A*
