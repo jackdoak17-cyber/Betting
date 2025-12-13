@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-12T16:26:04
+Generated at (UTC): 2025-12-13T02:33:27
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -21,7 +21,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Metz have had under 4 shots on target in 4/7 home matches = 5,2,7,1,0,5,0
     Paris Saint Germain's opponents have had under 4 shots on target in 6/8 away games = 5,2,2,2,3,1,6,0
     team hits 3/7 | opp conceded 2/8 | H2H 0/4
-    implied win probs: home 0.111 / away 0.889
+    implied win probs: home 0.131 / away 0.869
  • Sheffield Wednesday (home) — Shots on Target Over 3.5 @ 1.800 vs Derby County | kickoff 2025-12-15 20:00:00
     model=0.667 | implied=0.556 | threshold≥4
     Sheffield Wednesday have cleared 4 shots on target in 5/10 home matches = 5,0,6,5,3,0,5,0,1,5
@@ -69,12 +69,6 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 0
     team hits 4/8 | opp conceded 2/8 | H2H 2/4
     implied win probs: home 0.909 / away 0.091
- • Pisa (away) — Shots on Target Over 2.5 @ 1.660 vs Lecce | kickoff 2025-12-12 19:45:00
-    model=0.564 | implied=0.602 | threshold≥3
-    Pisa have cleared 3 shots on target in 3/6 away matches = 3,3,2,0,6,2
-    Lecce's opponents have had 3+ shots on target in 5/7 home games = 6,2,3,2,5,6,6
-    team hits 3/6 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.569 / away 0.431
  • Norwich City (home) — Shots on Target Over 3.5 @ 1.660 vs Southampton | kickoff 2025-12-13 12:30:00
     model=0.558 | implied=0.602 | threshold≥4
     Norwich City have cleared 4 shots on target in 5/9 home matches = 6,6,3,3,4,5,5,3,3
