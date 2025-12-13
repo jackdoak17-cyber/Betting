@@ -24,8 +24,6 @@ Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 • Andri Gudjohnsen (Blackburn Rovers — FWD) — last10: 0,2,1,1,1,1,0,2,1,1 — @ 1.44
 • Yuki Ohashi (Blackburn Rovers — FWD) — last10: 1,0,1,0,2,2,2,1,3,1 — @ 1.57
 • Henk Veerman (FC Volendam — FWD) — last10: 1,1,1,2,1,1,0,0,1,2 — @ 1.57
-• Jeremy Livolant (Casa Pia — FWD) — last10: 1,0,1,0,1,2,1,1,2,2 — @ 2.50
-• Joao Carvalho (Estoril — FWD) — last10: 0,2,3,1,1,1,0,1,2,1 — @ 2.50
 • Lautaro de Leon (FC Andorra — FWD) — last10: 2,1,1,1,1,0,0,1,1,1 — @ 1.61
 • Adrian Embarba (Almería — FWD) — last10: 1,2,1,2,1,2,0,4,0,1 — @ 1.61
 • Laszlo Benes (Kayserispor — MID) — last10: 1,2,0,0,2,2,1,3,2,1 — @ 1.83
