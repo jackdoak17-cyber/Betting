@@ -1,14 +1,8 @@
-Generated at (UTC): 2025-12-14T02:58:53
+Generated at (UTC): 2025-12-14T16:18:14
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
- • Newcastle United (away) — Shots on Target Under 4.5 @ 1.800 vs Sunderland | kickoff 2025-12-14 14:00:00
-    model=0.743 | implied=0.556 | threshold≥5
-    Newcastle United have had under 5 shots on target in 6/7 away matches = 8,1,4,3,1,2,3
-    Sunderland's opponents have had under 5 shots on target in 5/7 home games = 6,7,2,3,2,4,4
-    team hits 1/7 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.405 / away 0.595
  • Sheffield Wednesday (home) — Shots on Target Over 3.5 @ 1.800 vs Derby County | kickoff 2025-12-15 20:00:00
     model=0.667 | implied=0.556 | threshold≥4
     Sheffield Wednesday have cleared 4 shots on target in 5/10 home matches = 5,0,6,5,3,0,5,0,1,5
@@ -16,29 +10,9 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 8
     team hits 5/10 | opp conceded 8/9 | H2H 3/4
     implied win probs: home 0.418 / away 0.582
- • Nottingham Forest (home) — Shots on Target Under 4.5 @ 1.720 vs Tottenham Hotspur | kickoff 2025-12-14 14:00:00
-    model=0.650 | implied=0.581 | threshold≥5
-    Nottingham Forest have had under 5 shots on target in 4/7 home matches = 3,6,3,2,6,3,5
-    Tottenham Hotspur's opponents have had under 5 shots on target in 5/7 away games = 7,8,2,4,4,4,4
-    This landed in the reverse fixture last season = 3
-    team hits 3/7 | opp conceded 2/7 | H2H 1/4
-    implied win probs: home 0.534 / away 0.466
  • Levante (home) — Shots on Target Under 3.5 @ 1.800 vs Villarreal | kickoff 2025-12-14 17:30:00
     model=0.644 | implied=0.556 | threshold≥4
     Levante have had under 4 shots on target in 3/6 home matches = 4,3,4,2,2,5
     Villarreal's opponents have had under 4 shots on target in 5/7 away games = 7,3,3,7,2,3,2
     team hits 3/6 | opp conceded 2/7 | H2H 1/4
-    implied win probs: home 0.269 / away 0.731
- • Sassuolo (away) — Shots Under 9.5 @ 1.830 vs Milan | kickoff 2025-12-14 11:30:00
-    model=0.630 | implied=0.546 | threshold≥10
-    Sassuolo have had under 10 shots in 4/7 away matches = 12,8,12,9,11,9,9
-    Milan's opponents have had under 10 shots in 5/7 home games = 9,20,8,5,19,5,4
-    This landed in the reverse fixture last season = 4
-    team hits 3/7 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.849 / away 0.151
- • Newcastle United (away) — Shots Under 13.5 @ 1.720 vs Sunderland | kickoff 2025-12-14 14:00:00
-    model=0.629 | implied=0.581 | threshold≥14
-    Newcastle United have had under 14 shots in 5/7 away matches = 13,5,12,16,4,8,16
-    Sunderland's opponents have had under 14 shots in 4/7 home games = 18,17,8,16,12,7,12
-    team hits 2/7 | opp conceded 3/7 | H2H 2/4
-    implied win probs: home 0.405 / away 0.595
+    implied win probs: home 0.304 / away 0.696
