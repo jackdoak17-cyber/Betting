@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-14T07:34:35.312418+00:00",
+  "generated_at": "2025-12-14T19:30:19.367073+00:00",
   "league_id": 462,
   "count": 176,
   "players": [
@@ -3199,6 +3199,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         0,
@@ -3221,9 +3222,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19449011,
@@ -3238,7 +3241,7 @@
         19448935,
         19448921
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3251,6 +3254,7 @@
       "name": "João Carvalho",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         3,
         0,
         3,
@@ -3266,6 +3270,7 @@
         2
       ],
       "minutes_last_n": [
+        63,
         90,
         90,
         90,
@@ -3281,6 +3286,7 @@
         88
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19449011,
@@ -3295,7 +3301,7 @@
         19448935,
         19448921
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3308,6 +3314,7 @@
       "name": "Pedro Amaral",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         2,
         3,
         0,
@@ -3319,6 +3326,7 @@
         1
       ],
       "minutes_last_n": [
+        76,
         74,
         56,
         51,
@@ -3330,90 +3338,13 @@
         90
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19448982,
         19448974,
         19448956,
         19448939,
-        19448952,
-        19448935,
-        19448921
-      ],
-      "n": 9,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 1198,
-      "player_id": 7698454,
-      "name": "Jandro Orellana",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        1,
-        1,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        80,
-        66,
-        67,
-        46
-      ],
-      "fixture_ids": [
-        19449029,
-        19449020,
-        19449005,
-        19448992
-      ],
-      "n": 4,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 1198,
-      "player_id": 11322446,
-      "name": "Yanis Begraoui",
-      "position_tag": "FWD",
-      "fouls_drawn_last_n": [
-        0,
-        1,
-        1,
-        1,
-        0,
-        3,
-        1,
-        1,
-        2,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        82,
-        81,
-        60,
-        72,
-        74,
-        90,
-        64
-      ],
-      "fixture_ids": [
-        19449029,
-        19449020,
-        19449011,
-        19449005,
-        19448992,
-        19448966,
-        19448956,
         19448952,
         19448935,
         19448921
@@ -3427,10 +3358,95 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 1198,
+      "player_id": 7698454,
+      "name": "Jandro Orellana",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        80,
+        66,
+        67,
+        46
+      ],
+      "fixture_ids": [
+        19449037,
+        19449029,
+        19449020,
+        19449005,
+        19448992
+      ],
+      "n": 5,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 1198,
+      "player_id": 11322446,
+      "name": "Yanis Begraoui",
+      "position_tag": "FWD",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        3,
+        1,
+        1,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        82,
+        81,
+        60,
+        72,
+        74,
+        90,
+        64
+      ],
+      "fixture_ids": [
+        19449037,
+        19449029,
+        19449020,
+        19449011,
+        19449005,
+        19448992,
+        19448966,
+        19448956,
+        19448952,
+        19448935,
+        19448921
+      ],
+      "n": 11,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 1198,
       "player_id": 20691986,
       "name": "Felix Bacher",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        2,
         0,
         1,
         1,
@@ -3458,9 +3474,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19449011,
@@ -3475,7 +3493,7 @@
         19448935,
         19448921
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3488,6 +3506,7 @@
       "name": "Ricard Sánchez",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        2,
         1,
         3,
         1,
@@ -3495,6 +3514,7 @@
         2
       ],
       "minutes_last_n": [
+        63,
         74,
         56,
         90,
@@ -3502,13 +3522,14 @@
         73
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19448966,
         19448956,
         19448939
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3522,23 +3543,26 @@
       "position_tag": "CB",
       "fouls_drawn_last_n": [
         0,
+        0,
         1,
         2,
         0
       ],
       "minutes_last_n": [
+        46,
         64,
         90,
         59,
         90
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449011,
         19449005,
         19448992
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3551,6 +3575,7 @@
       "name": "Kévin Boma",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         0,
         3,
         2,
@@ -3565,6 +3590,7 @@
         2
       ],
       "minutes_last_n": [
+        63,
         90,
         90,
         90,
@@ -3579,6 +3605,7 @@
         90
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19449011,
@@ -3592,7 +3619,7 @@
         19448935,
         19448921
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3638,6 +3665,7 @@
       "name": "André Lacximicant",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         3,
         0,
         2,
@@ -3648,6 +3676,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         75,
         71,
         90,
@@ -3656,6 +3685,7 @@
         67
       ],
       "fixture_ids": [
+        19449037,
         19449029,
         19449020,
         19449011,
@@ -3664,7 +3694,7 @@
         19448939,
         19448952
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3677,6 +3707,7 @@
       "name": "Gil Dias",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        3,
         1,
         1,
         1,
@@ -3689,6 +3720,7 @@
         1
       ],
       "minutes_last_n": [
+        73,
         90,
         90,
         68,
@@ -3701,6 +3733,7 @@
         90
       ],
       "fixture_ids": [
+        19449037,
         19449030,
         19449022,
         19449012,
@@ -3712,7 +3745,7 @@
         19448934,
         19448922
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3725,6 +3758,7 @@
       "name": "Lazar Carević",
       "position_tag": "GK",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         1,
@@ -3752,9 +3786,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19449037,
         19449030,
         19449022,
         19449012,
@@ -3769,7 +3805,7 @@
         19448934,
         19448922
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3783,6 +3819,7 @@
       "position_tag": "MID",
       "fouls_drawn_last_n": [
         0,
+        0,
         2,
         1,
         0,
@@ -3795,6 +3832,7 @@
         0
       ],
       "minutes_last_n": [
+        72,
         90,
         90,
         90,
@@ -3808,6 +3846,7 @@
         90
       ],
       "fixture_ids": [
+        19449037,
         19449030,
         19449022,
         19449012,
@@ -3820,7 +3859,7 @@
         19448934,
         19448922
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3833,6 +3872,7 @@
       "name": "Justin de Haas",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        2,
         0,
         0,
         1,
@@ -3856,274 +3896,15 @@
         90,
         90,
         90,
-        90
-      ],
-      "fixture_ids": [
-        19449030,
-        19449022,
-        19448993,
-        19448984,
-        19448975,
-        19448964,
-        19448957,
-        19448945,
-        19448940,
-        19448934,
-        19448922
-      ],
-      "n": 11,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3161,
-      "player_id": 31255673,
-      "name": "Léo Realpe",
-      "position_tag": "CB",
-      "fouls_drawn_last_n": [
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0,
-        0,
-        3,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        56,
-        90,
         90,
         90
       ],
       "fixture_ids": [
+        19449037,
         19449030,
-        19449012,
-        19449001,
+        19449022,
         19448993,
         19448984,
-        19448975,
-        19448964,
-        19448945,
-        19448940,
-        19448934,
-        19448922
-      ],
-      "n": 11,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3161,
-      "player_id": 37257644,
-      "name": "Rodrigo Pinheiro",
-      "position_tag": "RB",
-      "fouls_drawn_last_n": [
-        4,
-        1,
-        0,
-        1,
-        0,
-        1,
-        1,
-        1,
-        0,
-        0,
-        1,
-        3,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19449030,
-        19449022,
-        19449012,
-        19449001,
-        19448993,
-        19448984,
-        19448975,
-        19448964,
-        19448957,
-        19448945,
-        19448940,
-        19448934,
-        19448922
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3161,
-      "player_id": 37549776,
-      "name": "Pedro Bondo",
-      "position_tag": "LB",
-      "fouls_drawn_last_n": [
-        2,
-        0,
-        3,
-        1,
-        3,
-        0,
-        3,
-        4
-      ],
-      "minutes_last_n": [
-        81,
-        90,
-        68,
-        75,
-        90,
-        71,
-        90,
-        73
-      ],
-      "fixture_ids": [
-        19449030,
-        19449022,
-        19449012,
-        19449001,
-        19448964,
-        19448957,
-        19448945,
-        19448934
-      ],
-      "n": 8,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3161,
-      "player_id": 37561941,
-      "name": "Sorriso",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        5,
-        2,
-        0,
-        1,
-        2,
-        5,
-        2,
-        1,
-        2,
-        4,
-        4,
-        0,
-        2
-      ],
-      "minutes_last_n": [
-        81,
-        90,
-        90,
-        90,
-        90,
-        67,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        81
-      ],
-      "fixture_ids": [
-        19449030,
-        19449022,
-        19449012,
-        19449001,
-        19448993,
-        19448984,
-        19448975,
-        19448964,
-        19448957,
-        19448945,
-        19448940,
-        19448934,
-        19448922
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 3161,
-      "player_id": 37621397,
-      "name": "Mathias de Amorim",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        2,
-        6,
-        0,
-        2,
-        2,
-        1,
-        0,
-        3,
-        4,
-        2,
-        4,
-        5
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        79,
-        90,
-        90,
-        79,
-        88,
-        89,
-        87,
-        78,
-        87,
-        84
-      ],
-      "fixture_ids": [
-        19449030,
-        19449022,
-        19449012,
-        19449001,
-        19448993,
         19448975,
         19448964,
         19448957,
@@ -4141,46 +3922,265 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 3161,
-      "player_id": 37651047,
-      "name": "Gustavo Sá",
-      "position_tag": "MID",
+      "player_id": 31255673,
+      "name": "Léo Realpe",
+      "position_tag": "CB",
       "fouls_drawn_last_n": [
-        3,
-        4,
-        2,
-        4,
-        0,
-        5,
-        3,
-        2,
-        4,
         1,
-        3,
         0,
-        3
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        3,
+        1
       ],
       "minutes_last_n": [
-        66,
         90,
         90,
         90,
-        88,
         90,
         90,
         90,
-        81,
         90,
         90,
-        73,
-        81
+        56,
+        90,
+        90,
+        90
       ],
       "fixture_ids": [
+        19449037,
+        19449030,
+        19449012,
+        19449001,
+        19448993,
+        19448984,
+        19448975,
+        19448964,
+        19448945,
+        19448940,
+        19448934,
+        19448922
+      ],
+      "n": 12,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3161,
+      "player_id": 37257644,
+      "name": "Rodrigo Pinheiro",
+      "position_tag": "RB",
+      "fouls_drawn_last_n": [
+        1,
+        4,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        3,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19449037,
         19449030,
         19449022,
         19449012,
         19449001,
         19448993,
         19448984,
+        19448975,
+        19448964,
+        19448957,
+        19448945,
+        19448940,
+        19448934,
+        19448922
+      ],
+      "n": 14,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3161,
+      "player_id": 37549776,
+      "name": "Pedro Bondo",
+      "position_tag": "LB",
+      "fouls_drawn_last_n": [
+        0,
+        2,
+        0,
+        3,
+        1,
+        3,
+        0,
+        3,
+        4
+      ],
+      "minutes_last_n": [
+        64,
+        81,
+        90,
+        68,
+        75,
+        90,
+        71,
+        90,
+        73
+      ],
+      "fixture_ids": [
+        19449037,
+        19449030,
+        19449022,
+        19449012,
+        19449001,
+        19448964,
+        19448957,
+        19448945,
+        19448934
+      ],
+      "n": 9,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3161,
+      "player_id": 37561941,
+      "name": "Sorriso",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        5,
+        5,
+        2,
+        0,
+        1,
+        2,
+        5,
+        2,
+        1,
+        2,
+        4,
+        4,
+        0,
+        2
+      ],
+      "minutes_last_n": [
+        80,
+        81,
+        90,
+        90,
+        90,
+        90,
+        67,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        81
+      ],
+      "fixture_ids": [
+        19449037,
+        19449030,
+        19449022,
+        19449012,
+        19449001,
+        19448993,
+        19448984,
+        19448975,
+        19448964,
+        19448957,
+        19448945,
+        19448940,
+        19448934,
+        19448922
+      ],
+      "n": 14,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3161,
+      "player_id": 37621397,
+      "name": "Mathias de Amorim",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        3,
+        2,
+        6,
+        0,
+        2,
+        2,
+        1,
+        0,
+        3,
+        4,
+        2,
+        4,
+        5
+      ],
+      "minutes_last_n": [
+        65,
+        90,
+        90,
+        79,
+        90,
+        90,
+        79,
+        88,
+        89,
+        87,
+        78,
+        87,
+        84
+      ],
+      "fixture_ids": [
+        19449037,
+        19449030,
+        19449022,
+        19449012,
+        19449001,
+        19448993,
         19448975,
         19448964,
         19448957,
@@ -4198,25 +4198,88 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 3161,
+      "player_id": 37651047,
+      "name": "Gustavo Sá",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        2,
+        3,
+        4,
+        2,
+        4,
+        0,
+        5,
+        3,
+        2,
+        4,
+        1,
+        3,
+        0,
+        3
+      ],
+      "minutes_last_n": [
+        90,
+        66,
+        90,
+        90,
+        90,
+        88,
+        90,
+        90,
+        90,
+        81,
+        90,
+        90,
+        73,
+        81
+      ],
+      "fixture_ids": [
+        19449037,
+        19449030,
+        19449022,
+        19449012,
+        19449001,
+        19448993,
+        19448984,
+        19448975,
+        19448964,
+        19448957,
+        19448945,
+        19448940,
+        19448934,
+        19448922
+      ],
+      "n": 14,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 3161,
       "player_id": 37739178,
       "name": "Yassir Zabiri",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        0,
         2,
         0,
         2
       ],
       "minutes_last_n": [
         90,
+        90,
         81,
         68
       ],
       "fixture_ids": [
+        19449037,
         19449030,
         19449022,
         19449012
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
