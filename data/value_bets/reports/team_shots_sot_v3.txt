@@ -1,6 +1,12 @@
-Generated at (UTC): 2025-12-15T02:58:40
+Generated at (UTC): 2025-12-15T16:23:12
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V3) =====
-(none)
+ • Manchester United (home) — Shots on Target Over 5.5 @ 1.720 vs AFC Bournemouth | kickoff 2025-12-15 20:00:00
+    model=0.744 | implied=0.581 | threshold≥6
+    Manchester United have cleared 6 shots on target in 5/7 home matches = 4,6,9,6,4,6,7
+    AFC Bournemouth's opponents have had 6+ shots on target in 6/7 away games = 6,8,8,7,8,1,10
+    This landed in the reverse fixture last season = 6
+    team hits 5/7 | opp conceded 6/7 | H2H 2/4
+    implied win probs: home 0.701 / away 0.299
