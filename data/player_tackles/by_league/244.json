@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-14T04:10:26.330948+00:00",
+  "generated_at": "2025-12-15T04:14:41.979737+00:00",
   "league_id": 244,
   "count": 110,
   "players": [
@@ -12,20 +12,23 @@
       "position_tag": "GK",
       "tackles_last_n": [
         0,
+        0,
         1,
         0
       ],
       "minutes_last_n": [
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311
       ],
-      "n": 3,
+      "n": 4,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -38,6 +41,7 @@
       "name": "Josip Misic",
       "position_tag": "MID",
       "tackles_last_n": [
+        4,
         2,
         4,
         1,
@@ -60,6 +64,7 @@
         90,
         90,
         90,
+        90,
         61,
         90,
         90,
@@ -70,150 +75,10 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311,
-        19427301,
-        19427291,
-        19427289,
-        19427281,
-        19427277,
-        19427271,
-        19427270,
-        19427261,
-        19427257,
-        19427251,
-        19427249
-      ],
-      "n": 14,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 244,
-      "season_id": 25584,
-      "team_id": 674,
-      "player_id": 100190,
-      "name": "Ismaël Bennacer",
-      "position_tag": "MID",
-      "tackles_last_n": [
-        2,
-        1,
-        1,
-        1,
-        4,
-        2,
-        3,
-        2
-      ],
-      "minutes_last_n": [
-        79,
-        60,
-        46,
-        90,
-        90,
-        69,
-        81,
-        90
-      ],
-      "fixture_ids": [
-        19427321,
-        19427316,
-        19427308,
-        19427301,
-        19427298,
-        19427291,
-        19427289,
-        19427281
-      ],
-      "n": 8,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 244,
-      "season_id": 25584,
-      "team_id": 674,
-      "player_id": 134041,
-      "name": "Miha Zajc",
-      "position_tag": "MID",
-      "tackles_last_n": [
-        0,
-        1,
-        1,
-        1,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        79,
-        60,
-        65,
-        74,
-        90,
-        66
-      ],
-      "fixture_ids": [
-        19427321,
-        19427316,
-        19427311,
-        19427308,
-        19427291,
-        19427277
-      ],
-      "n": 6,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 244,
-      "season_id": 25584,
-      "team_id": 674,
-      "player_id": 173047,
-      "name": "Scott McKenna",
-      "position_tag": "CB",
-      "tackles_last_n": [
-        0,
-        1,
-        0,
-        0,
-        0,
-        5,
-        2,
-        1,
-        1,
-        0,
-        1,
-        0,
-        1,
-        0,
-        4
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19427321,
-        19427316,
-        19427311,
-        19427308,
         19427301,
         19427291,
         19427289,
@@ -235,10 +100,161 @@
       "league_id": 244,
       "season_id": 25584,
       "team_id": 674,
+      "player_id": 100190,
+      "name": "Ismaël Bennacer",
+      "position_tag": "MID",
+      "tackles_last_n": [
+        4,
+        2,
+        1,
+        1,
+        1,
+        4,
+        2,
+        3,
+        2
+      ],
+      "minutes_last_n": [
+        90,
+        79,
+        60,
+        46,
+        90,
+        90,
+        69,
+        81,
+        90
+      ],
+      "fixture_ids": [
+        19427330,
+        19427321,
+        19427316,
+        19427308,
+        19427301,
+        19427298,
+        19427291,
+        19427289,
+        19427281
+      ],
+      "n": 9,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 244,
+      "season_id": 25584,
+      "team_id": 674,
+      "player_id": 134041,
+      "name": "Miha Zajc",
+      "position_tag": "MID",
+      "tackles_last_n": [
+        2,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        73,
+        79,
+        60,
+        65,
+        74,
+        90,
+        66
+      ],
+      "fixture_ids": [
+        19427330,
+        19427321,
+        19427316,
+        19427311,
+        19427308,
+        19427291,
+        19427277
+      ],
+      "n": 7,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 244,
+      "season_id": 25584,
+      "team_id": 674,
+      "player_id": 173047,
+      "name": "Scott McKenna",
+      "position_tag": "CB",
+      "tackles_last_n": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        5,
+        2,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        4
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19427330,
+        19427321,
+        19427316,
+        19427311,
+        19427308,
+        19427301,
+        19427291,
+        19427289,
+        19427281,
+        19427277,
+        19427271,
+        19427270,
+        19427261,
+        19427257,
+        19427251,
+        19427249
+      ],
+      "n": 16,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 244,
+      "season_id": 25584,
+      "team_id": 674,
       "player_id": 1486200,
       "name": "Arbër Hoxha",
       "position_tag": "FWD",
       "tackles_last_n": [
+        0,
         1,
         2,
         1,
@@ -251,6 +267,7 @@
         2
       ],
       "minutes_last_n": [
+        65,
         90,
         88,
         80,
@@ -263,6 +280,7 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311,
@@ -274,7 +292,7 @@
         19427281,
         19427277
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -287,6 +305,7 @@
       "name": "Dion Beljo",
       "position_tag": "FWD",
       "tackles_last_n": [
+        1,
         0,
         0,
         1,
@@ -301,6 +320,7 @@
         0
       ],
       "minutes_last_n": [
+        64,
         79,
         60,
         59,
@@ -315,6 +335,7 @@
         73
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427308,
@@ -328,7 +349,7 @@
         19427251,
         19427249
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -341,6 +362,7 @@
       "name": "Monsef Bakrar",
       "position_tag": "FWD",
       "tackles_last_n": [
+        0,
         1,
         1,
         1,
@@ -350,6 +372,7 @@
         1
       ],
       "minutes_last_n": [
+        64,
         90,
         90,
         64,
@@ -359,6 +382,7 @@
         71
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311,
@@ -367,7 +391,7 @@
         19427291,
         19427281
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -384,6 +408,7 @@
         1,
         1,
         1,
+        1,
         5,
         3,
         1,
@@ -396,6 +421,7 @@
         4
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -412,6 +438,7 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311,
@@ -427,7 +454,7 @@
         19427251,
         19427249
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -440,6 +467,7 @@
       "name": "Matteo Pérez Vinlöf",
       "position_tag": "LB",
       "tackles_last_n": [
+        5,
         2,
         2,
         0,
@@ -450,6 +478,7 @@
         4
       ],
       "minutes_last_n": [
+        90,
         82,
         67,
         90,
@@ -460,6 +489,7 @@
         73
       ],
       "fixture_ids": [
+        19427330,
         19427321,
         19427316,
         19427311,
@@ -469,7 +499,7 @@
         19427251,
         19427249
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1028,6 +1058,7 @@
       "name": "Tomislav Bozic",
       "position_tag": "CB",
       "tackles_last_n": [
+        2,
         0,
         1,
         0,
@@ -1055,9 +1086,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1072,7 +1105,7 @@
         19427256,
         19427247
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1085,6 +1118,7 @@
       "name": "Mateusz Stolarski",
       "position_tag": "GK",
       "tackles_last_n": [
+        0,
         1,
         0,
         0,
@@ -1096,16 +1130,18 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
         19427309,
         19427305
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1118,6 +1154,7 @@
       "name": "Dominik Kovacic",
       "position_tag": "CB",
       "tackles_last_n": [
+        0,
         0,
         1,
         2,
@@ -1151,9 +1188,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1171,7 +1210,7 @@
         19427255,
         19427247
       ],
-      "n": 16,
+      "n": 17,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1235,6 +1274,7 @@
       "name": "Leonard Žuta",
       "position_tag": "LB",
       "tackles_last_n": [
+        1,
         0,
         1,
         1,
@@ -1249,6 +1289,7 @@
         2
       ],
       "minutes_last_n": [
+        90,
         86,
         86,
         90,
@@ -1263,6 +1304,7 @@
         85
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1276,7 +1318,7 @@
         19427274,
         19427267
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1320,6 +1362,7 @@
       "position_tag": "MID",
       "tackles_last_n": [
         0,
+        0,
         2,
         2,
         0,
@@ -1335,6 +1378,7 @@
         1
       ],
       "minutes_last_n": [
+        46,
         60,
         80,
         82,
@@ -1351,6 +1395,7 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1366,7 +1411,7 @@
         19427256,
         19427255
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1379,6 +1424,7 @@
       "name": "Ivan Cubelic",
       "position_tag": "MID",
       "tackles_last_n": [
+        2,
         4,
         4,
         3,
@@ -1388,6 +1434,7 @@
         1
       ],
       "minutes_last_n": [
+        86,
         90,
         90,
         90,
@@ -1397,6 +1444,7 @@
         46
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1405,7 +1453,7 @@
         19427256,
         19427255
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1418,6 +1466,7 @@
       "name": "Ante Suto",
       "position_tag": "MID",
       "tackles_last_n": [
+        5,
         1,
         4,
         3,
@@ -1431,6 +1480,7 @@
         2
       ],
       "minutes_last_n": [
+        90,
         86,
         86,
         90,
@@ -1444,6 +1494,7 @@
         64
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1456,7 +1507,7 @@
         19427274,
         19427267
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1470,6 +1521,7 @@
       "position_tag": "RB",
       "tackles_last_n": [
         4,
+        4,
         2,
         3,
         1,
@@ -1479,6 +1531,7 @@
         2
       ],
       "minutes_last_n": [
+        86,
         90,
         90,
         90,
@@ -1489,6 +1542,7 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1498,7 +1552,7 @@
         19427295,
         19427290
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1511,6 +1565,7 @@
       "name": "Adriano Jagusic",
       "position_tag": "MID",
       "tackles_last_n": [
+        1,
         0,
         2,
         5,
@@ -1529,6 +1584,7 @@
         2
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -1547,6 +1603,7 @@
         90
       ],
       "fixture_ids": [
+        19427330,
         19427324,
         19427319,
         19427315,
@@ -1564,7 +1621,7 @@
         19427255,
         19427247
       ],
-      "n": 16,
+      "n": 17,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
