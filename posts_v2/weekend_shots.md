@@ -10,7 +10,6 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Robin Fellhauer (FC Augsburg — MID) — last5: 1,1,1,2,1 — @ 1.44
 • David Raum (RB Leipzig — LB) — last5: 1,1,2,2,2 — @ 1.44
 • Kristjan Asllani (Torino — MID) — last5: 2,2,3,3,1 — @ 1.50
-• Connor Barron (Rangers — MID) — last5: 2,2,2,1,1 — @ 2.25
 • Topi Keskinen (Aberdeen — MID) — last5: 2,1,1,1,4 — @ 1.44
 • Juan Iglesias (Getafe — MID) — last5: 1,2,2,1,2 — @ 1.83
 
