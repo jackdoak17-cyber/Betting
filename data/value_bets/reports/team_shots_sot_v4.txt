@@ -1,11 +1,23 @@
-Generated at (UTC): 2025-12-16T16:22:15
+Generated at (UTC): 2025-12-16T18:47:00
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
+ • FC Union Berlin (away) — Shots Under 13.5 @ 1.800 vs FC Köln | kickoff 2025-12-20 14:30:00
+    model=0.867 | implied=0.556 | threshold≥14
+    FC Union Berlin have had under 14 shots in 5/6 away matches = 21,7,12,10,11,12
+    FC Köln's opponents have had under 14 shots in 5/6 home games = 5,11,11,10,15,12
+    team hits 1/6 | opp conceded 1/6 | H2H 0/4
+    implied win probs: home 0.552 / away 0.448
  • Leeds United (home) — Shots on Target Over 3.5 @ 1.610 vs Crystal Palace | kickoff 2025-12-20 20:00:00
     model=0.625 | implied=0.621 | threshold≥4
     Leeds United have cleared 4 shots on target in 6/8 home matches = 5,5,5,5,4,8,1,3
     Crystal Palace's opponents have had 4+ shots on target in 4/8 away games = 4,4,1,3,7,3,4,3
     team hits 6/8 | opp conceded 4/8 | H2H 2/4
     implied win probs: home 0.514 / away 0.486
+ • Eintracht Frankfurt (away) — Shots on Target Under 4.5 @ 1.900 vs Hamburger SV | kickoff 2025-12-20 14:30:00
+    model=0.600 | implied=0.526 | threshold≥5
+    Eintracht Frankfurt have had under 5 shots on target in 4/7 away matches = 2,7,3,3,7,2,6
+    Hamburger SV's opponents have had under 5 shots on target in 5/7 home games = 3,3,1,2,4,8,6
+    team hits 3/7 | opp conceded 2/7 | H2H 2/4
+    implied win probs: home 0.493 / away 0.507
