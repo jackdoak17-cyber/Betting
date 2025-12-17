@@ -9,11 +9,12 @@ Leave a like if you find these useful.
 • G. Gudmundsson (Leeds United) = 3, 3, 3, 2, 1
 • J. Grealish (Everton) = 3, 2, 3, 1, 3
 • L. Ugochukwu (Burnley) = 3, 2, 2, 4, 1
+• A. Diallo (Man Utd) = 3, 1, 2, 3, 2
 • N. Williams (Nottm Forest) = 4, 2, 2, 2, 1
 • X. Simons (Spurs) = 3, 3, 2, 2, 1
-• A. Diallo (Man Utd) = 1, 2, 3, 2, 2
 • A. Gordon (Newcastle) = 1, 3, 1, 3, 2
 • G. Rutter (Brighton) = 3, 2, 2, 2, 1
+• M. Tavernier (Bournemouth) = 4, 1, 1, 3, 1
 • R. Mandava (Sunderland) = 1, 3, 2, 2, 2
 • C. Summerville (West Ham) = 4, 2, 1, 1, 1
 • C. Jones (Liverpool) = 2, 2, 3, 1, 1
@@ -22,6 +23,7 @@ Leave a like if you find these useful.
 • I. Gueye (Everton) = 1, 1, 2, 3, 1
 • J. Gomes (Wolves) = 1, 1, 1, 1, 4
 • J. Pedro (Chelsea) = 1, 1, 2, 2, 2
+• A. Semenyo (Bournemouth) = 1, 2, 1, 1, 2
 • D. Ouattara (Brentford) = 2, 1, 1, 1, 2
 • E. Konsa (Aston Villa) = 1, 1, 2, 2, 1
 • M. Wieffer (Brighton) = 1, 2, 2, 1, 1
