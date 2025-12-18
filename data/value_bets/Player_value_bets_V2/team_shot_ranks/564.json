@@ -1,54 +1,60 @@
 {
   "league_id": 564,
-  "generated_at": "2025-12-15T09:27:38.609232+00:00",
+  "generated_at": "2025-12-18T20:20:52.326781+00:00",
   "shots_conceded_rank": [
     {
       "team_id": 83,
       "team_name": "FC Barcelona",
-      "avg_shots_conceded": 9.375,
-      "sample_size": 16
+      "avg_shots_conceded": 9,
+      "sample_size": 17
     },
     {
       "team_id": 13258,
       "team_name": "Athletic Club",
-      "avg_shots_conceded": 9.75,
-      "sample_size": 16
+      "avg_shots_conceded": 9.470588235294118,
+      "sample_size": 17
     },
     {
       "team_id": 3468,
       "team_name": "Real Madrid",
+      "avg_shots_conceded": 9.823529411764707,
+      "sample_size": 17
+    },
+    {
+      "team_id": 106,
+      "team_name": "Getafe",
       "avg_shots_conceded": 10.0625,
       "sample_size": 16
     },
     {
       "team_id": 7980,
       "team_name": "Atlético Madrid",
-      "avg_shots_conceded": 10.3125,
-      "sample_size": 16
-    },
-    {
-      "team_id": 106,
-      "team_name": "Getafe",
-      "avg_shots_conceded": 10.333333333333334,
-      "sample_size": 15
-    },
-    {
-      "team_id": 2975,
-      "team_name": "Deportivo Alavés",
-      "avg_shots_conceded": 11.133333333333333,
-      "sample_size": 15
+      "avg_shots_conceded": 10.470588235294118,
+      "sample_size": 17
     },
     {
       "team_id": 676,
       "team_name": "Sevilla",
-      "avg_shots_conceded": 11.133333333333333,
-      "sample_size": 15
+      "avg_shots_conceded": 10.6875,
+      "sample_size": 16
+    },
+    {
+      "team_id": 2975,
+      "team_name": "Deportivo Alavés",
+      "avg_shots_conceded": 11.25,
+      "sample_size": 16
     },
     {
       "team_id": 377,
       "team_name": "Rayo Vallecano",
-      "avg_shots_conceded": 11.666666666666666,
-      "sample_size": 15
+      "avg_shots_conceded": 11.75,
+      "sample_size": 16
+    },
+    {
+      "team_id": 485,
+      "team_name": "Real Betis",
+      "avg_shots_conceded": 12.125,
+      "sample_size": 16
     },
     {
       "team_id": 3477,
@@ -59,82 +65,94 @@
     {
       "team_id": 594,
       "team_name": "Real Sociedad",
-      "avg_shots_conceded": 12.266666666666667,
-      "sample_size": 15
+      "avg_shots_conceded": 12.375,
+      "sample_size": 16
     },
     {
       "team_id": 36,
       "team_name": "Celta de Vigo",
-      "avg_shots_conceded": 12.6,
-      "sample_size": 15
+      "avg_shots_conceded": 12.6875,
+      "sample_size": 16
     },
     {
       "team_id": 1099,
       "team_name": "Elche",
-      "avg_shots_conceded": 12.666666666666666,
-      "sample_size": 15
-    },
-    {
-      "team_id": 459,
-      "team_name": "Osasuna",
-      "avg_shots_conceded": 12.733333333333333,
-      "sample_size": 15
+      "avg_shots_conceded": 12.8125,
+      "sample_size": 16
     },
     {
       "team_id": 214,
       "team_name": "Valencia",
-      "avg_shots_conceded": 13,
-      "sample_size": 15
+      "avg_shots_conceded": 12.8125,
+      "sample_size": 16
     },
     {
       "team_id": 528,
       "team_name": "Espanyol",
-      "avg_shots_conceded": 13.066666666666666,
-      "sample_size": 15
+      "avg_shots_conceded": 12.9375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 459,
+      "team_name": "Osasuna",
+      "avg_shots_conceded": 13.4375,
+      "sample_size": 16
     },
     {
       "team_id": 645,
       "team_name": "Mallorca",
-      "avg_shots_conceded": 14.333333333333334,
-      "sample_size": 15
+      "avg_shots_conceded": 14,
+      "sample_size": 16
     },
     {
       "team_id": 93,
       "team_name": "Real Oviedo",
-      "avg_shots_conceded": 16.266666666666666,
-      "sample_size": 15
+      "avg_shots_conceded": 16.0625,
+      "sample_size": 16
+    },
+    {
+      "team_id": 231,
+      "team_name": "Girona",
+      "avg_shots_conceded": 16.875,
+      "sample_size": 16
     },
     {
       "team_id": 3457,
       "team_name": "Levante",
       "avg_shots_conceded": 17.133333333333333,
       "sample_size": 15
-    },
-    {
-      "team_id": 231,
-      "team_name": "Girona",
-      "avg_shots_conceded": 17.4,
-      "sample_size": 15
     }
   ],
   "shots_for_rank": [
     {
-      "team_id": 3468,
-      "team_name": "Real Madrid",
-      "avg_shots_for": 19.875,
-      "sample_size": 16
-    },
-    {
       "team_id": 83,
       "team_name": "FC Barcelona",
-      "avg_shots_for": 19.6875,
+      "avg_shots_for": 19.941176470588236,
+      "sample_size": 17
+    },
+    {
+      "team_id": 3468,
+      "team_name": "Real Madrid",
+      "avg_shots_for": 19.470588235294116,
+      "sample_size": 17
+    },
+    {
+      "team_id": 485,
+      "team_name": "Real Betis",
+      "avg_shots_for": 14.75,
       "sample_size": 16
     },
     {
       "team_id": 594,
       "team_name": "Real Sociedad",
-      "avg_shots_for": 13.666666666666666,
-      "sample_size": 15
+      "avg_shots_for": 13.375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 377,
+      "team_name": "Rayo Vallecano",
+      "avg_shots_for": 13.3125,
+      "sample_size": 16
     },
     {
       "team_id": 3477,
@@ -143,70 +161,58 @@
       "sample_size": 15
     },
     {
-      "team_id": 528,
-      "team_name": "Espanyol",
-      "avg_shots_for": 13.2,
-      "sample_size": 15
+      "team_id": 13258,
+      "team_name": "Athletic Club",
+      "avg_shots_for": 13,
+      "sample_size": 17
     },
     {
       "team_id": 7980,
       "team_name": "Atlético Madrid",
-      "avg_shots_for": 13.125,
-      "sample_size": 16
+      "avg_shots_for": 12.941176470588236,
+      "sample_size": 17
     },
     {
-      "team_id": 13258,
-      "team_name": "Athletic Club",
-      "avg_shots_for": 12.9375,
+      "team_id": 528,
+      "team_name": "Espanyol",
+      "avg_shots_for": 12.75,
       "sample_size": 16
-    },
-    {
-      "team_id": 377,
-      "team_name": "Rayo Vallecano",
-      "avg_shots_for": 12.666666666666666,
-      "sample_size": 15
     },
     {
       "team_id": 2975,
       "team_name": "Deportivo Alavés",
-      "avg_shots_for": 11.333333333333334,
-      "sample_size": 15
+      "avg_shots_for": 11,
+      "sample_size": 16
     },
     {
       "team_id": 1099,
       "team_name": "Elche",
-      "avg_shots_for": 11.133333333333333,
-      "sample_size": 15
-    },
-    {
-      "team_id": 36,
-      "team_name": "Celta de Vigo",
-      "avg_shots_for": 10.933333333333334,
-      "sample_size": 15
-    },
-    {
-      "team_id": 676,
-      "team_name": "Sevilla",
-      "avg_shots_for": 10.666666666666666,
-      "sample_size": 15
-    },
-    {
-      "team_id": 214,
-      "team_name": "Valencia",
-      "avg_shots_for": 10.666666666666666,
-      "sample_size": 15
-    },
-    {
-      "team_id": 459,
-      "team_name": "Osasuna",
-      "avg_shots_for": 10.6,
-      "sample_size": 15
+      "avg_shots_for": 11,
+      "sample_size": 16
     },
     {
       "team_id": 645,
       "team_name": "Mallorca",
-      "avg_shots_for": 10.533333333333333,
-      "sample_size": 15
+      "avg_shots_for": 10.8125,
+      "sample_size": 16
+    },
+    {
+      "team_id": 676,
+      "team_name": "Sevilla",
+      "avg_shots_for": 10.8125,
+      "sample_size": 16
+    },
+    {
+      "team_id": 214,
+      "team_name": "Valencia",
+      "avg_shots_for": 10.8125,
+      "sample_size": 16
+    },
+    {
+      "team_id": 36,
+      "team_name": "Celta de Vigo",
+      "avg_shots_for": 10.5625,
+      "sample_size": 16
     },
     {
       "team_id": 3457,
@@ -215,24 +221,30 @@
       "sample_size": 15
     },
     {
+      "team_id": 459,
+      "team_name": "Osasuna",
+      "avg_shots_for": 10.125,
+      "sample_size": 16
+    },
+    {
       "team_id": 231,
       "team_name": "Girona",
-      "avg_shots_for": 9.333333333333334,
-      "sample_size": 15
+      "avg_shots_for": 9.625,
+      "sample_size": 16
     },
     {
       "team_id": 106,
       "team_name": "Getafe",
-      "avg_shots_for": 9.2,
-      "sample_size": 15
+      "avg_shots_for": 9.3125,
+      "sample_size": 16
     },
     {
       "team_id": 93,
       "team_name": "Real Oviedo",
-      "avg_shots_for": 9.066666666666666,
-      "sample_size": 15
+      "avg_shots_for": 8.75,
+      "sample_size": 16
     }
   ],
   "min_sample": 3,
-  "team_count": 19
+  "team_count": 20
 }
