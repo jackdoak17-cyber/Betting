@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-17T16:23:53
+Generated at (UTC): 2025-12-18T02:50:09
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -10,11 +10,11 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     team hits 1/6 | opp conceded 1/6 | H2H 0/4
     implied win probs: home 0.556 / away 0.444
  • Real Sociedad (away) — Shots on Target Over 4.5 @ 1.720 vs Levante | kickoff 2025-12-20 15:15:00
-    model=0.713 | implied=0.581 | threshold≥5
+    model=0.743 | implied=0.581 | threshold≥5
     Real Sociedad have cleared 5 shots on target in 5/8 away matches = 1,9,5,7,2,5,6,3
     Levante's opponents have had 5+ shots on target in 5/6 home games = 4,6,5,10,9,10
     team hits 5/8 | opp conceded 5/6 | H2H 3/4
-    implied win probs: home 0.404 / away 0.596
+    implied win probs: home 0.394 / away 0.606
  • Torino (away) — Shots Over 10.5 @ 1.720 vs Sassuolo | kickoff 2025-12-21 14:00:00
     model=0.700 | implied=0.581 | threshold≥11
     Torino have cleared 11 shots in 4/7 away matches = 15,8,8,16,15,8,12
@@ -41,6 +41,12 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 2
     team hits 2/8 | opp conceded 4/8 | H2H 1/4
     implied win probs: home 0.678 / away 0.322
+ • Elche (home) — Shots on Target Over 3.5 @ 1.720 vs Rayo Vallecano | kickoff 2025-12-21 17:30:00
+    model=0.642 | implied=0.581 | threshold≥4
+    Elche have cleared 4 shots on target in 6/8 home matches = 6,6,3,5,8,5,5,2
+    Rayo Vallecano's opponents have had 4+ shots on target in 5/9 away games = 2,3,7,4,3,8,7,4,2
+    team hits 6/8 | opp conceded 5/9 | H2H 2/4
+    implied win probs: home 0.556 / away 0.444
  • Sevilla (away) — Shots Under 9.5 @ 1.800 vs Real Madrid | kickoff 2025-12-20 20:00:00
     model=0.637 | implied=0.556 | threshold≥10
     Sevilla have had under 10 shots in 4/8 away matches = 4,22,10,6,4,9,13,12
@@ -60,6 +66,13 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Hamburger SV's opponents have had under 5 shots on target in 5/7 home games = 3,3,1,2,4,8,6
     team hits 3/7 | opp conceded 2/7 | H2H 2/4
     implied win probs: home 0.498 / away 0.502
+ • Genoa (home) — Shots on Target Over 3.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
+    model=0.577 | implied=0.546 | threshold≥4
+    Genoa have cleared 4 shots on target in 4/8 home matches = 3,4,6,1,7,5,1,2
+    Atalanta's opponents have had 4+ shots on target in 6/7 away games = 7,6,5,5,10,5,3
+    This landed in the reverse fixture last season = 5
+    team hits 4/8 | opp conceded 6/7 | H2H 2/4
+    implied win probs: home 0.333 / away 0.667
  • Deportivo Alavés (away) — Shots Over 10.5 @ 1.830 vs Osasuna | kickoff 2025-12-20 17:30:00
     model=0.570 | implied=0.546 | threshold≥11
     Deportivo Alavés have cleared 11 shots in 4/7 away matches = 9,14,12,12,10,4,11
@@ -67,3 +80,10 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 14
     team hits 4/7 | opp conceded 5/7 | H2H 2/4
     implied win probs: home 0.609 / away 0.391
+ • Genoa (home) — Shots Over 10.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
+    model=0.534 | implied=0.546 | threshold≥11
+    Genoa have cleared 11 shots in 4/8 home matches = 5,15,10,16,23,17,10,5
+    Atalanta's opponents have had 11+ shots in 5/7 away games = 12,11,11,9,24,11,7
+    This landed in the reverse fixture last season = 12
+    team hits 4/8 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.333 / away 0.667
