@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-18T10:12:20
+Generated at (UTC): 2025-12-18T16:22:59
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -46,7 +46,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Southampton have had under 15 shots in 5/9 home matches = 8,18,18,12,10,21,14,9,18
     Coventry City's opponents have had under 15 shots in 8/10 away games = 6,10,11,10,13,15,9,13,17,14
     team hits 4/9 | opp conceded 2/10 | H2H 1/3
-    implied win probs: home 0.529 / away 0.471
+    implied win probs: home 0.524 / away 0.476
  • Valencia (home) — Shots on Target Under 4.5 @ 1.660 vs Mallorca | kickoff 2025-12-19 20:00:00
     model=0.645 | implied=0.602 | threshold≥5
     Valencia have had under 5 shots on target in 6/8 home matches = 3,3,4,3,5,5,4,2
@@ -66,7 +66,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Real Madrid's opponents have had under 10 shots in 6/7 home games = 7,4,15,9,8,9,2
     This landed in the reverse fixture last season = 6
     team hits 4/8 | opp conceded 1/7 | H2H 2/4
-    implied win probs: home 0.900 / away 0.100
+    implied win probs: home 0.909 / away 0.091
  • Leeds United (home) — Shots on Target Over 3.5 @ 1.610 vs Crystal Palace | kickoff 2025-12-20 20:00:00
     model=0.625 | implied=0.621 | threshold≥4
     Leeds United have cleared 4 shots on target in 6/8 home matches = 5,5,5,5,4,8,1,3
