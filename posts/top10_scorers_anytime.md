@@ -10,5 +10,5 @@ Top 10 Scorers — Bet365 Anytime
 | 6 | M. Greenwood — Marseille (L1) | 11 | @ — | v TBC |
 | 7 | E. Lepaul — Rennes (L1) | 9 | @ — | v TBC |
 | 8 | J. Panichelli — Strasbourg (L1) | 9 | @ — | v TBC |
-| 9 | V. Muriqi — Mallorca (LAL) | 9 | @ 3.40 | v Valencia |
+| 9 | V. Muriqi — Mallorca (LAL) | 9 | @ 3.50 | v Valencia |
 | 10 | D. Undav — VfB Stuttgart (BUN) | 8 | @ 1.95 | v TSG Hoffenheim |
