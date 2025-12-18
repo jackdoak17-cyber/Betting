@@ -13,7 +13,6 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Juan Iglesias (Getafe — MID) — last5: 1,2,2,1,2 — @ 2.20
 • Dion Lopy (Almería — MID) — last5: 2,2,2,1,1 — @ 1.50
 • Jon Balda (Real Sociedad II — LB) — last5: 1,1,3,1,1 — @ 1.61
-• Mithat Pala (Rizespor — RB) — last5: 2,1,1,1,1 — @ 1.44
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
