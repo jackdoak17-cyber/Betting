@@ -26,6 +26,7 @@ Leave a like if you find these useful.
 • A. Semenyo (Bournemouth) = 1, 2, 1, 1, 2
 • D. Ouattara (Brentford) = 2, 1, 1, 1, 2
 • E. Konsa (Aston Villa) = 1, 1, 2, 2, 1
+• K. Tete (Fulham) = 1, 1, 1, 3, 1
 • M. Wieffer (Brighton) = 1, 2, 2, 1, 1
 • R. Richarlison (Spurs) = 2, 2, 1, 1, 1
 • E. Eze (Arsenal) = 1, 1, 1, 2, 1
