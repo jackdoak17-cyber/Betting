@@ -22,6 +22,7 @@ Leave a like if you find these useful.
 • P. Pedro (Chelsea) = 2, 2, 3, 3, 1
 • D. Szoboszlai (Liverpool) = 2, 2, 4, 0, 2
 • E. Fernández (Chelsea) = 2, 2, 3, 1, 2
+• H. Wilson (Fulham) = 2, 2, 0, 2, 4
 • I. Sarr (Crystal Palace) = 2, 2, 2, 3, 1
 • R. Cherki (Man City) = 0, 2, 2, 2, 3
 
