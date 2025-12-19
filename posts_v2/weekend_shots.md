@@ -18,7 +18,7 @@ Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Amankwah Forson (Norwich City — MID) — last5: 5,3,2,2,2 — @ 1.57
 • Luis Hasa (Carrarese — MID) — last5: 3,3,2,3,4 — @ 3.00
-• Jesper Karlsson (Aberdeen — FWD) — last5: 3,4,4,2,3 — @ 1.80
+• Jesper Karlsson (Aberdeen — FWD) — last5: 3,4,4,2,3 — @ 1.83
 • Awer Mabil (Castellón — MID) — last5: 5,3,3,2,4 — @ 1.44
 
 ⚠️Stat-based shortlist, not tips. Its a good starting point to identify value but we need to consider price, team news, form, and opposition etc. Any value here?
