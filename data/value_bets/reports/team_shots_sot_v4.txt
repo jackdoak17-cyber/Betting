@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-18T16:22:59
+Generated at (UTC): 2025-12-19T02:53:41
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -21,6 +21,13 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Real Oviedo's opponents have had 5+ shots on target in 7/8 home games = 6,4,5,10,5,10,6,10
     team hits 4/7 | opp conceded 7/8 | H2H 0/0
     implied win probs: home 0.351 / away 0.649
+ • Athletic Club (home) — Shots Under 15.5 @ 1.830 vs Espanyol | kickoff 2025-12-22 20:00:00
+    model=0.710 | implied=0.546 | threshold≥16
+    Athletic Club have had under 16 shots in 6/9 home matches = 14,9,21,7,18,17,12,11,14
+    Espanyol's opponents have had under 16 shots in 6/7 away games = 11,11,13,13,12,16,15
+    This landed in the reverse fixture last season = 14
+    team hits 3/9 | opp conceded 1/7 | H2H 1/4
+    implied win probs: home 0.725 / away 0.275
  • Torino (away) — Shots Over 10.5 @ 1.720 vs Sassuolo | kickoff 2025-12-21 14:00:00
     model=0.700 | implied=0.581 | threshold≥11
     Torino have cleared 11 shots in 4/7 away matches = 15,8,8,16,15,8,12
