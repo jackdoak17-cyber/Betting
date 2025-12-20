@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-20T07:34:27.763213+00:00",
+  "generated_at": "2025-12-20T19:30:44.919954+00:00",
   "league_id": 82,
   "count": 198,
   "players": [
@@ -488,6 +488,7 @@
       "name": "Marco Friedl",
       "position_tag": "LB",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -503,6 +504,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         57,
         90,
         90,
@@ -518,6 +520,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433588,
         19433581,
@@ -532,7 +535,7 @@
         19433498,
         19431623
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -545,6 +548,7 @@
       "name": "Jens Stage",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        2,
         1,
         2,
         1,
@@ -568,11 +572,13 @@
         90,
         90,
         90,
+        90,
         80,
         60,
         63
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433588,
         19433581,
@@ -586,7 +592,7 @@
         19433508,
         19433498
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -653,6 +659,7 @@
       "name": "Romano Schmid",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         2,
         0,
@@ -679,12 +686,14 @@
         90,
         90,
         90,
+        90,
         73,
         75,
         90,
         90
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433588,
         19433581,
@@ -693,6 +702,111 @@
         19433550,
         19433544,
         19433529,
+        19433526,
+        19433516,
+        19433508,
+        19433498,
+        19433490,
+        19431623
+      ],
+      "n": 15,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 82,
+      "player_id": 537599,
+      "name": "Amos Pieper",
+      "position_tag": "CB",
+      "fouls_drawn_last_n": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        2,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        46,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433605,
+        19433599,
+        19433588,
+        19433581,
+        19433572,
+        19433562,
+        19433550,
+        19433544,
+        19433529
+      ],
+      "n": 9,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 82,
+      "player_id": 539990,
+      "name": "Senne Lynen",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        1,
+        0,
+        0,
+        2,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        77,
+        90,
+        90,
+        89,
+        86,
+        90,
+        90,
+        90,
+        90,
+        77,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433605,
+        19433599,
+        19433588,
+        19433581,
+        19433572,
+        19433562,
+        19433550,
+        19433544,
         19433526,
         19433516,
         19433508,
@@ -709,111 +823,13 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 82,
-      "player_id": 537599,
-      "name": "Amos Pieper",
-      "position_tag": "CB",
-      "fouls_drawn_last_n": [
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        2,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        46,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433599,
-        19433588,
-        19433581,
-        19433572,
-        19433562,
-        19433550,
-        19433544,
-        19433529
-      ],
-      "n": 8,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 82,
-      "player_id": 539990,
-      "name": "Senne Lynen",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        0,
-        0,
-        2,
-        0,
-        0,
-        1,
-        0,
-        0,
-        1,
-        1,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        77,
-        90,
-        90,
-        89,
-        86,
-        90,
-        90,
-        90,
-        90,
-        77,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433599,
-        19433588,
-        19433581,
-        19433572,
-        19433562,
-        19433550,
-        19433544,
-        19433526,
-        19433516,
-        19433508,
-        19433498,
-        19433490,
-        19431623
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 82,
       "player_id": 5666480,
       "name": "Yukinari Sugawara",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
         0,
         0,
+        0,
         2,
         0,
         1,
@@ -827,6 +843,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -842,6 +859,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433588,
         19433581,
@@ -856,7 +874,7 @@
         19433498,
         19433490
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -869,6 +887,7 @@
       "name": "Justin Njinmah",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -878,6 +897,7 @@
         1
       ],
       "minutes_last_n": [
+        68,
         77,
         66,
         60,
@@ -887,6 +907,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433562,
         19433526,
@@ -895,7 +916,7 @@
         19433490,
         19431623
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -955,6 +976,7 @@
       "fouls_drawn_last_n": [
         0,
         0,
+        0,
         1,
         0,
         0,
@@ -978,9 +1000,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433605,
         19433599,
         19433588,
         19433581,
@@ -994,7 +1018,7 @@
         19433490,
         19431623
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1065,6 +1089,7 @@
       "position_tag": "MID",
       "fouls_drawn_last_n": [
         1,
+        1,
         0,
         0,
         2,
@@ -1075,6 +1100,7 @@
         0
       ],
       "minutes_last_n": [
+        56,
         90,
         90,
         90,
@@ -1086,6 +1112,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433542,
@@ -1096,7 +1123,7 @@
         19433487,
         19433484
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1109,6 +1136,7 @@
       "name": "Dimitrios Giannoulis",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        2,
         1,
         0,
         2,
@@ -1122,6 +1150,7 @@
         0
       ],
       "minutes_last_n": [
+        56,
         83,
         57,
         71,
@@ -1135,6 +1164,7 @@
         60
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1147,7 +1177,7 @@
         19433487,
         19433484
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1160,6 +1190,7 @@
       "name": "Alexis Claude-Maurice",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        4,
         3,
         2,
         2,
@@ -1170,6 +1201,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         66,
         70,
         64,
@@ -1180,6 +1212,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433569,
@@ -1189,7 +1222,7 @@
         19433511,
         19433505
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1202,6 +1235,7 @@
       "name": "Keven Schlotterbeck",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -1214,6 +1248,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         81,
         90,
         90,
@@ -1222,6 +1257,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433569,
@@ -1231,7 +1267,7 @@
         19433487,
         19433484
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1246,6 +1282,7 @@
       "fouls_drawn_last_n": [
         1,
         1,
+        1,
         2,
         2,
         0,
@@ -1259,6 +1296,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         83,
         90,
         90,
@@ -1274,6 +1312,7 @@
         87
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1288,7 +1327,7 @@
         19433487,
         19433484
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1301,6 +1340,7 @@
       "name": "Finn Dahmen",
       "position_tag": "GK",
       "fouls_drawn_last_n": [
+        0,
         0,
         1,
         1,
@@ -1330,9 +1370,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1348,7 +1390,7 @@
         19433487,
         19433484
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1361,6 +1403,7 @@
       "name": "Han-Noah Massengo",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         2,
         0,
         0,
@@ -1377,6 +1420,7 @@
         3
       ],
       "minutes_last_n": [
+        90,
         76,
         90,
         46,
@@ -1393,6 +1437,7 @@
         90
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1408,7 +1453,7 @@
         19433487,
         19433484
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1481,6 +1526,7 @@
       "name": "Fabian Rieder",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        3,
         1,
         0,
         1,
@@ -1495,6 +1541,7 @@
         1
       ],
       "minutes_last_n": [
+        78,
         75,
         57,
         90,
@@ -1509,6 +1556,7 @@
         84
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1522,7 +1570,7 @@
         19433505,
         19433499
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1574,6 +1622,7 @@
       "name": "Noahkai Banks",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        2,
         1,
         2,
         0,
@@ -1589,6 +1638,7 @@
         90,
         90,
         90,
+        90,
         62,
         90,
         90,
@@ -1596,6 +1646,7 @@
         84
       ],
       "fixture_ids": [
+        19433605,
         19433595,
         19433587,
         19433582,
@@ -1606,7 +1657,7 @@
         19433530,
         19433524
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1632,9 +1683,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -1651,6 +1704,7 @@
         90
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589,
         19433576,
@@ -1666,7 +1720,7 @@
         19433489,
         19431622
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1679,6 +1733,7 @@
       "name": "Willi Orbán",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         0,
         1,
         2,
@@ -1695,6 +1750,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -1711,6 +1767,7 @@
         90
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589,
         19433576,
@@ -1726,7 +1783,7 @@
         19433489,
         19431622
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -1739,6 +1796,7 @@
       "name": "David Raum",
       "position_tag": "LB",
       "fouls_drawn_last_n": [
+        2,
         0,
         0,
         0,
@@ -1756,6 +1814,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         67,
         90,
         90,
@@ -1771,11 +1830,168 @@
         90
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589,
         19433576,
         19433572,
         19433563,
+        19433554,
+        19433542,
+        19433535,
+        19433521,
+        19433519,
+        19433507,
+        19433496,
+        19433489,
+        19431622
+      ],
+      "n": 15,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 277,
+      "player_id": 52867,
+      "name": "Xaver Schlager",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        66,
+        90,
+        69
+      ],
+      "fixture_ids": [
+        19433607,
+        19433592,
+        19433589,
+        19433576,
+        19433489,
+        19431622
+      ],
+      "n": 6,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 277,
+      "player_id": 3862700,
+      "name": "Christoph Baumgartner",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        3,
+        0,
+        1,
+        3,
+        1,
+        2,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        5,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        67,
+        90,
+        90,
+        90,
+        85,
+        63,
+        78,
+        90,
+        90,
+        90,
+        90,
+        85
+      ],
+      "fixture_ids": [
+        19433607,
+        19433592,
+        19433589,
+        19433576,
+        19433572,
+        19433563,
+        19433554,
+        19433542,
+        19433535,
+        19433521,
+        19433519,
+        19433507,
+        19433496,
+        19433489
+      ],
+      "n": 14,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 277,
+      "player_id": 24469115,
+      "name": "Castello Lukeba",
+      "position_tag": "CB",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433607,
+        19433592,
+        19433589,
+        19433576,
+        19433572,
         19433554,
         19433542,
         19433535,
@@ -1795,153 +2011,6 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 277,
-      "player_id": 52867,
-      "name": "Xaver Schlager",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        1,
-        1,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        66,
-        90,
-        69
-      ],
-      "fixture_ids": [
-        19433592,
-        19433589,
-        19433576,
-        19433489,
-        19431622
-      ],
-      "n": 5,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 277,
-      "player_id": 3862700,
-      "name": "Christoph Baumgartner",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        0,
-        1,
-        3,
-        1,
-        2,
-        0,
-        0,
-        2,
-        1,
-        0,
-        0,
-        5,
-        1
-      ],
-      "minutes_last_n": [
-        90,
-        67,
-        90,
-        90,
-        90,
-        85,
-        63,
-        78,
-        90,
-        90,
-        90,
-        90,
-        85
-      ],
-      "fixture_ids": [
-        19433592,
-        19433589,
-        19433576,
-        19433572,
-        19433563,
-        19433554,
-        19433542,
-        19433535,
-        19433521,
-        19433519,
-        19433507,
-        19433496,
-        19433489
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 277,
-      "player_id": 24469115,
-      "name": "Castello Lukeba",
-      "position_tag": "CB",
-      "fouls_drawn_last_n": [
-        0,
-        2,
-        0,
-        1,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433592,
-        19433589,
-        19433576,
-        19433572,
-        19433554,
-        19433542,
-        19433535,
-        19433521,
-        19433519,
-        19433507,
-        19433496,
-        19433489,
-        19431622
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 277,
       "player_id": 31237395,
       "name": "Nicolas Seiwald",
       "position_tag": "MID",
@@ -1949,6 +2018,7 @@
         0,
         0,
         0,
+        0,
         1,
         1,
         0,
@@ -1961,6 +2031,7 @@
         0
       ],
       "minutes_last_n": [
+        89,
         90,
         72,
         90,
@@ -1976,6 +2047,7 @@
         88
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589,
         19433576,
@@ -1990,7 +2062,7 @@
         19433496,
         19431622
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2045,18 +2117,21 @@
       "name": "Kosta Nedeljkovic",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
+        0,
         1,
         0
       ],
       "minutes_last_n": [
+        70,
         81,
         90
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2069,6 +2144,7 @@
       "name": "Conrad Harder",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        4,
         0,
         2,
         1,
@@ -2076,17 +2152,19 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         67,
         82,
         68
       ],
       "fixture_ids": [
+        19433607,
         19433592,
         19433589,
         19433576,
         19433572
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2744,21 +2822,24 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        90,
         62,
         56,
         78,
         79
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433566,
         19433559
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2775,6 +2856,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         0,
@@ -2783,6 +2865,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -2795,6 +2878,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433577,
@@ -2806,7 +2890,7 @@
         19433491,
         19431623
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2819,6 +2903,7 @@
       "name": "Robin Koch",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        2,
         0,
         0,
         1,
@@ -2835,6 +2920,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         62,
         90,
         90,
@@ -2851,6 +2937,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433577,
@@ -2866,7 +2953,7 @@
         19433491,
         19431623
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2879,6 +2966,7 @@
       "name": "Rasmus Kristensen",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
+        1,
         2,
         2,
         0,
@@ -2890,6 +2978,7 @@
         1
       ],
       "minutes_last_n": [
+        71,
         90,
         90,
         90,
@@ -2901,6 +2990,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433577,
@@ -2911,7 +3001,7 @@
         19433491,
         19431623
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -2963,6 +3053,7 @@
       "name": "Ritsu Doan",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         2,
         0,
         2,
@@ -2980,6 +3071,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         67,
         90,
         84,
@@ -2995,6 +3087,7 @@
         83
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433577,
@@ -3010,7 +3103,7 @@
         19433491,
         19431623
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3083,6 +3176,7 @@
       "name": "Ansgar Knauff",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         1,
@@ -3092,6 +3186,7 @@
         1
       ],
       "minutes_last_n": [
+        83,
         80,
         82,
         77,
@@ -3101,6 +3196,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433577,
         19433566,
@@ -3109,7 +3205,7 @@
         19433541,
         19433515
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3122,6 +3218,7 @@
       "name": "Nnamdi Collins",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         1,
         2,
         1,
@@ -3135,6 +3232,7 @@
         90,
         90,
         90,
+        90,
         57,
         90,
         90,
@@ -3142,6 +3240,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433595,
         19433589,
         19433566,
@@ -3151,7 +3250,7 @@
         19433491,
         19431623
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3692,9 +3791,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        80,
         90,
         90,
         86,
@@ -3704,6 +3805,7 @@
         78
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -3712,7 +3814,7 @@
         19433543,
         19433537
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -3725,6 +3827,7 @@
       "name": "Maximilian Arnold",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        3,
         0,
         2,
         2,
@@ -3752,9 +3855,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -3762,138 +3867,6 @@
         19433562,
         19433555,
         19433543,
-        19433524,
-        19433519,
-        19433503,
-        19433501,
-        19433493,
-        19433478
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 510,
-      "player_id": 32155,
-      "name": "Yannick Gerhardt",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        1,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        86,
-        61
-      ],
-      "fixture_ids": [
-        19433594,
-        19433591,
-        19433577,
-        19433573
-      ],
-      "n": 4,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 510,
-      "player_id": 74116,
-      "name": "Lovro Majer",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        0,
-        1,
-        1,
-        1,
-        1,
-        4,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        83,
-        90,
-        90,
-        90,
-        60,
-        85,
-        70,
-        64
-      ],
-      "fixture_ids": [
-        19433594,
-        19433591,
-        19433577,
-        19433573,
-        19433503,
-        19433501,
-        19433493,
-        19433478
-      ],
-      "n": 8,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 510,
-      "player_id": 1494392,
-      "name": "Kamil Grabara",
-      "position_tag": "GK",
-      "fouls_drawn_last_n": [
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      "minutes_last_n": [
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90
-      ],
-      "fixture_ids": [
-        19433594,
-        19433591,
-        19433577,
-        19433573,
-        19433562,
-        19433555,
-        19433543,
-        19433537,
         19433524,
         19433519,
         19433503,
@@ -3910,37 +3883,70 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 510,
-      "player_id": 37259654,
-      "name": "Patrick Wimmer",
+      "player_id": 32155,
+      "name": "Yannick Gerhardt",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        86,
+        61
+      ],
+      "fixture_ids": [
+        19433609,
+        19433594,
+        19433591,
+        19433577,
+        19433573
+      ],
+      "n": 5,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 510,
+      "player_id": 74116,
+      "name": "Lovro Majer",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
         0,
-        1,
-        1,
         0,
-        2,
-        2,
+        1,
+        1,
+        1,
+        1,
         4,
-        3,
-        3
+        1,
+        2
       ],
       "minutes_last_n": [
-        69,
-        65,
-        71,
-        61,
-        46,
-        73,
-        89,
+        68,
+        83,
         90,
-        90
+        90,
+        90,
+        60,
+        85,
+        70,
+        64
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
         19433573,
-        19433519,
         19433503,
         19433501,
         19433493,
@@ -3955,10 +3961,122 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 510,
+      "player_id": 1494392,
+      "name": "Kamil Grabara",
+      "position_tag": "GK",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433609,
+        19433594,
+        19433591,
+        19433577,
+        19433573,
+        19433562,
+        19433555,
+        19433543,
+        19433537,
+        19433524,
+        19433519,
+        19433503,
+        19433501,
+        19433493,
+        19433478
+      ],
+      "n": 15,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 510,
+      "player_id": 37259654,
+      "name": "Patrick Wimmer",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        2,
+        2,
+        4,
+        3,
+        3
+      ],
+      "minutes_last_n": [
+        80,
+        69,
+        65,
+        71,
+        61,
+        46,
+        73,
+        89,
+        90,
+        90
+      ],
+      "fixture_ids": [
+        19433609,
+        19433594,
+        19433591,
+        19433577,
+        19433573,
+        19433519,
+        19433503,
+        19433501,
+        19433493,
+        19433478
+      ],
+      "n": 10,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 510,
       "player_id": 37328010,
       "name": "Konstantinos Koulierakis",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         1,
@@ -3984,9 +4102,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -4000,7 +4120,7 @@
         19433493,
         19433478
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4064,6 +4184,7 @@
       "name": "Jenson Seelt",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         1,
         2,
         1,
@@ -4076,12 +4197,14 @@
         90,
         90,
         90,
+        90,
         46,
         90,
         90,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -4090,7 +4213,7 @@
         19433555,
         19433543
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4112,9 +4235,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -4127,6 +4252,7 @@
         90
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -4138,7 +4264,7 @@
         19433493,
         19433478
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -4151,6 +4277,7 @@
       "name": "Saël Kumbedi",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
+        1,
         2,
         2,
         0,
@@ -4160,6 +4287,7 @@
         0
       ],
       "minutes_last_n": [
+        88,
         90,
         46,
         90,
@@ -4169,6 +4297,7 @@
         85
       ],
       "fixture_ids": [
+        19433609,
         19433594,
         19433591,
         19433577,
@@ -4177,7 +4306,7 @@
         19433555,
         19433543
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5138,6 +5267,7 @@
         0,
         0,
         0,
+        0,
         1,
         2,
         0,
@@ -5146,6 +5276,7 @@
         0
       ],
       "minutes_last_n": [
+        72,
         67,
         61,
         73,
@@ -5157,6 +5288,7 @@
         73
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433574,
         19433571,
@@ -5167,7 +5299,7 @@
         19433504,
         19433495
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5180,6 +5312,7 @@
       "name": "Danilho Doekhi",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        1,
         1,
         1,
         0,
@@ -5209,9 +5342,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
@@ -5227,7 +5362,7 @@
         19433486,
         19433479
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5240,6 +5375,7 @@
       "name": "Rani Khedira",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         2,
         1,
@@ -5265,11 +5401,13 @@
         90,
         90,
         90,
+        90,
         73,
         90,
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433574,
         19433571,
@@ -5284,7 +5422,7 @@
         19433486,
         19433479
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5357,6 +5495,7 @@
         0,
         0,
         0,
+        0,
         2,
         0
       ],
@@ -5374,9 +5513,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
@@ -5392,7 +5533,7 @@
         19433486,
         19433479
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5405,6 +5546,7 @@
       "name": "Diogo Leite",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        1,
         0,
         2,
         1,
@@ -5422,6 +5564,7 @@
         90,
         90,
         90,
+        90,
         79,
         90,
         71,
@@ -5429,10 +5572,59 @@
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433574,
         19433571,
         19433556,
+        19433549,
+        19433544,
+        19433531,
+        19433520,
+        19433513,
+        19433504
+      ],
+      "n": 11,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 1079,
+      "player_id": 1525233,
+      "name": "Derrick Köhn",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "minutes_last_n": [
+        90,
+        85,
+        70,
+        73,
+        80,
+        61,
+        69,
+        90,
+        80,
+        90
+      ],
+      "fixture_ids": [
+        19433602,
+        19433592,
+        19433591,
+        19433574,
         19433549,
         19433544,
         19433531,
@@ -5449,73 +5641,31 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 1079,
-      "player_id": 1525233,
-      "name": "Derrick Köhn",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        1,
-        0,
-        2,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1
-      ],
-      "minutes_last_n": [
-        85,
-        70,
-        73,
-        80,
-        61,
-        69,
-        90,
-        80,
-        90
-      ],
-      "fixture_ids": [
-        19433592,
-        19433591,
-        19433574,
-        19433549,
-        19433544,
-        19433531,
-        19433520,
-        19433513,
-        19433504
-      ],
-      "n": 9,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 1079,
       "player_id": 11353231,
       "name": "Woo-yeong Jeong",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         0,
         4,
         1,
         2
       ],
       "minutes_last_n": [
+        64,
         67,
         56,
         73,
         64
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
         19433520
       ],
-      "n": 4,
+      "n": 5,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5528,6 +5678,7 @@
       "name": "Leopold Querfeld",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         4,
         1,
         0,
@@ -5557,9 +5708,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
@@ -5575,7 +5728,7 @@
         19433486,
         19433479
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5588,6 +5741,7 @@
       "name": "Aljoscha Kemlein",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -5598,6 +5752,7 @@
         1
       ],
       "minutes_last_n": [
+        85,
         90,
         90,
         79,
@@ -5608,6 +5763,7 @@
         90
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
@@ -5617,7 +5773,7 @@
         19433544,
         19433531
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5630,6 +5786,7 @@
       "name": "Ilyas Ansah",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        3,
         0,
         2,
         2,
@@ -5644,6 +5801,7 @@
         1
       ],
       "minutes_last_n": [
+        73,
         85,
         90,
         90,
@@ -5658,6 +5816,7 @@
         76
       ],
       "fixture_ids": [
+        19433602,
         19433592,
         19433591,
         19433574,
@@ -5671,7 +5830,7 @@
         19433486,
         19433479
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5684,6 +5843,7 @@
       "name": "Daniel Heuer Fernandes",
       "position_tag": "GK",
       "fouls_drawn_last_n": [
+        0,
         0,
         0,
         1,
@@ -5713,9 +5873,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433588,
         19433579,
@@ -5731,7 +5893,7 @@
         19433488,
         19433482
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5804,6 +5966,7 @@
       "name": "Miro Muheim",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        3,
         4,
         1,
         1,
@@ -5827,6 +5990,7 @@
         90,
         90,
         90,
+        90,
         82,
         90,
         90,
@@ -5834,6 +5998,7 @@
         90
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433579,
         19433569,
@@ -5848,7 +6013,7 @@
         19433488,
         19433482
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5862,6 +6027,7 @@
       "position_tag": "MID",
       "fouls_drawn_last_n": [
         2,
+        2,
         1,
         1,
         2,
@@ -5874,6 +6040,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         67,
         86,
         90,
@@ -5883,6 +6050,7 @@
         62
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433588,
         19433579,
@@ -5893,7 +6061,7 @@
         19433535,
         19433525
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -5947,6 +6115,7 @@
       "fouls_drawn_last_n": [
         0,
         0,
+        0,
         1,
         0,
         2,
@@ -5959,6 +6128,7 @@
         0
       ],
       "minutes_last_n": [
+        87,
         78,
         53,
         90,
@@ -5973,6 +6143,7 @@
         74
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433579,
         19433569,
@@ -5986,7 +6157,7 @@
         19433488,
         19433482
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6000,6 +6171,7 @@
       "position_tag": "CB",
       "fouls_drawn_last_n": [
         1,
+        1,
         3,
         0,
         2,
@@ -6012,6 +6184,7 @@
         2
       ],
       "minutes_last_n": [
+        90,
         88,
         90,
         90,
@@ -6025,6 +6198,7 @@
         86
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433588,
         19433579,
@@ -6037,7 +6211,7 @@
         19433488,
         19433482
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6092,15 +6266,18 @@
       "name": "Fabio Baldé",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        0,
         1
       ],
       "minutes_last_n": [
+        70,
         78
       ],
       "fixture_ids": [
+        19433606,
         19433600
       ],
-      "n": 1,
+      "n": 2,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6113,6 +6290,7 @@
       "name": "Luka Vuskovic",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        1,
         1,
         1,
         0,
@@ -6138,9 +6316,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433606,
         19433600,
         19433588,
         19433579,
@@ -6154,7 +6334,7 @@
         19433506,
         19431624
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6217,6 +6397,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         0,
@@ -6228,6 +6409,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -6244,6 +6426,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6259,7 +6442,7 @@
         19433491,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6272,6 +6455,7 @@
       "name": "Grischa Prömel",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        3,
         0,
         2,
         1,
@@ -6280,6 +6464,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         80,
         73,
         72,
@@ -6288,6 +6473,7 @@
         83
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6295,7 +6481,7 @@
         19433563,
         19433555
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6308,6 +6494,7 @@
       "name": "Vladimír Coufal",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
+        1,
         2,
         0,
         1,
@@ -6324,6 +6511,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         88,
         90,
         90,
@@ -6340,6 +6528,7 @@
         88
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6355,7 +6544,7 @@
         19433491,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6368,6 +6557,7 @@
       "name": "Wouter Burger",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         0,
@@ -6384,6 +6574,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         80,
         90,
         90,
@@ -6398,6 +6589,7 @@
         46
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6412,7 +6604,7 @@
         19433495,
         19433481
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6447,6 +6639,7 @@
       "position_tag": "CB",
       "fouls_drawn_last_n": [
         1,
+        1,
         0,
         3,
         1,
@@ -6474,10 +6667,12 @@
         90,
         90,
         90,
+        90,
         72,
         75
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6493,7 +6688,7 @@
         19433491,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6512,6 +6707,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         3,
@@ -6519,6 +6715,7 @@
         2
       ],
       "minutes_last_n": [
+        88,
         80,
         73,
         85,
@@ -6532,6 +6729,7 @@
         75
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6544,7 +6742,7 @@
         19433491,
         19433481
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6559,6 +6757,7 @@
       "fouls_drawn_last_n": [
         1,
         1,
+        1,
         0,
         2,
         3,
@@ -6570,6 +6769,7 @@
         1
       ],
       "minutes_last_n": [
+        73,
         90,
         90,
         90,
@@ -6583,6 +6783,7 @@
         77
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6595,7 +6796,7 @@
         19433509,
         19433495
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -6673,6 +6874,7 @@
         0,
         0,
         0,
+        0,
         3,
         1,
         0,
@@ -6692,6 +6894,7 @@
         90,
         90,
         90,
+        90,
         64,
         73,
         82,
@@ -6700,6 +6903,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433600,
         19433586,
         19433582,
@@ -6715,7 +6919,7 @@
         19433491,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7230,6 +7434,7 @@
       "position_tag": "GK",
       "fouls_drawn_last_n": [
         0,
+        0,
         1,
         0,
         0,
@@ -7258,9 +7463,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433590,
         19433579,
@@ -7276,7 +7483,7 @@
         19433492,
         19433479
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7289,6 +7496,7 @@
       "name": "Deniz Undav",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -7299,6 +7507,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         89,
         89,
         50,
@@ -7309,6 +7518,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433590,
         19433579,
@@ -7318,7 +7528,7 @@
         19433546,
         19433479
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7331,6 +7541,7 @@
       "name": "Jeff Chabot",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        1,
         1,
         2,
         3,
@@ -7352,9 +7563,11 @@
         90,
         90,
         90,
+        90,
         82
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433579,
         19433568,
@@ -7366,7 +7579,7 @@
         19433500,
         19433479
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7379,6 +7592,7 @@
       "name": "Atakan Karazor",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        4,
         2,
         0,
         2,
@@ -7390,6 +7604,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         74,
         88,
         57,
@@ -7399,88 +7614,11 @@
         82
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433564,
         19433554,
         19433528,
-        19433512,
-        19433500,
-        19433492,
-        19433479
-      ],
-      "n": 8,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 3319,
-      "player_id": 418704,
-      "name": "Nikolas Nartey",
-      "position_tag": "FWD",
-      "fouls_drawn_last_n": [
-        2,
-        2,
-        1,
-        0,
-        3
-      ],
-      "minutes_last_n": [
-        76,
-        61,
-        57,
-        62,
-        90
-      ],
-      "fixture_ids": [
-        19433599,
-        19433590,
-        19433579,
-        19433546,
-        19433537
-      ],
-      "n": 5,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 82,
-      "season_id": 25646,
-      "team_id": 3319,
-      "player_id": 3861542,
-      "name": "Josha Vagnoman",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        2
-      ],
-      "minutes_last_n": [
-        90,
-        74,
-        90,
-        90,
-        90,
-        90,
-        89,
-        90,
-        71
-      ],
-      "fixture_ids": [
-        19433599,
-        19433590,
-        19433579,
-        19433554,
-        19433546,
         19433512,
         19433500,
         19433492,
@@ -7495,10 +7633,95 @@
       "league_id": 82,
       "season_id": 25646,
       "team_id": 3319,
+      "player_id": 418704,
+      "name": "Nikolas Nartey",
+      "position_tag": "FWD",
+      "fouls_drawn_last_n": [
+        2,
+        2,
+        2,
+        1,
+        0,
+        3
+      ],
+      "minutes_last_n": [
+        90,
+        76,
+        61,
+        57,
+        62,
+        90
+      ],
+      "fixture_ids": [
+        19433608,
+        19433599,
+        19433590,
+        19433579,
+        19433546,
+        19433537
+      ],
+      "n": 6,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 3319,
+      "player_id": 3861542,
+      "name": "Josha Vagnoman",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        2
+      ],
+      "minutes_last_n": [
+        90,
+        90,
+        74,
+        90,
+        90,
+        90,
+        90,
+        89,
+        90,
+        71
+      ],
+      "fixture_ids": [
+        19433608,
+        19433599,
+        19433590,
+        19433579,
+        19433554,
+        19433546,
+        19433512,
+        19433500,
+        19433492,
+        19433479
+      ],
+      "n": 10,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 82,
+      "season_id": 25646,
+      "team_id": 3319,
       "player_id": 4536572,
       "name": "Angelo Stiller",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        3,
         1,
         1,
         2,
@@ -7517,6 +7740,7 @@
         90,
         90,
         90,
+        90,
         85,
         90,
         90,
@@ -7525,6 +7749,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433590,
         19433568,
@@ -7537,7 +7762,7 @@
         19433492,
         19433479
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7589,6 +7814,7 @@
       "name": "Jamie Leweling",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         3,
         2,
         0,
@@ -7601,6 +7827,7 @@
         5
       ],
       "minutes_last_n": [
+        90,
         82,
         89,
         90,
@@ -7613,6 +7840,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433590,
         19433568,
@@ -7624,7 +7852,7 @@
         19433492,
         19433479
       ],
-      "n": 10,
+      "n": 11,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7688,6 +7916,7 @@
       "name": "Finn Jeltsch",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        3,
         2,
         0,
         1,
@@ -7697,6 +7926,7 @@
         2
       ],
       "minutes_last_n": [
+        46,
         89,
         90,
         90,
@@ -7706,6 +7936,7 @@
         90
       ],
       "fixture_ids": [
+        19433608,
         19433599,
         19433568,
         19433564,
@@ -7714,7 +7945,7 @@
         19433500,
         19433492
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7773,6 +8004,7 @@
         0,
         0,
         0,
+        0,
         1
       ],
       "minutes_last_n": [
@@ -7789,9 +8021,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
@@ -7807,7 +8041,7 @@
         19433485,
         19433480
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7865,6 +8099,7 @@
       "name": "Tom Krauß",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         1,
@@ -7872,6 +8107,7 @@
         1
       ],
       "minutes_last_n": [
+        68,
         90,
         82,
         90,
@@ -7879,13 +8115,14 @@
         68
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433512,
         19433507,
         19433480
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7898,6 +8135,7 @@
       "name": "Jakub Kamiński",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        2,
         1,
         1,
         0,
@@ -7914,6 +8152,7 @@
         1
       ],
       "minutes_last_n": [
+        86,
         90,
         90,
         90,
@@ -7930,6 +8169,7 @@
         90
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
@@ -7945,7 +8185,7 @@
         19433485,
         19433480
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7962,6 +8202,7 @@
         0,
         0,
         0,
+        0,
         1,
         0,
         1,
@@ -7972,6 +8213,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -7986,6 +8228,7 @@
         74
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
@@ -7999,7 +8242,7 @@
         19433485,
         19433480
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8012,6 +8255,7 @@
       "name": "Eric Martel",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        4,
         2,
         2,
         2,
@@ -8028,6 +8272,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         80,
         90,
         82,
@@ -8044,6 +8289,7 @@
         90
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
@@ -8059,7 +8305,7 @@
         19433485,
         19433480
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8072,6 +8318,7 @@
       "name": "Jan Thielmann",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        5,
         1,
         0,
         0,
@@ -8085,6 +8332,7 @@
         0
       ],
       "minutes_last_n": [
+        68,
         90,
         90,
         90,
@@ -8098,6 +8346,7 @@
         67
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
@@ -8110,7 +8359,7 @@
         19433485,
         19433480
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8165,10 +8414,12 @@
         0,
         0,
         0,
+        0,
         1,
         0
       ],
       "minutes_last_n": [
+        82,
         90,
         90,
         78,
@@ -8176,13 +8427,14 @@
         90
       ],
       "fixture_ids": [
+        19433602,
         19433593,
         19433584,
         19433581,
         19433501,
         19433485
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8231,6 +8483,7 @@
       "name": "Aleix García",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         3,
         0,
@@ -8247,6 +8500,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         77,
         90,
         90,
@@ -8263,6 +8517,7 @@
         90
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433587,
         19433575,
@@ -8278,7 +8533,7 @@
         19433490,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8291,6 +8546,7 @@
       "name": "Jonas Hofmann",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        2,
         0,
         1,
         0,
@@ -8300,6 +8556,7 @@
         2
       ],
       "minutes_last_n": [
+        57,
         62,
         61,
         74,
@@ -8309,6 +8566,7 @@
         66
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433587,
         19433575,
@@ -8317,7 +8575,7 @@
         19433538,
         19433532
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8343,6 +8601,7 @@
         0,
         0,
         0,
+        0,
         0
       ],
       "minutes_last_n": [
@@ -8359,9 +8618,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433587,
         19433575,
@@ -8377,7 +8638,7 @@
         19433490,
         19433481
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8390,6 +8651,7 @@
       "name": "Robert Andrich",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         1,
         1,
         1,
@@ -8405,6 +8667,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         88,
         90,
         90,
@@ -8416,6 +8679,7 @@
         90
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433587,
         19433575,
@@ -8428,7 +8692,7 @@
         19433490,
         19433481
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8501,6 +8765,7 @@
       "name": "Malik Tillman",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        0,
         1,
         2,
         3,
@@ -8512,6 +8777,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         86,
         81,
         74,
@@ -8523,6 +8789,7 @@
         61
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433587,
         19433575,
@@ -8533,7 +8800,7 @@
         19433497,
         19433490
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8637,6 +8904,7 @@
       "position_tag": "MID",
       "fouls_drawn_last_n": [
         1,
+        1,
         0,
         0,
         0,
@@ -8644,6 +8912,7 @@
         1
       ],
       "minutes_last_n": [
+        83,
         90,
         46,
         90,
@@ -8652,6 +8921,7 @@
         46
       ],
       "fixture_ids": [
+        19433607,
         19433593,
         19433557,
         19433552,
@@ -8659,7 +8929,7 @@
         19433532,
         19433481
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8746,6 +9016,7 @@
       "fouls_drawn_last_n": [
         1,
         1,
+        1,
         0,
         0,
         1,
@@ -8773,9 +9044,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -8791,7 +9064,7 @@
         19433485,
         19433484
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8804,6 +9077,7 @@
       "name": "Christian Günter",
       "position_tag": "LB",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -8811,6 +9085,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         76,
         58,
         90,
@@ -8818,13 +9093,14 @@
         81
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433561,
         19433522,
         19433485,
         19433484
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8837,6 +9113,7 @@
       "name": "Lukas Kübler",
       "position_tag": "RB",
       "fouls_drawn_last_n": [
+        1,
         0,
         0,
         0,
@@ -8849,6 +9126,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         84,
         69,
         67,
@@ -8859,6 +9137,7 @@
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -8869,7 +9148,7 @@
         19433485,
         19433484
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8882,6 +9161,7 @@
       "name": "Maximilian Eggestein",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         0,
@@ -8911,9 +9191,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -8929,7 +9211,7 @@
         19433485,
         19433484
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8942,18 +9224,21 @@
       "name": "Anthony Jung",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        0,
         1,
         1
       ],
       "minutes_last_n": [
+        90,
         76,
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433518
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -8966,6 +9251,7 @@
       "name": "Lucas Höler",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        2,
         0,
         1,
         1,
@@ -8980,6 +9266,7 @@
         4
       ],
       "minutes_last_n": [
+        79,
         90,
         90,
         90,
@@ -8994,6 +9281,7 @@
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -9007,7 +9295,7 @@
         19433485,
         19433484
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9020,6 +9308,7 @@
       "name": "Patrick Osterhage",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0,
         1,
         0,
@@ -9028,6 +9317,7 @@
         2
       ],
       "minutes_last_n": [
+        46,
         90,
         90,
         90,
@@ -9036,6 +9326,7 @@
         85
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433522,
@@ -9043,7 +9334,7 @@
         19433508,
         19433500
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9056,6 +9347,7 @@
       "name": "Philipp Treu",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         2,
         1,
         3,
@@ -9067,6 +9359,7 @@
         1
       ],
       "minutes_last_n": [
+        67,
         90,
         90,
         87,
@@ -9078,6 +9371,7 @@
         52
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -9088,7 +9382,7 @@
         19433522,
         19433518
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9101,6 +9395,7 @@
       "name": "Noah Atubolu",
       "position_tag": "GK",
       "fouls_drawn_last_n": [
+        0,
         0,
         1,
         0,
@@ -9117,6 +9412,7 @@
         0
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -9133,6 +9429,7 @@
         90
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -9148,7 +9445,7 @@
         19433485,
         19433484
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9161,6 +9458,7 @@
       "name": "Yuito Suzuki",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         1,
@@ -9170,6 +9468,7 @@
       ],
       "minutes_last_n": [
         90,
+        90,
         69,
         77,
         71,
@@ -9177,6 +9476,7 @@
         70
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433580,
         19433570,
@@ -9184,7 +9484,7 @@
         19433485,
         19433484
       ],
-      "n": 6,
+      "n": 7,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9197,6 +9497,7 @@
       "name": "Johan Manzambi",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        5,
         3,
         2,
         3,
@@ -9210,6 +9511,7 @@
         2
       ],
       "minutes_last_n": [
+        79,
         90,
         67,
         81,
@@ -9223,6 +9525,7 @@
         81
       ],
       "fixture_ids": [
+        19433609,
         19433598,
         19433583,
         19433580,
@@ -9235,7 +9538,7 @@
         19433485,
         19433484
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
