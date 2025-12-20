@@ -11,7 +11,7 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Maxence Maisonneuve (La Louvière — CB) — last5: 2,1,1,2,1 — @ 2.38
 • Luis Hasa (Carrarese — MID) — last5: 3,3,2,3,4 — @ 1.44
 • Matteo Dagasso (Pescara — MID) — last5: 1,5,1,1,3 — @ 1.44
-• Juan Iglesias (Getafe — MID) — last5: 1,2,2,1,2 — @ 2.20
+• Juan Iglesias (Getafe — MID) — last5: 1,2,2,1,2 — @ 1.80
 • Dion Lopy (Almería — MID) — last5: 2,2,2,1,1 — @ 1.50
 • Jon Balda (Real Sociedad II — LB) — last5: 1,1,3,1,1 — @ 1.44
 
