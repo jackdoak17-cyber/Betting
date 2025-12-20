@@ -3,13 +3,13 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 *Premier League*
 1. E. Haaland — 17 — Man City — @ 1.36 (vs West Ham)
 2. I. Thiago — 11 — Brentford — @ 2.20 (vs Wolves)
-3. A. Semenyo — 7 — Bournemouth — @ 2.25 (vs Burnley)
+3. A. Semenyo — 7 — Bournemouth — @ 2.20 (vs Burnley)
 4. D. Welbeck — 7 — Brighton — @ 2.37 (vs Sunderland)
 5. H. Ekitiké — 7 — Liverpool — @ 2.40 (vs Spurs)
 6. J. Mateta — 7 — Crystal Palace — @ 2.50 (vs Leeds)
 7. P. Foden — 7 — Man City — @ 2.25 (vs West Ham)
 8. B. Mbeumo — 6 — Man Utd — @ — (vs West Ham)
-9. R. Richarlison — 6 — Spurs — @ 3.00 (vs Liverpool)
+9. R. Richarlison — 6 — Spurs — @ 3.10 (vs Liverpool)
 10. B. Fernandes — 5 — Man Utd — @ 12.00 (vs West Ham)
 
 *LaLiga*
@@ -26,14 +26,14 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 
 *Bundesliga*
 1. H. Kane — 18 — Bayern — @ 1.44 (vs Heidenheim)
-2. D. Undav — 8 — Stuttgart — @ 1.95 (vs Hoffenheim)
+2. D. Undav — 8 — Stuttgart — @ 2.05 (vs Hoffenheim)
 3. J. Burkardt — 8 — Frankfurt — @ 2.40 (vs Hamburger SV)
 4. H. Tabakovic — 7 — Gladbach — @ — (vs TBC)
 5. L. Díaz — 7 — Bayern — @ 1.83 (vs Heidenheim)
 6. C. Baumgartner — 6 — RB Leipzig — @ 3.20 (vs Leverkusen)
 7. F. Asllani — 6 — Hoffenheim — @ 3.00 (vs Stuttgart)
 8. M. Olise — 6 — Bayern — @ 1.95 (vs Heidenheim)
-9. M. Amoura — 6 — Wolfsburg — @ 2.87 (vs Freiburg)
+9. M. Amoura — 6 — Wolfsburg — @ 3.00 (vs Freiburg)
 10. S. Mala — 6 — Koln — @ 3.10 (vs Union Berlin)
 
 *Serie A*
@@ -41,12 +41,12 @@ Top Goal Scorers in the Top 5 Leagues with Bet365 Anytime Goal Scorer Odds
 2. C. Pulisic — 7 — Milan — @ — (vs TBC)
 3. H. Çalhanoğlu — 6 — Inter — @ — (vs TBC)
 4. R. Orsolini — 6 — Bologna — @ — (vs TBC)
-5. F. Bonazzoli — 5 — Cremonese — @ 4.50 (vs Lazio)
+5. F. Bonazzoli — 5 — Cremonese — @ 4.75 (vs Lazio)
 6. G. Scamacca — 5 — Atalanta — @ 2.50 (vs Genoa)
 7. K. Yıldız — 5 — Juventus — @ 3.40 (vs Roma)
-8. N. Paz — 5 — Como — @ — (vs Lecce)
+8. N. Paz — 5 — Como — @ 3.40 (vs Lecce)
 9. R. Leão — 5 — Milan — @ — (vs TBC)
-10. A. Pinamonti — 4 — Sassuolo — @ 2.60 (vs Torino)
+10. A. Pinamonti — 4 — Sassuolo — @ 2.75 (vs Torino)
 
 *Ligue 1*
 1. M. Greenwood — 11 — Marseille — @ — (vs TBC)
