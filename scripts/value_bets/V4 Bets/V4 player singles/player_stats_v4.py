@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Player Stats V4 — Singles (shots & shots on target, overs only)
+Player Stats V4 — Singles (shots & shots on target, overs only) with Telegram Notifications
 
-Finds “BET RUN 1” value shots/SOT overs by enforcing high hit rates across
+Finds "BET RUN 1" value shots/SOT overs by enforcing high hit rates across
 larger samples (up to 20 games), a minimum odds gate, and underdog filters.
+
+NEW in V4:
+  • Lower odds threshold: 1.72 (vs 1.8 in previous versions)
+  • Telegram notifications for new picks
+  • Tracks previously notified players to avoid spam
 
 Inputs (per league):
   • data/player_shots/by_league/{league_id}.json             -> shots_last_n
@@ -15,11 +20,15 @@ Inputs (per league):
 
 Outputs:
   • data/value_bets/V4 Bets/V4 player singles/player_stats_v4.txt
+  • data/value_bets/V4 Bets/V4 player singles/notified_players.json  (tracking)
 
 Env vars:
-  • LEAGUE_IDS     Comma-separated league IDs (defaults to common set)
-  • MIN_DEC_PRICE  Minimum price gate (default: 1.8)
-  • DEBUG_DROPS    1 = print drop reasons
+  • LEAGUE_IDS          Comma-separated league IDS (defaults to common set)
+  • MIN_DEC_PRICE       Minimum price gate (default: 1.72)
+  • DEBUG_DROPS         1 = print drop reasons
+  • TELEGRAM_BOT_TOKEN  Telegram bot token for notifications
+  • TELEGRAM_CHAT_ID    Telegram chat ID to send messages to
+  • ENABLE_TELEGRAM     Set to "1" to enable Telegram notifications (default: 1)
 """
 
 from __future__ import annotations
@@ -34,6 +43,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
+import requests
 
 ROOT = Path(".")
 PS_DIR = ROOT / "data" / "player_shots" / "by_league"
@@ -44,6 +54,7 @@ RANK_DIR = ROOT / "data" / "value_bets" / "Player_value_bets_V2" / "team_shot_ra
 OUT_DIR = ROOT / "data" / "value_bets" / "V4 Bets" / "V4 player singles"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_FILE = OUT_DIR / "player_stats_v4.txt"
+NOTIFIED_FILE = OUT_DIR / "notified_players.json"  # Track notified players
 SHEET_DIR = ROOT / "data" / "value_bets" / "sheets"
 SHEET_DIR.mkdir(parents=True, exist_ok=True)
 SHEET_FILE = SHEET_DIR / "player_stats_v4_singles.csv"
@@ -101,10 +112,15 @@ LEAGUE_IDS: List[int] = [
     if x.strip()
 ]
 
-MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.8"))
+MIN_PRICE = float(os.getenv("MIN_DEC_PRICE", "1.72"))  # V4: Lowered from 1.8 to 1.72
 DEBUG_DROPS = bool(int(os.getenv("DEBUG_DROPS", "0")))
 MAX_TEAM_ML = float(os.getenv("MAX_TEAM_ML", "4.0"))  # skip big underdogs
 EDGE_FAV_ML = float(os.getenv("EDGE_FAV_ML", "3.8"))
+
+# Telegram configuration
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+ENABLE_TELEGRAM = bool(int(os.getenv("ENABLE_TELEGRAM", "1")))
 
 WINDOW_RULES = [
     (10, 9),
@@ -173,6 +189,145 @@ def load_fixture_odds(fixture_id: int) -> List[dict]:
     blob = _load_json(ODDS_DIR / "fixtures" / f"{fixture_id}.json") or {}
     rows = blob.get("odds") or []
     return rows if isinstance(rows, list) else []
+
+
+# ---- Telegram notification helpers ----------------------------------------
+
+def load_notified_players() -> Dict[str, dict]:
+    """Load the tracking of previously notified players."""
+    if not NOTIFIED_FILE.exists():
+        return {}
+    try:
+        data = json.loads(NOTIFIED_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_notified_players(notified: Dict[str, dict]) -> None:
+    """Save the tracking of notified players."""
+    try:
+        NOTIFIED_FILE.write_text(
+            json.dumps(notified, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+    except Exception as e:
+        print(f"Warning: Failed to save notified players: {e}")
+
+
+def generate_notification_key(pick: dict) -> str:
+    """Generate a unique key for a pick to track notifications."""
+    return f"{pick.get('league_id')}:{pick.get('fixture_id')}:{pick.get('player_id')}:{pick.get('market')}"
+
+
+def send_telegram_message(message: str) -> bool:
+    """Send a message via Telegram bot."""
+    if not ENABLE_TELEGRAM or not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return False
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        return True
+    except Exception as e:
+        print(f"Telegram notification failed: {e}")
+        return False
+
+
+def format_telegram_message(pick: dict) -> str:
+    """Format a pick as a Telegram message."""
+    pos = pick.get("position") or pick.get("position_bucket") or ""
+    pos_label = f" [{pos}]" if pos else ""
+
+    try:
+        line_val = float(pick.get("line", 0))
+    except Exception:
+        line_val = 0.0
+
+    stat_short = "SOT" if "target" in (pick.get("stat_type") or "") else "shots"
+    line_part = f"O{line_val:.1f} {stat_short}" if line_val else pick.get("market", "N/A")
+
+    lines = [
+        f"🎯 <b>V4 Player Singles</b>",
+        f"",
+        f"⚽ <b>{pick.get('player', 'Unknown')}</b>{pos_label}",
+        f"🏟 {pick.get('team', 'Unknown')} vs {pick.get('opponent', 'Unknown')}",
+        f"",
+        f"📊 <b>{line_part}</b>",
+        f"💰 Odds: <b>{pick.get('price', 0.0):.2f}</b>",
+        f"",
+        f"📈 {pick.get('criteria', 'N/A')}",
+        f"📊 Hit Rate: {pick.get('hit_rate', 'N/A')}",
+        f"📉 Average: {pick.get('average', 'N/A')}",
+        f"📋 Sequence: {pick.get('last_sequence', 'N/A')}",
+        f"",
+        f"🏆 Team ML: {pick.get('team_ml', 'N/A')}",
+        f"🎲 Opp ML: {pick.get('opp_ml', 'N/A')}",
+    ]
+
+    if pick.get('opponent_rank'):
+        lines.append(f"🔝 Opponent rank (shots conceded): {pick.get('opponent_rank')}")
+
+    lines.extend([
+        f"",
+        f"📅 {pick.get('date', 'N/A')} @ {pick.get('ko_time', 'N/A')}",
+        f"🆔 Fixture: {pick.get('fixture_id', 'N/A')}",
+    ])
+
+    return "\n".join(lines)
+
+
+def notify_new_picks(picks: List[dict]) -> int:
+    """Send Telegram notifications for new picks. Returns count of notifications sent."""
+    if not ENABLE_TELEGRAM or not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("Telegram notifications disabled (missing credentials or disabled via config)")
+        return 0
+
+    notified = load_notified_players()
+    new_picks = []
+
+    for pick in picks:
+        key = generate_notification_key(pick)
+        if key not in notified:
+            new_picks.append(pick)
+            notified[key] = {
+                "player": pick.get("player"),
+                "market": pick.get("market"),
+                "fixture": pick.get("fixture"),
+                "notified_at": datetime.utcnow().isoformat(),
+                "odds": pick.get("price"),
+            }
+
+    if not new_picks:
+        print("No new picks to notify")
+        return 0
+
+    print(f"Found {len(new_picks)} new picks to notify")
+    sent_count = 0
+
+    for pick in new_picks:
+        message = format_telegram_message(pick)
+        if send_telegram_message(message):
+            sent_count += 1
+            print(f"✓ Notified: {pick.get('player')} - {pick.get('market')}")
+        else:
+            print(f"✗ Failed to notify: {pick.get('player')} - {pick.get('market')}")
+
+    save_notified_players(notified)
+
+    if sent_count > 0:
+        summary = f"📬 Sent {sent_count}/{len(new_picks)} V4 player singles notifications"
+        send_telegram_message(summary)
+
+    return sent_count
 
 
 # ---- string helpers (borrowed from V2 scripts) ----------------------------
@@ -1089,12 +1244,28 @@ def render_output(picks: List[dict], drop_reasons: Dict[str, int]) -> str:
 def main() -> None:
     drop_reasons: Dict[str, int] = {}
     all_picks: List[dict] = []
+
+    print(f"Player Stats V4 - Telegram Notifications")
+    print(f"Odds threshold: {MIN_PRICE:.2f}")
+    print(f"Telegram enabled: {ENABLE_TELEGRAM}")
+    print("")
+
     for lid in LEAGUE_IDS:
         all_picks.extend(process_league(lid, drop_reasons))
+
+    print(f"Total picks found: {len(all_picks)}")
+
     upsert_sheet(all_picks)
     output = render_output(all_picks, drop_reasons)
     OUT_FILE.write_text(output, encoding="utf-8")
     print(output)
+
+    # Send Telegram notifications for new picks
+    if all_picks:
+        sent_count = notify_new_picks(all_picks)
+        print(f"\nTelegram notifications sent: {sent_count}")
+    else:
+        print("\nNo picks to notify")
 
 
 if __name__ == "__main__":
