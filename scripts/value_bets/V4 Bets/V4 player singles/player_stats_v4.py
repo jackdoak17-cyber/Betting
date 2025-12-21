@@ -207,12 +207,20 @@ def load_notified_players() -> Dict[str, dict]:
 def save_notified_players(notified: Dict[str, dict]) -> None:
     """Save the tracking of notified players."""
     try:
+        # Ensure parent directory exists
+        NOTIFIED_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write the file
         NOTIFIED_FILE.write_text(
             json.dumps(notified, ensure_ascii=False, indent=2),
             encoding="utf-8"
         )
+        print(f"✓ Saved {len(notified)} tracked picks to: {NOTIFIED_FILE}")
     except Exception as e:
-        print(f"Warning: Failed to save notified players: {e}")
+        print(f"✗ ERROR: Failed to save notified players to {NOTIFIED_FILE}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise  # Re-raise to make the failure visible
 
 
 def generate_notification_key(pick: dict) -> str:
@@ -348,7 +356,6 @@ def notify_new_picks(picks: List[dict]) -> int:
             print(f"  ✗ FAILED: {player_info}")
 
     save_notified_players(notified)
-    print(f"\n💾 Saved {len(notified)} total tracked picks to: {NOTIFIED_FILE}")
 
     if sent_count > 0:
         summary = f"📬 Sent {sent_count}/{len(new_picks)} V4 player singles notifications"
