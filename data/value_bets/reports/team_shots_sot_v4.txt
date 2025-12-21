@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-21T02:59:40
+Generated at (UTC): 2025-12-21T16:19:04
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -10,18 +10,6 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 14
     team hits 3/9 | opp conceded 1/7 | H2H 1/4
     implied win probs: home 0.725 / away 0.275
- • Torino (away) — Shots Over 10.5 @ 1.720 vs Sassuolo | kickoff 2025-12-21 14:00:00
-    model=0.700 | implied=0.581 | threshold≥11
-    Torino have cleared 11 shots in 4/7 away matches = 15,8,8,16,15,8,12
-    Sassuolo's opponents have had 11+ shots in 5/7 home games = 9,10,16,15,12,13,13
-    team hits 4/7 | opp conceded 5/7 | H2H 4/4
-    implied win probs: home 0.582 / away 0.418
- • Torino (away) — Shots Over 11.5 @ 1.830 vs Sassuolo | kickoff 2025-12-21 14:00:00
-    model=0.700 | implied=0.546 | threshold≥12
-    Torino have cleared 12 shots in 4/7 away matches = 15,8,8,16,15,8,12
-    Sassuolo's opponents have had 12+ shots in 5/7 home games = 9,10,16,15,12,13,13
-    team hits 4/7 | opp conceded 5/7 | H2H 4/4
-    implied win probs: home 0.582 / away 0.418
  • Athletic Club (home) — Shots Under 14.5 @ 1.900 vs Espanyol | kickoff 2025-12-22 20:00:00
     model=0.668 | implied=0.526 | threshold≥15
     Athletic Club have had under 15 shots in 6/9 home matches = 14,9,21,7,18,17,12,11,14
@@ -35,16 +23,24 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Fulham's opponents have had under 11 shots in 5/8 home games = 11,11,4,5,16,8,10,10
     This landed in the reverse fixture last season = 8
     team hits 2/8 | opp conceded 3/8 | H2H 2/4
-    implied win probs: home 0.537 / away 0.463
+    implied win probs: home 0.556 / away 0.444
  • Elche (home) — Shots on Target Over 3.5 @ 1.720 vs Rayo Vallecano | kickoff 2025-12-21 17:30:00
     model=0.642 | implied=0.581 | threshold≥4
     Elche have cleared 4 shots on target in 6/8 home matches = 6,6,3,5,8,5,5,2
     Rayo Vallecano's opponents have had 4+ shots on target in 5/9 away games = 2,3,7,4,3,8,7,4,2
     team hits 6/8 | opp conceded 5/9 | H2H 2/4
-    implied win probs: home 0.584 / away 0.416
- • Pisa (away) — Shots Over 8.5 @ 1.720 vs Cagliari | kickoff 2025-12-21 11:30:00
-    model=0.603 | implied=0.581 | threshold≥9
-    Pisa have cleared 9 shots in 4/7 away matches = 5,10,11,8,2,15,11
-    Cagliari's opponents have had 9+ shots in 5/7 home games = 6,13,12,10,20,17,4
-    team hits 4/7 | opp conceded 5/7 | H2H 2/3
-    implied win probs: home 0.632 / away 0.368
+    implied win probs: home 0.549 / away 0.451
+ • Genoa (home) — Shots on Target Over 3.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
+    model=0.577 | implied=0.546 | threshold≥4
+    Genoa have cleared 4 shots on target in 4/8 home matches = 3,4,6,1,7,5,1,2
+    Atalanta's opponents have had 4+ shots on target in 6/7 away games = 7,6,5,5,10,5,3
+    This landed in the reverse fixture last season = 5
+    team hits 4/8 | opp conceded 6/7 | H2H 2/4
+    implied win probs: home 0.374 / away 0.626
+ • Genoa (home) — Shots Over 10.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
+    model=0.534 | implied=0.546 | threshold≥11
+    Genoa have cleared 11 shots in 4/8 home matches = 5,15,10,16,23,17,10,5
+    Atalanta's opponents have had 11+ shots in 5/7 away games = 12,11,11,9,24,11,7
+    This landed in the reverse fixture last season = 12
+    team hits 4/8 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.374 / away 0.626
