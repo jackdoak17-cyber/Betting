@@ -292,41 +292,70 @@ def notify_new_picks(picks: List[dict]) -> int:
         return 0
 
     notified = load_notified_players()
+
+    print(f"\n{'='*70}")
+    print(f"NOTIFICATION TRACKING STATUS")
+    print(f"{'='*70}")
+    print(f"Previously tracked picks: {len(notified)}")
+    print(f"Total picks this run: {len(picks)}")
+
     new_picks = []
+    already_notified = []
 
     for pick in picks:
         key = generate_notification_key(pick)
+        player_market = f"{pick.get('player')} - {pick.get('market')} (Fixture {pick.get('fixture_id')})"
+
         if key not in notified:
             new_picks.append(pick)
             notified[key] = {
                 "player": pick.get("player"),
                 "market": pick.get("market"),
                 "fixture": pick.get("fixture"),
+                "fixture_id": pick.get("fixture_id"),
                 "notified_at": datetime.utcnow().isoformat(),
                 "odds": pick.get("price"),
             }
+        else:
+            already_notified.append(player_market)
+
+    print(f"\n📊 BREAKDOWN:")
+    print(f"  ✅ New picks to notify: {len(new_picks)}")
+    print(f"  ⏭️  Already notified (skipped): {len(already_notified)}")
+
+    if already_notified:
+        print(f"\n⏭️  SKIPPED (already notified):")
+        for item in already_notified[:10]:  # Show first 10
+            print(f"    • {item}")
+        if len(already_notified) > 10:
+            print(f"    ... and {len(already_notified) - 10} more")
 
     if not new_picks:
-        print("No new picks to notify")
+        print(f"\n✓ No new picks to notify")
+        print(f"{'='*70}\n")
         return 0
 
-    print(f"Found {len(new_picks)} new picks to notify")
+    print(f"\n🔔 SENDING NOTIFICATIONS:")
     sent_count = 0
 
     for pick in new_picks:
+        player_info = f"{pick.get('player')} - {pick.get('market')} @ {pick.get('price', 0):.2f}"
         message = format_telegram_message(pick)
         if send_telegram_message(message):
             sent_count += 1
-            print(f"✓ Notified: {pick.get('player')} - {pick.get('market')}")
+            print(f"  ✓ {player_info}")
         else:
-            print(f"✗ Failed to notify: {pick.get('player')} - {pick.get('market')}")
+            print(f"  ✗ FAILED: {player_info}")
 
     save_notified_players(notified)
+    print(f"\n💾 Saved {len(notified)} total tracked picks to: {NOTIFIED_FILE}")
 
     if sent_count > 0:
         summary = f"📬 Sent {sent_count}/{len(new_picks)} V4 player singles notifications"
         send_telegram_message(summary)
+        print(f"\n{summary}")
 
+    print(f"{'='*70}\n")
     return sent_count
 
 

@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write  # Need write permission to commit tracking file
 
 concurrency:
   group: player-stats-v4-telegram
@@ -63,6 +63,48 @@ jobs:
           python "scripts/value_bets/V4 Bets/V4 player singles/player_stats_v4.py"
           echo "\n---- tail: singles ----"
           tail -n 120 "data/value_bets/V4 Bets/V4 player singles/player_stats_v4.txt" || true
+
+      - name: Commit tracking file (prevent duplicate notifications)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          git config user.name "${GIT_COMMITTER_NAME}"
+          git config user.email "${GIT_COMMITTER_EMAIL}"
+
+          # Stage the tracking file if it exists
+          if [ -f "data/value_bets/V4 Bets/V4 player singles/notified_players.json" ]; then
+            git add "data/value_bets/V4 Bets/V4 player singles/notified_players.json"
+
+            # Only commit if there are changes
+            if ! git diff --cached --quiet; then
+              ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+              git commit -m "chore(v4-tracking): update notification state ${ts}"
+
+              # Push with rebase to handle concurrent runs
+              BRANCH="${GITHUB_REF_NAME:-main}"
+              for attempt in 1 2 3; do
+                git pull --rebase origin "${BRANCH}" || true
+                if git push origin HEAD:"${BRANCH}"; then
+                  echo "✓ Tracking file committed successfully (attempt ${attempt})"
+                  exit 0
+                fi
+                echo "⚠ Push failed (attempt ${attempt}), retrying..."
+                sleep 2
+              done
+
+              echo "✗ Failed to push tracking file after 3 attempts"
+              exit 1
+            else
+              echo "✓ No changes to tracking file"
+            fi
+          else
+            echo "⚠ Tracking file not found (no picks generated?)"
+          fi
 
       - name: Upload artifacts (V4 outputs)
         uses: actions/upload-artifact@v4
