@@ -1,0 +1,38 @@
+name: Find V4 Value Bets Hourly (Fouls/Tackles)
+
+on:
+  schedule:
+    # Run 5 minutes after scraper (which runs at :00)
+    - cron: '5 * * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: find-value-bets-v4
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Analyze odds for value bets
+        run: |
+          python scripts/odds_api/find_value_bets_v4.py
+
+      - name: Commit and push results
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/odds_api/value_bets_v4.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update V4 value bets $(date +'%Y-%m-%d %H:%M UTC')" && git push)
