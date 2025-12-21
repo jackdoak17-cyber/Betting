@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-21T07:35:54.985163+00:00",
+  "generated_at": "2025-12-21T19:31:57.849348+00:00",
   "league_id": 462,
   "count": 198,
   "players": [
@@ -7007,18 +7007,21 @@
       "name": "L. Vallier",
       "position_tag": "LB",
       "fouls_drawn_last_n": [
+        0,
         1,
         2
       ],
       "minutes_last_n": [
+        46,
         90,
         89
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031
       ],
-      "n": 2,
+      "n": 3,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7125,6 +7128,7 @@
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
         2,
+        2,
         0,
         0,
         1,
@@ -7142,6 +7146,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         78,
         90,
         90,
@@ -7156,6 +7161,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031,
         19449018,
@@ -7171,7 +7177,7 @@
         19448931,
         19448920
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7184,15 +7190,18 @@
       "name": "Miguel Baeza",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         0
       ],
       "minutes_last_n": [
+        83,
         59
       ],
       "fixture_ids": [
+        19449044,
         19449018
       ],
-      "n": 1,
+      "n": 2,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7205,6 +7214,7 @@
       "name": "Paulinho Bóia",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        1,
         1,
         2,
         3,
@@ -7223,6 +7233,7 @@
       "minutes_last_n": [
         90,
         90,
+        90,
         84,
         85,
         90,
@@ -7237,6 +7248,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031,
         19449018,
@@ -7252,7 +7264,7 @@
         19448931,
         19448920
       ],
-      "n": 14,
+      "n": 15,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7265,6 +7277,7 @@
       "name": "Liziero",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         3,
         3,
         0,
@@ -7285,6 +7298,7 @@
         90,
         90,
         90,
+        90,
         87,
         90,
         90,
@@ -7297,6 +7311,7 @@
         73
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031,
         19449018,
@@ -7305,6 +7320,66 @@
         19448992,
         19448983,
         19448980,
+        19448965,
+        19448960,
+        19448946,
+        19448937,
+        19448931,
+        19448920
+      ],
+      "n": 15,
+      "n_requested": 20,
+      "min_minutes": 45,
+      "order": "latest_first"
+    },
+    {
+      "league_id": 462,
+      "season_id": 25745,
+      "team_id": 7035,
+      "player_id": 37436238,
+      "name": "Matheus Dias",
+      "position_tag": "MID",
+      "fouls_drawn_last_n": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        3,
+        2,
+        1,
+        1,
+        0,
+        2,
+        1
+      ],
+      "minutes_last_n": [
+        46,
+        61,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        80,
+        90,
+        90,
+        90,
+        46,
+        90
+      ],
+      "fixture_ids": [
+        19449044,
+        19449036,
+        19449031,
+        19449018,
+        19449010,
+        19449001,
+        19448992,
+        19448983,
         19448965,
         19448960,
         19448946,
@@ -7321,67 +7396,11 @@
       "league_id": 462,
       "season_id": 25745,
       "team_id": 7035,
-      "player_id": 37436238,
-      "name": "Matheus Dias",
-      "position_tag": "MID",
-      "fouls_drawn_last_n": [
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        3,
-        2,
-        1,
-        1,
-        0,
-        2,
-        1
-      ],
-      "minutes_last_n": [
-        61,
-        90,
-        90,
-        90,
-        90,
-        90,
-        90,
-        80,
-        90,
-        90,
-        90,
-        46,
-        90
-      ],
-      "fixture_ids": [
-        19449036,
-        19449031,
-        19449018,
-        19449010,
-        19449001,
-        19448992,
-        19448983,
-        19448965,
-        19448960,
-        19448946,
-        19448937,
-        19448931,
-        19448920
-      ],
-      "n": 13,
-      "n_requested": 20,
-      "min_minutes": 45,
-      "order": "latest_first"
-    },
-    {
-      "league_id": 462,
-      "season_id": 25745,
-      "team_id": 7035,
       "player_id": 37565255,
       "name": "Ze Vitor",
       "position_tag": "CB",
       "fouls_drawn_last_n": [
+        2,
         1,
         0,
         0,
@@ -7396,6 +7415,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -7410,6 +7430,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031,
         19449018,
@@ -7423,7 +7444,7 @@
         19448937,
         19448931
       ],
-      "n": 12,
+      "n": 13,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -7436,6 +7457,7 @@
       "name": "Kaique",
       "position_tag": "GK",
       "fouls_drawn_last_n": [
+        0,
         1,
         0,
         1,
@@ -7453,9 +7475,11 @@
         90,
         90,
         90,
+        90,
         90
       ],
       "fixture_ids": [
+        19449044,
         19449036,
         19449031,
         19449018,
@@ -7465,7 +7489,7 @@
         19448983,
         19448980
       ],
-      "n": 8,
+      "n": 9,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9002,6 +9026,7 @@
       "name": "Tomané",
       "position_tag": "FWD",
       "fouls_drawn_last_n": [
+        3,
         2,
         8,
         4,
@@ -9013,6 +9038,7 @@
         2
       ],
       "minutes_last_n": [
+        84,
         90,
         84,
         71,
@@ -9024,6 +9050,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19449026,
         19449008,
@@ -9034,7 +9061,7 @@
         19448963,
         19448956
       ],
-      "n": 9,
+      "n": 10,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9049,11 +9076,13 @@
       "fouls_drawn_last_n": [
         0,
         0,
+        0,
         1,
         2,
         2
       ],
       "minutes_last_n": [
+        73,
         89,
         90,
         90,
@@ -9061,13 +9090,14 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19449026,
         19449025,
         19449008,
         19448999
       ],
-      "n": 5,
+      "n": 6,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9082,6 +9112,7 @@
       "fouls_drawn_last_n": [
         0,
         0,
+        0,
         1,
         2,
         3,
@@ -9093,6 +9124,7 @@
         2
       ],
       "minutes_last_n": [
+        68,
         58,
         76,
         90,
@@ -9106,6 +9138,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19449026,
         19449025,
@@ -9118,7 +9151,7 @@
         19448927,
         19448923
       ],
-      "n": 11,
+      "n": 12,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9273,6 +9306,7 @@
       "position_tag": "CB",
       "fouls_drawn_last_n": [
         0,
+        0,
         1,
         0,
         1,
@@ -9287,6 +9321,7 @@
         1
       ],
       "minutes_last_n": [
+        90,
         90,
         90,
         90,
@@ -9302,6 +9337,7 @@
         90
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19449026,
         19449025,
@@ -9316,7 +9352,7 @@
         19448927,
         19448923
       ],
-      "n": 13,
+      "n": 14,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9329,6 +9365,7 @@
       "name": "Pedro Lima Barros",
       "position_tag": "MID",
       "fouls_drawn_last_n": [
+        1,
         2,
         0,
         1,
@@ -9338,6 +9375,7 @@
         1
       ],
       "minutes_last_n": [
+        81,
         90,
         73,
         57,
@@ -9347,6 +9385,7 @@
         67
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19448996,
         19448981,
@@ -9355,7 +9394,7 @@
         19448927,
         19448923
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
@@ -9370,6 +9409,7 @@
       "fouls_drawn_last_n": [
         1,
         1,
+        1,
         0,
         0,
         2,
@@ -9377,6 +9417,7 @@
         3
       ],
       "minutes_last_n": [
+        68,
         89,
         84,
         46,
@@ -9386,6 +9427,7 @@
         65
       ],
       "fixture_ids": [
+        19449044,
         19449042,
         19449026,
         19449025,
@@ -9394,7 +9436,7 @@
         19448963,
         19448956
       ],
-      "n": 7,
+      "n": 8,
       "n_requested": 20,
       "min_minutes": 45,
       "order": "latest_first"
