@@ -3,6 +3,7 @@ V4 Value Bet Finder for Fouls & Tackles
 Analyzes player stats against Odds-API.io data
 """
 import json
+import math
 import os
 from collections import defaultdict
 from datetime import datetime
@@ -223,7 +224,8 @@ def analyze_odds_event(event: dict, fouls_players: dict, tackles_players: dict,
                 continue
 
             # Check hit rate windows
-            threshold = int(hdp)
+            # For "over" lines, need to round up: O0.5 needs ≥1, O1.5 needs ≥2, etc.
+            threshold = math.ceil(hdp)
             window_result = check_hit_rate_windows(history, threshold)
 
             if not window_result:
