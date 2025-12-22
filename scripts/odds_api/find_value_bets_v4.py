@@ -199,12 +199,19 @@ def analyze_odds_event(event: dict, fouls_players: dict, tackles_players: dict,
 
             # Try to match with fouls/tackles stats
             # Determine if it's fouls or tackles based on market name
-            # (This is a heuristic - adjust based on actual market names)
-            if "foul" in market_name.lower():
+            # IMPORTANT: Must distinguish between fouls committed vs fouls drawn
+            market_lower = market_name.lower()
+
+            # Check for fouls COMMITTED (not fouls drawn/to be fouled)
+            if "fouls committed" in market_lower or "foul committed" in market_lower:
                 stat_type = "fouls"
                 players_data = fouls_players
                 rankings = fouls_rankings
-            elif "tackle" in market_name.lower():
+            # Explicitly exclude "to be fouled" (fouls drawn)
+            elif "to be foul" in market_lower or "foul drawn" in market_lower:
+                continue  # Skip fouls drawn - we only want fouls committed
+            # Check for tackles
+            elif "tackle" in market_lower:
                 stat_type = "tackles"
                 players_data = tackles_players
                 rankings = tackles_rankings
