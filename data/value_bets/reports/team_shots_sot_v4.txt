@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-21T16:19:04
+Generated at (UTC): 2025-12-22T03:01:15
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -24,23 +24,3 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 8
     team hits 2/8 | opp conceded 3/8 | H2H 2/4
     implied win probs: home 0.556 / away 0.444
- • Elche (home) — Shots on Target Over 3.5 @ 1.720 vs Rayo Vallecano | kickoff 2025-12-21 17:30:00
-    model=0.642 | implied=0.581 | threshold≥4
-    Elche have cleared 4 shots on target in 6/8 home matches = 6,6,3,5,8,5,5,2
-    Rayo Vallecano's opponents have had 4+ shots on target in 5/9 away games = 2,3,7,4,3,8,7,4,2
-    team hits 6/8 | opp conceded 5/9 | H2H 2/4
-    implied win probs: home 0.549 / away 0.451
- • Genoa (home) — Shots on Target Over 3.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
-    model=0.577 | implied=0.546 | threshold≥4
-    Genoa have cleared 4 shots on target in 4/8 home matches = 3,4,6,1,7,5,1,2
-    Atalanta's opponents have had 4+ shots on target in 6/7 away games = 7,6,5,5,10,5,3
-    This landed in the reverse fixture last season = 5
-    team hits 4/8 | opp conceded 6/7 | H2H 2/4
-    implied win probs: home 0.374 / away 0.626
- • Genoa (home) — Shots Over 10.5 @ 1.830 vs Atalanta | kickoff 2025-12-21 19:45:00
-    model=0.534 | implied=0.546 | threshold≥11
-    Genoa have cleared 11 shots in 4/8 home matches = 5,15,10,16,23,17,10,5
-    Atalanta's opponents have had 11+ shots in 5/7 away games = 12,11,11,9,24,11,7
-    This landed in the reverse fixture last season = 12
-    team hits 4/8 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.374 / away 0.626
