@@ -26,7 +26,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: |
+          pip install requests
+
       - name: Analyze odds for value bets
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENABLE_TELEGRAM: "1"
         run: |
           python scripts/odds_api/find_value_bets_v4.py
 
@@ -42,14 +50,18 @@ jobs:
           git config user.name "${GIT_COMMITTER_NAME}"
           git config user.email "${GIT_COMMITTER_EMAIL}"
 
-          # Stage the value bets file if it exists
+          # Stage the value bets file and tracking file if they exist
           if [ -f "data/odds_api/value_bets_v4.json" ]; then
             git add "data/odds_api/value_bets_v4.json"
+          fi
+          if [ -f "data/odds_api/notified_bets_v4.json" ]; then
+            git add "data/odds_api/notified_bets_v4.json"
+          fi
 
-            # Only commit if there are changes
-            if ! git diff --cached --quiet; then
-              ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-              git commit -m "chore(v4-value-bets): update analysis results ${ts}"
+          # Only commit if there are changes
+          if ! git diff --cached --quiet; then
+            ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git commit -m "chore(v4-value-bets): update analysis results ${ts}"
 
               # Push with rebase to handle concurrent runs
               BRANCH="${GITHUB_REF_NAME:-main}"
@@ -63,12 +75,8 @@ jobs:
                 sleep 2
               done
 
-              echo "✗ Failed to push value bets after 3 attempts"
-              exit 1
-            else
-              echo "✓ No changes to value bets"
-            fi
-          else
-            echo "⚠ Value bets file not found"
+            echo "✗ Failed to push value bets after 3 attempts"
             exit 1
+          else
+            echo "✓ No changes to value bets or tracking file"
           fi

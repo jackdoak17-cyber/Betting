@@ -1,10 +1,11 @@
 """
 V4 Value Bet Finder for Fouls & Tackles
-Analyzes player stats against Odds-API.io data
+Analyzes player stats against Odds-API.io data with Telegram notifications
 """
 import json
 import math
 import os
+import requests
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -17,6 +18,7 @@ FOULS_FILE = ROOT / "data" / "player_fouls" / "combined.json"
 TACKLES_FILE = ROOT / "data" / "player_tackles" / "combined.json"
 TEAM_STATS_FILE = ROOT / "data" / "team_stats" / "combined.json"
 OUTPUT_FILE = ROOT / "data" / "odds_api" / "value_bets_v4.json"
+NOTIFIED_FILE = ROOT / "data" / "odds_api" / "notified_bets_v4.json"
 
 # V4 criteria
 MIN_ODDS = float(os.getenv("MIN_ODDS", "1.72"))
@@ -25,6 +27,11 @@ HIT_RATE_WINDOWS = [
     (10, 12), (11, 14), (12, 16), (14, 18), (16, 20)
 ]
 TOP_N_STINGY = 5  # Skip top-5 stingiest defenses
+
+# Telegram config
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+ENABLE_TELEGRAM = os.getenv("ENABLE_TELEGRAM", "1") == "1"
 
 
 def load_latest_odds() -> Optional[dict]:
@@ -271,6 +278,160 @@ def analyze_odds_event(event: dict, fouls_players: dict, tackles_players: dict,
     return value_bets
 
 
+# ---- Telegram notification helpers ----------------------------------------
+
+def load_notified_bets() -> Dict[str, dict]:
+    """Load the tracking of previously notified bets."""
+    if not NOTIFIED_FILE.exists():
+        return {}
+    try:
+        data = json.loads(NOTIFIED_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_notified_bets(notified: Dict[str, dict]) -> None:
+    """Save the tracking of notified bets."""
+    try:
+        NOTIFIED_FILE.parent.mkdir(parents=True, exist_ok=True)
+        NOTIFIED_FILE.write_text(
+            json.dumps(notified, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+        print(f"✓ Saved {len(notified)} tracked bets to: {NOTIFIED_FILE}")
+    except Exception as e:
+        print(f"✗ ERROR: Failed to save notified bets: {e}")
+        raise
+
+
+def generate_notification_key(bet: dict) -> str:
+    """Generate a unique key for a bet to track notifications."""
+    return f"{bet.get('event_id')}:{bet.get('player_id')}:{bet.get('market')}"
+
+
+def send_telegram_message(message: str) -> bool:
+    """Send a message via Telegram bot."""
+    if not ENABLE_TELEGRAM or not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return False
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        return True
+    except Exception as e:
+        print(f"Telegram notification failed: {e}")
+        return False
+
+
+def format_telegram_message(bet: dict) -> str:
+    """Format a bet as a Telegram message."""
+    pos = bet.get("position") or ""
+    pos_label = f" [{pos}]" if pos else ""
+
+    lines = [
+        f"⚽ <b>V4 Fouls/Tackles Value Bet</b>",
+        f"",
+        f"👤 <b>{bet.get('player_name', 'Unknown')}</b>{pos_label}",
+        f"🏟 {bet.get('home', 'Unknown')} vs {bet.get('away', 'Unknown')}",
+        f"",
+        f"📊 <b>{bet.get('market', 'N/A')}</b>",
+        f"💰 Odds: <b>{bet.get('odds', 0.0):.2f}</b> ({bet.get('bookmaker', 'N/A')})",
+        f"",
+        f"📈 Hit Rate: {bet.get('hit_rate', 'N/A')} (Required: {bet.get('required', 'N/A')})",
+        f"📊 Average: {bet.get('average', 'N/A')}",
+        f"📋 Recent: {bet.get('history', [])}",
+        f"",
+        f"🏆 League: {bet.get('league', 'N/A')}",
+        f"📅 {bet.get('date', 'N/A')}",
+        f"🆔 Event: {bet.get('event_id', 'N/A')}",
+    ]
+
+    return "\n".join(lines)
+
+
+def notify_new_bets(bets: List[dict]) -> int:
+    """Send Telegram notifications for new bets. Returns count of notifications sent."""
+    if not ENABLE_TELEGRAM or not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("Telegram notifications disabled (missing credentials or disabled via config)")
+        return 0
+
+    notified = load_notified_bets()
+
+    print(f"\n{'='*70}")
+    print(f"NOTIFICATION TRACKING STATUS")
+    print(f"{'='*70}")
+    print(f"Previously tracked bets: {len(notified)}")
+    print(f"Total bets this run: {len(bets)}")
+
+    new_bets = []
+    already_notified = []
+
+    for bet in bets:
+        key = generate_notification_key(bet)
+        bet_info = f"{bet.get('player_name')} - {bet.get('market')} (Event {bet.get('event_id')})"
+
+        if key not in notified:
+            new_bets.append(bet)
+            notified[key] = {
+                "player_name": bet.get("player_name"),
+                "market": bet.get("market"),
+                "event_id": bet.get("event_id"),
+                "home": bet.get("home"),
+                "away": bet.get("away"),
+                "notified_at": datetime.now().isoformat(),
+                "odds": bet.get("odds"),
+            }
+        else:
+            already_notified.append(bet_info)
+
+    print(f"\n📊 BREAKDOWN:")
+    print(f"  ✅ New bets to notify: {len(new_bets)}")
+    print(f"  ⏭️  Already notified (skipped): {len(already_notified)}")
+
+    if already_notified:
+        print(f"\n⏭️  SKIPPED (already notified):")
+        for item in already_notified[:10]:
+            print(f"    • {item}")
+        if len(already_notified) > 10:
+            print(f"    ... and {len(already_notified) - 10} more")
+
+    if not new_bets:
+        print(f"\n✓ No new bets to notify")
+        print(f"{'='*70}\n")
+        return 0
+
+    print(f"\n🔔 SENDING NOTIFICATIONS:")
+    sent_count = 0
+
+    for bet in new_bets:
+        bet_info = f"{bet.get('player_name')} - {bet.get('market')} @ {bet.get('odds', 0):.2f}"
+        message = format_telegram_message(bet)
+        if send_telegram_message(message):
+            sent_count += 1
+            print(f"  ✓ {bet_info}")
+        else:
+            print(f"  ✗ FAILED: {bet_info}")
+
+    save_notified_bets(notified)
+
+    if sent_count > 0:
+        summary = f"📬 Sent {sent_count}/{len(new_bets)} V4 fouls/tackles notifications"
+        send_telegram_message(summary)
+        print(f"\n{summary}")
+
+    print(f"{'='*70}\n")
+    return sent_count
+
+
 def main():
     print("=" * 70)
     print("V4 VALUE BET FINDER - Fouls & Tackles")
@@ -333,6 +494,9 @@ def main():
             print(f"    {bet['home']} vs {bet['away']}")
             print(f"    Hit rate: {bet['hit_rate']} | Avg: {bet['average']}")
             print()
+
+    # Send Telegram notifications for new bets
+    notify_new_bets(all_value_bets)
 
 
 if __name__ == "__main__":
