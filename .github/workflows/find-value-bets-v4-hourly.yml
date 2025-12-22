@@ -31,8 +31,44 @@ jobs:
           python scripts/odds_api/find_value_bets_v4.py
 
       - name: Commit and push results
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add data/odds_api/value_bets_v4.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update V4 value bets $(date +'%Y-%m-%d %H:%M UTC')" && git push)
+          set -euo pipefail
+
+          git config user.name "${GIT_COMMITTER_NAME}"
+          git config user.email "${GIT_COMMITTER_EMAIL}"
+
+          # Stage the value bets file if it exists
+          if [ -f "data/odds_api/value_bets_v4.json" ]; then
+            git add "data/odds_api/value_bets_v4.json"
+
+            # Only commit if there are changes
+            if ! git diff --cached --quiet; then
+              ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+              git commit -m "chore(v4-value-bets): update analysis results ${ts}"
+
+              # Push with rebase to handle concurrent runs
+              BRANCH="${GITHUB_REF_NAME:-main}"
+              for attempt in 1 2 3; do
+                git pull --rebase origin "${BRANCH}" || true
+                if git push origin HEAD:"${BRANCH}"; then
+                  echo "✓ Value bets committed successfully (attempt ${attempt})"
+                  exit 0
+                fi
+                echo "⚠ Push failed (attempt ${attempt}), retrying..."
+                sleep 2
+              done
+
+              echo "✗ Failed to push value bets after 3 attempts"
+              exit 1
+            else
+              echo "✓ No changes to value bets"
+            fi
+          else
+            echo "⚠ Value bets file not found"
+            exit 1
+          fi
