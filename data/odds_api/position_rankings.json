@@ -1,0 +1,136 @@
+{
+  "generated_at": 1766432081.9579813,
+  "min_games": 5,
+  "fouls_committed": {
+    "CB": {
+      "avg": 0.99,
+      "percentile": 50.5,
+      "player_count": 625,
+      "median": 0.9,
+      "std_dev": 0.47
+    },
+    "MID": {
+      "avg": 1.11,
+      "percentile": 62.5,
+      "player_count": 1184,
+      "median": 1.1,
+      "std_dev": 0.52
+    },
+    "RB": {
+      "avg": 1.07,
+      "percentile": 57.2,
+      "player_count": 178,
+      "median": 1.0,
+      "std_dev": 0.47
+    },
+    "FWD": {
+      "avg": 1.13,
+      "percentile": 63.5,
+      "player_count": 475,
+      "median": 1.1,
+      "std_dev": 0.57
+    },
+    "GK": {
+      "avg": 0.02,
+      "percentile": 8.2,
+      "player_count": 278,
+      "median": 0.0,
+      "std_dev": 0.04
+    },
+    "LB": {
+      "avg": 0.97,
+      "percentile": 50.5,
+      "player_count": 182,
+      "median": 1.0,
+      "std_dev": 0.43
+    }
+  },
+  "fouls_drawn": {
+    "MID": {
+      "avg": 1.16,
+      "percentile": 68.0,
+      "player_count": 920,
+      "median": 1.0,
+      "std_dev": 0.67
+    },
+    "GK": {
+      "avg": 0.21,
+      "percentile": 11.2,
+      "player_count": 219,
+      "median": 0.2,
+      "std_dev": 0.18
+    },
+    "RB": {
+      "avg": 0.92,
+      "percentile": 58.0,
+      "player_count": 144,
+      "median": 0.89,
+      "std_dev": 0.5
+    },
+    "CB": {
+      "avg": 0.68,
+      "percentile": 38.6,
+      "player_count": 502,
+      "median": 0.6,
+      "std_dev": 0.44
+    },
+    "FWD": {
+      "avg": 1.21,
+      "percentile": 72.9,
+      "player_count": 389,
+      "median": 1.1,
+      "std_dev": 0.65
+    },
+    "LB": {
+      "avg": 0.85,
+      "percentile": 52.0,
+      "player_count": 129,
+      "median": 0.7,
+      "std_dev": 0.49
+    }
+  },
+  "tackles": {
+    "CB": {
+      "avg": 1.41,
+      "percentile": 59.1,
+      "player_count": 625,
+      "median": 1.33,
+      "std_dev": 0.57
+    },
+    "MID": {
+      "avg": 1.56,
+      "percentile": 64.0,
+      "player_count": 1184,
+      "median": 1.5,
+      "std_dev": 0.68
+    },
+    "RB": {
+      "avg": 1.9,
+      "percentile": 80.7,
+      "player_count": 178,
+      "median": 1.8,
+      "std_dev": 0.74
+    },
+    "FWD": {
+      "avg": 0.76,
+      "percentile": 25.7,
+      "player_count": 475,
+      "median": 0.7,
+      "std_dev": 0.52
+    },
+    "GK": {
+      "avg": 0.04,
+      "percentile": 7.4,
+      "player_count": 278,
+      "median": 0.0,
+      "std_dev": 0.06
+    },
+    "LB": {
+      "avg": 1.78,
+      "percentile": 73.9,
+      "player_count": 182,
+      "median": 1.7,
+      "std_dev": 0.65
+    }
+  }
+}
