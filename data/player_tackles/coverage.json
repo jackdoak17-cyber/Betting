@@ -1,13 +1,20 @@
 {
   "by_league": {
     "8": {
-      "predicted_total": 220,
-      "found": 220,
-      "non_empty": 206,
-      "empty": 14,
+      "predicted_total": 242,
+      "found": 242,
+      "non_empty": 225,
+      "empty": 17,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
+        {
+          "league_id": 8,
+          "team_id": 63,
+          "team_name": "Nottingham Forest",
+          "player_id": 219900,
+          "name": "John Victor"
+        },
         {
           "league_id": 8,
           "team_id": 20,
@@ -17,10 +24,17 @@
         },
         {
           "league_id": 8,
-          "team_id": 18,
-          "team_name": "Chelsea",
-          "player_id": 581000,
-          "name": "Robert Sánchez"
+          "team_id": 63,
+          "team_name": "Nottingham Forest",
+          "player_id": 219900,
+          "name": "John Victor"
+        },
+        {
+          "league_id": 8,
+          "team_id": 19,
+          "team_name": "Arsenal",
+          "player_id": 3130,
+          "name": "David Raya"
         },
         {
           "league_id": 8,
@@ -38,24 +52,17 @@
         },
         {
           "league_id": 8,
-          "team_id": 3,
-          "team_name": "Sunderland",
-          "player_id": 37397144,
-          "name": "Robin Roefs"
+          "team_id": 27,
+          "team_name": "Burnley",
+          "player_id": 7176,
+          "name": "Joe Worrall"
         },
         {
           "league_id": 8,
-          "team_id": 1,
-          "team_name": "West Ham United",
-          "player_id": 95393,
-          "name": "Alphonse Areola"
-        },
-        {
-          "league_id": 8,
-          "team_id": 6,
-          "team_name": "Tottenham Hotspur",
-          "player_id": 133779,
-          "name": "Guglielmo Vicario"
+          "team_id": 13,
+          "team_name": "Everton",
+          "player_id": 4598726,
+          "name": "Dwight McNeil"
         },
         {
           "league_id": 8,
@@ -66,17 +73,38 @@
         },
         {
           "league_id": 8,
-          "team_id": 8,
-          "team_name": "Liverpool",
-          "player_id": 1453,
-          "name": "Joe Gomez"
+          "team_id": 29,
+          "team_name": "Wolverhampton Wanderers",
+          "player_id": 159483,
+          "name": "José Sá"
         },
         {
           "league_id": 8,
-          "team_id": 19,
-          "team_name": "Arsenal",
-          "player_id": 3130,
-          "name": "David Raya"
+          "team_id": 1,
+          "team_name": "West Ham United",
+          "player_id": 95393,
+          "name": "Alphonse Areola"
+        },
+        {
+          "league_id": 8,
+          "team_id": 18,
+          "team_name": "Chelsea",
+          "player_id": 581000,
+          "name": "Robert Sánchez"
+        },
+        {
+          "league_id": 8,
+          "team_id": 15,
+          "team_name": "Aston Villa",
+          "player_id": 1343,
+          "name": "Emiliano Martínez"
+        },
+        {
+          "league_id": 8,
+          "team_id": 3,
+          "team_name": "Sunderland",
+          "player_id": 37397144,
+          "name": "Robin Roefs"
         },
         {
           "league_id": 8,
@@ -94,69 +122,34 @@
         },
         {
           "league_id": 8,
-          "team_id": 15,
-          "team_name": "Aston Villa",
-          "player_id": 24238,
-          "name": "Marco Bizot"
-        },
-        {
-          "league_id": 8,
-          "team_id": 63,
-          "team_name": "Nottingham Forest",
-          "player_id": 219900,
-          "name": "John Victor"
+          "team_id": 6,
+          "team_name": "Tottenham Hotspur",
+          "player_id": 133779,
+          "name": "Guglielmo Vicario"
         }
       ]
     },
     "9": {
-      "predicted_total": 264,
-      "found": 264,
-      "non_empty": 245,
-      "empty": 19,
+      "predicted_total": 528,
+      "found": 528,
+      "non_empty": 486,
+      "empty": 42,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
         {
           "league_id": 9,
-          "team_id": 30,
-          "team_name": "Swansea City",
-          "player_id": 9372,
-          "name": "Lawrence Vigouroux"
+          "team_id": 24,
+          "team_name": "Derby County",
+          "player_id": 18575194,
+          "name": "Jacob Widell Zetterström"
         },
         {
           "league_id": 9,
-          "team_id": 283,
-          "team_name": "Wrexham",
-          "player_id": 21428649,
-          "name": "Arthur Okonkwo"
-        },
-        {
-          "league_id": 9,
-          "team_id": 2,
-          "team_name": "Blackburn Rovers",
-          "player_id": 537434,
-          "name": "Aynsley Pears"
-        },
-        {
-          "league_id": 9,
-          "team_id": 99,
-          "team_name": "Preston North End",
-          "player_id": 581238,
-          "name": "Daniel Iversen"
-        },
-        {
-          "league_id": 9,
-          "team_id": 33,
-          "team_name": "Norwich City",
-          "player_id": 7386788,
-          "name": "Vladan Kovačević"
-        },
-        {
-          "league_id": 9,
-          "team_id": 65,
-          "team_name": "Southampton",
-          "player_id": 16845996,
-          "name": "Gavin Bazunu"
+          "team_id": 116,
+          "team_name": "Ipswich Town",
+          "player_id": 2965,
+          "name": "Christian Walton"
         },
         {
           "league_id": 9,
@@ -167,10 +160,52 @@
         },
         {
           "league_id": 9,
+          "team_id": 117,
+          "team_name": "Coventry City",
+          "player_id": 538042,
+          "name": "Joel Latibeaudiere"
+        },
+        {
+          "league_id": 9,
+          "team_id": 30,
+          "team_name": "Swansea City",
+          "player_id": 9372,
+          "name": "Lawrence Vigouroux"
+        },
+        {
+          "league_id": 9,
+          "team_id": 42,
+          "team_name": "Leicester City",
+          "player_id": 13633370,
+          "name": "Jakub Stolarczyk"
+        },
+        {
+          "league_id": 9,
           "team_id": 7,
           "team_name": "Middlesbrough",
           "player_id": 1494172,
           "name": "Sol Brynn"
+        },
+        {
+          "league_id": 9,
+          "team_id": 2,
+          "team_name": "Blackburn Rovers",
+          "player_id": 537434,
+          "name": "Aynsley Pears"
+        },
+        {
+          "league_id": 9,
+          "team_id": 2,
+          "team_name": "Blackburn Rovers",
+          "player_id": 14119,
+          "name": "Harry Pickering"
+        },
+        {
+          "league_id": 9,
+          "team_id": 33,
+          "team_name": "Norwich City",
+          "player_id": 7386788,
+          "name": "Vladan Kovačević"
         },
         {
           "league_id": 9,
@@ -195,31 +230,17 @@
         },
         {
           "league_id": 9,
-          "team_id": 24,
-          "team_name": "Derby County",
-          "player_id": 18575194,
-          "name": "Jacob Widell Zetterström"
+          "team_id": 65,
+          "team_name": "Southampton",
+          "player_id": 16845996,
+          "name": "Gavin Bazunu"
         },
         {
           "league_id": 9,
-          "team_id": 10,
-          "team_name": "West Bromwich Albion",
-          "player_id": 2919,
-          "name": "Joe Wildsmith"
-        },
-        {
-          "league_id": 9,
-          "team_id": 116,
-          "team_name": "Ipswich Town",
-          "player_id": 2965,
-          "name": "Christian Walton"
-        },
-        {
-          "league_id": 9,
-          "team_id": 56,
-          "team_name": "Sheffield Wednesday",
-          "player_id": 37554913,
-          "name": "Pierce Joseph Charles"
+          "team_id": 47,
+          "team_name": "Queens Park Rangers",
+          "player_id": 999,
+          "name": "Ben Hamer"
         },
         {
           "league_id": 9,
@@ -230,10 +251,31 @@
         },
         {
           "league_id": 9,
-          "team_id": 42,
-          "team_name": "Leicester City",
-          "player_id": 13633370,
-          "name": "Jakub Stolarczyk"
+          "team_id": 56,
+          "team_name": "Sheffield Wednesday",
+          "player_id": 37554913,
+          "name": "Pierce Joseph Charles"
+        },
+        {
+          "league_id": 9,
+          "team_id": 99,
+          "team_name": "Preston North End",
+          "player_id": 581238,
+          "name": "Daniel Iversen"
+        },
+        {
+          "league_id": 9,
+          "team_id": 10,
+          "team_name": "West Bromwich Albion",
+          "player_id": 2919,
+          "name": "Joe Wildsmith"
+        },
+        {
+          "league_id": 9,
+          "team_id": 283,
+          "team_name": "Wrexham",
+          "player_id": 21428649,
+          "name": "Arthur Okonkwo"
         },
         {
           "league_id": 9,
@@ -244,83 +286,167 @@
         },
         {
           "league_id": 9,
-          "team_id": 12,
-          "team_name": "Birmingham City",
-          "player_id": 31757,
-          "name": "Marvin Ducksch"
+          "team_id": 117,
+          "team_name": "Coventry City",
+          "player_id": 28912807,
+          "name": "Carl Rushworth"
+        },
+        {
+          "league_id": 9,
+          "team_id": 117,
+          "team_name": "Coventry City",
+          "player_id": 538042,
+          "name": "Joel Latibeaudiere"
+        },
+        {
+          "league_id": 9,
+          "team_id": 116,
+          "team_name": "Ipswich Town",
+          "player_id": 2965,
+          "name": "Christian Walton"
+        },
+        {
+          "league_id": 9,
+          "team_id": 42,
+          "team_name": "Leicester City",
+          "player_id": 13633370,
+          "name": "Jakub Stolarczyk"
+        },
+        {
+          "league_id": 9,
+          "team_id": 24,
+          "team_name": "Derby County",
+          "player_id": 18575194,
+          "name": "Jacob Widell Zetterström"
+        },
+        {
+          "league_id": 9,
+          "team_id": 7,
+          "team_name": "Middlesbrough",
+          "player_id": 1494172,
+          "name": "Sol Brynn"
+        },
+        {
+          "league_id": 9,
+          "team_id": 33,
+          "team_name": "Norwich City",
+          "player_id": 7386788,
+          "name": "Vladan Kovačević"
+        },
+        {
+          "league_id": 9,
+          "team_id": 297,
+          "team_name": "Oxford United",
+          "player_id": 581215,
+          "name": "Jamie Cumming"
+        },
+        {
+          "league_id": 9,
+          "team_id": 30,
+          "team_name": "Swansea City",
+          "player_id": 9372,
+          "name": "Lawrence Vigouroux"
+        },
+        {
+          "league_id": 9,
+          "team_id": 4,
+          "team_name": "Charlton Athletic",
+          "player_id": 61107,
+          "name": "Thomas Kaminski"
+        },
+        {
+          "league_id": 9,
+          "team_id": 4,
+          "team_name": "Charlton Athletic",
+          "player_id": 20708615,
+          "name": "Tanto Olaofe"
+        },
+        {
+          "league_id": 9,
+          "team_id": 56,
+          "team_name": "Sheffield Wednesday",
+          "player_id": 37554913,
+          "name": "Pierce Joseph Charles"
+        },
+        {
+          "league_id": 9,
+          "team_id": 2,
+          "team_name": "Blackburn Rovers",
+          "player_id": 537434,
+          "name": "Aynsley Pears"
+        },
+        {
+          "league_id": 9,
+          "team_id": 2,
+          "team_name": "Blackburn Rovers",
+          "player_id": 14119,
+          "name": "Harry Pickering"
+        },
+        {
+          "league_id": 9,
+          "team_id": 21,
+          "team_name": "Sheffield United",
+          "player_id": 3533802,
+          "name": "Michael Cooper"
+        },
+        {
+          "league_id": 9,
+          "team_id": 10,
+          "team_name": "West Bromwich Albion",
+          "player_id": 2919,
+          "name": "Joe Wildsmith"
+        },
+        {
+          "league_id": 9,
+          "team_id": 47,
+          "team_name": "Queens Park Rangers",
+          "player_id": 999,
+          "name": "Ben Hamer"
+        },
+        {
+          "league_id": 9,
+          "team_id": 47,
+          "team_name": "Queens Park Rangers",
+          "player_id": 4620,
+          "name": "Jake Clarke-Salter"
+        },
+        {
+          "league_id": 9,
+          "team_id": 283,
+          "team_name": "Wrexham",
+          "player_id": 21428649,
+          "name": "Arthur Okonkwo"
+        },
+        {
+          "league_id": 9,
+          "team_id": 99,
+          "team_name": "Preston North End",
+          "player_id": 581238,
+          "name": "Daniel Iversen"
+        },
+        {
+          "league_id": 9,
+          "team_id": 65,
+          "team_name": "Southampton",
+          "player_id": 16845996,
+          "name": "Gavin Bazunu"
         }
       ]
     },
     "72": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 183,
-      "empty": 15,
+      "predicted_total": 110,
+      "found": 110,
+      "non_empty": 103,
+      "empty": 7,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 72,
-          "team_id": 1403,
-          "team_name": "Heracles Almelo",
-          "player_id": 37559578,
-          "name": "Timo Jansink"
-        },
-        {
-          "league_id": 72,
-          "team_id": 1053,
-          "team_name": "SC Heerenveen",
-          "player_id": 37624329,
-          "name": "Bernt Klaverboer"
-        },
-        {
-          "league_id": 72,
-          "team_id": 1053,
-          "team_name": "SC Heerenveen",
-          "player_id": 37725956,
-          "name": "Eser Gürbüz"
-        },
-        {
-          "league_id": 72,
-          "team_id": 1652,
-          "team_name": "Excelsior",
-          "player_id": 28199,
-          "name": "Stijn van Gassel"
-        },
-        {
-          "league_id": 72,
-          "team_id": 629,
-          "team_name": "Ajax",
-          "player_id": 9606060,
-          "name": "Vitezslav Jaros"
-        },
-        {
-          "league_id": 72,
-          "team_id": 637,
-          "team_name": "NAC Breda",
-          "player_id": 19970205,
-          "name": "Daniel Bielica"
-        },
-        {
-          "league_id": 72,
-          "team_id": 1550,
-          "team_name": "Telstar",
-          "player_id": 27859,
-          "name": "Ronald Koeman Jr."
-        },
         {
           "league_id": 72,
           "team_id": 682,
           "team_name": "PSV",
           "player_id": 12759176,
           "name": "Matej Kovar"
-        },
-        {
-          "league_id": 72,
-          "team_id": 682,
-          "team_name": "PSV",
-          "player_id": 29444,
-          "name": "A. Obispo"
         },
         {
           "league_id": 72,
@@ -367,90 +493,13 @@
       ]
     },
     "82": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 184,
-      "empty": 14,
+      "predicted_total": 44,
+      "found": 44,
+      "non_empty": 41,
+      "empty": 3,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 82,
-          "team_id": 68,
-          "team_name": "Borussia Dortmund",
-          "player_id": 34084,
-          "name": "Gregor Kobel"
-        },
-        {
-          "league_id": 82,
-          "team_id": 82,
-          "team_name": "Werder Bremen",
-          "player_id": 37558978,
-          "name": "Mio Backhaus"
-        },
-        {
-          "league_id": 82,
-          "team_id": 2708,
-          "team_name": "Hamburger SV",
-          "player_id": 32487,
-          "name": "Daniel Heuer Fernandes"
-        },
-        {
-          "league_id": 82,
-          "team_id": 2708,
-          "team_name": "Hamburger SV",
-          "player_id": 32579,
-          "name": "Jonas Meffert"
-        },
-        {
-          "league_id": 82,
-          "team_id": 366,
-          "team_name": "Eintracht Frankfurt",
-          "player_id": 32406,
-          "name": "Michael Zetterer"
-        },
-        {
-          "league_id": 82,
-          "team_id": 3319,
-          "team_name": "VfB Stuttgart",
-          "player_id": 32550,
-          "name": "Alexander Nübel"
-        },
-        {
-          "league_id": 82,
-          "team_id": 2726,
-          "team_name": "TSG Hoffenheim",
-          "player_id": 31146,
-          "name": "Oliver Baumann"
-        },
-        {
-          "league_id": 82,
-          "team_id": 2726,
-          "team_name": "TSG Hoffenheim",
-          "player_id": 5640817,
-          "name": "Ozan Kabak"
-        },
-        {
-          "league_id": 82,
-          "team_id": 510,
-          "team_name": "VfL Wolfsburg",
-          "player_id": 1494392,
-          "name": "Kamil Grabara"
-        },
-        {
-          "league_id": 82,
-          "team_id": 3543,
-          "team_name": "SC Freiburg",
-          "player_id": 11676280,
-          "name": "Noah Atubolu"
-        },
-        {
-          "league_id": 82,
-          "team_id": 3321,
-          "team_name": "Bayer 04 Leverkusen",
-          "player_id": 34737,
-          "name": "Mark Flekken"
-        },
         {
           "league_id": 82,
           "team_id": 794,
@@ -462,8 +511,8 @@
           "league_id": 82,
           "team_id": 503,
           "team_name": "FC Bayern München",
-          "player_id": 30642,
-          "name": "Manuel Neuer"
+          "player_id": 37351236,
+          "name": "Jonas Urbig"
         },
         {
           "league_id": 82,
@@ -529,13 +578,6 @@
       "empty_list": [
         {
           "league_id": 208,
-          "team_id": 1087,
-          "team_name": "Sporting Charleroi",
-          "player_id": 37537131,
-          "name": "Mohamed Koné"
-        },
-        {
-          "league_id": 208,
           "team_id": 2709,
           "team_name": "Genk",
           "player_id": 61824,
@@ -543,10 +585,66 @@
         },
         {
           "league_id": 208,
-          "team_id": 2709,
-          "team_name": "Genk",
-          "player_id": 37638475,
-          "name": "Robin Mirisola"
+          "team_id": 340,
+          "team_name": "Club Brugge",
+          "player_id": 37537519,
+          "name": "Dani van den Heuvel"
+        },
+        {
+          "league_id": 208,
+          "team_id": 2641,
+          "team_name": "Cercle Brugge",
+          "player_id": 221953,
+          "name": "Warleson"
+        },
+        {
+          "league_id": 208,
+          "team_id": 3958,
+          "team_name": "Union Saint-Gilloise",
+          "player_id": 29470,
+          "name": "Kjell Scherpen"
+        },
+        {
+          "league_id": 208,
+          "team_id": 700,
+          "team_name": "Standard Liège",
+          "player_id": 63026,
+          "name": "Lucas Pirard"
+        },
+        {
+          "league_id": 208,
+          "team_id": 2555,
+          "team_name": "Anderlecht",
+          "player_id": 61382,
+          "name": "Colin Coosemans"
+        },
+        {
+          "league_id": 208,
+          "team_id": 1087,
+          "team_name": "Sporting Charleroi",
+          "player_id": 37585985,
+          "name": "Martin Delavallée"
+        },
+        {
+          "league_id": 208,
+          "team_id": 328,
+          "team_name": "Antwerp",
+          "player_id": 25591410,
+          "name": "Taishi Brandon Nozawa"
+        },
+        {
+          "league_id": 208,
+          "team_id": 1118,
+          "team_name": "Zulte-Waregem",
+          "player_id": 540018,
+          "name": "Brent Gabriel"
+        },
+        {
+          "league_id": 208,
+          "team_id": 2938,
+          "team_name": "Mechelen",
+          "player_id": 37296404,
+          "name": "Nacho Miras"
         },
         {
           "league_id": 208,
@@ -559,15 +657,15 @@
           "league_id": 208,
           "team_id": 2741,
           "team_name": "Dender",
-          "player_id": 9939008,
-          "name": "David Toševski"
+          "player_id": 25147,
+          "name": "Alireza Jahanbakhsh"
         },
         {
           "league_id": 208,
-          "team_id": 700,
-          "team_name": "Standard Liège",
-          "player_id": 37651144,
-          "name": "Matthieu Epolo"
+          "team_id": 2741,
+          "team_name": "Dender",
+          "player_id": 37570555,
+          "name": "Mohamed Berte"
         },
         {
           "league_id": 208,
@@ -575,94 +673,17 @@
           "team_name": "Westerlo",
           "player_id": 24818235,
           "name": "Andreas Jungdal"
-        },
-        {
-          "league_id": 208,
-          "team_id": 3958,
-          "team_name": "Union Saint-Gilloise",
-          "player_id": 29470,
-          "name": "Kjell Scherpen"
-        },
-        {
-          "league_id": 208,
-          "team_id": 1118,
-          "team_name": "Zulte-Waregem",
-          "player_id": 540018,
-          "name": "Brent Gabriel"
-        },
-        {
-          "league_id": 208,
-          "team_id": 340,
-          "team_name": "Club Brugge",
-          "player_id": 37537519,
-          "name": "Dani van den Heuvel"
-        },
-        {
-          "league_id": 208,
-          "team_id": 2938,
-          "team_name": "Mechelen",
-          "player_id": 37296404,
-          "name": "Nacho Miras"
-        },
-        {
-          "league_id": 208,
-          "team_id": 328,
-          "team_name": "Antwerp",
-          "player_id": 25591410,
-          "name": "Taishi Brandon Nozawa"
-        },
-        {
-          "league_id": 208,
-          "team_id": 2555,
-          "team_name": "Anderlecht",
-          "player_id": 61382,
-          "name": "Colin Coosemans"
-        },
-        {
-          "league_id": 208,
-          "team_id": 2641,
-          "team_name": "Cercle Brugge",
-          "player_id": 23697512,
-          "name": "Maxime Delanghe"
         }
       ]
     },
     "244": {
-      "predicted_total": 110,
-      "found": 110,
-      "non_empty": 103,
-      "empty": 7,
+      "predicted_total": 44,
+      "found": 44,
+      "non_empty": 40,
+      "empty": 4,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 244,
-          "team_id": 7684,
-          "team_name": "Varaždin",
-          "player_id": 73640,
-          "name": "Oliver Zelenika"
-        },
-        {
-          "league_id": 244,
-          "team_id": 7920,
-          "team_name": "Osijek",
-          "player_id": 73710,
-          "name": "Marko Malenica"
-        },
-        {
-          "league_id": 244,
-          "team_id": 7920,
-          "team_name": "Osijek",
-          "player_id": 37777176,
-          "name": "Miloš Jovičić"
-        },
-        {
-          "league_id": 244,
-          "team_id": 2500,
-          "team_name": "Slaven Koprivnica",
-          "player_id": 183583,
-          "name": "Andrija Filipović"
-        },
         {
           "league_id": 244,
           "team_id": 7391,
@@ -683,6 +704,13 @@
           "team_name": "Gorica",
           "player_id": 16120385,
           "name": "Davor Matijas"
+        },
+        {
+          "league_id": 244,
+          "team_id": 8082,
+          "team_name": "Gorica",
+          "player_id": 37648990,
+          "name": "Vanja Pelko"
         }
       ]
     },
@@ -805,68 +833,19 @@
       ]
     },
     "384": {
-      "predicted_total": 132,
-      "found": 132,
-      "non_empty": 121,
-      "empty": 11,
+      "predicted_total": 220,
+      "found": 220,
+      "non_empty": 199,
+      "empty": 21,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
         {
           "league_id": 384,
-          "team_id": 43,
-          "team_name": "Lazio",
-          "player_id": 132128,
-          "name": "Ivan Provedel"
-        },
-        {
-          "league_id": 384,
-          "team_id": 10722,
-          "team_name": "Cremonese",
-          "player_id": 129855,
-          "name": "Emil Audero"
-        },
-        {
-          "league_id": 384,
-          "team_id": 625,
-          "team_name": "Juventus",
-          "player_id": 752045,
-          "name": "Michele Di Gregorio"
-        },
-        {
-          "league_id": 384,
-          "team_id": 585,
-          "team_name": "Cagliari",
-          "player_id": 22146095,
-          "name": "Elia Caprile"
-        },
-        {
-          "league_id": 384,
-          "team_id": 1072,
-          "team_name": "Pisa",
-          "player_id": 74154,
-          "name": "Adrian Semper"
-        },
-        {
-          "league_id": 384,
-          "team_id": 1072,
-          "team_name": "Pisa",
-          "player_id": 37580768,
-          "name": "Henrik Meister"
-        },
-        {
-          "league_id": 384,
-          "team_id": 2714,
-          "team_name": "Sassuolo",
-          "player_id": 538038,
-          "name": "Arijanet Murić"
-        },
-        {
-          "league_id": 384,
-          "team_id": 613,
-          "team_name": "Torino",
-          "player_id": 131951,
-          "name": "Alberto Paleari"
+          "team_id": 398,
+          "team_name": "Parma",
+          "player_id": 37257777,
+          "name": "Edoardo Corvi"
         },
         {
           "league_id": 384,
@@ -877,6 +856,34 @@
         },
         {
           "league_id": 384,
+          "team_id": 268,
+          "team_name": "Como",
+          "player_id": 37674290,
+          "name": "Assane Diao"
+        },
+        {
+          "league_id": 384,
+          "team_id": 613,
+          "team_name": "Torino",
+          "player_id": 131951,
+          "name": "Alberto Paleari"
+        },
+        {
+          "league_id": 384,
+          "team_id": 585,
+          "team_name": "Cagliari",
+          "player_id": 22146095,
+          "name": "Elia Caprile"
+        },
+        {
+          "league_id": 384,
+          "team_id": 585,
+          "team_name": "Cagliari",
+          "player_id": 37564566,
+          "name": "Semih Kılıçsoy"
+        },
+        {
+          "league_id": 384,
           "team_id": 346,
           "team_name": "Udinese",
           "player_id": 540585,
@@ -884,34 +891,118 @@
         },
         {
           "league_id": 384,
+          "team_id": 43,
+          "team_name": "Lazio",
+          "player_id": 132128,
+          "name": "Ivan Provedel"
+        },
+        {
+          "league_id": 384,
+          "team_id": 1072,
+          "team_name": "Pisa",
+          "player_id": 74154,
+          "name": "Adrian Semper"
+        },
+        {
+          "league_id": 384,
+          "team_id": 625,
+          "team_name": "Juventus",
+          "player_id": 752045,
+          "name": "Michele Di Gregorio"
+        },
+        {
+          "league_id": 384,
+          "team_id": 113,
+          "team_name": "Milan",
+          "player_id": 96227,
+          "name": "Mike Maignan"
+        },
+        {
+          "league_id": 384,
+          "team_id": 1123,
+          "team_name": "Hellas Verona",
+          "player_id": 131615,
+          "name": "Lorenzo Montipò"
+        },
+        {
+          "league_id": 384,
+          "team_id": 10722,
+          "team_name": "Cremonese",
+          "player_id": 129855,
+          "name": "Emil Audero"
+        },
+        {
+          "league_id": 384,
+          "team_id": 597,
+          "team_name": "Napoli",
+          "player_id": 155896,
+          "name": "Vanja Milinković-Savić"
+        },
+        {
+          "league_id": 384,
+          "team_id": 8513,
+          "team_name": "Bologna",
+          "player_id": 130180,
+          "name": "Federico Ravaglia"
+        },
+        {
+          "league_id": 384,
+          "team_id": 2714,
+          "team_name": "Sassuolo",
+          "player_id": 538038,
+          "name": "Arijanet Murić"
+        },
+        {
+          "league_id": 384,
+          "team_id": 2714,
+          "team_name": "Sassuolo",
+          "player_id": 37260212,
+          "name": "Walid Cheddira"
+        },
+        {
+          "league_id": 384,
           "team_id": 708,
           "team_name": "Atalanta",
           "player_id": 22878016,
           "name": "Marco Carnesecchi"
+        },
+        {
+          "league_id": 384,
+          "team_id": 2930,
+          "team_name": "Inter",
+          "player_id": 32193,
+          "name": "Yann Sommer"
+        },
+        {
+          "league_id": 384,
+          "team_id": 2930,
+          "team_name": "Inter",
+          "player_id": 37596506,
+          "name": "Pio Esposito"
+        },
+        {
+          "league_id": 384,
+          "team_id": 102,
+          "team_name": "Genoa",
+          "player_id": 133599,
+          "name": "Caleb Ekuban"
         }
       ]
     },
     "387": {
       "predicted_total": 220,
       "found": 220,
-      "non_empty": 199,
-      "empty": 21,
+      "non_empty": 198,
+      "empty": 22,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
         {
           "league_id": 387,
-          "team_id": 445,
-          "team_name": "Bari 1908",
-          "player_id": 133993,
-          "name": "Michele Cerofolini"
-        },
-        {
-          "league_id": 387,
-          "team_id": 7471,
-          "team_name": "Catanzaro",
-          "player_id": 132283,
-          "name": "Mirko Pigliacelli"
+          "team_id": 1000,
+          "team_name": "Modena",
+          "player_id": 131819,
+          "name": "Leandro Chichizola"
         },
         {
           "league_id": 387,
@@ -919,13 +1010,6 @@
           "team_name": "Monza",
           "player_id": 133021,
           "name": "Demba Thiam"
-        },
-        {
-          "league_id": 387,
-          "team_id": 4070,
-          "team_name": "Frosinone",
-          "player_id": 37582342,
-          "name": "Lorenzo Palmisani"
         },
         {
           "league_id": 387,
@@ -943,80 +1027,10 @@
         },
         {
           "league_id": 387,
-          "team_id": 1234,
-          "team_name": "Cesena",
-          "player_id": 474429,
-          "name": "Jonathan Klinsmann"
-        },
-        {
-          "league_id": 387,
           "team_id": 6947,
           "team_name": "Juve Stabia",
           "player_id": 130232,
           "name": "Alessandro Confente"
-        },
-        {
-          "league_id": 387,
-          "team_id": 1000,
-          "team_name": "Modena",
-          "player_id": 131819,
-          "name": "Leandro Chichizola"
-        },
-        {
-          "league_id": 387,
-          "team_id": 1000,
-          "team_name": "Modena",
-          "player_id": 2483609,
-          "name": "Pedro Mendes"
-        },
-        {
-          "league_id": 387,
-          "team_id": 267,
-          "team_name": "Venezia",
-          "player_id": 23288047,
-          "name": "Filip Stanković"
-        },
-        {
-          "league_id": 387,
-          "team_id": 249160,
-          "team_name": "Calcio Padova",
-          "player_id": 37257790,
-          "name": "Alessandro Sorrentino"
-        },
-        {
-          "league_id": 387,
-          "team_id": 522,
-          "team_name": "Sampdoria",
-          "player_id": 134070,
-          "name": "Simone Ghidotti"
-        },
-        {
-          "league_id": 387,
-          "team_id": 6911,
-          "team_name": "Avellino",
-          "player_id": 37592757,
-          "name": "Giovanni Daffara"
-        },
-        {
-          "league_id": 387,
-          "team_id": 2892,
-          "team_name": "Reggiana",
-          "player_id": 37709455,
-          "name": "Edoardo Motta"
-        },
-        {
-          "league_id": 387,
-          "team_id": 7818,
-          "team_name": "Virtus Entella",
-          "player_id": 129566,
-          "name": "Simone Colombi"
-        },
-        {
-          "league_id": 387,
-          "team_id": 7818,
-          "team_name": "Virtus Entella",
-          "player_id": 37589769,
-          "name": "Flavio Russo"
         },
         {
           "league_id": 387,
@@ -1027,10 +1041,59 @@
         },
         {
           "league_id": 387,
+          "team_id": 267,
+          "team_name": "Venezia",
+          "player_id": 23288047,
+          "name": "Filip Stanković"
+        },
+        {
+          "league_id": 387,
+          "team_id": 7818,
+          "team_name": "Virtus Entella",
+          "player_id": 129566,
+          "name": "Simone Colombi"
+        },
+        {
+          "league_id": 387,
+          "team_id": 522,
+          "team_name": "Sampdoria",
+          "player_id": 134070,
+          "name": "Simone Ghidotti"
+        },
+        {
+          "league_id": 387,
+          "team_id": 2892,
+          "team_name": "Reggiana",
+          "player_id": 37709455,
+          "name": "Edoardo Motta"
+        },
+        {
+          "league_id": 387,
+          "team_id": 2892,
+          "team_name": "Reggiana",
+          "player_id": 37665957,
+          "name": "Francesco Vallarelli"
+        },
+        {
+          "league_id": 387,
           "team_id": 10771,
           "team_name": "Mantova",
           "player_id": 129988,
           "name": "Marco Festa"
+        },
+        {
+          "league_id": 387,
+          "team_id": 7471,
+          "team_name": "Catanzaro",
+          "player_id": 132283,
+          "name": "Mirko Pigliacelli"
+        },
+        {
+          "league_id": 387,
+          "team_id": 1234,
+          "team_name": "Cesena",
+          "player_id": 474429,
+          "name": "Jonathan Klinsmann"
         },
         {
           "league_id": 387,
@@ -1043,8 +1106,50 @@
           "league_id": 387,
           "team_id": 397,
           "team_name": "Empoli",
-          "player_id": 37596517,
-          "name": "Marco Nasti"
+          "player_id": 37596531,
+          "name": "Gabriele Indragoli"
+        },
+        {
+          "league_id": 387,
+          "team_id": 397,
+          "team_name": "Empoli",
+          "player_id": 133957,
+          "name": "Pietro Pellegri"
+        },
+        {
+          "league_id": 387,
+          "team_id": 4070,
+          "team_name": "Frosinone",
+          "player_id": 37582342,
+          "name": "Lorenzo Palmisani"
+        },
+        {
+          "league_id": 387,
+          "team_id": 249160,
+          "team_name": "Calcio Padova",
+          "player_id": 37257790,
+          "name": "Alessandro Sorrentino"
+        },
+        {
+          "league_id": 387,
+          "team_id": 445,
+          "team_name": "Bari 1908",
+          "player_id": 133993,
+          "name": "Michele Cerofolini"
+        },
+        {
+          "league_id": 387,
+          "team_id": 445,
+          "team_name": "Bari 1908",
+          "player_id": 37664351,
+          "name": "Emanuele Rao"
+        },
+        {
+          "league_id": 387,
+          "team_id": 6911,
+          "team_name": "Avellino",
+          "player_id": 37592757,
+          "name": "Giovanni Daffara"
         }
       ]
     },
@@ -1153,111 +1258,13 @@
       ]
     },
     "462": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 179,
-      "empty": 19,
+      "predicted_total": 220,
+      "found": 220,
+      "non_empty": 200,
+      "empty": 20,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 462,
-          "team_id": 1198,
-          "team_name": "Estoril",
-          "player_id": 11322446,
-          "name": "Yanis Begraoui"
-        },
-        {
-          "league_id": 462,
-          "team_id": 884,
-          "team_name": "Sporting Braga",
-          "player_id": 24816824,
-          "name": "Lukas Hornicek"
-        },
-        {
-          "league_id": 462,
-          "team_id": 364,
-          "team_name": "Gil Vicente",
-          "player_id": 37596971,
-          "name": "Gustavo Miguel Pereira de Sousa Varela"
-        },
-        {
-          "league_id": 462,
-          "team_id": 6377,
-          "team_name": "Rio Ave",
-          "player_id": 13590981,
-          "name": "Cezary Miszta"
-        },
-        {
-          "league_id": 462,
-          "team_id": 12152,
-          "team_name": "Estrela Amadora",
-          "player_id": 217456,
-          "name": "Renan Ribeiro"
-        },
-        {
-          "league_id": 462,
-          "team_id": 1085,
-          "team_name": "Moreirense",
-          "player_id": 162208,
-          "name": "André Ferreira"
-        },
-        {
-          "league_id": 462,
-          "team_id": 269225,
-          "team_name": "AVS",
-          "player_id": 37256720,
-          "name": "João Gonçalves"
-        },
-        {
-          "league_id": 462,
-          "team_id": 7035,
-          "team_name": "Nacional",
-          "player_id": 37608962,
-          "name": "Kaique"
-        },
-        {
-          "league_id": 462,
-          "team_id": 7035,
-          "team_name": "Nacional",
-          "player_id": 37964543,
-          "name": "Deivison"
-        },
-        {
-          "league_id": 462,
-          "team_id": 7035,
-          "team_name": "Nacional",
-          "player_id": 4545466,
-          "name": "Miguel Baeza"
-        },
-        {
-          "league_id": 462,
-          "team_id": 11741,
-          "team_name": "Casa Pia",
-          "player_id": 158935,
-          "name": "Ricardo Batista"
-        },
-        {
-          "league_id": 462,
-          "team_id": 11741,
-          "team_name": "Casa Pia",
-          "player_id": 37400393,
-          "name": "Dailon Livramento"
-        },
-        {
-          "league_id": 462,
-          "team_id": 2628,
-          "team_name": "Santa Clara",
-          "player_id": 456589,
-          "name": "Gabriel Batista"
-        },
-        {
-          "league_id": 462,
-          "team_id": 4092,
-          "team_name": "Arouca",
-          "player_id": 1846812,
-          "name": "Nico Mantl"
-        },
         {
           "league_id": 462,
           "team_id": 35867,
@@ -1292,37 +1299,128 @@
           "team_name": "Sporting CP",
           "player_id": 159382,
           "name": "Rui Silva"
+        },
+        {
+          "league_id": 462,
+          "team_id": 3161,
+          "team_name": "Famalicão",
+          "player_id": 147834,
+          "name": "Lazar Carević"
+        },
+        {
+          "league_id": 462,
+          "team_id": 12152,
+          "team_name": "Estrela Amadora",
+          "player_id": 217456,
+          "name": "Renan Ribeiro"
+        },
+        {
+          "league_id": 462,
+          "team_id": 1198,
+          "team_name": "Estoril",
+          "player_id": 11322446,
+          "name": "Yanis Begraoui"
+        },
+        {
+          "league_id": 462,
+          "team_id": 35867,
+          "team_name": "Alverca",
+          "player_id": 37354822,
+          "name": "André Nogueira Gomes"
+        },
+        {
+          "league_id": 462,
+          "team_id": 11741,
+          "team_name": "Casa Pia",
+          "player_id": 158935,
+          "name": "Ricardo Batista"
+        },
+        {
+          "league_id": 462,
+          "team_id": 11741,
+          "team_name": "Casa Pia",
+          "player_id": 37400393,
+          "name": "Dailon Livramento"
+        },
+        {
+          "league_id": 462,
+          "team_id": 4092,
+          "team_name": "Arouca",
+          "player_id": 1846812,
+          "name": "Nico Mantl"
+        },
+        {
+          "league_id": 462,
+          "team_id": 364,
+          "team_name": "Gil Vicente",
+          "player_id": 37596971,
+          "name": "Gustavo Miguel Pereira de Sousa Varela"
+        },
+        {
+          "league_id": 462,
+          "team_id": 884,
+          "team_name": "Sporting Braga",
+          "player_id": 24816824,
+          "name": "Lukas Hornicek"
+        },
+        {
+          "league_id": 462,
+          "team_id": 605,
+          "team_name": "Benfica",
+          "player_id": 9938909,
+          "name": "Anatoliy Trubin"
+        },
+        {
+          "league_id": 462,
+          "team_id": 58,
+          "team_name": "Sporting CP",
+          "player_id": 159382,
+          "name": "Rui Silva"
+        },
+        {
+          "league_id": 462,
+          "team_id": 6377,
+          "team_name": "Rio Ave",
+          "player_id": 13590981,
+          "name": "Cezary Miszta"
+        },
+        {
+          "league_id": 462,
+          "team_id": 6377,
+          "team_name": "Rio Ave",
+          "player_id": 37354839,
+          "name": "João Tomé"
+        },
+        {
+          "league_id": 462,
+          "team_id": 652,
+          "team_name": "Porto",
+          "player_id": 163094,
+          "name": "Diogo Costa"
+        },
+        {
+          "league_id": 462,
+          "team_id": 269225,
+          "team_name": "AVS",
+          "player_id": 460141,
+          "name": "Simão Verza Bertelli"
         }
       ]
     },
     "501": {
-      "predicted_total": 154,
-      "found": 154,
-      "non_empty": 146,
-      "empty": 8,
+      "predicted_total": 132,
+      "found": 132,
+      "non_empty": 126,
+      "empty": 6,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
         {
           "league_id": 501,
-          "team_id": 282,
-          "team_name": "Dundee United",
-          "player_id": 8746,
-          "name": "Dave Richards"
-        },
-        {
-          "league_id": 501,
-          "team_id": 282,
-          "team_name": "Dundee United",
-          "player_id": 8746,
-          "name": "Dave Richards"
-        },
-        {
-          "league_id": 501,
-          "team_id": 66,
-          "team_name": "Hibernian",
-          "player_id": 432857,
-          "name": "Élie Youan"
+          "team_id": 314,
+          "team_name": "Hearts",
+          "player_id": 31668,
+          "name": "Alexander Schwolow"
         },
         {
           "league_id": 501,
@@ -1333,13 +1431,6 @@
         },
         {
           "league_id": 501,
-          "team_id": 496,
-          "team_name": "St. Mirren",
-          "player_id": 752052,
-          "name": "Shamal George"
-        },
-        {
-          "league_id": 501,
           "team_id": 258,
           "team_name": "Livingston",
           "player_id": 96472,
@@ -1347,10 +1438,10 @@
         },
         {
           "league_id": 501,
-          "team_id": 314,
-          "team_name": "Hearts",
-          "player_id": 31668,
-          "name": "Alexander Schwolow"
+          "team_id": 496,
+          "team_name": "St. Mirren",
+          "player_id": 752052,
+          "name": "Shamal George"
         },
         {
           "league_id": 501,
@@ -1358,195 +1449,33 @@
           "team_name": "Aberdeen",
           "player_id": 6007,
           "name": "Dimitar Mitov"
+        },
+        {
+          "league_id": 501,
+          "team_id": 282,
+          "team_name": "Dundee United",
+          "player_id": 8746,
+          "name": "Dave Richards"
         }
       ]
     },
     "564": {
-      "predicted_total": 220,
-      "found": 220,
-      "non_empty": 205,
-      "empty": 15,
+      "predicted_total": 22,
+      "found": 22,
+      "non_empty": 22,
+      "empty": 0,
       "missing": 0,
       "missing_list": [],
-      "empty_list": [
-        {
-          "league_id": 564,
-          "team_id": 214,
-          "team_name": "Valencia",
-          "player_id": 198424,
-          "name": "Filip Ugrinic"
-        },
-        {
-          "league_id": 564,
-          "team_id": 645,
-          "team_name": "Mallorca",
-          "player_id": 5967970,
-          "name": "Leo Román"
-        },
-        {
-          "league_id": 564,
-          "team_id": 93,
-          "team_name": "Real Oviedo",
-          "player_id": 186882,
-          "name": "Aarón Escandell"
-        },
-        {
-          "league_id": 564,
-          "team_id": 36,
-          "team_name": "Celta de Vigo",
-          "player_id": 130199,
-          "name": "Ionuț Radu"
-        },
-        {
-          "league_id": 564,
-          "team_id": 3457,
-          "team_name": "Levante",
-          "player_id": 62317,
-          "name": "Mathew Ryan"
-        },
-        {
-          "league_id": 564,
-          "team_id": 459,
-          "team_name": "Osasuna",
-          "player_id": 189296,
-          "name": "Sergio Herrera"
-        },
-        {
-          "league_id": 564,
-          "team_id": 676,
-          "team_name": "Sevilla",
-          "player_id": 31892,
-          "name": "Odysseas Vlachodimos"
-        },
-        {
-          "league_id": 564,
-          "team_id": 231,
-          "team_name": "Girona",
-          "player_id": 1411,
-          "name": "Paulo Gazzaniga"
-        },
-        {
-          "league_id": 564,
-          "team_id": 7980,
-          "team_name": "Atlético Madrid",
-          "player_id": 159276,
-          "name": "Jan Oblak"
-        },
-        {
-          "league_id": 564,
-          "team_id": 3477,
-          "team_name": "Villarreal",
-          "player_id": 37537789,
-          "name": "Luiz Júnior"
-        },
-        {
-          "league_id": 564,
-          "team_id": 1099,
-          "team_name": "Elche",
-          "player_id": 529415,
-          "name": "Iñaki Peña"
-        },
-        {
-          "league_id": 564,
-          "team_id": 1099,
-          "team_name": "Elche",
-          "player_id": 37316864,
-          "name": "Yago Santiago"
-        },
-        {
-          "league_id": 564,
-          "team_id": 485,
-          "team_name": "Real Betis",
-          "player_id": 450028,
-          "name": "Álvaro Valles"
-        },
-        {
-          "league_id": 564,
-          "team_id": 106,
-          "team_name": "Getafe",
-          "player_id": 186587,
-          "name": "David Soria"
-        },
-        {
-          "league_id": 564,
-          "team_id": 13258,
-          "team_name": "Athletic Club",
-          "player_id": 187215,
-          "name": "Unai Simón"
-        }
-      ]
+      "empty_list": []
     },
     "567": {
-      "predicted_total": 242,
-      "found": 242,
-      "non_empty": 225,
-      "empty": 17,
+      "predicted_total": 132,
+      "found": 132,
+      "non_empty": 124,
+      "empty": 8,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 567,
-          "team_id": 361,
-          "team_name": "Real Valladolid",
-          "player_id": 37588124,
-          "name": "Guilherme Fernandes"
-        },
-        {
-          "league_id": 567,
-          "team_id": 429,
-          "team_name": "Deportivo La Coruña",
-          "player_id": 186471,
-          "name": "Germán Parreño"
-        },
-        {
-          "league_id": 567,
-          "team_id": 274,
-          "team_name": "Huesca",
-          "player_id": 186001,
-          "name": "Dani Jiménez"
-        },
-        {
-          "league_id": 567,
-          "team_id": 9818,
-          "team_name": "Racing Santander",
-          "player_id": 37574238,
-          "name": "Plamen Andreev"
-        },
-        {
-          "league_id": 567,
-          "team_id": 844,
-          "team_name": "Leganés",
-          "player_id": 189353,
-          "name": "Juan Soriano"
-        },
-        {
-          "league_id": 567,
-          "team_id": 344,
-          "team_name": "Sporting Gijón",
-          "player_id": 186935,
-          "name": "Rubén Yáñez"
-        },
-        {
-          "league_id": 567,
-          "team_id": 2921,
-          "team_name": "Las Palmas",
-          "player_id": 186919,
-          "name": "José Antonio Caro"
-        },
-        {
-          "league_id": 567,
-          "team_id": 11354,
-          "team_name": "Cultural Leonesa",
-          "player_id": 185908,
-          "name": "Edgar Badia"
-        },
-        {
-          "league_id": 567,
-          "team_id": 126,
-          "team_name": "Málaga",
-          "player_id": 446977,
-          "name": "Eneko Jauregi"
-        },
         {
           "league_id": 567,
           "team_id": 618,
@@ -1570,6 +1499,13 @@
         },
         {
           "league_id": 567,
+          "team_id": 12330,
+          "team_name": "Ceuta",
+          "player_id": 21035924,
+          "name": "Samuel Obeng Gyabaa"
+        },
+        {
+          "league_id": 567,
           "team_id": 8366,
           "team_name": "Burgos",
           "player_id": 187024,
@@ -1579,15 +1515,15 @@
           "league_id": 567,
           "team_id": 3968,
           "team_name": "Real Zaragoza",
-          "player_id": 25548784,
-          "name": "Adrián Rodríguez"
+          "player_id": 333813,
+          "name": "Esteban Andrada"
         },
         {
           "league_id": 567,
           "team_id": 103,
           "team_name": "Granada",
-          "player_id": 447104,
-          "name": "Luca Zidane"
+          "player_id": 37592786,
+          "name": "Ander Astralaga"
         },
         {
           "league_id": 567,
@@ -1595,13 +1531,6 @@
           "team_name": "Albacete",
           "player_id": 186040,
           "name": "Diego Mariño"
-        },
-        {
-          "league_id": 567,
-          "team_id": 10008,
-          "team_name": "Castellón",
-          "player_id": 37614806,
-          "name": "Nick Markanich"
         }
       ]
     },
@@ -1615,34 +1544,13 @@
       "empty_list": []
     },
     "591": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 191,
-      "empty": 7,
+      "predicted_total": 66,
+      "found": 66,
+      "non_empty": 62,
+      "empty": 4,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
-        {
-          "league_id": 591,
-          "team_id": 647,
-          "team_name": "Young Boys",
-          "player_id": 37261099,
-          "name": "Marvin Keller"
-        },
-        {
-          "league_id": 591,
-          "team_id": 13775,
-          "team_name": "Lugano",
-          "player_id": 36063557,
-          "name": "Amir Saipi"
-        },
-        {
-          "league_id": 591,
-          "team_id": 13775,
-          "team_name": "Lugano",
-          "player_id": 37328012,
-          "name": "Georgios Koutsias"
-        },
         {
           "league_id": 591,
           "team_id": 2357,
@@ -1674,75 +1582,19 @@
       ]
     },
     "600": {
-      "predicted_total": 198,
-      "found": 198,
-      "non_empty": 186,
-      "empty": 12,
+      "predicted_total": 44,
+      "found": 44,
+      "non_empty": 40,
+      "empty": 4,
       "missing": 0,
       "missing_list": [],
       "empty_list": [
         {
           "league_id": 600,
-          "team_id": 13860,
-          "team_name": "Kocaelispor",
-          "player_id": 84653,
-          "name": "Aleksandar Jovanovic"
-        },
-        {
-          "league_id": 600,
-          "team_id": 81,
-          "team_name": "Antalyaspor",
-          "player_id": 450616,
-          "name": "Abdullah Yiğiter"
-        },
-        {
-          "league_id": 600,
-          "team_id": 2632,
-          "team_name": "Konyaspor",
-          "player_id": 390278,
-          "name": "Bahadır Güngördü"
-        },
-        {
-          "league_id": 600,
-          "team_id": 643,
-          "team_name": "Kayserispor",
-          "player_id": 3187724,
-          "name": "Bilal Bayazıt"
-        },
-        {
-          "league_id": 600,
-          "team_id": 3224,
-          "team_name": "Eyüpspor",
-          "player_id": 219080,
-          "name": "Marcos Felipe"
-        },
-        {
-          "league_id": 600,
-          "team_id": 88,
-          "team_name": "Fenerbahçe",
-          "player_id": 159142,
-          "name": "Ederson"
-        },
-        {
-          "league_id": 600,
-          "team_id": 554,
-          "team_name": "Beşiktaş",
-          "player_id": 4545412,
-          "name": "Ersin Destanoğlu"
-        },
-        {
-          "league_id": 600,
-          "team_id": 1041,
-          "team_name": "Rizespor",
-          "player_id": 433194,
-          "name": "Yahia Fofana"
-        },
-        {
-          "league_id": 600,
-          "team_id": 34,
-          "team_name": "Galatasaray",
-          "player_id": 37664,
-          "name": "Günay Güvenç"
+          "team_id": 3702,
+          "team_name": "İstanbul Başakşehir",
+          "player_id": 437246,
+          "name": "Onur Ergün"
         },
         {
           "league_id": 600,
