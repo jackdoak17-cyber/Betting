@@ -1,0 +1,117 @@
+name: V4 BetMGM Singles Weekly (Shots/SOT)
+
+on:
+  schedule:
+    # Run weekly on Thursdays at 7am UTC
+    - cron: '0 7 * * 4'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-stats-v4-betmgm
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  MIN_DEC_PRICE: "1.72"
+
+jobs:
+  player-stats-v4-betmgm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          set -e
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Verify Telegram credentials
+        run: |
+          if [ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]; then
+            echo "WARNING: TELEGRAM_BOT_TOKEN secret not set - notifications will be disabled"
+          fi
+          if [ -z "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            echo "WARNING: TELEGRAM_CHAT_ID secret not set - notifications will be disabled"
+          fi
+
+      - name: V4 BetMGM singles with Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENABLE_TELEGRAM: "1"
+        run: |
+          set -e
+          mkdir -p "data/value_bets/V4 Bets/V4 BetMGM singles"
+          python "scripts/value_bets/V4 Bets/V4 player singles/player_stats_v4_betmgm.py"
+          echo "\n---- tail: BetMGM singles ----"
+          tail -n 120 "data/value_bets/V4 Bets/V4 BetMGM singles/player_stats_v4_betmgm.txt" || true
+
+      - name: Commit tracking file (prevent duplicate notifications)
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+
+          git config user.name "${GIT_COMMITTER_NAME}"
+          git config user.email "${GIT_COMMITTER_EMAIL}"
+
+          # Stage the tracking file if it exists
+          if [ -f "data/value_bets/V4 Bets/V4 BetMGM singles/notified_players_betmgm.json" ]; then
+            git add "data/value_bets/V4 Bets/V4 BetMGM singles/notified_players_betmgm.json"
+
+            # Only commit if there are changes
+            if ! git diff --cached --quiet; then
+              ts="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+              git commit -m "chore(v4-betmgm-tracking): update notification state ${ts}"
+
+              # Push with rebase to handle concurrent runs
+              BRANCH="${GITHUB_REF_NAME:-main}"
+              for attempt in 1 2 3; do
+                git pull --rebase origin "${BRANCH}" || true
+                if git push origin HEAD:"${BRANCH}"; then
+                  echo "✓ Tracking file committed successfully (attempt ${attempt})"
+                  exit 0
+                fi
+                echo "⚠ Push failed (attempt ${attempt}), retrying..."
+                sleep 2
+              done
+
+              echo "✗ Failed to push tracking file after 3 attempts"
+              exit 1
+            else
+              echo "✓ No changes to tracking file"
+            fi
+          else
+            echo "⚠ Tracking file not found (no picks generated?)"
+          fi
+
+      - name: Upload artifacts (V4 BetMGM outputs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-stats-v4-betmgm-${{ github.run_number }}
+          path: |
+            data/value_bets/V4 Bets/V4 BetMGM singles/player_stats_v4_betmgm.txt
+            data/value_bets/V4 Bets/V4 BetMGM singles/notified_players_betmgm.json
+          if-no-files-found: warn
