@@ -301,6 +301,35 @@ def analyze_odds_event(event: dict, fouls_players: dict, tackles_players: dict,
             # Calculate average
             avg = sum(history[:games]) / games if games > 0 else 0
 
+            # Build reasoning
+            reasoning_parts = []
+
+            # Hit rate explanation
+            if window_result:
+                hits, games, required = window_result
+                reasoning_parts.append(f"Hit {hits}/{games} games (need {required})")
+            else:
+                hits, games, pct = pct_result
+                reasoning_parts.append(f"Hit {pct:.1f}% over {games} games")
+
+            # Average performance
+            reasoning_parts.append(f"averages {avg:.2f}")
+
+            # Position advantage
+            if market_type == "fouls_committed":
+                reasoning_parts.append(f"{position} players commit more fouls than average ({percentile:.1f}th percentile)")
+            elif market_type == "tackles":
+                reasoning_parts.append(f"{position} players make more tackles than average ({percentile:.1f}th percentile)")
+
+            # Recent form
+            recent_3 = history[:3]
+            if all(x >= threshold for x in recent_3):
+                reasoning_parts.append("hit last 3 games")
+            elif sum(1 for x in recent_3 if x >= threshold) >= 2:
+                reasoning_parts.append("hit 2 of last 3 games")
+
+            brief_reasoning = "; ".join(reasoning_parts)
+
             # Found a position-aware value bet!
             bet = {
                 "event_id": event_id,
@@ -320,7 +349,8 @@ def analyze_odds_event(event: dict, fouls_players: dict, tackles_players: dict,
                 "criteria": criteria,
                 "average": round(avg, 2),
                 "history": history[:games],
-                "bookmaker": "Bet365"
+                "bookmaker": "Bet365",
+                "reasoning": brief_reasoning
             }
 
             value_bets.append(bet)
@@ -403,8 +433,7 @@ def main():
             print(f"{i}. {bet['player_name']} [{bet['position']}] - {bet['market']}")
             print(f"   🏟  {bet['home']} vs {bet['away']}")
             print(f"   💰 Odds: {bet['odds']:.2f} | Hit Rate: {bet['hit_rate']} | Avg: {bet['average']}")
-            print(f"   📊 Position: {bet['position_reason']} (Percentile: {bet['position_percentile']}%)")
-            print(f"   📈 Criteria: {bet['criteria']}")
+            print(f"   💡 REASONING: {bet['reasoning']}")
             print(f"   📋 Recent: {bet['history']}")
             print()
 

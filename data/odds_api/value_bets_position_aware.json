@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-12-23T08:09:06.985425",
+  "generated_at": "2025-12-23T08:12:50.261206",
   "min_odds": 1.72,
   "hit_rate_windows": [
     "7/7",
@@ -14,39 +14,8 @@
   ],
   "min_hit_rate_percent": 70.0,
   "position_percentile_threshold": 50.0,
-  "total_value_bets": 6,
+  "total_value_bets": 4,
   "value_bets": [
-    {
-      "event_id": 61300865,
-      "home": "Liverpool FC",
-      "away": "Wolverhampton Wanderers",
-      "date": "2025-12-27T15:00:00Z",
-      "league_id": 8,
-      "league": "england-premier-league",
-      "player_name": "Virgil van Dijk",
-      "player_id": 1743,
-      "position": "CB",
-      "position_percentile": 59.1,
-      "position_reason": "CB ranks high in tackles",
-      "market": "O0.5 tackles",
-      "odds": 1.727,
-      "hit_rate": "7/10",
-      "criteria": "Window: 7/10",
-      "average": 0.8,
-      "history": [
-        1,
-        1,
-        0,
-        1,
-        0,
-        1,
-        0,
-        1,
-        2,
-        1
-      ],
-      "bookmaker": "Bet365"
-    },
     {
       "event_id": 61300863,
       "home": "Crystal Palace",
@@ -76,7 +45,8 @@
         1,
         0
       ],
-      "bookmaker": "Bet365"
+      "bookmaker": "Bet365",
+      "reasoning": "Hit 7/10 games (need 7); averages 0.90; MID players commit more fouls than average (62.5th percentile); hit last 3 games"
     },
     {
       "event_id": 61300863,
@@ -107,69 +77,40 @@
         2,
         1
       ],
-      "bookmaker": "Bet365"
+      "bookmaker": "Bet365",
+      "reasoning": "Hit 7/10 games (need 7); averages 2.20; CB players make more tackles than average (59.1th percentile); hit last 3 games"
     },
     {
-      "event_id": 61300869,
-      "home": "Manchester United",
-      "away": "Newcastle United",
-      "date": "2025-12-26T20:00:00Z",
+      "event_id": 61300865,
+      "home": "Liverpool FC",
+      "away": "Wolverhampton Wanderers",
+      "date": "2025-12-27T15:00:00Z",
       "league_id": 8,
       "league": "england-premier-league",
-      "player_name": "Casemiro",
-      "player_id": 159700,
-      "position": "MID",
-      "position_percentile": 62.5,
-      "position_reason": "MID ranks high in fouls committed",
-      "market": "O1.5 fouls committed",
-      "odds": 2.0,
+      "player_name": "Virgil van Dijk",
+      "player_id": 1743,
+      "position": "CB",
+      "position_percentile": 59.1,
+      "position_reason": "CB ranks high in tackles",
+      "market": "O0.5 tackles",
+      "odds": 1.727,
       "hit_rate": "7/10",
       "criteria": "Window: 7/10",
-      "average": 1.8,
+      "average": 0.8,
       "history": [
-        2,
-        2,
-        2,
-        4,
-        2,
+        1,
+        1,
         0,
-        3,
+        1,
         0,
+        1,
+        0,
+        1,
         2,
         1
       ],
-      "bookmaker": "Bet365"
-    },
-    {
-      "event_id": 61300871,
-      "home": "Nottingham Forest",
-      "away": "Manchester City",
-      "date": "2025-12-27T12:30:00Z",
-      "league_id": 8,
-      "league": "england-premier-league",
-      "player_name": "Phil Foden",
-      "player_id": 336133,
-      "position": "MID",
-      "position_percentile": 62.5,
-      "position_reason": "MID ranks high in fouls committed",
-      "market": "O0.5 fouls committed",
-      "odds": 1.833,
-      "hit_rate": "7/10",
-      "criteria": "Window: 7/10",
-      "average": 0.9,
-      "history": [
-        1,
-        0,
-        0,
-        0,
-        3,
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "bookmaker": "Bet365"
+      "bookmaker": "Bet365",
+      "reasoning": "Hit 7/10 games (need 7); averages 0.80; CB players make more tackles than average (59.1th percentile); hit 2 of last 3 games"
     },
     {
       "event_id": 61300875,
@@ -198,7 +139,8 @@
         2,
         2
       ],
-      "bookmaker": "Bet365"
+      "bookmaker": "Bet365",
+      "reasoning": "Hit 7/8 games (need 7); averages 2.12; FWD players commit more fouls than average (63.5th percentile); hit last 3 games"
     }
   ]
 }
