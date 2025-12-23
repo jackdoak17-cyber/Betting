@@ -1,9 +1,9 @@
-name: Find V4 Value Bets Hourly (Fouls/Tackles)
+name: Find V4 Value Bets Daily (Fouls/Tackles)
 
 on:
   schedule:
-    # Run 5 minutes after scraper (which runs at :00)
-    - cron: '5 * * * *'
+    # Run 5 minutes after scraper (which runs at 19:00)
+    - cron: '5 19 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 permissions:

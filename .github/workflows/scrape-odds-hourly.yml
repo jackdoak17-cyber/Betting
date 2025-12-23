@@ -1,9 +1,9 @@
-name: Scrape Player Odds Hourly
+name: Scrape Player Odds Daily
 
 on:
   schedule:
-    # Run every hour
-    - cron: '0 * * * *'
+    # Run once daily at 7pm UTC (19:00)
+    - cron: '0 19 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 permissions:
