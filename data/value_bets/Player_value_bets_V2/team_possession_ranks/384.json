@@ -1,7 +1,19 @@
 {
   "league_id": 384,
-  "generated_at": "2025-12-23T04:07:15.541549+00:00",
+  "generated_at": "2025-12-24T04:05:32.744920+00:00",
   "possession_rank": [
+    {
+      "team_id": 268,
+      "team_name": "Como",
+      "avg_possession": 59.86666666666667,
+      "sample_size": 15
+    },
+    {
+      "team_id": 2930,
+      "team_name": "Inter",
+      "avg_possession": 59.53333333333333,
+      "sample_size": 15
+    },
     {
       "team_id": 708,
       "team_name": "Atalanta",
@@ -15,6 +27,18 @@
       "sample_size": 16
     },
     {
+      "team_id": 8513,
+      "team_name": "Bologna",
+      "avg_possession": 56.666666666666664,
+      "sample_size": 15
+    },
+    {
+      "team_id": 597,
+      "team_name": "Napoli",
+      "avg_possession": 56.53333333333333,
+      "sample_size": 15
+    },
+    {
       "team_id": 625,
       "team_name": "Juventus",
       "avg_possession": 56.25,
@@ -25,6 +49,12 @@
       "team_name": "Fiorentina",
       "avg_possession": 52.5625,
       "sample_size": 16
+    },
+    {
+      "team_id": 113,
+      "team_name": "Milan",
+      "avg_possession": 51.4,
+      "sample_size": 15
     },
     {
       "team_id": 43,
@@ -57,6 +87,12 @@
       "sample_size": 16
     },
     {
+      "team_id": 7790,
+      "team_name": "Lecce",
+      "avg_possession": 45.266666666666666,
+      "sample_size": 15
+    },
+    {
       "team_id": 585,
       "team_name": "Cagliari",
       "avg_possession": 45.25,
@@ -69,12 +105,24 @@
       "sample_size": 16
     },
     {
+      "team_id": 398,
+      "team_name": "Parma",
+      "avg_possession": 42.4,
+      "sample_size": 15
+    },
+    {
       "team_id": 1072,
       "team_name": "Pisa",
       "avg_possession": 40.75,
       "sample_size": 16
+    },
+    {
+      "team_id": 1123,
+      "team_name": "Hellas Verona",
+      "avg_possession": 39.06666666666667,
+      "sample_size": 15
     }
   ],
   "min_sample": 3,
-  "team_count": 12
+  "team_count": 20
 }
