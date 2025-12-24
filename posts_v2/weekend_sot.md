@@ -8,5 +8,7 @@ No qualifying players met all criteria based on current files.
 
 1+ SOT in 8 of last 10 (8/10)
 • Antonio Di Nardo (Pescara — FWD) — last10: 1,1,1,0,1,0,2,2,1,2 — @ 1.67
+• Sidny Cabral (Estrela Amadora — LB) — last10: 1,0,1,0,1,3,1,2,1,1 — @ 2.38
+• Rodrigo Zalazar (Sporting Braga — FWD) — last10: 1,1,1,1,2,2,0,0,3,1 — @ 1.61
 
 ⚠️Stat-based shortlist, not tips. Its a good starting point to identify value but we need to consider price, team news, form, and opposition etc. Any value here?

@@ -1,12 +1,15 @@
 Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Josko Gvardiol (Man City — CB) — last5: 3,1,1,1,2 — @ 1.50
+• Brajan Gruda (Brighton — MID) — last5: 2,1,1,3,1 — @ 1.44
+• Yankuba Minteh (Brighton — MID) — last5: 1,3,1,2,1 — @ 1.44
 • Emin Bayram (Westerlo — CB) — last5: 2,1,1,2,1 — @ 1.83
 • Adam Marusic (Lazio — RB) — last5: 1,1,1,1,1 — @ 1.83
 • Francesco Mezzoni (Virtus Entella — MID) — last5: 1,1,2,2,2 — @ 2.25
-• Tommaso Cassandro (Catanzaro — CB) — last5: 1,1,1,2,1 — @ 1.73
+• Tommaso Cassandro (Catanzaro — CB) — last5: 1,1,1,2,1 — @ 1.61
 • Brando Moruzzi (Empoli — MID) — last5: 1,2,3,1,1 — @ 1.50
-• Callum Slattery (Motherwell — MID) — last5: 5,2,2,1,1 — @ 1.44
+• Abraham Marcus (Estrela Amadora — MID) — last5: 1,2,3,1,3 — @ 1.50
+• Callum Slattery (Motherwell — MID) — last5: 5,2,2,1,1 — @ 1.53
 • Elliot Watt (Motherwell — MID) — last5: 2,1,1,1,2 — @ 1.57
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
