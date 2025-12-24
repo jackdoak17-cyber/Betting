@@ -38,9 +38,9 @@ Leave a like if you find these useful.
 • G. Gudmundsson (Leeds United) = 1, 3, 3, 3, 2
 • L. Ugochukwu (Burnley) = 1, 3, 2, 2, 4
 • J. Grealish (Everton) = 2, 3, 2, 3, 1
-• N. Williams (Nottm Forest) = 4, 2, 2, 2, 1
 • X. Simons (Spurs) = 3, 3, 2, 2, 1
 • K. Schade (Brentford) = 3, 2, 1, 2, 2
+• N. Williams (Nottm Forest) = 0, 4, 2, 2, 2
 • R. Cherki (Man City) = 1, 2, 2, 2, 2
 • B. Kamara (Aston Villa) = 2, 2, 0, 2, 2
 
