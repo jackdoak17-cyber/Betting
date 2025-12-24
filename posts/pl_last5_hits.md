@@ -4,6 +4,7 @@ Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
+• E. Anderson (Nottm Forest) = 1, 1, 5, 6, 4
 • Y. Tielemans (Aston Villa) = 4, 4, 1, 2, 4
 • M. Tavernier (Bournemouth) = 4, 4, 1, 1, 3
 • M. Fernandes (West Ham) = 3, 1, 5, 2, 2
@@ -12,17 +13,16 @@ Leave a like if you find these useful.
 • A. Gordon (Newcastle) = 3, 1, 3, 1, 3
 • G. Rutter (Brighton) = 2, 3, 2, 2, 2
 • J. Grealish (Everton) = 2, 3, 2, 3, 1
-• N. Williams (Nottm Forest) = 4, 2, 2, 2, 1
 • X. Simons (Spurs) = 3, 3, 2, 2, 1
 • B. Aaronson (Leeds United) = 1, 1, 4, 2, 2
 • C. Summerville (West Ham) = 2, 4, 2, 1, 1
 • K. Schade (Brentford) = 3, 2, 1, 2, 2
 • M. Senesi (Bournemouth) = 3, 1, 3, 1, 1
 • R. Cherki (Man City) = 1, 2, 2, 2, 2
+• K. Tete (Fulham) = 2, 1, 1, 1, 3
 • A. Wharton (Crystal Palace) = 1, 1, 1, 2, 2
 • C. Bradley (Liverpool) = 2, 2, 1, 1, 1
 • J. Pedro (Chelsea) = 1, 1, 1, 2, 2
-• K. Tete (Fulham) = 1, 1, 1, 3, 1
 • M. Wieffer (Brighton) = 1, 1, 2, 2, 1
 • J. Gomes (Wolves) = 2, 1, 1, 1, 1
 • M. Kerkez (Liverpool) = 2, 1, 1, 1, 1
