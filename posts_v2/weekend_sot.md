@@ -1,13 +1,14 @@
 Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 
 1+ SOT in last 5 (5/5)
-• Phil Foden (Man City — MID) — last5: 1,2,1,2,3 — @ 1.73
+• Phil Foden (Man City — MID) — last5: 1,2,1,2,3 — @ 1.44
+• Manolo Portanova (Reggiana — FWD) — last5: 1,1,1,1,2 — @ 1.44
 
 1+ SOT in last 7 (7/7)
 No qualifying players met all criteria based on current files.
 
 1+ SOT in 8 of last 10 (8/10)
-• Antonio Di Nardo (Pescara — FWD) — last10: 1,1,1,0,1,0,2,2,1,2 — @ 1.67
+• Antonio Di Nardo (Pescara — FWD) — last10: 1,1,1,0,1,0,2,2,1,2 — @ 1.61
 • Sidny Cabral (Estrela Amadora — LB) — last10: 1,0,1,0,1,3,1,2,1,1 — @ 2.38
 • Rodrigo Zalazar (Sporting Braga — FWD) — last10: 1,1,1,1,2,2,0,0,3,1 — @ 1.61
 
