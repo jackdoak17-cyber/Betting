@@ -1,8 +1,15 @@
-Generated at (UTC): 2025-12-26T02:54:49
+Generated at (UTC): 2025-12-26T16:20:38
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
+ • Wrexham (home) — Shots Over 11.5 @ 1.800 vs Sheffield United | kickoff 2025-12-26 17:30:00
+    model=0.723 | implied=0.556 | threshold≥12
+    Wrexham have cleared 12 shots in 7/10 home matches = 16,16,12,18,13,11,12,10,21,11
+    Sheffield United's opponents have had 12+ shots in 8/10 away games = 16,15,5,17,15,12,5,14,21,15
+    This landed in the reverse fixture last season = 12
+    team hits 7/10 | opp conceded 8/10 | H2H 2/3
+    implied win probs: home 0.429 / away 0.571
  • AFC Bournemouth (away) — Shots on Target Over 3.5 @ 1.610 vs Brentford | kickoff 2025-12-27 15:00:00
     model=0.713 | implied=0.621 | threshold≥4
     AFC Bournemouth have cleared 4 shots on target in 6/8 away matches = 9,6,3,5,5,5,6,3
@@ -10,17 +17,10 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 5
     team hits 6/8 | opp conceded 5/8 | H2H 3/4
     implied win probs: home 0.571 / away 0.429
- • Wrexham (home) — Shots Over 11.5 @ 1.800 vs Sheffield United | kickoff 2025-12-26 17:30:00
-    model=0.693 | implied=0.556 | threshold≥12
-    Wrexham have cleared 12 shots in 7/10 home matches = 16,16,12,18,13,11,12,10,21,11
-    Sheffield United's opponents have had 12+ shots in 8/10 away games = 16,15,5,17,15,12,5,14,21,15
-    This landed in the reverse fixture last season = 12
-    team hits 7/10 | opp conceded 8/10 | H2H 2/3
-    implied win probs: home 0.398 / away 0.602
  • Roma (home) — Shots on Target Over 4.5 @ 1.800 vs Genoa | kickoff 2025-12-29 19:45:00
     model=0.644 | implied=0.556 | threshold≥5
     Roma have cleared 5 shots on target in 4/8 home matches = 4,2,4,6,5,5,5,4
     Genoa's opponents have had 5+ shots on target in 5/7 away games = 6,5,4,6,5,6,4
     This landed in the reverse fixture last season = 7
     team hits 4/8 | opp conceded 5/7 | H2H 3/4
-    implied win probs: home 0.796 / away 0.204
+    implied win probs: home 0.801 / away 0.199
