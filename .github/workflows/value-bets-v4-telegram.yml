@@ -88,12 +88,21 @@ jobs:
               # Push with rebase to handle concurrent runs
               BRANCH="${GITHUB_REF_NAME:-main}"
               for attempt in 1 2 3; do
+                # Stash any unstaged changes (txt, csv files) before rebase
+                git stash push -u -m "Stash output files before rebase" || true
+
                 git pull --rebase origin "${BRANCH}" || true
+
                 if git push origin HEAD:"${BRANCH}"; then
                   echo "✓ Tracking file committed successfully (attempt ${attempt})"
+                  # Restore stashed output files
+                  git stash pop || true
                   exit 0
                 fi
+
                 echo "⚠ Push failed (attempt ${attempt}), retrying..."
+                # Restore stashed files before retry
+                git stash pop || true
                 sleep 2
               done
 
