@@ -36,14 +36,13 @@ Leave a like if you find these useful.
 • M. Caicedo (Chelsea) = 3, 4, 1, 1, 1
 • R. Gravenberch (Liverpool) = 2, 3, 1, 2, 1
 • Y. Tielemans (Aston Villa) = 1, 3, 1, 2, 2
-• F. Schär (Newcastle) = 2, 1, 3, 1, 1
 • I. Konaté (Liverpool) = 2, 1, 2, 1, 2
 • J. Pedro (Chelsea) = 1, 2, 2, 1, 2
-• L. Shaw (Man Utd) = 2, 1, 1, 3, 1
+• L. Shaw (Man Utd) = 1, 2, 1, 1, 3
 • M. Cash (Aston Villa) = 1, 2, 1, 1, 3
 • W. Fofana (Chelsea) = 1, 1, 2, 2, 2
 • L. Bergvall (Spurs) = 1, 1, 2, 2, 1
-• M. Mount (Man Utd) = 2, 1, 2, 1, 1
+• M. Mount (Man Utd) = 1, 2, 1, 2, 1
 • I. Jesus (Nottm Forest) = 1, 1, 1, 2, 1
 • J. Timber (Arsenal) = 1, 1, 1, 1, 2
 • S. Bueno (Wolves) = 1, 2, 1, 1, 1
