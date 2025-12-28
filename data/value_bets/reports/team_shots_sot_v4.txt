@@ -1,15 +1,8 @@
-Generated at (UTC): 2025-12-27T16:20:02
+Generated at (UTC): 2025-12-28T03:07:37
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
- • Lazio (away) — Shots Under 11.5 @ 1.720 vs Udinese | kickoff 2025-12-27 17:00:00
-    model=0.662 | implied=0.581 | threshold≥12
-    Lazio have had under 12 shots in 6/8 away matches = 15,9,8,11,4,9,13,5
-    Udinese's opponents have had under 12 shots in 5/8 home games = 7,12,10,5,13,8,13,9
-    This landed in the reverse fixture last season = 10
-    team hits 2/8 | opp conceded 3/8 | H2H 2/4
-    implied win probs: home 0.456 / away 0.544
  • Roma (home) — Shots on Target Over 4.5 @ 1.800 vs Genoa | kickoff 2025-12-29 19:45:00
     model=0.644 | implied=0.556 | threshold≥5
     Roma have cleared 5 shots on target in 4/8 home matches = 4,2,4,6,5,5,5,4
@@ -23,4 +16,4 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     AFC Bournemouth's opponents have had 6+ shots on target in 7/8 away games = 9,6,8,8,7,8,1,10
     This landed in the reverse fixture last season = 10
     team hits 4/8 | opp conceded 7/8 | H2H 2/4
-    implied win probs: home 0.756 / away 0.244
+    implied win probs: home 0.778 / away 0.222
