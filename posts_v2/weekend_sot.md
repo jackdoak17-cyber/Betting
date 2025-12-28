@@ -1,16 +1,18 @@
 Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 
 1+ SOT in last 5 (5/5)
-• Phil Foden (Man City — MID) — last5: 1,1,2,1,2 — @ 1.44
-• Manolo Portanova (Reggiana — FWD) — last5: 3,1,1,1,1 — @ 1.53
+• Lassine Sinayoko (Auxerre — FWD) — last5: 4,2,1,3,1 — @ 1.57
+• Paulo Dybala (Roma — FWD) — last5: 1,1,2,1,2 — @ 1.57
+• Cristian Carracedo (Córdoba — FWD) — last5: 3,1,1,1,1 — @ 1.83
 
 1+ SOT in last 7 (7/7)
 No qualifying players met all criteria based on current files.
 
 1+ SOT in 8 of last 10 (8/10)
-• Antonio Di Nardo (Pescara — FWD) — last10: 1,1,1,1,0,1,0,2,2,1 — @ 1.57
-• Andrea Tiritiello (Virtus Entella — CB) — last10: 1,0,1,1,1,0,1,1,1,1 — @ 3.40
-• Sidny Cabral (Estrela Amadora — LB) — last10: 1,0,1,0,1,3,1,2,1,1 — @ 2.50
+• Corentin Tolisso (Olympique Lyonnais — MID) — last10: 1,1,3,0,1,1,1,1,1,0 — @ 1.61
+• Riccardo Orsolini (Bologna — MID) — last10: 2,0,2,1,1,1,0,2,2,3 — @ 1.73
 • Rodrigo Zalazar (Sporting Braga — FWD) — last10: 1,1,1,1,2,2,0,0,3,1 — @ 1.61
+• Antonio Puertas (Albacete — FWD) — last10: 1,2,0,3,1,0,1,1,1,1 — @ 1.61
+• Agustin Medina (Albacete — FWD) — last10: 0,1,1,1,0,1,2,1,1,1 — @ 1.44
 
 ⚠️Stat-based shortlist, not tips. Its a good starting point to identify value but we need to consider price, team news, form, and opposition etc. Any value here?
