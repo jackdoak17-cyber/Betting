@@ -1,5 +1,6 @@
 Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
+• Neco Williams (Nottm Forest — LB) — last5: 1,1,1,1,2 — @ 1.73
 • Josh Cullen (Burnley — MID) — last5: 1,1,1,1,1 — @ 1.80
 • Oumar Solet (Udinese — CB) — last5: 1,4,1,2,1 — @ 1.91
 • Adam Marusic (Lazio — RB) — last5: 1,1,1,1,1 — @ 2.10
@@ -15,6 +16,8 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
+• Marcus Tavernier (Bournemouth — MID) — last5: 2,2,4,3,3 — @ 1.91
+• Matheus Cunha (Man Utd — MID) — last5: 3,6,8,8,3 — @ 1.44
 • Adil Aouchiche (Aberdeen — MID) — last5: 2,2,4,4,2 — @ 1.44
 • Conor McMenamin (St. Mirren — MID) — last5: 4,2,2,2,2 — @ 2.38
 
