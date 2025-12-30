@@ -20,7 +20,7 @@ fixture_id,league_id,fixture,kickoff,team_id,team,opp_id,opp,venue,market,stat,p
 19439400,564,Atlético Madrid vs Valencia,2025-12-13 13:00:00,214,Valencia,7980,Atlético Madrid,away,Shots on Target,shots_on_target,Under,2.5,1.72,0.784,0.581,3,1,0.72,2025-12-10T02:51:58,won,2,2025-12-15T16:23:13
 19433594,82,Borussia Mönchengladbach vs VfL Wolfsburg,2025-12-13 14:30:00,510,VfL Wolfsburg,683,Borussia Mönchengladbach,away,Shots on Target,shots_on_target,Over,3.5,1.66,0.634,0.602,4,1,0.66,2025-12-09T16:20:21,won,6,2025-12-15T16:23:13
 19439401,564,FC Barcelona vs Osasuna,2025-12-13 17:30:00,459,Osasuna,83,FC Barcelona,away,Shots on Target,shots_on_target,Under,2.5,1.83,0.605,0.546,3,1,0.83,2025-12-10T16:22:19,won,2,2025-12-15T16:23:13
-19433870,301,Metz vs Paris Saint Germain,2025-12-13 18:00:00,3513,Metz,591,Paris Saint Germain,home,Shots on Target,shots_on_target,Under,3.5,1.57,0.741,0.637,4,1,,2025-12-11T16:22:58,,,
+19433870,301,Metz vs Paris Saint Germain,2025-12-13 18:00:00,3513,Metz,591,Paris Saint Germain,home,Shots on Target,shots_on_target,Under,3.5,1.57,0.741,0.637,4,1,-1.00,2025-12-11T16:22:58,lost,5,2025-12-30T16:22:37
 19425026,384,Milan vs Sassuolo,2025-12-14 11:30:00,2714,Sassuolo,113,Milan,away,Shots,shots_total,Under,9.5,1.83,0.630,0.546,10,1,0.83,2025-12-10T02:51:58,won,8,2025-12-15T16:23:13
 19427613,8,Nottingham Forest vs Tottenham Hotspur,2025-12-14 14:00:00,63,Nottingham Forest,6,Tottenham Hotspur,home,Shots on Target,shots_on_target,Under,4.5,1.72,0.650,0.581,5,1,-1.00,2025-12-09T16:20:21,lost,6,2025-12-15T16:23:13
 19427614,8,Sunderland vs Newcastle United,2025-12-14 14:00:00,20,Newcastle United,3,Sunderland,away,Shots,shots_total,Under,13.5,1.72,0.629,0.581,14,1,0.72,2025-12-09T16:20:21,won,6,2025-12-15T16:23:13
@@ -50,6 +50,8 @@ fixture_id,league_id,fixture,kickoff,team_id,team,opp_id,opp,venue,market,stat,p
 19432022,9,Wrexham vs Sheffield United,2025-12-26 17:30:00,283,Wrexham,21,Sheffield United,home,Shots,shots_total,Over,11.5,1.8,0.723,0.556,12,1,0.80,2025-12-23T16:21:53,won,18,2025-12-27T16:20:02
 19427627,8,Brentford vs AFC Bournemouth,2025-12-27 15:00:00,52,AFC Bournemouth,236,Brentford,away,Shots on Target,shots_on_target,Over,3.5,1.61,0.713,0.621,4,1,0.61,2025-12-23T02:55:57,won,10,2025-12-28T16:20:32
 19425050,384,Udinese vs Lazio,2025-12-27 17:00:00,43,Lazio,346,Udinese,away,Shots,shots_total,Under,11.5,1.72,0.662,0.581,12,1,-1.00,2025-12-27T16:20:02,lost,14,2025-12-28T16:20:32
-19425048,384,Roma vs Genoa,2025-12-29 19:45:00,37,Roma,102,Genoa,home,Shots on Target,shots_on_target,Over,4.5,1.8,0.644,0.556,5,1,,2025-12-24T02:53:23,,,
+19425048,384,Roma vs Genoa,2025-12-29 19:45:00,37,Roma,102,Genoa,home,Shots on Target,shots_on_target,Over,4.5,1.8,0.644,0.556,5,1,0.80,2025-12-24T02:53:23,won,8,2025-12-30T16:22:37
 19427639,8,Chelsea vs AFC Bournemouth,2025-12-30 19:30:00,18,Chelsea,52,AFC Bournemouth,home,Shots on Target,shots_on_target,Over,5.5,1.72,0.642,0.581,6,1,,2025-12-27T02:52:21,,,
 19432035,9,Blackburn Rovers vs Wrexham,2026-01-01 12:30:00,283,Wrexham,2,Blackburn Rovers,away,Shots on Target,shots_on_target,Over,2.5,1.57,0.560,0.637,3,1,,2025-12-29T16:21:11,,,
+19427651,8,Leeds United vs Manchester United,2026-01-04 12:30:00,71,Leeds United,14,Manchester United,home,Shots,shots_total,Over,10.5,1.72,0.744,0.581,11,1,,2025-12-30T16:22:37,,,
+19427651,8,Leeds United vs Manchester United,2026-01-04 12:30:00,71,Leeds United,14,Manchester United,home,Shots on Target,shots_on_target,Over,3.5,2.0,0.689,0.500,4,1,,2025-12-30T16:22:37,,,
