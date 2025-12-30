@@ -19,12 +19,13 @@ Leave a like if you find these useful.
 • D. Rice (Arsenal) = 3, 1, 3, 2, 3
 • C. Summerville (West Ham) = 2, 1, 3, 2, 3
 • A. Allister (Liverpool) = 2, 3, 2, 2, 1
+• E. Fernández (Chelsea) = 2, 2, 2, 3, 1
 • P. Pedro (Chelsea) = 1, 2, 2, 2, 3
 • Y. Pino (Crystal Palace) = 2, 2, 4, 2, 0
 
 📊2+ Fouls Committed in ≥4/5📊
 
-• J. Larsen (Wolves) = 3, 1, 3, 2, 3
+• C. Casemiro (Man Utd) = 1, 2, 2, 2, 4
 • C. Summerville (West Ham) = 1, 2, 3, 3, 2
 • N. González (Man City) = 1, 2, 3, 3, 2
 • J. Gomes (Wolves) = 2, 3, 0, 2, 3
@@ -36,9 +37,7 @@ Leave a like if you find these useful.
 • Y. Tielemans (Aston Villa) = 2, 4, 4, 1, 2
 • B. Guimarães (Newcastle) = 3, 2, 3, 4, 0
 • S. Tonali (Newcastle) = 2, 3, 3, 1, 3
-• J. Grealish (Everton) = 2, 3, 2, 3, 1
 • N. Williams (Nottm Forest) = 3, 0, 4, 2, 2
-• X. Simons (Spurs) = 3, 3, 2, 2, 1
 • C. Jones (Liverpool) = 2, 0, 2, 2, 3
 • G. Rutter (Brighton) = 0, 2, 3, 2, 2
 • B. Kamara (Aston Villa) = 2, 2, 2, 0, 2
