@@ -2,7 +2,7 @@ Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 
 1+ SOT in last 5 (5/5)
 • Lassine Sinayoko (Auxerre — FWD) — last5: 4,2,1,3,1 — @ 1.57
-• Paulo Dybala (Roma — FWD) — last5: 1,1,2,1,2 — @ 1.57
+• Paulo Dybala (Roma — FWD) — last5: 1,1,1,2,1 — @ 1.57
 • Tommaso Pobega (Bologna — MID) — last5: 1,1,1,1,2 — @ 2.75
 • Cristian Carracedo (Córdoba — FWD) — last5: 3,1,1,1,1 — @ 1.83
 

@@ -3,10 +3,11 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Josh Cullen (Burnley — MID) — last5: 1,1,1,1,1 — @ 1.80
 • Oumar Solet (Udinese — CB) — last5: 1,4,1,2,1 — @ 1.91
 • Adam Marusic (Lazio — RB) — last5: 1,1,1,1,1 — @ 2.10
-• Giovanni Di Lorenzo (Napoli — MID) — last5: 1,1,1,1,2 — @ 1.67
+• Giovanni Di Lorenzo (Napoli — CB) — last5: 1,1,1,1,2 — @ 1.67
 • Kristjan Asllani (Torino — MID) — last5: 1,1,2,2,3 — @ 1.44
 • Abraham Marcus (Estrela Amadora — MID) — last5: 1,1,2,3,1 — @ 1.44
 • Will Ferry (Dundee Utd — MID) — last5: 1,1,1,1,1 — @ 1.61
+• Lewis Smith (Livingston — FWD) — last5: 1,3,3,2,2 — @ 1.53
 • Mikel Jauregizar (Athletic Club — MID) — last5: 1,3,1,2,1 — @ 1.57
 • Dion Lopy (Almería — MID) — last5: 3,2,2,2,1 — @ 1.44
 • Dani Requena (Córdoba — MID) — last5: 1,2,1,1,2 — @ 1.53
