@@ -26,27 +26,28 @@ Leave a like if you find these useful.
 
 📊1+ Foul in 5/5 (100%)📊
 
-• M. Caicedo (Chelsea) = 6, 3, 4, 1, 1
-• H. Hwang (Wolves) = 3, 1, 6, 1, 3
-• C. Casemiro (Man Utd) = 1, 2, 2, 2, 4
+• M. Caicedo (Chelsea) = 2, 6, 3, 4, 1
+• M. Ugarte (Man Utd) = 2, 3, 4, 1, 2
 • C. Summerville (West Ham) = 1, 2, 3, 3, 2
-• E. Anderson (Nottm Forest) = 1, 3, 3, 1, 3
 • N. González (Man City) = 1, 2, 3, 3, 2
+• C. Casemiro (Man Utd) = 2, 1, 2, 2, 2
+• E. Anderson (Nottm Forest) = 1, 1, 3, 3, 1
 • K. Schade (Brentford) = 2, 2, 1, 1, 3
 • R. Gravenberch (Liverpool) = 1, 2, 3, 1, 2
-• D. Gómez (Brighton) = 1, 2, 2, 1, 2
-• I. Jesus (Nottm Forest) = 3, 1, 1, 1, 2
-• L. Shaw (Man Utd) = 1, 2, 1, 1, 3
-• Y. Tielemans (Aston Villa) = 1, 1, 3, 1, 2
+• D. Gómez (Brighton) = 2, 1, 2, 2, 1
+• I. Jesus (Nottm Forest) = 1, 3, 1, 1, 1
 • J. Pedro (Chelsea) = 1, 1, 2, 2, 1
+• L. Shaw (Man Utd) = 2, 1, 2, 1, 1
 • M. Mount (Man Utd) = 1, 2, 1, 2, 1
+• Y. Tielemans (Aston Villa) = 1, 1, 1, 3, 1
+• J. Hecke (Brighton) = 1, 1, 1, 1, 2
 • M. Cash (Aston Villa) = 1, 1, 2, 1, 1
 • M. Lacroix (Crystal Palace) = 1, 2, 1, 1, 1
 • J. McGinn (Aston Villa) = 1, 1, 1, 1, 1
 
 📊1+ SOT in 5/5 (100%)📊
 
-• A. Semenyo (Bournemouth) = 4, 1, 1, 3, 2
+• A. Semenyo (Bournemouth) = 1, 4, 1, 1, 3
 • D. Calvert-Lewin (Leeds United) = 1, 3, 2, 1, 1
 • P. Foden (Man City) = 1, 1, 2, 1, 2
 
