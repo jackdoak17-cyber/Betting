@@ -1,7 +1,13 @@
 {
   "league_id": 301,
-  "generated_at": "2025-12-30T04:09:01.485887+00:00",
+  "generated_at": "2025-12-31T04:08:35.298415+00:00",
   "possession_rank": [
+    {
+      "team_id": 591,
+      "team_name": "Paris Saint Germain",
+      "avg_possession": 69.6875,
+      "sample_size": 16
+    },
     {
       "team_id": 44,
       "team_name": "Olympique Marseille",
@@ -21,6 +27,12 @@
       "sample_size": 16
     },
     {
+      "team_id": 4508,
+      "team_name": "Paris",
+      "avg_possession": 55.375,
+      "sample_size": 16
+    },
+    {
       "team_id": 6789,
       "team_name": "Monaco",
       "avg_possession": 53.75,
@@ -30,6 +42,18 @@
       "team_id": 686,
       "team_name": "Strasbourg",
       "avg_possession": 52.8125,
+      "sample_size": 16
+    },
+    {
+      "team_id": 598,
+      "team_name": "Rennes",
+      "avg_possession": 50.375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 3513,
+      "team_name": "Metz",
+      "avg_possession": 48.75,
       "sample_size": 16
     },
     {
@@ -57,12 +81,36 @@
       "sample_size": 16
     },
     {
+      "team_id": 266,
+      "team_name": "Brest",
+      "avg_possession": 43.875,
+      "sample_size": 16
+    },
+    {
       "team_id": 9257,
       "team_name": "Lorient",
       "avg_possession": 43.4375,
       "sample_size": 16
+    },
+    {
+      "team_id": 59,
+      "team_name": "Nantes",
+      "avg_possession": 42.375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 776,
+      "team_name": "Angers SCO",
+      "avg_possession": 41.5,
+      "sample_size": 16
+    },
+    {
+      "team_id": 289,
+      "team_name": "Toulouse",
+      "avg_possession": 40.875,
+      "sample_size": 16
     }
   ],
   "min_sample": 3,
-  "team_count": 10
+  "team_count": 18
 }

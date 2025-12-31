@@ -1,7 +1,13 @@
 {
   "league_id": 567,
-  "generated_at": "2025-12-30T04:09:01.489484+00:00",
+  "generated_at": "2025-12-31T04:08:35.302913+00:00",
   "possession_rank": [
+    {
+      "team_id": 238115,
+      "team_name": "FC Andorra",
+      "avg_possession": 57.421052631578945,
+      "sample_size": 19
+    },
     {
       "team_id": 931,
       "team_name": "Córdoba",
@@ -15,9 +21,27 @@
       "sample_size": 19
     },
     {
+      "team_id": 2921,
+      "team_name": "Las Palmas",
+      "avg_possession": 55.63157894736842,
+      "sample_size": 19
+    },
+    {
       "team_id": 618,
       "team_name": "Almería",
       "avg_possession": 54.68421052631579,
+      "sample_size": 19
+    },
+    {
+      "team_id": 9818,
+      "team_name": "Racing Santander",
+      "avg_possession": 53.26315789473684,
+      "sample_size": 19
+    },
+    {
+      "team_id": 361,
+      "team_name": "Real Valladolid",
+      "avg_possession": 52.526315789473685,
       "sample_size": 19
     },
     {
@@ -39,9 +63,33 @@
       "sample_size": 19
     },
     {
+      "team_id": 429,
+      "team_name": "Deportivo La Coruña",
+      "avg_possession": 50.578947368421055,
+      "sample_size": 19
+    },
+    {
+      "team_id": 60,
+      "team_name": "SD Eibar",
+      "avg_possession": 50.473684210526315,
+      "sample_size": 19
+    },
+    {
+      "team_id": 844,
+      "team_name": "Leganés",
+      "avg_possession": 50.10526315789474,
+      "sample_size": 19
+    },
+    {
       "team_id": 103,
       "team_name": "Granada",
       "avg_possession": 49.26315789473684,
+      "sample_size": 19
+    },
+    {
+      "team_id": 11354,
+      "team_name": "Cultural Leonesa",
+      "avg_possession": 48.05263157894737,
       "sample_size": 19
     },
     {
@@ -51,9 +99,21 @@
       "sample_size": 19
     },
     {
+      "team_id": 274,
+      "team_name": "Huesca",
+      "avg_possession": 46.36842105263158,
+      "sample_size": 19
+    },
+    {
       "team_id": 6827,
       "team_name": "Cádiz",
       "avg_possession": 45.36842105263158,
+      "sample_size": 19
+    },
+    {
+      "team_id": 344,
+      "team_name": "Sporting Gijón",
+      "avg_possession": 44.21052631578947,
       "sample_size": 19
     },
     {
@@ -76,5 +136,5 @@
     }
   ],
   "min_sample": 3,
-  "team_count": 12
+  "team_count": 22
 }
