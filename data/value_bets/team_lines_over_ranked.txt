@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-30T08:49:45
+Generated at (UTC): 2025-12-31T08:48:47
 Rules: COMBO_OVERALL≥70% OR SINGLE_OVERALL≥75% OR H/A_COMBO≥70% OR H/A_SINGLE≥75%
 Window=7 days | Min price=1.20 | ML filter (Shots/SOT/Corners): ≤ 3.50
 
@@ -7,40 +7,69 @@ Window=7 days | Min price=1.20 | ML filter (Shots/SOT/Corners): ≤ 3.50
 A) OVERALL — COMBO ≥ threshold
  • Stoke City — Corners Over 4.5 @ 1.830 | Hull City vs Stoke City | side=away | ML=3.000
     Overall: team 15/20 ( 75.0%) | oppA 15/20 ( 75.0%) | combo= 75.0%
+ • Roma — Corners Over 3.5 @ 1.720 | Atalanta vs Roma | side=away | ML=3.250
+    Overall: team 14/17 ( 82.4%) | oppA 10/17 ( 58.8%) | combo= 70.6%
 
 B) OVERALL — SINGLE side ≥ threshold
- • Arsenal — Tackles Over 15.5 @ 1.900 | Arsenal vs Aston Villa | side=home | ML=1.450
-    Overall: team 7/18 ( 38.9%) | oppA 15/18 ( 83.3%) | strongest=oppA  83.3%
- • Newcastle United — Shots Over 13.5 @ 1.900 | Burnley vs Newcastle United | side=away | ML=1.600
-    Overall: team 8/18 ( 44.4%) | oppA 14/18 ( 77.8%) | strongest=oppA  77.8%
- • Newcastle United — Shots Over 12.5 @ 1.830 | Burnley vs Newcastle United | side=away | ML=1.600
-    Overall: team 9/18 ( 50.0%) | oppA 14/18 ( 77.8%) | strongest=oppA  77.8%
+ • Tottenham Hotspur — Tackles Over 14.5 @ 1.800 | Tottenham Hotspur vs Sunderland | side=home | ML=1.800
+    Overall: team 15/18 ( 83.3%) | oppA 5/18 ( 27.8%) | strongest=team  83.3%
+ • Roma — Corners Over 3.5 @ 1.720 | Atalanta vs Roma | side=away | ML=3.250
+    Overall: team 14/17 ( 82.4%) | oppA 10/17 ( 58.8%) | strongest=team  82.4%
+ • Manchester United — Shots Over 11.5 @ 2.000 | Leeds United vs Manchester United | side=away | ML=2.450
+    Overall: team 15/19 ( 78.9%) | oppA 9/18 ( 50.0%) | strongest=team  78.9%
+ • West Ham United — SOT Over 3.5 @ 1.660 | Wolverhampton Wanderers vs West Ham United | side=away | ML=2.750
+    Overall: team 8/19 ( 42.1%) | oppA 15/19 ( 78.9%) | strongest=oppA  78.9%
+ • Inter — Corners Over 5.5 @ 1.900 | Inter vs Bologna | side=home | ML=1.450
+    Overall: team 12/16 ( 75.0%) | oppA 4/16 ( 25.0%) | strongest=team  75.0%
  • Stoke City — Corners Over 4.5 @ 1.830 | Hull City vs Stoke City | side=away | ML=3.000
     Overall: team 15/20 ( 75.0%) | oppA 15/20 ( 75.0%) | strongest=team  75.0%
 
 C) HOME/AWAY — COMBO ≥ threshold
-  (none)
+ • Leeds United — Shots Over 10.5 @ 1.720 | Leeds United vs Manchester United | side=home | ML=2.800
+    H/A:     team 8/9 ( 88.9%) | oppA 6/9 ( 66.7%) | combo= 77.8%
+ • Leeds United — SOT Over 3.5 @ 2.000 | Leeds United vs Manchester United | side=home | ML=2.800
+    H/A:     team 7/9 ( 77.8%) | oppA 6/9 ( 66.7%) | combo= 72.2%
+ • Roma — Corners Over 3.5 @ 1.720 | Atalanta vs Roma | side=away | ML=3.250
+    H/A:     team 7/8 ( 87.5%) | oppA 5/9 ( 55.6%) | combo= 71.5%
 
 D) HOME/AWAY — SINGLE side ≥ threshold
- • Arsenal — Tackles Over 15.5 @ 1.900 | Arsenal vs Aston Villa | side=home | ML=1.450
+ • Manchester City — SOT Over 5.5 @ 1.900 | Manchester City vs Chelsea | side=home | ML=1.700
+    H/A:     team 8/9 ( 88.9%) | oppA 0/9 (  0.0%) | strongest=team  88.9%
+ • Chelsea — Tackles Over 17.5 @ 1.800 | Manchester City vs Chelsea | side=away | ML=4.330
+    H/A:     team 2/9 ( 22.2%) | oppA 8/9 ( 88.9%) | strongest=oppA  88.9%
+ • Tottenham Hotspur — Shots Over 13.5 @ 1.800 | Tottenham Hotspur vs Sunderland | side=home | ML=1.800
     H/A:     team 4/9 ( 44.4%) | oppA 8/9 ( 88.9%) | strongest=oppA  88.9%
- • West Ham United — Corners Over 4.5 @ 1.900 | West Ham United vs Brighton & Hove Albion | side=home | ML=3.100
-    H/A:     team 8/9 ( 88.9%) | oppA 3/9 ( 33.3%) | strongest=team  88.9%
- • Chelsea — SOT Over 5.5 @ 1.720 | Chelsea vs AFC Bournemouth | side=home | ML=1.570
-    H/A:     team 4/9 ( 44.4%) | oppA 8/9 ( 88.9%) | strongest=oppA  88.9%
- • Ipswich Town — Corners Over 7.5 @ 2.100 | Ipswich Town vs Oxford United | side=home | ML=1.330
+ • Leeds United — Shots Over 10.5 @ 1.720 | Leeds United vs Manchester United | side=home | ML=2.800
+    H/A:     team 8/9 ( 88.9%) | oppA 6/9 ( 66.7%) | strongest=team  88.9%
+ • West Ham United — SOT Over 3.5 @ 1.660 | Wolverhampton Wanderers vs West Ham United | side=away | ML=2.750
+    H/A:     team 3/9 ( 33.3%) | oppA 8/9 ( 88.9%) | strongest=oppA  88.9%
+ • Inter — Corners Over 5.5 @ 1.900 | Inter vs Bologna | side=home | ML=1.450
+    H/A:     team 7/8 ( 87.5%) | oppA 3/8 ( 37.5%) | strongest=team  87.5%
+ • Roma — Corners Over 3.5 @ 1.720 | Atalanta vs Roma | side=away | ML=3.250
+    H/A:     team 7/8 ( 87.5%) | oppA 5/9 ( 55.6%) | strongest=team  87.5%
+ • Ipswich Town — Corners Over 7.5 @ 2.100 | Ipswich Town vs Oxford United | side=home | ML=1.300
+    H/A:     team 2/10 ( 20.0%) | oppA 8/10 ( 80.0%) | strongest=oppA  80.0%
+ • Ipswich Town — Corners Over 6.5 @ 1.800 | Ipswich Town vs Oxford United | side=home | ML=1.300
     H/A:     team 2/10 ( 20.0%) | oppA 8/10 ( 80.0%) | strongest=oppA  80.0%
  • Derby County — Corners Over 4.5 @ 1.720 | Derby County vs Middlesbrough | side=home | ML=3.000
     H/A:     team 8/10 ( 80.0%) | oppA 3/10 ( 30.0%) | strongest=team  80.0%
  • Wrexham — SOT Over 2.5 @ 1.570 | Blackburn Rovers vs Wrexham | side=away | ML=3.500
     H/A:     team 4/9 ( 44.4%) | oppA 8/10 ( 80.0%) | strongest=oppA  80.0%
- • Manchester United — Corners Over 6.5 @ 2.000 | Manchester United vs Wolverhampton Wanderers | side=home | ML=1.330
-    H/A:     team 2/9 ( 22.2%) | oppA 7/9 ( 77.8%) | strongest=oppA  77.8%
+ • Leeds United — SOT Over 3.5 @ 2.000 | Leeds United vs Manchester United | side=home | ML=2.800
+    H/A:     team 7/9 ( 77.8%) | oppA 6/9 ( 66.7%) | strongest=team  77.8%
+ • Manchester United — Shots Over 11.5 @ 2.000 | Leeds United vs Manchester United | side=away | ML=2.450
+    H/A:     team 7/9 ( 77.8%) | oppA 4/9 ( 44.4%) | strongest=team  77.8%
  • Manchester City — Tackles Over 13.5 @ 2.000 | Sunderland vs Manchester City | side=away | ML=1.420
     H/A:     team 7/9 ( 77.8%) | oppA 4/9 ( 44.4%) | strongest=team  77.8%
- • Arsenal — Tackles Over 17.5 @ 1.900 | Arsenal vs Aston Villa | side=home | ML=1.450
+ • Manchester City — Tackles Over 14.5 @ 1.900 | Manchester City vs Chelsea | side=home | ML=1.700
+    H/A:     team 3/9 ( 33.3%) | oppA 7/9 ( 77.8%) | strongest=oppA  77.8%
+ • Sunderland — Tackles Over 19.5 @ 1.900 | Tottenham Hotspur vs Sunderland | side=away | ML=4.500
     H/A:     team 4/9 ( 44.4%) | oppA 7/9 ( 77.8%) | strongest=oppA  77.8%
- • Arsenal — Shots Over 14.5 @ 1.800 | Arsenal vs Aston Villa | side=home | ML=1.450
-    H/A:     team 7/9 ( 77.8%) | oppA 3/9 ( 33.3%) | strongest=team  77.8%
- • Sheffield United — Shots Over 13.5 @ 1.720 | Sheffield United vs Leicester City | side=home | ML=1.850
+ • Brighton & Hove Albion — SOT Over 5.5 @ 1.720 | Brighton & Hove Albion vs Burnley | side=home | ML=1.530
+    H/A:     team 3/9 ( 33.3%) | oppA 7/9 ( 77.8%) | strongest=oppA  77.8%
+ • Sheffield United — Shots Over 13.5 @ 1.720 | Sheffield United vs Leicester City | side=home | ML=1.830
     H/A:     team 7/9 ( 77.8%) | oppA 4/10 ( 40.0%) | strongest=team  77.8%
+ • Mallorca — Corners Over 4.5 @ 1.830 | Mallorca vs Girona | side=home | ML=2.250
+    H/A:     team 1/8 ( 12.5%) | oppA 6/8 ( 75.0%) | strongest=oppA  75.0%
+ • Celta de Vigo — Corners Over 4.5 @ 1.660 | Celta de Vigo vs Valencia | side=home | ML=1.950
+    H/A:     team 4/9 ( 44.4%) | oppA 6/8 ( 75.0%) | strongest=oppA  75.0%
