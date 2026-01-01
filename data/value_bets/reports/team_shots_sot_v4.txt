@@ -1,4 +1,4 @@
-Generated at (UTC): 2025-12-31T16:22:20
+Generated at (UTC): 2026-01-01T03:09:41
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -28,3 +28,9 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 12
     team hits 4/8 | opp conceded 2/9 | H2H 0/4
     implied win probs: home 0.404 / away 0.596
+ • Leeds United (home) — Shots Over 12.5 @ 1.720 vs Manchester United | kickoff 2026-01-04 12:30:00
+    model=0.656 | implied=0.581 | threshold≥13
+    Leeds United have cleared 13 shots in 7/9 home matches = 20,12,17,14,13,16,19,10,21
+    Manchester United's opponents have had 13+ shots in 5/9 away games = 12,8,14,10,17,19,10,13,13
+    team hits 7/9 | opp conceded 5/9 | H2H 2/4
+    implied win probs: home 0.498 / away 0.502
