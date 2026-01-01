@@ -1,7 +1,13 @@
 {
   "league_id": 301,
-  "generated_at": "2025-12-29T09:27:51.789526+00:00",
+  "generated_at": "2026-01-01T20:22:04.522410+00:00",
   "shots_conceded_rank": [
+    {
+      "team_id": 591,
+      "team_name": "Paris Saint Germain",
+      "avg_shots_conceded": 8.6875,
+      "sample_size": 16
+    },
     {
       "team_id": 44,
       "team_name": "Olympique Marseille",
@@ -27,6 +33,18 @@
       "sample_size": 16
     },
     {
+      "team_id": 289,
+      "team_name": "Toulouse",
+      "avg_shots_conceded": 11.0625,
+      "sample_size": 16
+    },
+    {
+      "team_id": 4508,
+      "team_name": "Paris",
+      "avg_shots_conceded": 11.25,
+      "sample_size": 16
+    },
+    {
       "team_id": 79,
       "team_name": "Olympique Lyonnais",
       "avg_shots_conceded": 11.375,
@@ -45,6 +63,12 @@
       "sample_size": 16
     },
     {
+      "team_id": 266,
+      "team_name": "Brest",
+      "avg_shots_conceded": 12.3125,
+      "sample_size": 16
+    },
+    {
       "team_id": 271,
       "team_name": "Lens",
       "avg_shots_conceded": 12.6875,
@@ -57,13 +81,43 @@
       "sample_size": 16
     },
     {
+      "team_id": 3513,
+      "team_name": "Metz",
+      "avg_shots_conceded": 14.75,
+      "sample_size": 16
+    },
+    {
+      "team_id": 598,
+      "team_name": "Rennes",
+      "avg_shots_conceded": 14.75,
+      "sample_size": 16
+    },
+    {
+      "team_id": 776,
+      "team_name": "Angers SCO",
+      "avg_shots_conceded": 14.8125,
+      "sample_size": 16
+    },
+    {
       "team_id": 450,
       "team_name": "Nice",
       "avg_shots_conceded": 15.75,
       "sample_size": 16
+    },
+    {
+      "team_id": 59,
+      "team_name": "Nantes",
+      "avg_shots_conceded": 16.5625,
+      "sample_size": 16
     }
   ],
   "shots_for_rank": [
+    {
+      "team_id": 591,
+      "team_name": "Paris Saint Germain",
+      "avg_shots_for": 17.6875,
+      "sample_size": 16
+    },
     {
       "team_id": 690,
       "team_name": "LOSC Lille",
@@ -95,6 +149,30 @@
       "sample_size": 16
     },
     {
+      "team_id": 4508,
+      "team_name": "Paris",
+      "avg_shots_for": 12.4375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 598,
+      "team_name": "Rennes",
+      "avg_shots_for": 12.375,
+      "sample_size": 16
+    },
+    {
+      "team_id": 266,
+      "team_name": "Brest",
+      "avg_shots_for": 12.1875,
+      "sample_size": 16
+    },
+    {
+      "team_id": 289,
+      "team_name": "Toulouse",
+      "avg_shots_for": 12.1875,
+      "sample_size": 16
+    },
+    {
       "team_id": 9257,
       "team_name": "Lorient",
       "avg_shots_for": 11.9375,
@@ -123,8 +201,26 @@
       "team_name": "Strasbourg",
       "avg_shots_for": 11.125,
       "sample_size": 16
+    },
+    {
+      "team_id": 59,
+      "team_name": "Nantes",
+      "avg_shots_for": 9.75,
+      "sample_size": 16
+    },
+    {
+      "team_id": 776,
+      "team_name": "Angers SCO",
+      "avg_shots_for": 9.25,
+      "sample_size": 16
+    },
+    {
+      "team_id": 3513,
+      "team_name": "Metz",
+      "avg_shots_for": 8.9375,
+      "sample_size": 16
     }
   ],
   "min_sample": 3,
-  "team_count": 10
+  "team_count": 18
 }
