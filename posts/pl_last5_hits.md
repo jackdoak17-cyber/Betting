@@ -4,25 +4,25 @@ Leave a like if you find these useful.
 
 📊1+ Fouls Drawn in 5/5 (100%)📊
 
-• E. Anderson (Nottm Forest) = 2, 1, 1, 5, 6
-• M. Fernandes (West Ham) = 2, 3, 1, 5, 2
-• Y. Tielemans (Aston Villa) = 2, 4, 4, 1, 2
-• I. Jesus (Nottm Forest) = 4, 3, 3, 1, 1
-• S. Tonali (Newcastle) = 2, 3, 3, 1, 3
-• S. Magassa (West Ham) = 3, 3, 1, 4, 1
+• M. Fernandes (West Ham) = 3, 2, 3, 1, 5
+• Y. Tielemans (Aston Villa) = 3, 2, 4, 4, 1
+• B. Guimarães (Newcastle) = 1, 3, 2, 3, 4
+• S. Magassa (West Ham) = 2, 3, 3, 1, 4
+• E. Anderson (Nottm Forest) = 2, 2, 1, 1, 5
 • G. Gudmundsson (Leeds United) = 1, 1, 3, 3, 3
 • C. Summerville (West Ham) = 1, 2, 4, 2, 1
-• M. Senesi (Bournemouth) = 2, 3, 1, 3, 1
+• L. Hall (Newcastle) = 2, 3, 2, 2, 1
+• M. Senesi (Bournemouth) = 1, 2, 3, 1, 3
+• M. Cunha (Man Utd) = 5, 1, 2, 1, 1
 • M. Kayode (Brentford) = 2, 2, 1, 4, 1
-• H. Hwang (Wolves) = 1, 1, 1, 2, 3
+• S. Tonali (Newcastle) = 1, 2, 3, 3, 1
+• E. Buendía (Aston Villa) = 1, 2, 2, 1, 3
 • R. Cherki (Man City) = 1, 1, 2, 2, 2
 • A. Wharton (Crystal Palace) = 2, 1, 1, 1, 2
 • A. Allister (Liverpool) = 2, 2, 1, 1, 1
-• J. Gomes (Wolves) = 1, 2, 1, 1, 1
 • K. Tete (Fulham) = 1, 2, 1, 1, 1
-• M. Cunha (Man Utd) = 1, 2, 1, 1, 1
 • M. Kerkez (Liverpool) = 1, 2, 1, 1, 1
-• Y. Ayari (Brighton) = 1, 1, 1, 1, 1
+• Y. Ayari (Brighton) = 2, 1, 1, 1, 1
 
 📊1+ Foul in 5/5 (100%)📊
 
