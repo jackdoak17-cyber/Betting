@@ -63,6 +63,9 @@ jobs:
 
       - name: Commit & push if changed
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase
           git add posts/pl_last5_2plus_atleast4.md
           git diff --staged --quiet || git commit -m "Update: PL last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn) [skip ci]"
           git push
