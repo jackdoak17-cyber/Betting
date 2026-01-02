@@ -68,19 +68,9 @@ jobs:
 
       - name: Commit & push if changed
         run: |
-          set -euo pipefail
-
-          git add posts/pl_last5_2plus_atleast4.md
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          # Stash everything (including untracked files) so rebase runs on a clean tree.
-          git stash push --include-untracked --message "auto-stash pl-last5" >/dev/null 2>&1 || true
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase
-          git stash pop >/dev/null 2>&1 || true
-
           git add posts/pl_last5_2plus_atleast4.md
           git commit -m "Update: PL last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn) [skip ci]"
           git push
