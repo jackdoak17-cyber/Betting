@@ -22,6 +22,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update base branch
+        run: git pull --rebase
+
       - name: Detect script path (.py or .pypy)
         id: detect
         shell: bash
@@ -55,8 +63,6 @@ jobs:
 
       - name: Commit & push if changed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add posts/pl_last5_2plus_atleast4.md
           git diff --staged --quiet || git commit -m "Update: PL last-5 ≥4/5 at 2+ (Shots, Fouls, Fouls Drawn) [skip ci]"
           git push
