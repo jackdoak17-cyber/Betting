@@ -1,6 +1,6 @@
 Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
-• Neco Williams (Nottm Forest — LB) — last5: 3,1,1,1,1 — @ 1.73
+• Neco Williams (Nottm Forest — LB) — last5: 3,1,1,1,1 — @ 1.57
 • Josh Cullen (Burnley — MID) — last5: 1,1,1,1,1 — @ 2.10
 • Matt Grimes (Coventry City — MID) — last5: 1,1,1,1,1 — @ 1.73
 • Liam Kitching (Coventry City — CB) — last5: 4,1,1,3,2 — @ 1.53
