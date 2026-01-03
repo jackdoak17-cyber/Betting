@@ -11,13 +11,15 @@ Leave a like if you find these useful.
 • E. Anderson (Nottm Forest) = 2, 2, 1, 1, 5
 • G. Gudmundsson (Leeds United) = 3, 1, 1, 3, 3
 • C. Summerville (West Ham) = 1, 2, 4, 2, 1
+• K. Lewis-Potter (Brentford) = 4, 1, 2, 1, 2
 • L. Hall (Newcastle) = 2, 3, 2, 2, 1
 • M. Senesi (Bournemouth) = 1, 2, 3, 1, 3
 • M. Cunha (Man Utd) = 5, 1, 2, 1, 1
-• M. Kayode (Brentford) = 2, 2, 1, 4, 1
+• M. Kayode (Brentford) = 1, 2, 2, 1, 4
 • S. Tonali (Newcastle) = 1, 2, 3, 3, 1
 • E. Buendía (Aston Villa) = 1, 2, 2, 1, 3
-• R. Cherki (Man City) = 1, 1, 2, 2, 2
+• E. Fée (Sunderland) = 1, 1, 1, 1, 4
+• R. Cherki (Man City) = 2, 1, 1, 2, 2
 • A. Allister (Liverpool) = 2, 2, 1, 1, 1
 • S. Lukić (Fulham) = 1, 1, 2, 2, 1
 • A. Wharton (Crystal Palace) = 1, 2, 1, 1, 1
