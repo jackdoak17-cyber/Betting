@@ -9,6 +9,6 @@ Top 10 Scorers — Bet365 Anytime
 | 5 | I. Thiago — Brentford (PL) | 11 | @ 2.75 | v Everton |
 | 6 | M. Greenwood — Marseille (L1) | 11 | @ 1.66 | v Nantes |
 | 7 | A. Semenyo — Bournemouth (PL) | 9 | @ 3.75 | v Arsenal |
-| 8 | E. Lepaul — Rennes (L1) | 9 | @ 3.10 | v LOSC Lille |
-| 9 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.30 | v Nice |
+| 8 | E. Lepaul — Rennes (L1) | 9 | @ 2.87 | v LOSC Lille |
+| 9 | J. Panichelli — Strasbourg (L1) | 9 | @ 2.20 | v Nice |
 | 10 | L. Martínez — Inter (SA) | 9 | @ 2.00 | v Bologna |
