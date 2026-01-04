@@ -1,6 +1,6 @@
 {
   "league_id": 567,
-  "generated_at": "2026-01-03T04:04:06.026286+00:00",
+  "generated_at": "2026-01-04T04:20:42.421021+00:00",
   "possession_rank": [
     {
       "team_id": 238115,
@@ -51,6 +51,12 @@
       "sample_size": 19
     },
     {
+      "team_id": 60,
+      "team_name": "SD Eibar",
+      "avg_possession": 51.2,
+      "sample_size": 20
+    },
+    {
       "team_id": 3968,
       "team_name": "Real Zaragoza",
       "avg_possession": 51.1578947368421,
@@ -66,12 +72,6 @@
       "team_id": 429,
       "team_name": "Deportivo La Coruña",
       "avg_possession": 50.578947368421055,
-      "sample_size": 19
-    },
-    {
-      "team_id": 60,
-      "team_name": "SD Eibar",
-      "avg_possession": 50.473684210526315,
       "sample_size": 19
     },
     {
@@ -131,8 +131,8 @@
     {
       "team_id": 6968,
       "team_name": "Mirandés",
-      "avg_possession": 41.94736842105263,
-      "sample_size": 19
+      "avg_possession": 41.6,
+      "sample_size": 20
     }
   ],
   "min_sample": 3,
