@@ -1,43 +1,12 @@
-Generated at (UTC): 2026-01-04T03:12:06
+Generated at (UTC): 2026-01-04T16:22:30
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
- • Leeds United (home) — Shots Over 10.5 @ 1.720 vs Manchester United | kickoff 2026-01-04 12:30:00
-    model=0.744 | implied=0.581 | threshold≥11
-    Leeds United have cleared 11 shots in 8/9 home matches = 20,12,17,14,13,16,19,10,21
-    Manchester United's opponents have had 11+ shots in 6/9 away games = 12,8,14,10,17,19,10,13,13
-    team hits 8/9 | opp conceded 6/9 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
- • Leeds United (home) — Shots Over 11.5 @ 1.800 vs Manchester United | kickoff 2026-01-04 12:30:00
-    model=0.744 | implied=0.556 | threshold≥12
-    Leeds United have cleared 12 shots in 8/9 home matches = 20,12,17,14,13,16,19,10,21
-    Manchester United's opponents have had 12+ shots in 6/9 away games = 12,8,14,10,17,19,10,13,13
-    team hits 8/9 | opp conceded 6/9 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
- • Leeds United (home) — Shots on Target Over 3.5 @ 1.720 vs Manchester United | kickoff 2026-01-04 12:30:00
-    model=0.689 | implied=0.581 | threshold≥4
-    Leeds United have cleared 4 shots on target in 7/9 home matches = 8,5,5,5,5,4,8,1,3
-    Manchester United's opponents have had 4+ shots on target in 6/9 away games = 4,2,3,4,3,6,8,6,4
-    team hits 7/9 | opp conceded 6/9 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
- • Lazio (home) — Shots Under 12.5 @ 1.720 vs Napoli | kickoff 2026-01-04 11:30:00
-    model=0.683 | implied=0.581 | threshold≥13
-    Lazio have had under 13 shots in 4/8 home matches = 8,16,19,8,13,9,10,22
-    Napoli's opponents have had under 13 shots in 7/9 away games = 6,18,8,11,7,12,6,19,7
-    This landed in the reverse fixture last season = 12
-    team hits 4/8 | opp conceded 2/9 | H2H 0/4
-    implied win probs: home 0.404 / away 0.596
- • Leeds United (home) — Shots Over 12.5 @ 1.720 vs Manchester United | kickoff 2026-01-04 12:30:00
-    model=0.656 | implied=0.581 | threshold≥13
-    Leeds United have cleared 13 shots in 7/9 home matches = 20,12,17,14,13,16,19,10,21
-    Manchester United's opponents have had 13+ shots in 5/9 away games = 12,8,14,10,17,19,10,13,13
-    team hits 7/9 | opp conceded 5/9 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
  • Girona (away) — Shots Over 10.5 @ 1.720 vs Mallorca | kickoff 2026-01-04 17:30:00
     model=0.645 | implied=0.581 | threshold≥11
     Girona have cleared 11 shots in 4/8 away matches = 14,8,11,8,11,6,13,5
     Mallorca's opponents have had 11+ shots in 6/8 home games = 9,14,14,13,12,12,8,24
     This landed in the reverse fixture last season = 13
     team hits 4/8 | opp conceded 6/8 | H2H 4/4
-    implied win probs: home 0.614 / away 0.386
+    implied win probs: home 0.602 / away 0.398
