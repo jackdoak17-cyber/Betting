@@ -1,19 +1,19 @@
-Generated at (UTC): 2026-01-07T03:00:09
+Generated at (UTC): 2026-01-07T16:26:13
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); stabilised vs league; blend team/opponent/H2H; favourite tilt + moneyline guards; keep EV>0 & edge≥0.05 (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V2) =====
- • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 2.000 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
-    model=0.619 | implied=0.500 | edge=0.119 | EV=0.239 | threshold≥5
+ • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 1.830 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
+    model=0.619 | implied=0.546 | edge=0.073 | EV=0.133 | threshold≥5
     Borussia Dortmund have had under 5 shots on target in 6/8 away matches = 4,4,1,1,1,4,8,7
     Eintracht Frankfurt's opponents have had under 5 shots on target in 5/7 home games = 1,3,0,1,3,5,5
     This landed in the reverse fixture last season = 3
     team hits 2/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.383 / away 0.617
+    implied win probs: home 0.389 / away 0.611
  • Crystal Palace (home) — Shots on Target Under 4.5 @ 1.720 vs Aston Villa | kickoff 2026-01-07 19:30:00
     model=0.659 | implied=0.581 | edge=0.077 | EV=0.133 | threshold≥5
     Crystal Palace have had under 5 shots on target in 7/10 home matches = 2,2,4,3,2,3,7,7,6,4
     Aston Villa's opponents have had under 5 shots on target in 7/10 away games = 7,3,3,7,5,4,3,4,2,2
     This landed in the reverse fixture last season = 4
     team hits 3/10 | opp conceded 3/10 | H2H 2/4
-    implied win probs: home 0.413 / away 0.587
+    implied win probs: home 0.441 / away 0.559

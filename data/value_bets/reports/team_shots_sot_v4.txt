@@ -1,4 +1,4 @@
-Generated at (UTC): 2026-01-07T03:00:12
+Generated at (UTC): 2026-01-07T16:26:16
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -22,57 +22,64 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Atalanta's opponents have had 4+ shots on target in 6/8 away games = 3,7,6,5,5,10,5,3
     This landed in the reverse fixture last season = 5
     team hits 6/8 | opp conceded 6/8 | H2H 2/4
-    implied win probs: home 0.458 / away 0.542
+    implied win probs: home 0.444 / away 0.556
  • Getafe (home) — Shots Over 9.5 @ 1.900 vs Real Sociedad | kickoff 2026-01-09 20:00:00
     model=0.696 | implied=0.526 | threshold≥10
     Getafe have cleared 10 shots in 5/8 home matches = 11,15,9,12,7,11,7,10
     Real Sociedad's opponents have had 10+ shots in 7/9 away games = 13,14,14,12,4,22,21,8,18
     This landed in the reverse fixture last season = 13
     team hits 5/8 | opp conceded 7/9 | H2H 3/4
-    implied win probs: home 0.441 / away 0.559
+    implied win probs: home 0.418 / away 0.582
  • Leeds United (away) — Shots Under 10.5 @ 1.800 vs Newcastle United | kickoff 2026-01-07 20:15:00
     model=0.680 | implied=0.556 | threshold≥11
     Leeds United have had under 11 shots in 7/10 away matches = 4,17,18,9,10,5,19,6,10,3
     Newcastle United's opponents have had under 11 shots in 5/10 home games = 11,13,9,8,17,12,5,20,8,5
     team hits 3/10 | opp conceded 5/10 | H2H 1/4
-    implied win probs: home 0.746 / away 0.254
+    implied win probs: home 0.755 / away 0.245
+ • St. Pauli (home) — Shots on Target Over 3.5 @ 1.720 vs RB Leipzig | kickoff 2026-01-10 14:30:00
+    model=0.677 | implied=0.581 | threshold≥4
+    St. Pauli have cleared 4 shots on target in 5/7 home matches = 5,3,4,2,6,7,7
+    RB Leipzig's opponents have had 4+ shots on target in 4/8 away games = 6,0,4,2,3,4,2,10
+    This landed in the reverse fixture last season = 4
+    team hits 5/7 | opp conceded 4/8 | H2H 2/2
+    implied win probs: home 0.322 / away 0.678
  • Crystal Palace (home) — Shots on Target Under 4.5 @ 1.720 vs Aston Villa | kickoff 2026-01-07 19:30:00
     model=0.660 | implied=0.581 | threshold≥5
     Crystal Palace have had under 5 shots on target in 7/10 home matches = 2,2,4,3,2,3,7,7,6,4
     Aston Villa's opponents have had under 5 shots on target in 7/10 away games = 7,3,3,7,5,4,3,4,2,2
     This landed in the reverse fixture last season = 4
     team hits 3/10 | opp conceded 3/10 | H2H 2/4
-    implied win probs: home 0.413 / away 0.587
- • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 2.000 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
-    model=0.659 | implied=0.500 | threshold≥5
+    implied win probs: home 0.441 / away 0.559
+ • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 1.830 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
+    model=0.659 | implied=0.546 | threshold≥5
     Borussia Dortmund have had under 5 shots on target in 6/8 away matches = 4,4,1,1,1,4,8,7
     Eintracht Frankfurt's opponents have had under 5 shots on target in 5/7 home games = 1,3,0,1,3,5,5
     This landed in the reverse fixture last season = 3
     team hits 2/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.383 / away 0.617
+    implied win probs: home 0.389 / away 0.611
  • Newcastle United (home) — Shots on Target Over 4.5 @ 1.720 vs Leeds United | kickoff 2026-01-07 20:15:00
     model=0.630 | implied=0.581 | threshold≥5
     Newcastle United have cleared 5 shots on target in 7/10 home matches = 7,5,7,7,5,7,9,3,4,3
     Leeds United's opponents have had 5+ shots on target in 5/10 away games = 4,3,2,9,6,7,3,6,3,5
     team hits 7/10 | opp conceded 5/10 | H2H 2/4
-    implied win probs: home 0.746 / away 0.254
+    implied win probs: home 0.755 / away 0.245
  • Arsenal (home) — Shots on Target Over 4.5 @ 1.800 vs Liverpool | kickoff 2026-01-08 20:00:00
     model=0.630 | implied=0.556 | threshold≥5
     Arsenal have cleared 5 shots on target in 7/10 home matches = 7,6,2,7,8,3,5,3,5,5
     Liverpool's opponents have had 5+ shots on target in 5/10 away games = 2,4,5,0,6,8,6,7,0,3
     This landed in the reverse fixture last season = 7
     team hits 7/10 | opp conceded 5/10 | H2H 2/4
-    implied win probs: home 0.780 / away 0.220
+    implied win probs: home 0.778 / away 0.222
  • Eintracht Frankfurt (home) — Shots on Target Over 3.5 @ 1.660 vs Borussia Dortmund | kickoff 2026-01-09 19:30:00
     model=0.627 | implied=0.602 | threshold≥4
     Eintracht Frankfurt have cleared 4 shots on target in 5/7 home matches = 4,3,4,6,1,10,5
     Borussia Dortmund's opponents have had 4+ shots on target in 4/8 away games = 6,4,3,1,7,2,1,7
     This landed in the reverse fixture last season = 5
     team hits 5/7 | opp conceded 4/8 | H2H 3/4
-    implied win probs: home 0.383 / away 0.617
+    implied win probs: home 0.389 / away 0.611
  • Heidenheim (home) — Shots on Target Under 4.5 @ 1.660 vs FC Köln | kickoff 2026-01-10 14:30:00
     model=0.625 | implied=0.602 | threshold≥5
     Heidenheim have had under 5 shots on target in 6/8 home matches = 1,3,2,4,11,5,1,2
     FC Köln's opponents have had under 5 shots on target in 4/8 away games = 6,4,4,9,4,8,6,2
     team hits 2/8 | opp conceded 4/8 | H2H 1/2
-    implied win probs: home 0.450 / away 0.550
+    implied win probs: home 0.448 / away 0.552
