@@ -1,11 +1,65 @@
 {
   "league_id": 82,
-  "generated_at": "2026-01-06T04:11:52.477191+00:00",
+  "generated_at": "2026-01-07T04:11:38.341872+00:00",
   "possession_rank": [
     {
       "team_id": 503,
       "team_name": "FC Bayern München",
       "avg_possession": 68,
+      "sample_size": 15
+    },
+    {
+      "team_id": 3321,
+      "team_name": "Bayer 04 Leverkusen",
+      "avg_possession": 59.53333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 3319,
+      "team_name": "VfB Stuttgart",
+      "avg_possession": 57.53333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 366,
+      "team_name": "Eintracht Frankfurt",
+      "avg_possession": 55.266666666666666,
+      "sample_size": 15
+    },
+    {
+      "team_id": 2726,
+      "team_name": "TSG Hoffenheim",
+      "avg_possession": 53.86666666666667,
+      "sample_size": 15
+    },
+    {
+      "team_id": 68,
+      "team_name": "Borussia Dortmund",
+      "avg_possession": 52.6,
+      "sample_size": 15
+    },
+    {
+      "team_id": 3543,
+      "team_name": "SC Freiburg",
+      "avg_possession": 51,
+      "sample_size": 15
+    },
+    {
+      "team_id": 277,
+      "team_name": "RB Leipzig",
+      "avg_possession": 50.13333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 82,
+      "team_name": "Werder Bremen",
+      "avg_possession": 48.333333333333336,
+      "sample_size": 15
+    },
+    {
+      "team_id": 3320,
+      "team_name": "FC Köln",
+      "avg_possession": 48.13333333333333,
       "sample_size": 15
     },
     {
@@ -15,9 +69,33 @@
       "sample_size": 15
     },
     {
+      "team_id": 2708,
+      "team_name": "Hamburger SV",
+      "avg_possession": 46.53333333333333,
+      "sample_size": 15
+    },
+    {
+      "team_id": 683,
+      "team_name": "Borussia Mönchengladbach",
+      "avg_possession": 46.266666666666666,
+      "sample_size": 15
+    },
+    {
+      "team_id": 510,
+      "team_name": "VfL Wolfsburg",
+      "avg_possession": 45.86666666666667,
+      "sample_size": 15
+    },
+    {
       "team_id": 794,
       "team_name": "FSV Mainz 05",
       "avg_possession": 45.8,
+      "sample_size": 15
+    },
+    {
+      "team_id": 90,
+      "team_name": "FC Augsburg",
+      "avg_possession": 45.733333333333334,
       "sample_size": 15
     },
     {
@@ -25,8 +103,14 @@
       "team_name": "Heidenheim",
       "avg_possession": 41.8,
       "sample_size": 15
+    },
+    {
+      "team_id": 1079,
+      "team_name": "FC Union Berlin",
+      "avg_possession": 36.13333333333333,
+      "sample_size": 15
     }
   ],
   "min_sample": 3,
-  "team_count": 4
+  "team_count": 18
 }
