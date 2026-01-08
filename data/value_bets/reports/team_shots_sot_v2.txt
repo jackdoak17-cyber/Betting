@@ -1,19 +1,12 @@
-Generated at (UTC): 2026-01-08T03:05:19
+Generated at (UTC): 2026-01-08T16:25:14
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); stabilised vs league; blend team/opponent/H2H; favourite tilt + moneyline guards; keep EV>0 & edge≥0.05 (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V2) =====
- • FC Augsburg (away) — Shots on Target Over 3.5 @ 1.900 vs Borussia Mönchengladbach | kickoff 2026-01-11 14:30:00
-    model=0.678 | implied=0.526 | edge=0.151 | EV=0.288 | threshold≥4
-    FC Augsburg have cleared 4 shots on target in 5/7 away matches = 1,4,6,4,2,5,5
-    Borussia Mönchengladbach's opponents have had 4+ shots on target in 6/8 home games = 6,4,5,11,1,7,7,2
-    This landed in the reverse fixture last season = 4
-    team hits 5/7 | opp conceded 6/8 | H2H 4/4
-    implied win probs: home 0.678 / away 0.322
  • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 1.830 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
     model=0.619 | implied=0.546 | edge=0.073 | EV=0.133 | threshold≥5
     Borussia Dortmund have had under 5 shots on target in 6/8 away matches = 4,4,1,1,1,4,8,7
     Eintracht Frankfurt's opponents have had under 5 shots on target in 5/7 home games = 1,3,0,1,3,5,5
     This landed in the reverse fixture last season = 3
     team hits 2/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.389 / away 0.611
+    implied win probs: home 0.364 / away 0.636
