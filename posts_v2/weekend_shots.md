@@ -20,11 +20,10 @@ Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Henk Veerman (FC Volendam — FWD) — last5: 2,2,2,2,2 — @ 1.53
 • Noah Naujoks (Excelsior — MID) — last5: 5,2,2,3,5 — @ 1.80
-• Rolando Mandragora (Fiorentina — MID) — last5: 5,4,4,2,2 — @ 1.57
 • Andrea Franzoni (Virtus Entella — MID) — last5: 2,2,2,5,2 — @ 1.67
 • Luis Hasa (Carrarese — MID) — last5: 2,3,3,2,3 — @ 1.53
 • Antonio Di Nardo (Pescara — FWD) — last5: 2,2,2,6,3 — @ 1.44
 • Tyreece John-Jules (Kilmarnock — FWD) — last5: 4,3,2,4,2 — @ 1.44
-• Adil Aouchiche (Aberdeen — MID) — last5: 2,2,2,4,4 — @ 1.67
+• Adil Aouchiche (Aberdeen — MID) — last5: 2,2,2,4,4 — @ 1.53
 
 ⚠️Stat-based shortlist, not tips. Its a good starting point to identify value but we need to consider price, team news, form, and opposition etc. Any value here?
