@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-07T07:04:24",
+  "generated_at": "2026-01-08T07:05:03",
   "league_id": 564,
   "last_n": 10,
   "red_weight": 1.0,
@@ -283,11 +283,28 @@
         },
         "shots_total": {
           "sequence": [
-            "D",
+            "W",
             "L",
             "L",
             "W",
             "L",
+            "L",
+            "W",
+            "L",
+            "L",
+            "W"
+          ],
+          "rates": {
+            "wins": 4,
+            "losses": 6,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.4
+          }
+        },
+        "shots_total_home": {
+          "sequence": [
+            "W",
             "L",
             "W",
             "L",
@@ -296,27 +313,10 @@
           ],
           "rates": {
             "wins": 3,
-            "losses": 6,
-            "draws": 1,
-            "n": 9,
-            "win_rate": 0.3333
-          }
-        },
-        "shots_total_home": {
-          "sequence": [
-            "D",
-            "L",
-            "W",
-            "L",
-            "L",
-            "W"
-          ],
-          "rates": {
-            "wins": 2,
             "losses": 3,
-            "draws": 1,
-            "n": 5,
-            "win_rate": 0.4
+            "draws": 0,
+            "n": 6,
+            "win_rate": 0.5
           }
         },
         "shots_total_away": {
@@ -2692,7 +2692,7 @@
         },
         "shots_total": {
           "sequence": [
-            "D",
+            "L",
             "W",
             "L",
             "W",
@@ -2705,10 +2705,10 @@
           ],
           "rates": {
             "wins": 3,
-            "losses": 6,
-            "draws": 1,
-            "n": 9,
-            "win_rate": 0.3333
+            "losses": 7,
+            "draws": 0,
+            "n": 10,
+            "win_rate": 0.3
           }
         },
         "shots_total_home": {
@@ -2729,7 +2729,7 @@
         },
         "shots_total_away": {
           "sequence": [
-            "D",
+            "L",
             "L",
             "L",
             "L",
@@ -2737,10 +2737,10 @@
           ],
           "rates": {
             "wins": 1,
-            "losses": 3,
-            "draws": 1,
-            "n": 4,
-            "win_rate": 0.25
+            "losses": 4,
+            "draws": 0,
+            "n": 5,
+            "win_rate": 0.2
           }
         },
         "shots_on_target": {
