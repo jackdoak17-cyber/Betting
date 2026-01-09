@@ -4,12 +4,12 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 • Vasilios Zagaritis (SC Heerenveen — LB) — last5: 1,4,1,1,1 — @ 1.73
 • Alec Van Hoorenbeeck (Heracles Almelo — CB) — last5: 1,1,1,1,1 — @ 1.83
 • Patrick Mainka (Heidenheim — CB) — last5: 1,1,2,2,2 — @ 1.53
-• Nikolas Nartey (VfB Stuttgart — MID) — last5: 3,1,1,1,1 — @ 1.67
+• Nikolas Nartey (VfB Stuttgart — MID) — last5: 3,1,1,1,1 — @ 1.61
 • Robin Fellhauer (FC Augsburg — MID) — last5: 1,1,1,1,2 — @ 1.67
-• Tommaso Cassandro (Catanzaro — CB) — last5: 1,1,1,1,2 — @ 1.53
-• Francesco Mezzoni (Virtus Entella — MID) — last5: 1,1,1,2,2 — @ 2.00
+• Tommaso Cassandro (Catanzaro — CB) — last5: 1,1,1,1,2 — @ 1.61
+• Francesco Mezzoni (Virtus Entella — MID) — last5: 1,1,1,2,2 — @ 1.73
 • Andreaw Gravillon (Pescara — CB) — last5: 1,3,2,2,2 — @ 1.67
-• Matteo Dagasso (Pescara — MID) — last5: 2,1,5,1,1 — @ 1.61
+• Matteo Dagasso (Pescara — MID) — last5: 2,1,5,1,1 — @ 1.44
 • Brando Moruzzi (Empoli — LB) — last5: 2,1,2,3,1 — @ 1.44
 • Elliot Watt (Motherwell — MID) — last5: 2,1,1,2,1 — @ 1.57
 • Yan Dhanda (Dundee — MID) — last5: 1,5,5,1,1 — @ 1.50

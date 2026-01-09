@@ -2,6 +2,7 @@ Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 
 1+ SOT in last 5 (5/5)
 • Yuito Suzuki (SC Freiburg — MID) — last5: 1,1,2,1,2 — @ 8.00
+• Manolo Portanova (Reggiana — FWD) — last5: 3,1,1,1,1 — @ 1.61
 • Tyreece John-Jules (Kilmarnock — FWD) — last5: 1,1,1,2,1 — @ 1.67
 
 1+ SOT in last 7 (7/7)
