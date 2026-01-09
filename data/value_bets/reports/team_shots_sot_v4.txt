@@ -1,4 +1,4 @@
-Generated at (UTC): 2026-01-09T03:01:12
+Generated at (UTC): 2026-01-09T16:24:06
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -8,14 +8,14 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Udinese have cleared 14 shots in 5/9 home matches = 15,18,23,12,11,8,23,10,14
     Pisa's opponents have had 14+ shots in 8/9 away games = 12,14,21,22,15,20,24,18,21
     team hits 5/9 | opp conceded 8/9 | H2H 0/1
-    implied win probs: home 0.689 / away 0.311
+    implied win probs: home 0.715 / away 0.285
  • Getafe (home) — Shots Over 9.5 @ 1.720 vs Real Sociedad | kickoff 2026-01-09 20:00:00
     model=0.696 | implied=0.581 | threshold≥10
     Getafe have cleared 10 shots in 5/8 home matches = 11,15,9,12,7,11,7,10
     Real Sociedad's opponents have had 10+ shots in 7/9 away games = 13,14,14,12,4,22,21,8,18
     This landed in the reverse fixture last season = 13
     team hits 5/8 | opp conceded 7/9 | H2H 3/4
-    implied win probs: home 0.425 / away 0.575
+    implied win probs: home 0.421 / away 0.579
  • Borussia Mönchengladbach (home) — Shots Under 14.5 @ 1.830 vs FC Augsburg | kickoff 2026-01-11 14:30:00
     model=0.666 | implied=0.546 | threshold≥15
     Borussia Mönchengladbach have had under 15 shots in 6/8 home matches = 14,7,9,1,9,11,19,17
@@ -23,30 +23,23 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 8
     team hits 2/8 | opp conceded 3/7 | H2H 1/4
     implied win probs: home 0.684 / away 0.316
- • Borussia Dortmund (away) — Shots on Target Under 4.5 @ 1.830 vs Eintracht Frankfurt | kickoff 2026-01-09 19:30:00
-    model=0.659 | implied=0.546 | threshold≥5
-    Borussia Dortmund have had under 5 shots on target in 6/8 away matches = 4,4,1,1,1,4,8,7
-    Eintracht Frankfurt's opponents have had under 5 shots on target in 5/7 home games = 1,3,0,1,3,5,5
-    This landed in the reverse fixture last season = 3
-    team hits 2/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.376 / away 0.624
  • VfB Stuttgart (away) — Shots on Target Over 3.5 @ 1.610 vs Bayer 04 Leverkusen | kickoff 2026-01-10 17:30:00
     model=0.645 | implied=0.621 | threshold≥4
     VfB Stuttgart have cleared 4 shots on target in 6/8 away matches = 12,3,6,4,7,5,2,6
     Bayer 04 Leverkusen's opponents have had 4+ shots on target in 4/8 home games = 4,4,0,3,3,7,2,5
     This landed in the reverse fixture last season = 6
     team hits 6/8 | opp conceded 4/8 | H2H 3/4
-    implied win probs: home 0.655 / away 0.345
+    implied win probs: home 0.636 / away 0.364
  • Eintracht Frankfurt (home) — Shots on Target Over 3.5 @ 1.660 vs Borussia Dortmund | kickoff 2026-01-09 19:30:00
     model=0.627 | implied=0.602 | threshold≥4
     Eintracht Frankfurt have cleared 4 shots on target in 5/7 home matches = 4,3,4,6,1,10,5
     Borussia Dortmund's opponents have had 4+ shots on target in 4/8 away games = 6,4,3,1,7,2,1,7
     This landed in the reverse fixture last season = 5
     team hits 5/7 | opp conceded 4/8 | H2H 3/4
-    implied win probs: home 0.376 / away 0.624
+    implied win probs: home 0.351 / away 0.649
  • Heidenheim (home) — Shots on Target Under 4.5 @ 1.660 vs FC Köln | kickoff 2026-01-10 14:30:00
     model=0.625 | implied=0.602 | threshold≥5
     Heidenheim have had under 5 shots on target in 6/8 home matches = 1,3,2,4,11,5,1,2
     FC Köln's opponents have had under 5 shots on target in 4/8 away games = 6,4,4,9,4,8,6,2
     team hits 2/8 | opp conceded 4/8 | H2H 1/2
-    implied win probs: home 0.455 / away 0.545
+    implied win probs: home 0.450 / away 0.550
