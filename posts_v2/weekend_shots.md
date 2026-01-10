@@ -18,7 +18,7 @@ Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
-• Henk Veerman (FC Volendam — FWD) — last5: 2,2,2,2,2 — @ 1.53
+• Henk Veerman (FC Volendam — FWD) — last5: 2,2,2,2,2 — @ 1.44
 • Noah Naujoks (Excelsior — MID) — last5: 5,2,2,3,5 — @ 1.80
 • Andrea Franzoni (Virtus Entella — MID) — last5: 2,2,2,5,2 — @ 1.67
 • Luis Hasa (Carrarese — MID) — last5: 2,3,3,2,3 — @ 1.53
