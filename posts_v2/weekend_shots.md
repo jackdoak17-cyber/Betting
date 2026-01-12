@@ -1,11 +1,8 @@
 Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
-• Vasilios Zagaritis (SC Heerenveen — LB) — last5: 1,4,1,1,1 — @ 1.61
 • Justin Lonwijk (Fortuna Sittard — MID) — last5: 1,1,1,2,1 — @ 1.44
-• Alec Van Hoorenbeeck (Heracles Almelo — CB) — last5: 1,1,1,1,1 — @ 2.00
-• Robin Fellhauer (FC Augsburg — MID) — last5: 1,1,1,1,2 — @ 1.67
+• Robin Fellhauer (FC Augsburg — MID) — last5: 2,1,1,1,1 — @ 1.67
 • Yan Dhanda (Dundee — MID) — last5: 1,5,5,1,1 — @ 1.50
-• Yann Bodiger (Ceuta — MID) — last5: 1,2,1,1,4 — @ 1.44
 
 Players with 2+ shots in each of their last 5 matches with odds >1.4 (Bet365)
 
