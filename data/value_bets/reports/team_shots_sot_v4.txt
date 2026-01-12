@@ -1,26 +1,40 @@
-Generated at (UTC): 2026-01-12T03:09:09
+Generated at (UTC): 2026-01-12T16:27:09
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
+ • Como (home) — Shots on Target Over 3.5 @ 1.660 vs AC Milan | kickoff 2026-01-15 19:45:00
+    model=0.756 | implied=0.602 | threshold≥4
+    Como have cleared 4 shots on target in 7/9 home matches = 3,3,13,6,5,6,6,4,6
+    AC Milan's opponents have had 4+ shots on target in 5/9 away games = 7,1,4,6,4,3,3,4,2
+    This landed in the reverse fixture last season = 6
+    team hits 7/9 | opp conceded 5/9 | H2H 2/2
+    implied win probs: home 0.461 / away 0.539
  • RB Leipzig (home) — Shots Over 14.5 @ 1.720 vs SC Freiburg | kickoff 2026-01-14 19:30:00
     model=0.709 | implied=0.581 | threshold≥15
     RB Leipzig have cleared 15 shots in 6/7 home matches = 19,16,22,16,10,18,19
     SC Freiburg's opponents have had 15+ shots in 4/8 away games = 13,16,22,11,19,9,12,18
     This landed in the reverse fixture last season = 18
     team hits 6/7 | opp conceded 4/8 | H2H 2/4
-    implied win probs: home 0.690 / away 0.310
+    implied win probs: home 0.726 / away 0.274
  • Borussia Mönchengladbach (away) — Shots on Target Over 3.5 @ 1.610 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
     model=0.684 | implied=0.621 | threshold≥4
     Borussia Mönchengladbach have cleared 4 shots on target in 5/7 away matches = 1,5,4,11,2,7,6
     TSG Hoffenheim's opponents have had 4+ shots on target in 6/7 home games = 5,4,5,3,4,10,6
     This landed in the reverse fixture last season = 7
     team hits 5/7 | opp conceded 6/7 | H2H 2/4
-    implied win probs: home 0.684 / away 0.316
+    implied win probs: home 0.673 / away 0.327
+ • Bologna (away) — Shots Under 12.5 @ 1.900 vs Hellas Verona | kickoff 2026-01-15 17:30:00
+    model=0.670 | implied=0.526 | threshold≥13
+    Bologna have had under 13 shots in 7/10 away matches = 7,6,13,10,22,6,10,14,5,10
+    Hellas Verona's opponents have had under 13 shots in 6/9 home games = 11,21,12,15,21,7,11,10,6
+    This landed in the reverse fixture last season = 12
+    team hits 3/10 | opp conceded 3/9 | H2H 1/4
+    implied win probs: home 0.363 / away 0.637
  • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 1.900 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
     model=0.641 | implied=0.526 | threshold≥12
     Borussia Mönchengladbach have cleared 12 shots in 5/7 away matches = 6,14,16,15,8,13,15
     TSG Hoffenheim's opponents have had 12+ shots in 5/7 home games = 14,14,17,12,10,18,9
     This landed in the reverse fixture last season = 12
     team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.684 / away 0.316
+    implied win probs: home 0.673 / away 0.327
