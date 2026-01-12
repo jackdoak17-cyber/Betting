@@ -16,10 +16,10 @@ Leave a like if you find these useful.
 • B. Kamara (Aston Villa) = 1, 2, 2, 2, 2
 • G. Xhaka (Sunderland) = 2, 1, 1, 3, 2
 • E. Buendía (Aston Villa) = 2, 1, 2, 2, 1
-• F. Kadıoğlu (TBC) = 2, 2, 1, 2, 1
+• F. Kadıoğlu (Brighton) = 2, 2, 1, 2, 1
 • G. Gudmundsson (Leeds United) = 1, 2, 3, 1, 1
 • J. Joelinton (Newcastle) = 2, 1, 2, 2, 1
-• J. Veltman (TBC) = 1, 2, 1, 1, 3
+• J. Veltman (Brighton) = 1, 2, 1, 1, 3
 • M. Kayode (Brentford) = 2, 1, 1, 2, 2
 • P. Foden (Man City) = 2, 3, 1, 1, 1
 • R. Cherki (Man City) = 2, 2, 1, 1, 2
@@ -33,7 +33,7 @@ Leave a like if you find these useful.
 • S. Adingra (Sunderland) = 2, 1, 4, 1, 4
 • M. Ugarte (Man Utd) = 1, 1, 2, 3, 4
 • E. Anderson (Nottm Forest) = 3, 2, 1, 1, 3
-• B. Gruda (TBC) = 1, 2, 3, 1, 2
+• B. Gruda (Brighton) = 1, 2, 3, 1, 2
 • F. Florentino (Burnley) = 2, 3, 1, 1, 2
 • J. Gomes (Wolves) = 2, 1, 1, 2, 3
 • J. Pedro (Chelsea) = 2, 1, 1, 2, 2
