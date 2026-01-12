@@ -1,6 +1,26 @@
-Generated at (UTC): 2026-01-11T16:22:03
+Generated at (UTC): 2026-01-12T03:09:09
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V4) =====
-(none)
+ • RB Leipzig (home) — Shots Over 14.5 @ 1.720 vs SC Freiburg | kickoff 2026-01-14 19:30:00
+    model=0.709 | implied=0.581 | threshold≥15
+    RB Leipzig have cleared 15 shots in 6/7 home matches = 19,16,22,16,10,18,19
+    SC Freiburg's opponents have had 15+ shots in 4/8 away games = 13,16,22,11,19,9,12,18
+    This landed in the reverse fixture last season = 18
+    team hits 6/7 | opp conceded 4/8 | H2H 2/4
+    implied win probs: home 0.690 / away 0.310
+ • Borussia Mönchengladbach (away) — Shots on Target Over 3.5 @ 1.610 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
+    model=0.684 | implied=0.621 | threshold≥4
+    Borussia Mönchengladbach have cleared 4 shots on target in 5/7 away matches = 1,5,4,11,2,7,6
+    TSG Hoffenheim's opponents have had 4+ shots on target in 6/7 home games = 5,4,5,3,4,10,6
+    This landed in the reverse fixture last season = 7
+    team hits 5/7 | opp conceded 6/7 | H2H 2/4
+    implied win probs: home 0.684 / away 0.316
+ • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 1.900 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
+    model=0.641 | implied=0.526 | threshold≥12
+    Borussia Mönchengladbach have cleared 12 shots in 5/7 away matches = 6,14,16,15,8,13,15
+    TSG Hoffenheim's opponents have had 12+ shots in 5/7 home games = 14,14,17,12,10,18,9
+    This landed in the reverse fixture last season = 12
+    team hits 5/7 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.684 / away 0.316
