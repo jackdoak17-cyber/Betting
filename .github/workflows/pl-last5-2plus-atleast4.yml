@@ -22,6 +22,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update base branch
+        run: git pull --rebase
+
       - name: Detect script path (.py or .pypy)
         id: detect
         shell: bash
