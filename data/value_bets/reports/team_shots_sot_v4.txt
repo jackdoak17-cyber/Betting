@@ -1,4 +1,4 @@
-Generated at (UTC): 2026-01-14T03:08:19
+Generated at (UTC): 2026-01-14T16:28:14
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -17,20 +17,20 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 2
     team hits 4/9 | opp conceded 2/9 | H2H 0/4
     implied win probs: home 0.218 / away 0.782
- • AFC Bournemouth (away) — Shots Over 11.5 @ 1.800 vs Brighton & Hove Albion | kickoff 2026-01-19 20:00:00
-    model=0.726 | implied=0.556 | threshold≥12
-    AFC Bournemouth have cleared 12 shots in 7/9 away matches = 17,20,14,18,12,8,8,12,20
-    Brighton & Hove Albion's opponents have had 12+ shots in 5/9 home games = 5,14,14,14,10,5,16,11,12
-    This landed in the reverse fixture last season = 19
-    team hits 7/9 | opp conceded 5/9 | H2H 4/4
-    implied win probs: home 0.667 / away 0.333
  • RB Leipzig (home) — Shots Over 14.5 @ 1.720 vs SC Freiburg | kickoff 2026-01-14 19:30:00
     model=0.709 | implied=0.581 | threshold≥15
     RB Leipzig have cleared 15 shots in 6/7 home matches = 19,16,22,16,10,18,19
     SC Freiburg's opponents have had 15+ shots in 4/8 away games = 13,16,22,11,19,9,12,18
     This landed in the reverse fixture last season = 18
     team hits 6/7 | opp conceded 4/8 | H2H 2/4
-    implied win probs: home 0.726 / away 0.274
+    implied win probs: home 0.712 / away 0.288
+ • FC Augsburg (home) — Shots on Target Over 3.5 @ 1.800 vs SC Freiburg | kickoff 2026-01-18 16:30:00
+    model=0.688 | implied=0.556 | threshold≥4
+    FC Augsburg have cleared 4 shots on target in 5/8 home matches = 6,6,6,1,2,5,5,3
+    SC Freiburg's opponents have had 4+ shots on target in 6/8 away games = 6,3,8,2,4,5,5,6
+    This landed in the reverse fixture last season = 5
+    team hits 5/8 | opp conceded 6/8 | H2H 3/4
+    implied win probs: home 0.461 / away 0.539
  • Manchester City (away) — Shots Under 14.5 @ 1.900 vs Manchester United | kickoff 2026-01-17 12:30:00
     model=0.687 | implied=0.526 | threshold≥15
     Manchester City have had under 15 shots in 6/9 away matches = 14,16,7,11,17,18,10,5,12
@@ -44,7 +44,7 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     TSG Hoffenheim's opponents have had 4+ shots on target in 6/7 home games = 5,4,5,3,4,10,6
     This landed in the reverse fixture last season = 7
     team hits 5/7 | opp conceded 6/7 | H2H 2/4
-    implied win probs: home 0.673 / away 0.327
+    implied win probs: home 0.667 / away 0.333
  • TSG Hoffenheim (home) — Shots Over 12.5 @ 1.800 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
     model=0.671 | implied=0.556 | threshold≥13
     TSG Hoffenheim have cleared 13 shots in 5/7 home matches = 10,17,12,14,15,13,17
@@ -59,19 +59,32 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 12
     team hits 3/10 | opp conceded 3/9 | H2H 1/4
     implied win probs: home 0.381 / away 0.619
- • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 1.900 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
-    model=0.641 | implied=0.526 | threshold≥12
+ • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 2.000 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
+    model=0.641 | implied=0.500 | threshold≥12
     Borussia Mönchengladbach have cleared 12 shots in 5/7 away matches = 6,14,16,15,8,13,15
     TSG Hoffenheim's opponents have had 12+ shots in 5/7 home games = 14,14,17,12,10,18,9
     This landed in the reverse fixture last season = 12
     team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.673 / away 0.327
+    implied win probs: home 0.667 / away 0.333
+ • Swansea City (home) — Shots on Target Over 3.5 @ 1.800 vs Birmingham City | kickoff 2026-01-17 17:30:00
+    model=0.640 | implied=0.556 | threshold≥4
+    Swansea City have cleared 4 shots on target in 6/10 home matches = 3,5,6,4,4,4,3,2,7,2
+    Birmingham City's opponents have had 4+ shots on target in 8/10 away games = 6,9,3,8,4,4,1,6,4,5
+    team hits 6/10 | opp conceded 8/10 | H2H 2/4
+    implied win probs: home 0.477 / away 0.523
  • Hamburger SV (home) — Shots Under 14.5 @ 1.830 vs Borussia Mönchengladbach | kickoff 2026-01-17 14:30:00
     model=0.627 | implied=0.546 | threshold≥15
     Hamburger SV have had under 15 shots in 5/8 home matches = 9,12,9,9,27,15,22,5
     Borussia Mönchengladbach's opponents have had under 15 shots in 5/7 away games = 10,8,7,16,16,13,13
     team hits 3/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.542 / away 0.458
+    implied win probs: home 0.519 / away 0.481
+ • Mallorca (home) — Shots Over 8.5 @ 1.720 vs Athletic Club | kickoff 2026-01-17 15:15:00
+    model=0.614 | implied=0.581 | threshold≥9
+    Mallorca have cleared 9 shots in 5/9 home matches = 9,15,7,6,20,12,8,12,4
+    Athletic Club's opponents have had 9+ shots in 8/9 away games = 11,5,11,19,9,15,14,13,9
+    This landed in the reverse fixture last season = 9
+    team hits 5/9 | opp conceded 8/9 | H2H 2/4
+    implied win probs: home 0.375 / away 0.625
  • FSV Mainz 05 (away) — Shots Over 10.5 @ 1.720 vs FC Köln | kickoff 2026-01-17 14:30:00
     model=0.614 | implied=0.581 | threshold≥11
     FSV Mainz 05 have cleared 11 shots in 4/8 away matches = 9,5,1,3,13,11,12,17
@@ -83,4 +96,4 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     Borussia Mönchengladbach have cleared 13 shots in 5/7 away matches = 6,14,16,15,8,13,15
     Hamburger SV's opponents have had 13+ shots in 4/8 home games = 9,10,14,17,6,11,20,17
     team hits 5/7 | opp conceded 4/8 | H2H 2/4
-    implied win probs: home 0.542 / away 0.458
+    implied win probs: home 0.519 / away 0.481

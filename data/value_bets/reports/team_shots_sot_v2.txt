@@ -1,17 +1,17 @@
-Generated at (UTC): 2026-01-14T03:08:16
+Generated at (UTC): 2026-01-14T16:28:10
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); stabilised vs league; blend team/opponent/H2H; favourite tilt + moneyline guards; keep EV>0 & edge≥0.05 (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V2) =====
- • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 1.900 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
-    model=0.614 | implied=0.526 | edge=0.087 | EV=0.166 | threshold≥12
+ • Borussia Mönchengladbach (away) — Shots Over 11.5 @ 2.000 vs TSG Hoffenheim | kickoff 2026-01-14 19:30:00
+    model=0.615 | implied=0.500 | edge=0.115 | EV=0.231 | threshold≥12
     Borussia Mönchengladbach have cleared 12 shots in 5/7 away matches = 6,14,16,15,8,13,15
     TSG Hoffenheim's opponents have had 12+ shots in 5/7 home games = 14,14,17,12,10,18,9
     This landed in the reverse fixture last season = 12
     team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.673 / away 0.327
+    implied win probs: home 0.667 / away 0.333
  • TSG Hoffenheim (home) — Shots Over 12.5 @ 1.800 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
-    model=0.609 | implied=0.556 | edge=0.054 | EV=0.096 | threshold≥13
+    model=0.610 | implied=0.556 | edge=0.055 | EV=0.099 | threshold≥13
     TSG Hoffenheim have cleared 13 shots in 5/7 home matches = 10,17,12,14,15,13,17
     Bayer 04 Leverkusen's opponents have had 13+ shots in 5/7 away games = 19,13,21,18,12,13,12
     This landed in the reverse fixture last season = 16
