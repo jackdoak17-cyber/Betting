@@ -15,6 +15,7 @@ Players with 1+ shot on target streaks with odds >1.4 (Bet365)
 1+ SOT in 8 of last 10 (8/10)
 • Erling Haaland (Man City — FWD) — last10: 4,1,1,0,3,2,1,1,1,2 — @ 2.62
 • Bukayo Saka (Arsenal — FWD) — last10: 1,0,2,1,0,2,1,2,2,2 — @ 15.00
+• Ollie Watkins (Aston Villa — FWD) — last10: 1,2,1,0,1,2,3,1,1,0 — @ 3.00
 • Ephron Mason-Clark (Coventry City — MID) — last10: 1,1,3,1,2,1,0,0,2,2 — @ 1.44
 • Oluwafemi Azeez (Millwall — MID) — last10: 1,1,0,0,2,1,3,1,2,1 — @ 1.80
 • Oliver McBurnie (Hull City — FWD) — last10: 1,2,1,0,1,2,1,1,1,1 — @ 1.53

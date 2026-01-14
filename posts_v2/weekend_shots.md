@@ -1,17 +1,16 @@
 Players with 1+ shot in each of their last 5 matches with odds >1.4 (Bet365)
 
 • Diogo Dalot (Man Utd — RB) — last5: 1,1,1,1,1 — @ 1.91
-• Lucas Pires (Burnley — MID) — last5: 1,1,3,1,2 — @ 2.25
+• Lucas Pires (Burnley — MID) — last5: 1,1,3,1,2 — @ 1.83
 • Neco Williams (Nottm Forest — LB) — last5: 2,1,3,1,1 — @ 1.73
-• Matt Grimes (Coventry City — MID) — last5: 2,1,1,1,1 — @ 1.53
+• Matt Grimes (Coventry City — MID) — last5: 2,1,1,1,1 — @ 1.44
 • Dara O'Shea (Ipswich — CB) — last5: 1,1,1,2,1 — @ 1.50
 • Caleb Taylor (Millwall — CB) — last5: 3,1,1,1,2 — @ 2.25
 • Taylor Harwood-Bellis (Southampton — CB) — last5: 1,3,2,1,1 — @ 1.57
 • Max Cleworth (Wrexham — CB) — last5: 1,1,1,1,1 — @ 1.57
 • Sebastian Sebulonsen (FC Köln — CB) — last5: 1,4,2,1,1 — @ 1.44
 • Miro Muheim (Hamburger SV — MID) — last5: 1,1,1,1,2 — @ 1.61
-• Luka Vuskovic (Hamburger SV — CB) — last5: 2,1,1,1,2 — @ 1.53
-• Julian Niehues (Heidenheim — MID) — last5: 1,1,1,2,1 — @ 1.53
+• Luka Vuskovic (Hamburger SV — CB) — last5: 2,1,1,1,2 — @ 1.44
 • Robin Fellhauer (FC Augsburg — MID) — last5: 2,1,1,1,1 — @ 1.57
 • Emin Bayram (Westerlo — CB) — last5: 1,2,1,1,2 — @ 1.73
 • Mathis Servais (Mechelen — MID) — last5: 2,1,1,3,1 — @ 1.44
