@@ -1,4 +1,4 @@
-Generated at (UTC): 2026-01-13T16:28:47
+Generated at (UTC): 2026-01-14T03:08:16
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); stabilised vs league; blend team/opponent/H2H; favourite tilt + moneyline guards; keep EV>0 & edge≥0.05 (samples ≥4).
 
@@ -16,4 +16,4 @@ Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under
     Bayer 04 Leverkusen's opponents have had 13+ shots in 5/7 away games = 19,13,21,18,12,13,12
     This landed in the reverse fixture last season = 16
     team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.505 / away 0.495
+    implied win probs: home 0.495 / away 0.505
