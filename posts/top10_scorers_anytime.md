@@ -3,7 +3,7 @@ Top 10 Scorers — Bet365 Anytime
 | Rank | Player | Goals | Odds | Opponent |
 |:---:|:--|:---:|:---:|:--|
 | 1 | E. Haaland — Man City (PL) | 20 | @ 1.61 | v Man Utd |
-| 2 | H. Kane — Bayern (BUN) | 20 | @ 1.53 | v Koln |
+| 2 | H. Kane — Bayern (BUN) | 20 | @ 1.72 | v RB Leipzig |
 | 3 | K. Mbappé — Real Madrid (LAL) | 18 | @ 1.33 | v Levante |
 | 4 | I. Thiago — Brentford (PL) | 16 | @ 2.75 | v Chelsea |
 | 5 | F. Torres — Barcelona (LAL) | 11 | @ 2.00 | v Sociedad |
