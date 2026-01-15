@@ -1,11 +1,17 @@
 {
   "league_id": 567,
-  "generated_at": "2026-01-14T04:20:24.281582+00:00",
+  "generated_at": "2026-01-15T04:15:49.406047+00:00",
   "possession_rank": [
     {
       "team_id": 238115,
       "team_name": "FC Andorra",
       "avg_possession": 58.65,
+      "sample_size": 20
+    },
+    {
+      "team_id": 931,
+      "team_name": "Córdoba",
+      "avg_possession": 56.45,
       "sample_size": 20
     },
     {
@@ -17,7 +23,7 @@
     {
       "team_id": 9818,
       "team_name": "Racing Santander",
-      "avg_possession": 55.1,
+      "avg_possession": 55.05,
       "sample_size": 20
     },
     {
@@ -36,12 +42,6 @@
       "team_id": 361,
       "team_name": "Real Valladolid",
       "avg_possession": 52.8,
-      "sample_size": 20
-    },
-    {
-      "team_id": 60,
-      "team_name": "SD Eibar",
-      "avg_possession": 51.3,
       "sample_size": 20
     },
     {
@@ -77,7 +77,7 @@
     {
       "team_id": 3968,
       "team_name": "Real Zaragoza",
-      "avg_possession": 49.4,
+      "avg_possession": 49.45,
       "sample_size": 20
     },
     {
@@ -99,14 +99,20 @@
       "sample_size": 20
     },
     {
-      "team_id": 9656,
-      "team_name": "Real Sociedad II",
-      "avg_possession": 44.15,
+      "team_id": 274,
+      "team_name": "Huesca",
+      "avg_possession": 45.7,
       "sample_size": 20
     },
     {
       "team_id": 3169,
       "team_name": "Albacete",
+      "avg_possession": 44.15,
+      "sample_size": 20
+    },
+    {
+      "team_id": 9656,
+      "team_name": "Real Sociedad II",
       "avg_possession": 44.1,
       "sample_size": 20
     },
@@ -124,5 +130,5 @@
     }
   ],
   "min_sample": 3,
-  "team_count": 20
+  "team_count": 21
 }
