@@ -1,15 +1,15 @@
-Generated at (UTC): 2026-01-15T03:03:30
+Generated at (UTC): 2026-01-15T16:32:05
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; hit-rate gates (Over ≥70%/Under ≤30% + reverse fixture hit); stabilised vs league; blend team/opponent/H2H; favourite tilt + moneyline guards; keep EV>0 & edge≥0.05 (samples ≥4).
 
 ===== TEAM SHOTS & SOT (V2) =====
  • TSG Hoffenheim (home) — Shots Over 12.5 @ 1.800 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
-    model=0.610 | implied=0.556 | edge=0.055 | EV=0.099 | threshold≥13
-    TSG Hoffenheim have cleared 13 shots in 5/7 home matches = 10,17,12,14,15,13,17
+    model=0.626 | implied=0.556 | edge=0.070 | EV=0.126 | threshold≥13
+    TSG Hoffenheim have cleared 13 shots in 6/8 home matches = 18,10,17,12,14,15,13,17
     Bayer 04 Leverkusen's opponents have had 13+ shots in 5/7 away games = 19,13,21,18,12,13,12
     This landed in the reverse fixture last season = 16
-    team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.500 / away 0.500
+    team hits 6/8 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.505 / away 0.495
  • Real Betis (home) — Shots Over 13.5 @ 1.800 vs Villarreal | kickoff 2026-01-17 20:00:00
     model=0.608 | implied=0.556 | edge=0.053 | EV=0.095 | threshold≥14
     Real Betis have cleared 14 shots in 7/9 home matches = 19,17,23,15,17,12,21,9,16

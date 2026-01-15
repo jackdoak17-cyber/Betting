@@ -1,4 +1,4 @@
-Generated at (UTC): 2026-01-15T03:03:33
+Generated at (UTC): 2026-01-15T16:32:08
 Window=7 days | Min price=1.20
 Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over needs 70%/50% combo, Under needs 30%/50% combo + reverse fixture hit); favourite tilt + moneyline guards; ranked by strongest model probability (samples ≥4).
 
@@ -9,14 +9,27 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     AC Milan's opponents have had 4+ shots on target in 5/9 away games = 7,1,4,6,4,3,3,4,2
     This landed in the reverse fixture last season = 6
     team hits 7/9 | opp conceded 5/9 | H2H 2/2
-    implied win probs: home 0.463 / away 0.537
+    implied win probs: home 0.433 / away 0.567
+ • Cremonese (home) — Shots on Target Over 3.5 @ 1.800 vs Hellas Verona | kickoff 2026-01-19 17:30:00
+    model=0.753 | implied=0.556 | threshold≥4
+    Cremonese have cleared 4 shots on target in 6/9 home matches = 5,2,4,4,2,5,4,1,6
+    Hellas Verona's opponents have had 4+ shots on target in 9/10 away games = 4,5,4,4,6,5,0,5,6,4
+    team hits 6/9 | opp conceded 9/10 | H2H 3/4
+    implied win probs: home 0.542 / away 0.458
  • Nottingham Forest (home) — Shots on Target Under 3.5 @ 1.570 vs Arsenal | kickoff 2026-01-17 17:30:00
     model=0.741 | implied=0.637 | threshold≥4
     Nottingham Forest have had under 4 shots on target in 5/9 home matches = 6,2,6,3,6,3,2,6,3
     Arsenal's opponents have had under 4 shots on target in 7/9 away games = 3,1,6,4,2,0,0,3,3
     This landed in the reverse fixture last season = 2
     team hits 4/9 | opp conceded 2/9 | H2H 0/4
-    implied win probs: home 0.218 / away 0.782
+    implied win probs: home 0.203 / away 0.797
+ • Como (away) — Shots Over 12.5 @ 1.900 vs Lazio | kickoff 2026-01-19 19:45:00
+    model=0.730 | implied=0.526 | threshold≥13
+    Como have cleared 13 shots in 7/10 away matches = 15,12,13,15,15,13,6,12,19,13
+    Lazio's opponents have had 13+ shots in 6/10 home games = 8,14,9,13,5,17,14,16,13,12
+    This landed in the reverse fixture last season = 17
+    team hits 7/10 | opp conceded 6/10 | H2H 3/3
+    implied win probs: home 0.526 / away 0.474
  • Real Betis (home) — Shots Over 13.5 @ 1.800 vs Villarreal | kickoff 2026-01-17 20:00:00
     model=0.714 | implied=0.556 | threshold≥14
     Real Betis have cleared 14 shots in 7/9 home matches = 19,17,23,15,17,12,21,9,16
@@ -25,45 +38,59 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     team hits 7/9 | opp conceded 6/8 | H2H 2/4
     implied win probs: home 0.502 / away 0.498
  • FC Augsburg (home) — Shots on Target Over 3.5 @ 1.800 vs SC Freiburg | kickoff 2026-01-18 16:30:00
-    model=0.688 | implied=0.556 | threshold≥4
+    model=0.696 | implied=0.556 | threshold≥4
     FC Augsburg have cleared 4 shots on target in 5/8 home matches = 6,6,6,1,2,5,5,3
-    SC Freiburg's opponents have had 4+ shots on target in 6/8 away games = 6,3,8,2,4,5,5,6
+    SC Freiburg's opponents have had 4+ shots on target in 7/9 away games = 7,6,3,8,2,4,5,5,6
     This landed in the reverse fixture last season = 5
-    team hits 5/8 | opp conceded 6/8 | H2H 3/4
-    implied win probs: home 0.467 / away 0.533
+    team hits 5/8 | opp conceded 7/9 | H2H 3/4
+    implied win probs: home 0.458 / away 0.542
+ • TSG Hoffenheim (home) — Shots Over 12.5 @ 1.800 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
+    model=0.689 | implied=0.556 | threshold≥13
+    TSG Hoffenheim have cleared 13 shots in 6/8 home matches = 18,10,17,12,14,15,13,17
+    Bayer 04 Leverkusen's opponents have had 13+ shots in 5/7 away games = 19,13,21,18,12,13,12
+    This landed in the reverse fixture last season = 16
+    team hits 6/8 | opp conceded 5/7 | H2H 2/4
+    implied win probs: home 0.505 / away 0.495
  • Manchester City (away) — Shots Under 14.5 @ 1.900 vs Manchester United | kickoff 2026-01-17 12:30:00
     model=0.687 | implied=0.526 | threshold≥15
     Manchester City have had under 15 shots in 6/9 away matches = 14,16,7,11,17,18,10,5,12
     Manchester United's opponents have had under 15 shots in 7/9 home games = 11,16,14,11,3,17,8,5,6
     This landed in the reverse fixture last season = 9
     team hits 3/9 | opp conceded 2/9 | H2H 1/4
-    implied win probs: home 0.364 / away 0.636
- • TSG Hoffenheim (home) — Shots Over 12.5 @ 1.800 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
-    model=0.671 | implied=0.556 | threshold≥13
-    TSG Hoffenheim have cleared 13 shots in 5/7 home matches = 10,17,12,14,15,13,17
-    Bayer 04 Leverkusen's opponents have had 13+ shots in 5/7 away games = 19,13,21,18,12,13,12
-    This landed in the reverse fixture last season = 16
-    team hits 5/7 | opp conceded 5/7 | H2H 2/4
-    implied win probs: home 0.500 / away 0.500
- • Bologna (away) — Shots Under 12.5 @ 1.900 vs Hellas Verona | kickoff 2026-01-15 17:30:00
-    model=0.670 | implied=0.526 | threshold≥13
+    implied win probs: home 0.351 / away 0.649
+ • Bologna (away) — Shots Under 12.5 @ 1.830 vs Hellas Verona | kickoff 2026-01-15 17:30:00
+    model=0.670 | implied=0.546 | threshold≥13
     Bologna have had under 13 shots in 7/10 away matches = 7,6,13,10,22,6,10,14,5,10
     Hellas Verona's opponents have had under 13 shots in 6/9 home games = 11,21,12,15,21,7,11,10,6
     This landed in the reverse fixture last season = 12
     team hits 3/10 | opp conceded 3/9 | H2H 1/4
-    implied win probs: home 0.379 / away 0.621
+    implied win probs: home 0.361 / away 0.639
+ • Lazio (home) — Shots Under 13.5 @ 1.800 vs Como | kickoff 2026-01-19 19:45:00
+    model=0.643 | implied=0.556 | threshold≥14
+    Lazio have had under 14 shots in 6/10 home matches = 17,5,8,16,19,8,13,9,10,22
+    Como's opponents have had under 14 shots in 7/10 away games = 10,11,14,11,10,13,10,16,8,15
+    This landed in the reverse fixture last season = 12
+    team hits 4/10 | opp conceded 3/10 | H2H 1/3
+    implied win probs: home 0.526 / away 0.474
+ • Lazio (home) — Shots on Target Under 4.5 @ 1.720 vs Como | kickoff 2026-01-19 19:45:00
+    model=0.643 | implied=0.581 | threshold≥5
+    Lazio have had under 5 shots on target in 6/10 home matches = 9,0,2,9,9,3,3,4,2,6
+    Como's opponents have had under 5 shots on target in 7/10 away games = 4,5,4,7,2,8,3,4,1,2
+    This landed in the reverse fixture last season = 4
+    team hits 4/10 | opp conceded 3/10 | H2H 1/3
+    implied win probs: home 0.526 / away 0.474
  • Swansea City (home) — Shots on Target Over 3.5 @ 1.800 vs Birmingham City | kickoff 2026-01-17 17:30:00
     model=0.640 | implied=0.556 | threshold≥4
     Swansea City have cleared 4 shots on target in 6/10 home matches = 3,5,6,4,4,4,3,2,7,2
     Birmingham City's opponents have had 4+ shots on target in 8/10 away games = 6,9,3,8,4,4,1,6,4,5
     team hits 6/10 | opp conceded 8/10 | H2H 2/4
     implied win probs: home 0.477 / away 0.523
- • Hamburger SV (home) — Shots Under 14.5 @ 1.830 vs Borussia Mönchengladbach | kickoff 2026-01-17 14:30:00
-    model=0.627 | implied=0.546 | threshold≥15
-    Hamburger SV have had under 15 shots in 5/8 home matches = 9,12,9,9,27,15,22,5
-    Borussia Mönchengladbach's opponents have had under 15 shots in 5/7 away games = 10,8,7,16,16,13,13
-    team hits 3/8 | opp conceded 2/7 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
+ • FSV Mainz 05 (away) — Shots Over 10.5 @ 1.720 vs FC Köln | kickoff 2026-01-17 14:30:00
+    model=0.625 | implied=0.581 | threshold≥11
+    FSV Mainz 05 have cleared 11 shots in 4/8 away matches = 9,5,1,3,13,11,12,17
+    FC Köln's opponents have had 11+ shots in 6/8 home games = 19,11,5,11,11,10,15,12
+    team hits 4/8 | opp conceded 6/8 | H2H 3/4
+    implied win probs: home 0.579 / away 0.421
  • Mallorca (home) — Shots Over 8.5 @ 1.720 vs Athletic Club | kickoff 2026-01-17 15:15:00
     model=0.614 | implied=0.581 | threshold≥9
     Mallorca have cleared 9 shots in 5/9 home matches = 9,15,7,6,20,12,8,12,4
@@ -71,15 +98,17 @@ Workflow: same-venue last10; line→threshold; asymmetric hit-rate gates (Over n
     This landed in the reverse fixture last season = 9
     team hits 5/9 | opp conceded 8/9 | H2H 2/4
     implied win probs: home 0.375 / away 0.625
- • FSV Mainz 05 (away) — Shots Over 10.5 @ 1.720 vs FC Köln | kickoff 2026-01-17 14:30:00
-    model=0.614 | implied=0.581 | threshold≥11
-    FSV Mainz 05 have cleared 11 shots in 4/8 away matches = 9,5,1,3,13,11,12,17
-    FC Köln's opponents have had 11+ shots in 5/7 home games = 11,5,11,11,10,15,12
+ • TSG Hoffenheim (home) — Shots on Target Over 4.5 @ 1.660 vs Bayer 04 Leverkusen | kickoff 2026-01-17 14:30:00
+    model=0.614 | implied=0.602 | threshold≥5
+    TSG Hoffenheim have cleared 5 shots on target in 4/8 home matches = 10,6,3,4,7,4,4,5
+    Bayer 04 Leverkusen's opponents have had 5+ shots on target in 5/7 away games = 7,6,10,4,4,6,5
+    This landed in the reverse fixture last season = 7
     team hits 4/8 | opp conceded 5/7 | H2H 3/4
-    implied win probs: home 0.571 / away 0.429
- • Borussia Mönchengladbach (away) — Shots Over 12.5 @ 2.000 vs Hamburger SV | kickoff 2026-01-17 14:30:00
-    model=0.607 | implied=0.500 | threshold≥13
-    Borussia Mönchengladbach have cleared 13 shots in 5/7 away matches = 6,14,16,15,8,13,15
-    Hamburger SV's opponents have had 13+ shots in 4/8 home games = 9,10,14,17,6,11,20,17
-    team hits 5/7 | opp conceded 4/8 | H2H 2/4
-    implied win probs: home 0.519 / away 0.481
+    implied win probs: home 0.505 / away 0.495
+ • Como (away) — Shots on Target Over 3.5 @ 1.720 vs Lazio | kickoff 2026-01-19 19:45:00
+    model=0.593 | implied=0.581 | threshold≥4
+    Como have cleared 4 shots on target in 5/10 away matches = 7,6,1,3,7,2,2,4,7,2
+    Lazio's opponents have had 4+ shots on target in 7/10 home games = 5,3,2,6,1,5,5,8,6,4
+    This landed in the reverse fixture last season = 4
+    team hits 5/10 | opp conceded 7/10 | H2H 2/3
+    implied win probs: home 0.526 / away 0.474
