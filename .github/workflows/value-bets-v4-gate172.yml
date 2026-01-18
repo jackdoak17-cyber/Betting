@@ -1,0 +1,60 @@
+name: Player Stats V4 (gate 1.72)
+
+on:
+  schedule:
+    - cron: "5,35 9-20 * * *"  # 5 minutes after Bet365 odds fetch (09:05–20:35 UTC)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: player-stats-v4-gate172
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  player-stats-v4-gate172:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          set -e
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install requests
+          fi
+
+      - name: Player stats V4 singles (gate 1.72)
+        run: |
+          set -e
+          mkdir -p "data/value_bets/V4 Bets/V4 player singles"
+          python "scripts/value_bets/V4 Bets/V4 player singles/player_stats_v4_gate172.py"
+          echo "\n---- tail: singles (V4 1.72) ----"
+          tail -n 120 "data/value_bets/V4 Bets/V4 player singles/player_stats_v4_gate172.txt" || true
+
+      - name: Upload artifacts (V4 outputs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-stats-v4-gate172-${{ github.run_number }}
+          path: |
+            data/value_bets/V4 Bets/V4 player singles/player_stats_v4_gate172.txt
+            data/value_bets/sheets/player_stats_v4_gate172_singles.csv
+          if-no-files-found: warn
